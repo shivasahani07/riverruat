@@ -3,7 +3,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
     global Database.QueryLocator start(Database.BatchableContext bc) {
         return Database.getQueryLocator([SELECT Id, Product2Id 
             FROM ProductItem 
-            WHERE CreatedDate >= :System.today().addMonths(-6)]);
+            WHERE Manual_Created_Date__c >= :System.today().addMonths(-6)]);
     }
 
     global void execute(Database.BatchableContext bc, List<ProductItem> items) {
@@ -23,7 +23,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             Product_Inventory__r.Account__c, Order__c, Order__r.AccountId
             FROM Sales_Consumption__c
             WHERE Product__c IN :productIds
-            AND CreatedDate >= :System.today().addMonths(-6)
+            AND Manual_Date_Test__c >= :System.today().addMonths(-6)
             //WHERE Product_Inventory__c IN :productItemIds
         ]) {
             allConsumption.add(new ConsumptionRecord(
