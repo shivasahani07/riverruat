@@ -1,0 +1,20 @@
+<template>
+    <lightning-card title="Counter Sales">
+        <div class="slds-p-around_medium">
+            <lightning-input label="Vehicle Registration Number (VRN)" value={vrn} onchange={handleInputChange}></lightning-input>
+            <lightning-input label="Mobile Number" value={mobile} onchange={handleInputChange}></lightning-input>
+            <lightning-input label="Vehicle Identification Number (VIN)" value={vin} onchange={handleInputChange}></lightning-input>
+            <lightning-button variant="brand" label="Search" onclick={handleSearch}></lightning-button>
+        </div>
+
+        <template if:true={vehicleData}>
+            <lightning-datatable 
+                key-field="Id"
+                data={vehicleData}
+                columns={columns}>
+            </lightning-datatable>
+        </template>
+
+        <lightning-button variant="neutral" label="Add Product" onclick={handleAddProduct}></lightning-button>
+    </lightning-card>
+</template>

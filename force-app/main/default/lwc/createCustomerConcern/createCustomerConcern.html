@@ -1,0 +1,297 @@
+<!--
+    @description       : 
+    @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+    @group             : 
+    @last modified on  : 05-29-2025
+    @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+    -->
+    <template>
+        <template if:true={showSpinner}>
+            <lightning-spinner alternative-text="Submitting..." size="large"></lightning-spinner>
+        </template>
+        <div class = 'customerConcernPage'>
+            
+            <lightning-card>
+                <div class="slds-grid slds-wrap slds-var-m-around_medium">
+                    <div class="slds-col slds-size_3-of-12 slds-p-around_small">
+                        <lightning-input type="text" label="Enter Mobile" onchange={handleMobileChange}></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_3-of-12 slds-p-around_small">
+                            <lightning-input type="text" label="Enter VRN" value={VRN} onchange={handleVRNChange}></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_3-of-12 slds-p-around_small">
+                            <lightning-input type="text" label="Enter VIN" value={VIN} onchange={handleVINChange}></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_3-of-12 slds-p-around_small" style="margin-top:22px">
+                            <lightning-button variant="brand" label="Search" title="Primary action" onclick={handleSearchVehicle} class="slds-m-left_x-small"></lightning-button>
+                            </div>
+                            <div class="slds-col slds-size_3-of-12 slds-p-around_small">
+                                <lightning-combobox 
+                                    label="Select Vehicle" 
+                                    options={vehicleOptions} 
+                                    value={selectedVehicle} 
+                                    onchange={handleVehicleChange}>
+                                </lightning-combobox>
+                            </div>
+                    </div>
+                
+            </lightning-card>
+            <!--case section-->
+            <lightning-card>
+                <template if:true={recentCases}>
+                    <lightning-card title="Recent Cases">
+                        <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                            <thead>
+                                <tr>
+                                    <th>Case Number</th>
+                                    <th>Status</th>
+                                    <th>Subject</th>
+                                    <th>Created Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={recentCases} for:item="caseRec">
+                                    <tr key={caseRec.Id}>
+                                        <td>{caseRec.CaseNumber}</td>
+                                        <td>{caseRec.Status}</td>
+                                        <td>{caseRec.Subject}</td>
+                                        <td>{caseRec.CreatedDate}</td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </lightning-card>
+                </template>
+            </lightning-card>
+            <!--Job Card List-->
+            
+                <template if:true={recentJobCards}>
+                    <lightning-card title="Recent Job Cards">
+                        <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                            <thead>
+                                <tr>
+                                    <th>Job Card Number</th>
+                                    <th>Service Centre</th>
+                                    <th>Job Type</th>
+                                    <th>Created Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={recentJobCards} for:item="recent">
+                                    <tr key={recent.Id}>
+                                        <td>{recent.WorkOrderNumber}</td>
+                                        <td>{recent.Service_Center__r.Name}</td>
+                                        <td>{recent.RR_Job_Type__c}</td>
+                                        <td>{recent.CreatedDate}</td>
+                                        
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </lightning-card>
+                </template>
+    
+                <!--Case Creation Section-->
+                <lightning-card title="Create Case">
+                    <div class="slds-grid slds-wrap slds-var-m-around_medium">
+                        <div class="slds-col slds-size_3-of-12 slds-p-around_small">
+                            <lightning-combobox
+                            name="progress"
+                            label="Department"
+                            value={departnment}
+                            placeholder="Select Department"
+                            options={departMentoptions}
+                            onchange={handleDepartmentChange} 
+                            >
+                        </lightning-combobox>
+                        </div>
+    
+                        <div class="slds-col slds-size_3-of-12 slds-p-around_small">
+                            <!-- <lightning-combobox
+                            name="progress"
+                            label="Assign to Dealer"
+                            value={account}
+                            placeholder="Select"
+                            options={accountOptions}
+                            onchange={handleAccountChange} 
+                            data-id="assignDealer"></lightning-combobox> -->
+                        
+                                    
+                                        <lightning-record-picker
+                                            object-api-name="Account"
+                                            label="Assign to Dealer"
+                                            filter={filter}
+                                            data-id="assignDealer"
+                                            onchange={handleAccountChange}>
+                                        </lightning-record-picker>
+                                    
+
+                                
+
+
+                            <!--lightning-input 
+    type="search" 
+    label="Assign to Dealer" 
+    value={searchKeyword}
+    onchange={handleAccountChange}>
+</lightning-input>
+
+<template if:true={filteredDealers}>
+    <ul class="slds-dropdown slds-dropdown_fluid slds-dropdown_length-5">
+        <template for:each={filteredDealers} for:item="dealer">
+            <li key={dealer.Id} class="slds-dropdown__item" role="presentation">
+                <a role="menuitem" onclick={handleDealerSelect} data-id={dealer.Id} data-name={dealer.Name}>
+                    <span class="slds-truncate" title={dealer.Name}>{dealer.Name}</span>
+                </a>
+            </li>
+        </template>
+    </ul>
+</template-->
+
+                        </div>
+
+
+                        
+    
+                        <div class="slds-col slds-size_3-of-12 slds-p-around_small">
+                            <lightning-combobox
+                            name="progress"
+                            label="Select Case Type"
+                            value={value}
+                            placeholder="Select Case type"
+                            options={caseTypeoptions}
+                            onchange={handleCaseTypeChange} 
+                            data-id="caseType"></lightning-combobox>
+                        </div>
+                        <!--Case Origin Section Added by Aniket on 22/-4/2025-->
+                        <div class="slds-col slds-size_3-of-12 slds-p-around_small">
+                            <lightning-combobox
+                            name="progress"
+                            label="Select Case Origin"
+                            value={value}
+                            placeholder="Select Case Origin"
+                            options={caseOriginoptions}
+                            onchange={handleCaseOriginChange} 
+                            data-id="caseOrigin"></lightning-combobox>
+                        </div>
+    
+    
+                    </div>
+    
+    
+    
+                    <!--template if:true={showCategory}>
+                        <div class="slds-col slds-size_2-of-12">
+                            <lightning-combobox
+                                label="Category"
+                                value={selectedCategory}
+                                options={categoryOptions}
+                                onchange={handleCategoryChange}>
+                            </lightning-combobox>
+                        </div>
+                    </template-->
+    
+                </lightning-card>
+            <!--Additional Detail Card-->
+            <lightning-card title="Additional Details">
+                <!-- Add Button Positioned at Top Right -->
+                 <template if:true={showAddButton}>
+                    <div class="slds-text-align_right slds-m-bottom_small">
+                        <lightning-button label="Add" onclick={addRow} title="Add" variant="brand"></lightning-button>
+                    </div>
+                </template>
+                 
+    
+                <!-- Dynamic Rows Container -->
+                <template for:each={customerConcerns} for:item="concern">
+                    <div key={concern.id} class="slds-grid slds-gutters slds-align-items-center slds-m-bottom_xx-small">
+                        <!-- Type Picklist -->
+                        <!--div class="slds-col slds-size_2-of-12">
+                            <lightning-combobox
+                                label="Type"
+                                value={concern.selectedType}
+                                options={concern.typeOptions}
+                                data-id={concern.id}
+                                data-field="selectedType"
+                                onchange={handleFieldChange}>
+                            </lightning-combobox>
+                        </div-->
+                        <!-- Case Category Picklist -->
+                        <div class="slds-col slds-size_2-of-12">
+                            <lightning-combobox
+                                label="Category"
+                                value={concern.selectedCategory}
+                                options={categoryOptions}
+                                data-id={concern.id}
+                                data-field="selectedCategory"
+                                onchange={handleFieldChange}
+                                > //disabled={concern.isCategoryDisabled}
+                            </lightning-combobox>
+                        </div>
+                        <!-- Concern Picklist -->
+                        <div class="slds-col slds-size_2-of-12">
+                            <lightning-combobox
+                                label="Concerns"
+                                value={concern.selectedConcern}
+                                options={concern.concernOptions}
+                                data-id={concern.id}
+                                data-field="selectedConcern"
+                                onchange={handleFieldChange}
+                                disabled={concern.isConcernDisabled}>
+                            </lightning-combobox>
+                        </div>
+                        <!-- Subconcern Picklist -->
+                        <div class="slds-col slds-size_2-of-12">
+                            <lightning-combobox
+                                label="SubConcerns"
+                                value={concern.selectedSubconcern}
+                                options={concern.subconcernOptions}
+                                data-id={concern.id}
+                                data-field="selectedSubconcern"
+                                onchange={handleFieldChange}
+                                disabled={concern.isSubconcernDisabled}>
+                            </lightning-combobox>
+                        </div>
+                        <!-- VOC Input & Delete Button in Same Grid -->
+                        <!-- VOC Input & Delete Button in Same Grid -->
+        <!-- VOC Input & Delete Button in Same Grid -->
+        <div class="slds-col slds-size_3-of-12 slds-grid slds-align-items-center">
+            <lightning-input 
+                label="Enter VOC" 
+                value={concern.enteredVOC} 
+                data-id={concern.id} 
+                data-field="enteredVOC" 
+                onchange={handleFieldChange}
+                class="slds-m-right_small">
+            </lightning-input>
+            <lightning-button
+                label="Delete"
+                variant="destructive"
+                class="slds-m-left_small"
+                data-id={concern.id}
+                onclick={handleDeleteRow} style="margin-top:28px"> 
+            </lightning-button>
+        </div>
+    
+    
+                    </div>
+                </template>
+    
+                <!-- Submit & Remove Buttons -->
+                <div class="slds-text-align_center slds-m-top_medium">
+                    <lightning-button
+                        label="Remove All"
+                        variant="destructive"
+                        onclick={handleRemoveAll}>
+                    </lightning-button>
+                    <lightning-button
+                        label="Submit"
+                        variant="brand"
+                        class="slds-m-left_small"
+                        onclick={handleSubmit}>
+                    </lightning-button>
+                </div>
+            </lightning-card>
+        </div>
+       
+    </template>

@@ -1,0 +1,59 @@
+<template>
+    <lightning-quick-action-panel header="Lead Disposition">
+        <lightning-layout multiple-rows>
+            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                padding="horizontal-small">
+                <div class="custom-box">
+                    <!-- <lightning-input type="email" name="Email" label="Email" data-id="Email" onchange={handleChange}
+                        required>
+                    </lightning-input>
+
+                    <lightning-input type="tel" name="Phone" label="Phone" data-id="Phone" onchange={handleChange}
+                        required>
+                    </lightning-input> -->
+
+                    <lightning-textarea name="Notes" label="Notes" data-id="Notes" onchange={handleChange}>
+                    </lightning-textarea>
+                </div>
+            </lightning-layout-item>
+
+            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                padding="horizontal-small">
+                <div class="custom-box">
+                    <lightning-combobox name="Status" label="Status" placeholder="Select Status" options={optionsStatus}
+                        data-id="Status" required onchange={handleChange}>
+                    </lightning-combobox>
+
+                    <!-- <lightning-input type="text" name="DealerCode" label="Dealer Code" data-id="Dealer_Code__c"
+                        onchange={handleChange} required>
+                    </lightning-input> -->
+
+                    <template if:true={closedLost}>
+                        <lightning-textarea name="LostFeedback" label="Lost Feedback" data-id="Lost_Feedback__c"
+                            onchange={handleChange} required>
+                        </lightning-textarea>
+
+                        <lightning-combobox name="LostReason" label="Lost Reason" placeholder="Select Lost Reason"
+                            options={optionsLostReason} data-id="Lost_Reason__c" required onchange={handleChange}>
+                        </lightning-combobox>
+                    </template>
+                </div>
+            </lightning-layout-item>
+        </lightning-layout>
+
+        <div class="slds-var-m-top_medium slds-text-align_center">
+            <lightning-button variant="brand" label="Save" onclick={handleSave}>
+            </lightning-button>
+
+            <span class="slds-m-horizontal_small"></span>
+
+            <lightning-button variant="neutral" label="Cancel" onclick={handleCancel}>
+            </lightning-button>
+        </div>
+
+        <template if:true={showSpinner}>
+            <lightning-spinner alternative-text="Loading" size="x-small">
+            </lightning-spinner>
+        </template>
+    </lightning-quick-action-panel>
+</template>

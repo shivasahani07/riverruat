@@ -1,0 +1,29 @@
+<template>
+    <lightning-card title="Book Appointment Slot" class="card-style">
+        <div class="slds-p-around_medium">
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </template>
+
+            <template if:false={isLoading}>
+                <lightning-combobox name="slot" label="Select Slot" value={selectedSlot} placeholder="Select a slot"
+                    options={slotOptions} onchange={handleSlotChange} class="custom-combobox">
+                </lightning-combobox>
+
+                <lightning-combobox name="slotItem" label="Select Slot Item" value={selectedSlotItem}
+                    placeholder="Select a slot item" options={slotItemOptions} onchange={handleSlotItemChange}
+                    class="custom-combobox">
+                </lightning-combobox>
+
+                <div class="slds-m-top_medium button-container">
+                    <lightning-button variant="neutral" label="Cancel" onclick={handleCancel} class="custom-button">
+                    </lightning-button>
+                    <template if:true={canShowSubmit}>
+                        <lightning-button variant="brand" label="Submit" onclick={handleSave} class="custom-button">
+                        </lightning-button>
+                    </template>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>

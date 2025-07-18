@@ -1,0 +1,123 @@
+<apex:page showHeader="false" renderAs="pdf" applyHtmlTag="false" readOnly="true" standardController="Order" extensions="Form22pdfController">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <style type="text/css">
+            @page {
+                size: A4 portrait;
+                margin: 17mm;
+            }
+            body {
+                font-family: 'Times New Roman', serif;
+                font-size: 11.5pt;
+                color: #000;
+                line-height: 1.45;
+            }
+            .form-title {
+                font-size: 12pt;
+                font-weight: bold;
+                text-align: center;
+                text-transform: uppercase;
+                margin-top: 8px;
+                margin-bottom: 10px;
+            }
+            .form-section {
+                margin-bottom: 16px;
+            }
+            .indent {
+                margin-left: 20px;
+            }
+            .sub-indent {
+                margin-left: 40px;
+            }
+            .signature {
+                margin-top: 30px;
+                font-size: 11.5pt;
+            }
+            .signature img {
+                height: 110px;
+                margin-bottom: 5px;
+            }
+            .disclaimer {
+                margin-top: 25px;
+                font-size: 10pt;
+                font-style: italic;
+            }
+            .header-table td {
+                vertical-align: top;
+                font-size: 10pt;
+                line-height: 1.35;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Three-Column Header -->
+        <table width="100%" style="margin-bottom: 18px;" class="header-table">
+            <tr>
+                <!-- Logo -->
+                <td width="33%">
+                    <img src="{!URLFOR($Resource.RideRiverLogo)}" style="height: 48px;" alt="River Logo"/>
+                </td>
+                <!-- Website and Email -->
+                <td width="33%" >
+                    <b>rideriver.com</b><br/>
+                    info@rideriver.com
+                </td>
+                <!-- Company Info -->
+                <td width="34%">
+                    <b>River Mobility Private Limited</b><br/>
+                    CIN: U34100KA2022PTC158972<br/><br/>
+                    <b>Registered Office:</b><br/>
+                    No. 25/3, KIADB EPIP Zone<br/>
+                    Seetharampalya - Hoodi Road<br/>
+                    Mahadevapura, Whitefield<br/>
+                    Bengaluru, Karnataka<br/>
+                    India 560 048
+                </td>
+            </tr>
+        </table>
+
+        <!-- Form Title -->
+        <div class="form-title">
+            FORM 22<br/>
+            INITIAL CERTIFICATE OF COMPLIANCE WITH POLLUTION STANDARDS,<br/>
+            SAFETY STANDARDS OF COMPONENTS QUALITY AND ROAD-WORTHINESS
+        </div>
+
+        <div class="form-section">
+            It is certified that the following vehicle complies with the emission values, including mass emission norms and noise standards including noise level under the provisions of the Motor Vehicles Act, 1988, and the rules made thereunder as specified below:
+        </div>
+
+        <div class="form-section indent">
+            1. Brand name of the vehicle : River Indie<br/>
+            2. Chassis No : {!IF(vehicle.VehicleIdentificationNumber != null, vehicle.VehicleIdentificationNumber, '')}<br/>
+            3. Engine No/Motor Number : {!IF(vehicle.EngineNumber != null, vehicle.EngineNumber, '')}<br/>
+            4. Emissions Norms Applicable : Not Applicable (Electric Vehicle)
+        </div>
+
+        <div class="form-section">
+            The emission, sound level for horn and pass by noise values of the above vehicle model, obtained during Type Approval as per Central Motor Vehicle Rules, 1989 are given below AATB 0377, Dated 04.11.2024
+        </div>
+
+        <div class="form-section indent">
+            I. Mass Emission values as per rule 115: Not Applicable (Electric Vehicle)<br/><br/>
+            II. Noise level (refer rules 119 and 120):
+            <div class="sub-indent">
+                a. Horn (For all vehicles other than agricultural tractors and construction equipment vehicles) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;as installed on Vehicles : 108.1 dB (A)<br/>
+                b. Bystander's position: (For all vehicles other than agricultural tractors &amp; construction &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;equipment vehicles) : 68 dB (A)
+            </div>
+        </div>
+
+        <!-- Signature & Seal -->
+        <div class="signature">
+            For River Mobility Private Limited.<br/>
+            <img src="{!URLFOR($Resource.Form22SealAndSignature)}" alt="Seal and Signature of Mayuri Mohidekar"/><br/>
+            Mayuri Mohidekar<br/>
+            <b><i>Associate Vice President – Manufacturing</i></b>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+            Disclaimer: The above data is indicative as obtained and certified by the authorized test agency under section 126 of CMVR for subject model.
+        </div>
+    </body>
+</apex:page>

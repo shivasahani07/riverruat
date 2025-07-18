@@ -1,0 +1,66 @@
+<template>
+    <lightning-modal-header>
+    </lightning-modal-header>
+    <lightning-modal-body>
+        <!-- First Screen -->
+        <template if:true={firstScreen}>
+            <lightning-card title="Create New Purchase Order" icon-name="standard:product_request">
+                <div class="slds-grid slds-wrap slds-p-around_medium">
+                    <div class="slds-col slds-size_6-of-12 slds-p-around_medium">
+                        <lightning-input
+                            type="text"
+                            label="Account"
+                            value={accountName}
+                            disabled>
+                        </lightning-input>
+                    </div>
+
+                    <div class="slds-col slds-size_6-of-12 slds-p-around_medium">
+                        <lightning-combobox
+                            required
+                            name="progress"
+                            label="Shipment Type"
+                            placeholder="Select Shipment Type.."
+                            options={shipmentTypeOptions}
+                            value={shipmentType}
+                            onchange={handleShipmentChange}>
+                        </lightning-combobox>
+                    </div>
+
+                    <div class="slds-col slds-size_6-of-12 slds-p-around_medium">
+                    </div>
+                </div>
+
+                <center>
+                    <lightning-button label="Close" variant="destructive" onclick={handleExit} class="slds-m-right_medium"></lightning-button>
+                    <lightning-button label="Next" variant="brand" onclick={handleSubmitProcess}></lightning-button>
+                </center>
+            </lightning-card>
+        </template>
+
+        <!-- Middle Screen: Service or Merchandise -->
+        <template if:true={middleScreen}>
+    <lightning-card title="Select Type" icon-name="utility:check">
+        <div class="slds-p-around_medium slds-grid slds-grid_vertical-align-center slds-grid_align-center">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12">
+                <!-- Flex column wrapper -->
+                <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                    <lightning-radio-group
+                        name="typeSelection"
+                        options={typeOptions}
+                        value={selectedType}
+                        type="radio"
+                        onchange={handleRadioChange}
+                        style="margin-left: 39%;">
+                    </lightning-radio-group>
+                </div>
+            </div>
+        </div>
+    </lightning-card>
+</template>
+        <!-- Second Screen -->
+        <template if:true={secondScreen}>
+            <c-add-product-request-lite-item record-id={purchaseOrderRecordId} product-type={selectedType} onclosemodal={handleChildCloseModal}></c-add-product-request-lite-item>
+        </template>
+    </lightning-modal-body>
+</template>

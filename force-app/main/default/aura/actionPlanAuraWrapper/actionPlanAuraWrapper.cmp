@@ -1,0 +1,7 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:hasRecordId,forceCommunity:availableForAllPageTypes"
+                access="global">
+
+    <!-- Pass recordId to LWC -->
+    <c:actionPlanChecker recordId="{!v.recordId}" />
+
+</aura:component>

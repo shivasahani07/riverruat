@@ -1,0 +1,52 @@
+<template>
+    <lightning-card title="Reschedule Appointment">
+        <div class="slds-p-around_medium">
+
+            <!-- Service Center -->
+            <lightning-combobox
+                name="selectedServiceCenter"
+                label="Service Center"
+                placeholder="Select Service Center"
+                value={selectedServiceCenter}
+                options={serviceCenterOptions}
+                onchange={handleChange}>
+            </lightning-combobox>
+
+            <!-- VRN (read-only) -->
+            <lightning-input
+                name="vrn"
+                label="Vehicle Registration Number (VRN)"
+                value={vrn}
+                disabled>
+            </lightning-input>
+
+            <!-- Appointment Date -->
+            <lightning-input
+                name="appointmentDate"
+                type="date"
+                label="Appointment Date"
+                value={appointmentDate}
+                onchange={handleChange}>
+            </lightning-input>
+
+            <!-- Contact Number (read-only) -->
+            <lightning-input
+                name="contactNumber"
+                type="tel"
+                label="Contact Number"
+                value={contactNumber}
+                disabled>
+            </lightning-input>
+
+            <!-- Submit Button -->
+            <div class="slds-m-top_medium slds-align_absolute-center">
+                <lightning-button
+                    label="Submit"
+                    variant="brand"
+                    onclick={handleSubmit}>
+                </lightning-button>
+            </div>
+
+        </div>
+    </lightning-card>
+</template>

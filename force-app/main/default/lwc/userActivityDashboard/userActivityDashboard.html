@@ -1,0 +1,112 @@
+<template>
+    <template if:true={showSpinner}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+
+    <!-- Search and Date Filter -->
+    <div class="slds-m-bottom_medium">
+        <lightning-layout multiple-rows class="slds-grid slds-grid_align-end">
+            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="3" padding="horizontal-small">
+                <div class="custom-box">
+                    <lightning-input type="text" label="Search by Name" onchange={handleSearch} class="slds-m-right_small"></lightning-input>
+                </div>
+            </lightning-layout-item>
+            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="3" padding="horizontal-small">
+                <div class="custom-box">
+                    <lightning-input type="date" label="Select Date" onchange={handleDateChange}></lightning-input>
+                </div>
+            </lightning-layout-item>
+        </lightning-layout>
+    </div>
+    
+    
+    <lightning-accordion allow-multiple-sections-open active-section-name={activeSections}>
+        <!-- Section 1: All Users -->
+        <lightning-accordion-section name="A" label="All Users">
+            <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                <thead>
+                    <tr>
+                        <th class="bold-text-header">Name</th>
+                        <th class="bold-text-header">Email</th>
+                        <th class="bold-text-header">Phone</th>
+                        <!-- <th class="bold-text-header">Check In</th> -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={users.allUsers} for:item="user">
+                        <tr key={user.Id}>
+                            <td class="bold-text">{user.Name}</td>
+                            <td class="bold-text">{user.Email}</td>
+                            <td class="bold-text">{user.Phone}</td>
+                            <!-- <td>
+                                <lightning-button variant="Neutral" label="Check In" data-id={user.Id} data-action="checkin" onclick={handleClick}></lightning-button>
+                            </td> -->
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </lightning-accordion-section>
+
+        <!-- Section 2: Checked-In Users -->
+        <lightning-accordion-section name="B" label="Checked In Users">
+            <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                <thead>
+                    <tr>
+                        <th class="bold-text-header">Name</th>
+                        <th class="bold-text-header">Email</th>
+                        <th class="bold-text-header">Phone</th>
+                        <th class="bold-text-header">Check In Time</th>
+                        <th class="bold-text-header">No Of Lead Assigned to User</th>
+                        <th class="bold-text-header">Check Out</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={users.allUserscheckedIn} for:item="user">
+                        <tr key={user.memberId}>
+                            <td class="bold-text">{user.memberName}</td>
+                            <td class="bold-text">{user.email}</td>
+                            <td class="bold-text">{user.phone}</td>
+                            <td class="bold-text">{user.checkinTime}</td>
+                            <td class="bold-text">{user.NoOfLeadRecordsAssignedToThatUser}</td>
+                            <td>
+                                <lightning-button variant="Brand" label="Check Out" data-id={user.memberId} data-action="checkout" onclick={handleClick}></lightning-button>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </lightning-accordion-section>
+
+        <!-- Section 3: Checked-Out Users -->
+        <lightning-accordion-section name="C" label="Checked Out Users">
+            <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                <thead>
+                    <tr>
+                        <th class="bold-text-header">Name</th>
+                        <th class="bold-text-header">Email</th>
+                        <th class="bold-text-header">Phone</th>
+                        <th class="bold-text-header">Check In Time</th>
+                        <th class="bold-text-header">Check Out Time</th>
+                        <th class="bold-text-header">No Of Lead Assigned to User</th>
+                        <th class="bold-text-header">Remove from Checkout</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={users.allUserscheckedOut} for:item="user">
+                        <tr key={user.memberId}>
+                            <td class="bold-text">{user.memberName}</td>
+                            <td class="bold-text">{user.email}</td>
+                            <td class="bold-text">{user.phone}</td>
+                            <td class="bold-text">{user.checkinTime}</td>
+                            <td class="bold-text">{user.checkoutTime}</td>
+                            <td class="bold-text">{user.NoOfLeadRecordsAssignedToThatUser}</td>
+                            <td>
+                                <lightning-button variant="Destructive" label="Check Out" data-id={user.memberId} data-action="removecheckout" onclick={handleClick}></lightning-button>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </lightning-accordion-section>
+    </lightning-accordion>
+</template>

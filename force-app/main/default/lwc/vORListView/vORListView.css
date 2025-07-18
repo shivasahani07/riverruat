@@ -1,0 +1,10 @@
+.status-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.status-buttons lightning-button {
+    flex: 1;
+    min-width: 60px;
+}

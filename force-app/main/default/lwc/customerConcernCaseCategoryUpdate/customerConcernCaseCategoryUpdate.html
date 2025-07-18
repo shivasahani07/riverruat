@@ -1,0 +1,85 @@
+<template>
+    <lightning-card title="Customer Concerns">
+        <template if:true={concerns.length}>
+            <div class="scroll-container">
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                    <thead>
+                        <tr>
+                            <th>Concern Name</th>
+                            <th>VOC</th>
+                            <th>Case Category</th>
+                            <th>Concern</th>
+                            <th>Sub Concern</th>
+                            <th>CRM Binning</th>
+                            <th>Closed Resolution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={concerns} for:item="concern">
+                            <tr key={concern.Id}>
+                                <td>{concern.Name}</td>
+                                <td>{concern.VOC__c}</td>
+                                <td>{concern.Case_Category__c}</td>
+                                <td>
+                                    <lightning-combobox
+                                        data-id={concern.Id}
+                                        value={concern.Concerns__c}
+                                        options={concern.concernOptions}
+                                        onchange={handleConcernChange}>
+                                    </lightning-combobox>
+                                </td>
+                                <td>
+                                    <lightning-combobox
+                                        data-id={concern.Id}
+                                        value={concern.Subconcerns__c}
+                                        options={concern.subConcernOptions}
+                                        onchange={handleSubConcernChange}>
+                                    </lightning-combobox>
+                                </td>
+                                <td>
+                                    <template if:true={isSystemAdmin}>
+                                        <lightning-combobox
+                                            data-id={concern.Id}
+                                            value={concern.Case_Category_Update__c}
+                                            options={updateCategoryOptions}
+                                            onchange={handleUpdateCategoryChange}>
+                                        </lightning-combobox>
+                                    </template>
+                                    <template if:false={isSystemAdmin}>
+                                        <span>{concern.Case_Category_Update__c}</span>
+                                    </template>
+                                </td>
+                                <td>
+                                    <lightning-input
+                                        type="text"
+                                        data-id={concern.Id}
+                                        value={concern.Closed_Resolution__c}
+                                        onchange={handleClosedResolutionChange}>
+                                    </lightning-input>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="slds-align_absolute-center slds-m-top_medium">
+                <lightning-button
+                    label="Cancel"
+                    variant="neutral"
+                    class="slds-m-right_small"
+                    onclick={handleCancel}>
+                </lightning-button>
+                <lightning-button
+                    label="Update"
+                    variant="brand"
+                    onclick={handleSave}>
+                </lightning-button>
+            </div>
+        </template>
+
+        <template if:true={error}>
+            <p class="slds-text-color_error slds-p-around_medium">{error}</p>
+        </template>
+    </lightning-card>
+</template>

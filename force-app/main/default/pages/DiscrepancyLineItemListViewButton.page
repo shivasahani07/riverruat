@@ -1,0 +1,2 @@
+<apex:page standardController="Discrepancy_Line_Item__c" recordSetVar="Discrepancy" extensions="DiscrepancyLineItemHelper" action="{!redirectToLC}">
+</apex:page>

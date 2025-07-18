@@ -1,0 +1,156 @@
+<template>
+    <lightning-card>
+        <div class="slds-p-around_medium slds-grid slds-wrap slds-gutters_small component-background">
+
+            <!-- Header Section -->
+            <div class="slds-col slds-size_1-of-1">
+                <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                    <!-- Back Button -->
+                    <div style="width: 33%;">
+                        <template if:true={showBackButton}>
+                            <lightning-button 
+                                variant="neutral" 
+                                label="Back" 
+                                onclick={handleBack}>
+                            </lightning-button>
+                        </template>
+                    </div>
+
+                    <!-- Title -->
+                    <div class="slds-text-align_center slds-text-heading_medium" style="width: 34%;">
+                        <b>Appointment Slots</b>
+                    </div>
+
+                    <!-- Create Slots Button -->
+                    <div class="slds-text-align_right" style="width: 33%;">
+                        <template if:false={showForm}>
+                            <lightning-button 
+                                label="Create Slots" 
+                                onclick={toggleForm}>
+                            </lightning-button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Filters -->
+            <template if:true={showTable}>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input 
+                        type="date" 
+                        label="Start Date" 
+                        value={filterStartDate} 
+                        onchange={handleFilterDateChange}
+                        name="filterStartDate">
+                    </lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input 
+                        type="date" 
+                        label="End Date" 
+                        value={filterEndDate} 
+                        onchange={handleFilterDateChange}
+                        name="filterEndDate">
+                    </lightning-input>
+                </div>
+            </template>
+
+            <!-- Slots Table -->
+            <template if:true={showTable}>
+                <template if:true={hasSlotItems}>
+                    <div class="slds-scrollable_x slds-p-around_medium" style="overflow-x: auto;">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+                            <thead style="background-color: #f3f3f3;">
+                                <tr>
+                                    <th>ASI</th>
+                                    <th>Bay</th>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                    <th>Appointment Slot</th>
+                                    <th>Appointment Date</th>
+                                    <th>Booking Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={slotItems} for:item="item">
+                                    <tr key={item.Id}>
+                                        <td><a href={item.asiUrl} target="_blank">{item.slotitemName}</a></td>
+                                        <td>{item.bayName}</td>
+                                        <td>{item.formattedStart}</td>
+                                        <td>{item.formattedEnd}</td>
+                                        <td><a href={item.slotUrl} target="_blank">{item.slotName}</a></td>
+                                        <td>{item.apppointDate}</td>
+                                        <td>{item.bookingstatus}</td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="7" class="slds-text-align_center slds-p-vertical_small">
+                                        <lightning-button label="Previous" onclick={handlePrevPage} disabled={disablePrev} class="slds-m-right_small"></lightning-button>
+                                        Page {currentPage} of {totalPages}
+                                        <lightning-button label="Next" onclick={handleNextPage} disabled={disableNext} class="slds-m-left_small"></lightning-button>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </template>
+                <template if:false={hasSlotItems}>
+                   <p class="slds-text-body_regular slds-p-around_medium">
+            <template if:true={filterApplied}>
+                No slot items found for selected date range
+            </template>
+            <template if:false={filterApplied}>
+                No slot items found
+            </template>
+        </p>
+                </template>
+            </template>
+
+            <!-- Slot Creation Form -->
+            <template if:true={showForm}>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="date" name="startDate" label="Start Date" required value={startDate} onchange={handleInput}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="date" name="endDate" label="End Date" required value={endDate} onchange={handleInput}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="time" name="dayStart" label="Start Time" required value={dayStart} onchange={handleInput}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="time" name="dayEnd" label="End Time" required value={dayEnd} onchange={handleInput}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-1">
+                    <lightning-input type="number" name="duration" label="Duration (minutes)" min="15" max="60" required value={duration} onchange={handleInput}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input label="Total Bays" type="number" value={bayCount} disabled></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input label="Available Bays" type="number" value={remainingBays} disabled></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input label="Bays to Allocate" type="number" name="bayNumber" min="1" required value={bayNumber} onchange={handleInput}></lightning-input>
+                </div>
+
+                <template if:true={errorMessage}>
+                    <div class="slds-col slds-size_1-of-1">
+                        <div class="slds-notify slds-notify_alert slds-theme_error" role="alert">
+                            <span class="slds-assistive-text">Error</span>
+                            <span class="slds-icon_container slds-icon-utility-error">
+                                <lightning-icon icon-name="utility:error" size="small"></lightning-icon>
+                            </span>
+                            {errorMessage}
+                        </div>
+                    </div>
+                </template>
+
+                <div class="slds-col slds-size_1-of-1 slds-m-top_small slds-align_absolute-center">
+                    <lightning-button label="Create Slots" variant="brand" onclick={createSlot} disabled={disableSave}></lightning-button>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>

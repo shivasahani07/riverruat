@@ -1,0 +1,41 @@
+<template>
+    <lightning-card title="Discrepancy Line Items">
+        <template if:true={records}>
+            <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Req Part Quantity</th>
+                        <th scope="col">Approved Quantity</th>
+                        <th scope="col">Approved</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={records} for:item="item">
+                        <tr key={item.Id}>
+                            <td>{item.Name}</td>
+                             <td>{item.Request_Part_Quantity__c}</td>
+                            <td>{item.Recived_Request_Part_Quantity__c}</td>
+                            <td>
+                                <lightning-input type="checkbox" checked={item.Approved__c}
+                                                 data-id={item.Id}
+                                                 onchange={handleApprovalChange}>
+                                </lightning-input>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            <div class="slds-m-top_medium ">
+               
+                  <center>
+                    <lightning-button label="Submit" variant="brand" onclick={handleSave}></lightning-button>
+                </center>
+            </div>
+        </template>
+
+        <template if:true={error}>
+            <p class="slds-text-color_error">{error}</p>
+        </template>
+    </lightning-card>
+</template>

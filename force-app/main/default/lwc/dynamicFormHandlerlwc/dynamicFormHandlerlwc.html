@@ -1,0 +1,15 @@
+<template>
+    <div class="container">
+        <template if:true={hasError}>
+            <p class="error">Error loading component: {errorMessage}</p>
+        </template>
+
+        <template if:true={isLoading}>
+            <p>Loading component, please wait...</p>
+        </template>
+
+        <template if:true={componentConstructor}>
+            <lwc:component lwc:is={componentConstructor} lwc:ref="myCmp" lwc:spread={childProps}></lwc:component>
+        </template>
+    </div>
+</template>

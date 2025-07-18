@@ -1,0 +1,413 @@
+<!--
+  @description       : 
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             : 
+  @last modified on  : 05-13-2025
+  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+-->
+<template>
+    <lightning-quick-action-panel header="">
+        <lightning-card title="OTC Sale" icon-name="standard:product_request">
+            <div style="max-height: 400px; overflow-y: auto;">
+                <template if:true={showSpinner}>
+                    <lightning-spinner></lightning-spinner>
+                </template>
+                <template if:true={ShowVehicleSearch}>
+                <div class="slds-p-around_medium">
+                   
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        
+                        <div class="slds-col slds-size_1-of-4">
+                            <lightning-input label="Vehicle Registration Number (VRN)" onchange={handleVRNChange} value={vrn}></lightning-input>
+                        </div>
+                        
+                        <div class="slds-col slds-size_1-of-4">
+                            <lightning-input label="Mobile Number" onchange={handleMobileChange} value={mobile}></lightning-input>
+                        </div>
+                       
+                        <div class="slds-col slds-size_1-of-4">
+                            <lightning-input label="Vehicle Identification Number (VIN)" onchange={handleVINChange} value={vin}></lightning-input>
+                        </div>
+                       
+                        <div class="slds-col slds-size_1-of-4 slds-m-top_large">
+                            <lightning-button class="slds-m-top_medium" label="Search Vehicle" onclick={handleSearch} variant="brand"></lightning-button>
+                        </div>
+                    </div>
+                </div>
+    
+   <!--Account Showing Section added on 08/05/2025 by Aniket-->
+   <template if:true={onlyShowVehicle}>
+    <lightning-card title="Fetched Account">
+        <div class="slds-p-around_medium">
+            <table class="slds-table slds-table_bordered slds-table_striped">
+                <thead>
+                    <tr>
+                        <th>Account Name</th>
+                        <th>Account Phone</th>
+                        <th>Account Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={accounts} for:item="acc">
+                        <tr key={acc.Id}>
+                            <td>{acc.Name}</td>
+                            <td>{acc.Phone}</td>
+                            <td>{acc.Email__c}</td>
+                            <td>
+                                <lightning-button label="Add Product" onclick={handleAddProductForAccount} data-id={acc.Id} data-type="account" variant="brand" size="small"></lightning-button>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+    </lightning-card>
+</template>
+
+   <!--Upto Here-->
+    <template if:true={vehicles.length}>
+        <lightning-card title="Found Vehicles">
+            <div class="slds-p-around_medium">
+                <table class="slds-table slds-table_bordered slds-table_striped">
+                    <thead>
+                        <tr>
+                            <th>Vehicle Name</th>
+                            <th>Owner Email</th>
+                            <th>VIN</th>
+                            <th>VRN</th>
+                            <th>Current Owner Phone</th>
+                            <th>Current Owner</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={currentPageDataVehicles} for:item="vehicle">
+                            <tr key={vehicle.Id}>
+                                <td>{vehicle.Name}</td>
+                                <td>{vehicle.CurrentOwner.Email__c}</td>
+                                <td>{vehicle.VehicleIdentificationNumber}</td>
+                                <td>{vehicle.VehicleRegistrationNumber}</td>
+                                <td>{vehicle.CurrentOwner.Phone}</td>
+                                <td>{vehicle.CurrentOwner.Name}</td>
+                                <td>
+                                    <lightning-button label="Add Product" onclick={handleAddProduct} data-id={vehicle.Id} variant="brand" data-type="vehicle" size="small"></lightning-button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </lightning-card>
+         <!-- Pagination Controls -->
+         <div class="slds-p-top_medium slds-text-align_center">
+            <lightning-button-icon icon-name="utility:left" alternative-text="Previous"
+                onclick={handlePreviousPageVehicles} disabled={isPreviousDisabledVehicles} class="slds-m-right_small">
+            </lightning-button-icon>
+    
+            <lightning-button label="First Page" variant="brand"
+                onclick={handleFirstPageVehicles} disabled={isPreviousDisabledVehicles} class="slds-m-right_small">
+            </lightning-button>
+    
+            <span class="slds-p-horizontal_small">Page {currentPageVehicles} of {totalPagesVehicles}</span>
+    
+            <lightning-button label="Last Page" variant="brand"
+                onclick={handleLastPageVehicles} disabled={isNextDisabledVehicles} class="slds-m-left_small">
+            </lightning-button>
+    
+            <lightning-button-icon icon-name="utility:right" alternative-text="Next"
+                onclick={handleNextPageVehicles} disabled={isNextDisabledVehicles} class="slds-m-left_small">
+            </lightning-button-icon>
+        </div>
+    </template>
+                
+    <template if:false={accounts.length}>
+        <template if:true={ShowAccButton}>
+        <div class="slds-text-align_center slds-p-around_medium">
+            <p class="slds-text-heading_medium">No vehicle found.</p>
+            <p class="slds-text-heading_small slds-m-top_medium">Do you want to create an account?</p>
+            
+            <div class="slds-m-top_medium">
+                <lightning-button label="Yes" variant="brand" onclick={handleShowAccountForm}></lightning-button>
+                <lightning-button label="No" variant="neutral" class="slds-m-left_small" onclick={handleHideAccountForm}></lightning-button>
+            </div>
+        </div>
+    </template>
+    
+        <template if:true={showAccountForm}>
+            <div class="slds-box slds-theme_shade slds-m-top_medium">
+                <p class="slds-text-heading_small">Create Account</p>
+                
+                <div class="slds-grid slds-gutters slds-var-m-top_medium">
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input type="text" label="Name" value={accountName} onchange={handleInputChange} data-field="accountName"></lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input type="phone" label="Phone" value={accountPhone} onchange={handleInputChange} data-field="accountPhone"></lightning-input>
+                    </div>
+                </div>
+                <div class="slds-grid slds-gutters slds-var-m-top_medium">
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input type="email" label="Email" value={accountEmail} onchange={handleInputChange} data-field="accountEmail"></lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-combobox
+                            name="Type"
+                            label="Type"
+                            value={accountType}
+                            placeholder="Select Type"
+                            options={typeOptions}
+                            onchange={handleInputChange}
+                            data-field="accountType">
+                        </lightning-combobox>
+                    </div>
+                </div>
+                
+                <div class="slds-m-top_xx-large slds-text-align_center">
+                    <lightning-button label="Create Account" variant="success" onclick={handleCreateAccount}></lightning-button>
+                    <lightning-button label="Cancel" variant="Neutral" class="slds-m-left_small" onclick={handleHideAccForm}></lightning-button>
+                </div>
+            </div>
+        </template>
+    </template>
+</template>
+
+                <template if:true={addprd}>
+
+                    <lightning-quick-action-panel header="Add Order Product Line Item" onclose={closeModal}>
+                <div class="slds-p-around_medium">
+                    <lightning-input type="text" placeholder="Search by Product Name..." onchange={handleSearchInput}
+                        class="slds-m-bottom_medium">
+                    </lightning-input>
+                    <!-- Main Table -->
+                    <template if:true={currentPageData.length}>
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                                <thead>
+                                    <tr>
+                                        <th>Sr No</th>
+                                        <th><lightning-input type="checkbox" onchange={handleSelectAll}
+                                                checked={selectAllChecked}></lightning-input></th>
+                                        <th scope="col">Product Name</th>
+                                        <th scope="col">Product Code</th>
+                                        <th scope="col">Type</th>
+                                        <th scope="col">Quantity</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template for:each={currentPageData} for:item="item" for:index="Index">
+                                        <tr key={item.Id}>
+                                            <td>{item.index}</td>
+                                            <td>
+                                                <lightning-input type="checkbox" data-id={item.Id}
+                                                    checked={item.selected}
+                                                    onchange={handleCheckboxChange}></lightning-input>
+                                            </td>
+                                            <td>{item.ProductName}</td>
+                                            <td>{item.ProductCode}</td>
+                                            <td>{item.Type}</td>
+                                            <td>
+                                                <lightning-input type="number" data-id={item.Id}
+                                                    value={item.AllocatedQuantity} disabled={item.isChargesDisabled}
+                                                    style="margin-bottom:14px"></lightning-input>
+                                            </td>
+
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </template>
+                    <template if:false={currentPageData.length}>
+                        <p>Search By Product Name</p>
+                    </template>
+                    <!---Pagination Button-->
+                    <template if:true={currentPageData.length}>
+                        <div class="slds-p-top_medium slds-text-align_center">
+                            <lightning-button-icon icon-name="utility:left" alternative-text="Previous"
+                                onclick={handlePreviousPage} disabled={isPreviousDisabled} class="slds-m-right_small">
+                            </lightning-button-icon>
+                            <lightning-button label="First Page" variant="brand" alternative-text="First Page"
+                                onclick={handleFirstPage} disabled={isFirstDisabled} class="slds-m-right_small">
+                            </lightning-button>
+                            <span class="slds-p-horizontal_small">Page {currentPage} of {totalPages}</span>
+                            <lightning-button label="Last Page" variant="brand" alternative-text="Last Page"
+                                onclick={handleLastPage} disabled={isLastDisabled} class="slds-m-left_small">
+                            </lightning-button>
+                            <lightning-button-icon icon-name="utility:right" alternative-text="Next"
+                                onclick={handleNextPage} disabled={isNextDisabled} class="slds-m-left_small">
+                            </lightning-button-icon>
+                        </div>
+                    </template>
+
+                    <!-- Selected Items Table -->
+                    <template if:true={selectedItems.length}>
+                        <h3 class="slds-text-align_center slds-text-title_large" style="font-size:large;margin-top:7px">
+                            Selected Items</h3>
+
+                            <lightning-layout multiple-rows>
+                                <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="10" padding="horizontal-small">
+                                    <div class="custom-box">
+
+                                    </div>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="2" padding="horizontal-small">
+                                    <div class="custom-box">
+                                        <table>
+                                            <tr>
+                                                <td style="width:780px;"></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td> 
+                                            </tr>
+                                            <tr>
+                                                <td colspan="10"></td>
+                                                <td>
+                                             <!--      <lightning-input type="number" label="Additonal Discount (%)"
+                                                        onchange={handleAddtionalQty}></lightning-input> --> 
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </lightning-layout-item>
+                            </lightning-layout>
+
+                            
+                            
+                        <div class="slds-m-top_medium">
+                            <div style="overflow-x: auto;">
+                            <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                                <thead>
+                                    <tr>
+                                        <th>Sr No</th>
+                                        <th scope="col">Product Name</th>
+                                        <th scope="col">Product Code</th>
+                                        <th scope="col">Type</th>
+                                        <th scope="col">Unit Price</th>
+                                        <th scope="col">Quantity</th>
+                                        <th scope="col">Pre GST Discount</th>
+                                        <th scope="col">Total Price</th>
+                                        <th scope="col">Tax</th>
+                                        <th scope="col">Sub Total</th>
+                                        
+                                        <th scope="col">Additional Discount %</th>
+                                        <th scope="col">Payable amount</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    <template for:each={selectedItems} for:item="item" for:index="index">
+
+                                        <tr key={item.Id}>
+                                            <td>{item.index}</td>
+                                            <td>{item.ProductName}</td>
+                                            <td>{item.ProductCode}</td>
+                                            <td>{item.Type}</td>
+
+                                            <td>{item.unitPirce}</td>
+                                            <td><lightning-input type="number" data-id={item.Id}
+                                                    value={item.AllocatedQuantity} onchange={handleQuantityChange}
+                                                    style="margin-bottom:14px">
+                                                </lightning-input></td>
+                                                <td>{item.discount}</td>
+                                            <td>{item.totalPrice}</td>
+                                            <td>{item.tax}%</td>
+                                            <td>{item.totalBeforediscount}</td>
+                                            
+                                            <td>
+                                                    <lightning-input 
+    type="number" 
+    data-id={item.Id}
+    value={item.additionalDiscount}
+    onchange={handleAddtionalQty}>
+</lightning-input>
+
+                                                </td>
+                                            <td>{item.TotalAmountAfterDiscount}</td>
+                                            <td> <lightning-button icon-name="utility:delete" alternative-text="Delete"
+                                                    onclick={handleDeleteSelectedItem} data-id={item.Id} size="small"
+                                                    variant="destructive" class="slds-m-left_x-small">
+                                                </lightning-button></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                        </div>
+                        <table>
+                            <tr>
+                                <td style="width:780px;"></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td> 
+                            </tr>
+                            <tr>
+                                <td colspan="9"></td>
+                                <td>
+                                    <label>Order Total</label>
+                                </td>
+                                <td>
+                                    <lightning-input type="number" disabled value={OrderTotal}></lightning-input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="9"></td>
+                                <td>
+                                    <label>Discount</label>
+                                </td>
+                                <td>
+                                    <lightning-input type="number" disabled value={discountAmount}></lightning-input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="9"></td>
+                                <td>
+                                    <label>Final Payable Amount</label>
+                                </td>
+                                <td>
+                                    <lightning-input type="number" disabled
+                                        value={FinalPayableAmount}></lightning-input>
+                                </td>
+                            </tr>
+                        </table>
+                    </template>
+                </div>
+                <lightning-button label="Back" variant="neutral"
+                onclick={Handleback}></lightning-button>
+                   
+            </lightning-quick-action-panel>
+            </template>
+                <center>
+                    <template if:true={buttonVisible}>
+
+                        <lightning-button label="Cancel" variant="destructive" onclick={closeModal}
+                            class="slds-m-right_medium"></lightning-button>
+                        <lightning-button label="Submit" variant="brand"
+                            onclick={methodToCreateOrdersRecords}></lightning-button>
+                    </template>
+                    <template if:true={showSpinner}>
+                        <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+                    </template>
+
+                </center>
+            </div>
+        </lightning-card>
+    </lightning-quick-action-panel>
+
+</template>

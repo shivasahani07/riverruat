@@ -1,0 +1,10 @@
+<template>
+    <template if:true={actionPlans}>
+        <template for:each={actionPlans} for:item="plan">
+            <div key={plan.id} class="slds-notify slds-notify_alert slds-theme_info" role="alert">
+                <span class="slds-assistive-text">Info</span>
+                <h2>{plan.message}</h2>
+            </div>
+        </template>
+    </template>
+</template>

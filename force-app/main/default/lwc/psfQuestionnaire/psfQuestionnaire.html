@@ -1,0 +1,118 @@
+<template>
+    <div class="slds-card">
+        <div class="slds-card__header slds-grid slds-grid_align-center">
+            <template if:true={isPsfPage}>
+                <header class="slds-media slds-media_center">
+                    <div class="slds-media__body">
+                        <h2 class="slds-card__header-title slds-text-align_center">
+                            Questionnaire Feedback 
+                        </h2>
+                    </div>
+                </header>
+            </template>
+        </div>
+
+        <!-- Show Spinner -->
+        <template if:true={loading}>
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </template>
+
+        <!-- Main Content -->
+        <div class="slds-card__body slds-card__body_inner">
+            <template if:true={questionnaires}>
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Question</th>
+                            <th scope="col">Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={questionnaires} for:item="q">
+                            <tr key={q.Id}>
+                                <td>{q.Question__c}</td>
+                                <td>
+                                    <template if:false={q.Is_Rating_Question__c}>
+                                        <lightning-combobox
+                                            name="rating"
+                                            data-id={q.Id}
+                                            value={q.Rating_Yes_No__c}
+                                            placeholder="Select"
+                                            options={yesNoPicklistOptions}
+                                            onchange={handleRatingChangeForYesNo}
+                                            required>
+                                        </lightning-combobox>
+                                    </template>
+
+                                    <template if:true={q.Is_Rating_Question__c}>
+                                        <lightning-combobox
+                                            name="rating"
+                                            data-id={q.Id}
+                                            value={q.Rating__c}
+                                            placeholder="Select Rating"
+                                            options={picklistOptions}
+                                            onchange={handleRatingChangeForRating}
+                                            required>
+                                        </lightning-combobox>
+                                    </template>
+
+                                    <template if:true={q.showComplaintType}>
+                                        <lightning-combobox
+                                            name="complaintType"
+                                            data-id={q.Id}
+                                            value={q.Complaint_Regarding__c}
+                                            placeholder="Complaint Regarding..."
+                                            options={complaintRegardingOptions}
+                                            onchange={handleComplaintTypeChange}
+                                            required>
+                                        </lightning-combobox>
+
+                                        <lightning-textarea 
+                                            data-id={q.Id}
+                                            placeholder="Describe the issue..."
+                                            value={q.Complaint_Description__c}
+                                            onchange={handleIssueText}
+                                            required>
+                                        </lightning-textarea>
+                                    </template>
+
+                                    <template if:true={q.showAdditionalComments}>
+                                        <lightning-textarea 
+                                            data-id={q.Id}
+                                            placeholder="Additional Comments / Feedback..."
+                                            value={q.Additional_Comments__c}
+                                            onchange={handleAdditionalCommentsText}
+                                            required>
+                                        </lightning-textarea>
+                                    </template>
+                                    
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+
+                
+                <!-- If Rating < 7, Need to enter complaint -->
+                <br/>
+                <template if:true={showComplaintBox}>
+                    <div class="slds-box slds-theme_alert-texture slds-theme_warning">
+                        Average rating is below 7. Please describe your issue below:
+                        <lightning-textarea type="text" placeholder="Describe the issue..." value={complaintText} onchange={handleCustomerComplaint}>
+                        </lightning-textarea>
+                    </div>
+                </template>                
+
+                <template if:true={isSubmitVisible}>
+                    <div class="slds-p-top_medium slds-align_absolute-center">
+                        <lightning-button variant="brand" label="Submit" onclick={submitRatings}></lightning-button>
+                    </div>
+                </template>
+            </template>
+
+            <template if:true={error}>
+                <p class="slds-text-color_error slds-text-align_center">{error}</p>
+            </template>
+        </div>
+    </div>
+</template>

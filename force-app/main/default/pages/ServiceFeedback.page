@@ -1,0 +1,614 @@
+<!--
+  @description       : 
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             : 
+  @last modified on  : 07-17-2025
+  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+-->
+<apex:page controller="ServiceFeedbackController" showHeader="false" sidebar="false" standardStylesheets="false">
+    <apex:includeScript value="/soap/ajax/43.0/connection.js"/>
+    <apex:includeScript value="/soap/ajax/43.0/apex.js"/>
+   
+    <style>
+        body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background-color: #f9f9f9;
+        }
+       
+        .header {
+        background-color: #037CB5;
+        color: white;
+        padding: 10px 0;
+        position: relative;
+        min-height: 80px;
+        width: 100%;
+        max-width: 100vw;
+        height: auto;
+        }
+       
+        .header-logo {
+        height: 100px;
+        width: auto;
+        position: absolute;
+        left: 0px;
+        top: 50%;
+        transform: translateY(-50%);
+        }
+       
+        .user-name {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 26px;
+        font-weight: bold;
+        white-space: nowrap;
+        color: white;
+        }
+       
+        .highlight {
+        color: #f7ec2a;
+        font-weight: bold;
+        }
+       
+        @media (max-width: 768px) {
+        .header-logo {
+        height: 80px;
+        left: 10px;
+        }
+       
+        .user-name {
+        font-size: 20px;
+        }
+        }
+       
+        @media (max-width: 480px) {
+        .header-logo {
+        height: 60px;
+        left: 5px;
+        }
+       
+        .user-name {
+        font-size: 18px;
+        }
+        }
+       
+        h2 {
+        font-size: 24px;
+        margin-top: 40px;
+        }
+       
+        p {
+        font-size: 18px;
+        color: #666;
+        margin-bottom: 30px;
+        }
+       
+        .stars {
+        font-size: 4em;
+        color: #ccc;
+        margin-bottom: 20px;
+        cursor: pointer;
+        }
+       
+        .star.selected {
+        color: #FFD700;
+        }
+       
+        .question-title {
+        font-weight: bold;
+        margin-bottom: 20px;
+        text-align: left;
+        font-size: 18px;
+        }
+       
+        .question-block {
+        margin-top: 3%;
+        }
+       
+        .option-group {
+        display: inline-block;
+        text-align: left;
+        margin: 0 auto 30px auto;
+        }
+       
+        .option-group label {
+        display: block;
+        margin: 10px 0;
+        font-size: 18px;
+        }
+       
+        #submitBtn {
+        background-color: #037CB5;
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        }
+       
+        #submitBtnWrapper {
+        display: none;
+        margin-top: 20px;
+        height: 48px;
+        top: 601px;
+        left: 562px;
+        border-radius: 8px;
+        padding-top: 9px;
+        padding-right: 20px;
+        padding-bottom: 7px;
+        padding-left: 20px;
+        gap: 8px;
+        color:#007DB6;
+        }
+       
+        #submitBtn:disabled {
+        background-color: #cccccc;  
+        color: #666666;
+        cursor: not-allowed;
+        border: none;
+        width: 156px;
+        }
+       
+        .success-message {
+        text-align: center;
+        padding: 80px 20px;
+        display: none;
+        font-family: DM Sans;
+        font-weight: 800;
+        font-size: 24px;
+        line-height: 41.73px;
+        letter-spacing: 0%;
+        text-align: center;
+        }
+       
+        .success-checkmark {
+        font-size: 80px;
+        color: #4BB543;
+        }
+       
+        /* New styles for Other option */
+        #otherTextInput {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 8px;
+        font-family: Arial, sans-serif;
+        margin-top: 5px;
+        width: 100%;
+        box-sizing: border-box;
+        }
+       
+        #otherTextContainer {
+        margin: 10px 0 20px 0;
+        display: none;
+        }
+       
+        #otherTextContainer label {
+        font-weight: normal;
+        color: #666;
+        font-size: 16px;
+        }
+ 
+        /* New styles for expired message */
+        .expired-message {
+            text-align: center;
+            padding: 80px 20px;
+            display: none;
+            font-family: DM Sans;
+            font-weight: 800;
+            font-size: 24px;
+            line-height: 41.73px;
+        }
+       
+        .expired-icon {
+            font-size: 80px;
+            color: #FF0000;
+        }
+    </style>
+   
+    <div class="header">
+        <img src="{!URLFOR($Resource.Ride_River_Logo_LWC)}" alt="Ride River Logo" class="header-logo" />
+       
+        <apex:outputPanel rendered="{!NOT(ISNULL(primaryContact))}">
+            <div class="user-name"><span class="highlight">Hi!</span> {!primaryContact.Name}</div>
+        </apex:outputPanel>
+    </div>
+   
+    <!-- Main Content -->
+    <div id="mainContent" style="text-align: center;">
+        <h2>Your experience is important to us!</h2>
+        <p style="font-size: 20px;">
+            We hope your service was hassle-free and that your concerns were<br/>
+            fully addressed. Please share your thoughts with us.
+        </p>
+       
+        <div class="stars" id="starContainer">
+            <span class="star" data-value="1">&#9733;</span>
+            <span class="star" data-value="2">&#9733;</span>
+            <span class="star" data-value="3">&#9733;</span>
+            <span class="star" data-value="4">&#9733;</span>
+            <span class="star" data-value="5">&#9733;</span>
+        </div>
+       
+        <div class="question-block" id="questionBlock" style="display:none;">
+            <div class="option-group">
+                <div class="question-title" id="questionTitle"></div>
+                <div id="optionsContainer"></div>
+            </div>
+        </div>
+       
+        <div id="submitBtnWrapper">
+            <button id="submitBtn"  disabled="disabled">Submit</button>
+        </div>
+    </div>
+    <!-- Success Message for first submission -->
+<div class="success-message" id="thankYouMessage" style="display:none;">
+    <div class="success-checkmark">&#10004;</div>
+    <h2>Thank You for Your Feedback!</h2>
+    <p>We appreciate you taking the time to share your experience with us.<br/>
+        Your feedback helps us improve our services.
+    </p>
+</div>
+
+<!-- Already Submitted Message -->
+<div class="success-message" id="alreadySubmittedMessage" style="display:none;">
+    <div class="success-checkmark">&#10004;</div>
+    <h2>Feedback Already Submitted</h2>
+    <p>Thanks for sharing your thoughts! We've already received your feedback.<br/>
+        If you need to update or have more to say, feel free to contact our team.
+    </p>
+</div>
+ 
+    <!-- Expired Message -->
+    <div class="expired-message" id="expiredMessage" style="display:none;">
+        <div class="expired-icon">&#9888;</div>
+        <h2>Oops! this Link isn't active anymore</h2>
+        <p>Looks like this feeedback link has expired or been used already.</p>
+    </div>
+   
+    <!-- JavaScript -->
+    <script>
+    let rating = 0;
+    let allQuestions = {};
+    let currentQuestionId = '';
+    let currentQuestionType = '';
+    let responseId = null;
+    let leadId = null;
+    let feedbackSubmitted = false;
+    let linkExpired = false;
+ 
+    function getUrlParameter(name) {
+        const params = new URLSearchParams(window.location.search);
+        return params.get(name);  
+    }
+ 
+    function renderOptions(options, type) {
+        const container = document.getElementById('optionsContainer');
+        container.innerHTML = '';
+        const inputType = 'checkbox';
+       
+        options.forEach(opt => {
+            const label = document.createElement('label');
+            label.style.display = 'block';
+            label.style.margin = '10px 0';
+            label.innerHTML = `<input type="${inputType}" value="${opt}" ${opt === 'Other' ? 'data-is-other="true"' : ''}> ${opt}`;
+                        container.appendChild(label);
+       
+        if (opt === 'Other') {
+            const textareaContainer = document.createElement('div');
+            textareaContainer.id = 'otherTextContainer';
+            textareaContainer.style.display = 'none';
+            textareaContainer.style.marginTop = '20px';
+           
+            textareaContainer.innerHTML = `
+    <label for="otherTextInput" style="display: block; margin-bottom: 5px;">Please specify:</label>
+    <textarea
+        id="otherTextInput"
+        placeholder="Enter your feedback here..."
+        style="width: 100%;  display: block;"
+    ></textarea>
+`;
+ 
+            container.appendChild(textareaContainer);
+            const otherCheckbox = label.querySelector('input');
+            otherCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    textareaContainer.style.display = 'block';
+                } else {
+                    textareaContainer.style.display = 'none';
+                    document.getElementById('otherTextInput').value = '';
+                }
+                validateForm();
+            });
+        }
+    });
+    container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', validateForm);
+    });
+        validateForm();
+    }
+       
+    function validateForm() {
+        const submitBtn = document.getElementById('submitBtn');
+        const checkboxes = document.querySelectorAll('#optionsContainer input[type="checkbox"]:checked');
+        submitBtn.disabled = checkboxes.length === 0;
+    }
+       
+    function getSelectedAnswers() {
+        const selected = [];
+        const inputs = document.querySelectorAll('#optionsContainer input:checked');
+       
+        inputs.forEach(input => {
+            selected.push(input.value);
+        });
+       
+        return selected;
+    }
+       
+    function loadFeedbackQuestions() {
+        const formName = 'Service Feedback';
+        Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.ServiceFeedbackController.getAllFeedbackQuestions}',
+            formName,
+            function(result, event) {
+                if (event.status) {
+                    allQuestions = result;
+                }
+            }
+        );
+    }
+       
+    function createFeedbackRecord() {
+    console.log('Attempting to create feedback record for lead:', leadId);
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.ServiceFeedbackController.createEmptyResponse}',
+        leadId,
+        function(result, event) {
+            console.log('Remote action completed', event);
+            if (event.status) {
+                responseId = result;
+                console.log('Created Feedback Record ID:', responseId);
+            } else {
+                console.error('Remote action failed:', event.message);
+                alert('Could not create feedback session: ' + event.message);
+            }
+        },
+        {escape: false}
+    );
+}
+ 
+    function checkLinkExpiration(sentDateTime) {
+        if (!sentDateTime) return false;
+       
+        const sentDate = new Date(sentDateTime);
+        const currentDate = new Date();
+        const diffHours = Math.abs(currentDate - sentDate) / 36e5; // hours
+       
+        // return diffHours >= 48;
+         return false;//added by Aniket on 17/07/2025
+    }
+
+function checkExistingFeedback() {
+    console.log('[checkExistingFeedback] Initiating feedback check for leadId:', leadId);
+    
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.ServiceFeedbackController.checkExistingFeedback}',
+        leadId,
+        function(result, event) {
+            console.log('[checkExistingFeedback] Remote action completed. Event status:', event.status);
+            console.log('[checkExistingFeedback] Full result:', JSON.stringify(result, null, 2));
+            console.log('[checkExistingFeedback] Event details:', JSON.stringify(event, null, 2));
+            
+            if (event.status) {
+                console.log('[checkExistingFeedback] Remote action succeeded');
+                
+                if (result) {
+                    console.log('[checkExistingFeedback] Feedback record exists:', result.Id);
+                    console.log('[checkExistingFeedback] Current status:', result.Response_Status__c);
+                    console.log('[checkExistingFeedback] Sent time:', result.Sent_Date_Time__c);
+                    console.log('[checkExistingFeedback] Submitted time:', result.Submitted_Date_Time__c);
+                    
+                    // Check for expired link
+                    if (result.Sent_Date_Time__c) {
+                        console.log('[checkExistingFeedback] Checking link expiration...');
+                        const isExpired = isLinkExpired(result.Sent_Date_Time__c);
+                        console.log('[checkExistingFeedback] Link expired:', isExpired);
+                        
+                        if (isExpired) {
+                            console.log('[checkExistingFeedback] Showing expired message');
+                            showExpiredMessage();
+                            return;
+                        }
+                    }
+                    
+                    // Check for already submitted feedback
+                    if (result.Response_Status__c) {
+                        const statusLower = result.Response_Status__c.toLowerCase();
+                        console.log('[checkExistingFeedback] Normalized status:', statusLower);
+                        
+                        if (statusLower === 'submitted') {
+                            console.log('[checkExistingFeedback] Feedback already submitted');
+                            console.log('[checkExistingFeedback] Submitted time exists:', !!result.Submitted_Date_Time__c);
+                            showAlreadySubmittedMessage();
+                            return;
+                        }
+                    }
+                    
+                    // If we have an ID but not submitted
+                    if (result.Id) {
+                        console.log('[checkExistingFeedback] Existing feedback record found (not submitted):', result.Id);
+                        responseId = result.Id;
+                        console.log('[checkExistingFeedback] Set responseId to:', responseId);
+                    }
+                } else {
+                    console.log('[checkExistingFeedback] No feedback record found, creating new one');
+                    createFeedbackRecord();
+                }
+            } else {
+                console.error('[checkExistingFeedback] Remote action failed:', event.message);
+                console.error('[checkExistingFeedback] Error type:', event.type);
+                console.error('[checkExistingFeedback] Where:', event.where);
+            }
+        },
+        {escape: false, buffer: false} // Additional options for better performance
+    );
+}
+
+
+function isLinkExpired(sentDateTime) {
+    const sentDate = new Date(sentDateTime);
+    const currentDate = new Date();
+    const diffHours = Math.abs(currentDate - sentDate) / 36e5; // hours
+    console.log('Current time:', currentDate);
+    console.log('Sent time:', sentDate);
+    console.log('Difference in hours:', diffHours);
+    // return diffHours >= 24;
+     return false;//added by Aniket on 17/07/2025
+}
+
+function showExpiredMessage() {
+    const mainContent = document.getElementById('mainContent');
+    const successMessage = document.getElementById('successMessage');
+    const alreadySubmittedMessage = document.getElementById('alreadySubmittedMessage');
+    const expiredMessage = document.getElementById('expiredMessage');
+
+    if (mainContent) mainContent.style.display = 'none';
+    else console.warn('#mainContent not found');
+
+    if (successMessage) successMessage.style.display = 'none';
+    else console.warn('#successMessage not found');
+
+    if (alreadySubmittedMessage) alreadySubmittedMessage.style.display = 'none';
+    else console.warn('#alreadySubmittedMessage not found');
+
+    if (expiredMessage) expiredMessage.style.display = 'block';
+    else console.warn('#expiredMessage not found');
+
+    linkExpired = true;
+    feedbackSubmitted = false;
+}
+
+
+function showAlreadySubmittedMessage() {
+    const mainContent = document.getElementById('mainContent');
+    const thankYouMessage = document.getElementById('thankYouMessage');
+    const alreadySubmittedMessage = document.getElementById('alreadySubmittedMessage');
+    const expiredMessage = document.getElementById('expiredMessage');
+
+    if (mainContent) mainContent.style.display = 'none';
+    else console.warn('#mainContent not found');
+
+    if (thankYouMessage) thankYouMessage.style.display = 'none';
+    else console.warn('#thankYouMessage not found');
+
+    if (alreadySubmittedMessage) alreadySubmittedMessage.style.display = 'block';
+    else console.warn('#alreadySubmittedMessage not found');
+
+    if (expiredMessage) expiredMessage.style.display = 'none';
+    else console.warn('#expiredMessage not found');
+
+    feedbackSubmitted = true;
+    linkExpired = false;
+}
+
+
+document.getElementById('submitBtn').addEventListener('click', () => {
+    if (linkExpired) return;
+    
+    const answers = getSelectedAnswers();
+    const otherText = document.getElementById('otherTextInput')?.value.trim() || '';
+    
+    if (answers.length === 0) {
+        return alert('Please select at least one option.');
+    }
+                                                        
+    const formUrl = window.location.href;
+                                                        
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.ServiceFeedbackController.saveFeedback}',
+        responseId,
+        leadId,
+        rating,
+        currentQuestionId,
+        answers.join(', '),
+        otherText,        
+        formUrl,
+        function(result, event) {
+            if (event.status) {
+                document.getElementById('mainContent').style.display = 'none';
+                document.getElementById('thankYouMessage').style.display = 'block';
+                document.getElementById('alreadySubmittedMessage').style.display = 'none';
+                document.getElementById('expiredMessage').style.display = 'none';
+            } else {
+                alert('Failed to submit feedback.');
+            }
+        }
+    );
+});
+       
+    document.querySelectorAll('.star').forEach(star => {
+        star.addEventListener('click', () => {
+            if (linkExpired) return;
+           
+            rating = parseInt(star.dataset.value);
+            document.querySelectorAll('.star').forEach(s => {
+                s.classList.toggle('selected', parseInt(s.dataset.value) <= rating);
+            });
+       
+            const type = rating <= 3 ? 'negative' : 'positive';
+            const question = allQuestions[type];
+            if (!question) return;
+       
+            currentQuestionId = question.questionId;
+            currentQuestionType = question.type;
+       
+            document.getElementById('questionTitle').innerText = question.question;
+            renderOptions(question.options, currentQuestionType);
+       
+            document.getElementById('questionBlock').style.display = 'block';
+            document.getElementById('submitBtnWrapper').style.display = 'block';
+        });
+    });
+    document.getElementById('submitBtn').addEventListener('click', () => {
+        if (linkExpired) return;
+       
+        const answers = getSelectedAnswers();
+        const otherText = document.getElementById('otherTextInput')?.value.trim() || '';
+       
+        if (answers.length === 0) {
+            return alert('Please select at least one option.');
+        }
+                                                         
+        const formUrl = window.location.href;
+                                                         
+        Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.ServiceFeedbackController.saveFeedback}',
+            responseId,
+            leadId,
+            rating,
+            currentQuestionId,
+            answers.join(', '),
+            otherText,        
+            formUrl,
+            function(result, event) {
+                if (event.status) {
+                    document.getElementById('mainContent').style.display = 'none';
+                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('expiredMessage').style.display = 'none';
+                } else {
+                    alert('Failed to submit feedback.');
+                }
+            }
+        );
+    });
+   
+    window.onload = function() {
+        leadId = getUrlParameter('id');
+        console.log('Extracted leadId:', leadId);
+        checkExistingFeedback();
+        loadFeedbackQuestions();
+    };
+    </script>
+</apex:page>

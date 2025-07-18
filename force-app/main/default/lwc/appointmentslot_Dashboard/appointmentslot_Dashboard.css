@@ -1,0 +1,16 @@
+.custom-container{
+	color : black;
+
+}
+.readonly-input lightning-input {
+    background-color: #f3f3f3;
+    border-color: #020710;
+}
+.component-background {
+    background-color: #f9f9f9;
+    border-radius: 0.5rem;
+}
+
+.bold-label lightning-input label {
+    font-weight: bold;
+}

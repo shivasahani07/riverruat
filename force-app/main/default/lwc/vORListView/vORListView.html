@@ -1,0 +1,139 @@
+<!--
+  @description       : 
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             : 
+  @last modified on  : 05-30-2025
+  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+-->
+<template>
+    <lightning-card title="Related VOR Records" icon-name="custom:custom38">
+        <div slot="title">
+            <lightning-icon icon-name="standard:quotes" size="small"></lightning-icon>
+            <span class="slds-m-left_small">Related VOR Records ({vorCount})</span>
+        </div>
+
+        <div slot="actions">
+            <lightning-button 
+                variant="neutral" 
+                label="Refresh" 
+                onclick={handleRefresh}
+                icon-name="utility:refresh">
+            </lightning-button>
+        </div>
+
+        <div class="slds-card__body slds-card__body_inner">
+            <template if:true={isLoading}>
+                <div class="slds-text-align_center slds-m-vertical_medium">
+                    <lightning-spinner alternative-text="Loading VORs..."></lightning-spinner>
+                </div>
+            </template>
+
+            <template if:true={error}>
+                <div class="slds-text-color_error slds-text-align_center slds-m-vertical_medium">
+                    <lightning-icon icon-name="utility:error" size="small" variant="error"></lightning-icon>
+                    <p class="slds-m-top_small">Error loading VOR: {error.body.message}</p>
+                </div>
+            </template>
+
+            <template if:true={hasVors}>
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th class="slds-text-title_caps"><div class="slds-truncate">VOR Name</div></th>
+                            <th class="slds-text-title_caps"><div class="slds-truncate">VOR Reason</div></th>
+                            <th class="slds-text-title_caps"><div class="slds-truncate">Job Type</div></th>
+                            <th class="slds-text-title_caps"><div class="slds-truncate">Job Card</div></th>
+                            
+                            <th class="slds-text-title_caps"><div class="slds-truncate">Last Update Time</div></th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={vors} for:item="vor">
+                            <tr key={vor.Id} class="slds-hint-parent">
+                                <td>
+                                    <div class="slds-truncate">
+                                        <a href={vor.vorUrl} target="_blank">{vor.Name}</a>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <template if:false={vor.isEditingStatus}>
+                                        <div class="slds-truncate">
+                                            <span class={vor.statusClass} 
+                                                  style="cursor: pointer;" 
+                                                  onclick={handleStatusClick} 
+                                                  data-vor-id={vor.Id}
+                                                  title="Click to edit VOR Reason">
+                                                {vor.VOR_Reason__c}
+                                                <lightning-icon icon-name="utility:edit" size="xx-small" class="slds-m-left_x-small"></lightning-icon>
+                                            </span>
+                                        </div>
+                                    </template>
+
+                                    <template if:true={vor.isEditingStatus}>
+                                        <lightning-combobox
+                                            name="status"
+                                            label=""
+                                            value={vor.VOR_Reason__c}
+                                            placeholder="Select VOR Reason"
+                                            options={statusOptions}
+                                            onchange={handleStatusChange}
+                                            data-vor-id={vor.Id}
+                                            variant="label-hidden">
+                                        </lightning-combobox>
+                                    </template>
+                                </td>
+
+                                <td><div class="slds-truncate">{vor.Job_Type__c}</div></td>
+                                <td>
+                                    <div class="slds-truncate">
+                                        <a href={vor.workOrderUrl} target="_blank">{vor.WorkOrderNumber}</a>
+                                    </div>
+                                </td>
+                               
+                                <td><div class="slds-truncate">{vor.Reason_Entered_Date__c}</div></td>
+                               
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+
+                <!-- Save/Cancel buttons shown at bottom if any VOR is in edit mode -->
+                <template if:true={hasEditing}>
+                    <div class="slds-m-top_medium slds-text-align_center">
+                        <lightning-button 
+                            variant="brand" 
+                            label="Save" 
+                            size="small"
+                            onclick={handleSaveStatus}
+                            disabled={isSaving}
+                            class="slds-size_1-of-1">
+                        </lightning-button>
+
+
+                        <lightning-button 
+                            variant="neutral" 
+                            label="Cancel" 
+                            onclick={handleCancelEdit}>
+                        </lightning-button>
+                    </div>
+                </template>
+            </template>
+
+            <template if:false={hasVors}>
+                <template if:false={isLoading}>
+                    <template if:false={error}>
+                        <div class="slds-text-align_center slds-m-vertical_large">
+                            <lightning-icon icon-name="utility:info" size="medium" variant="info"></lightning-icon>
+                            <h3 class="slds-text-heading_medium slds-m-top_medium">No VORs Found</h3>
+                            <p class="slds-text-body_regular slds-m-top_small">
+                                There are no VORs associated with this Job Card yet.
+                            </p>
+                        </div>
+                    </template>
+                </template>
+            </template>
+        </div>
+    </lightning-card>
+</template>

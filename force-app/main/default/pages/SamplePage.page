@@ -1,0 +1,5 @@
+<apex:page >
+    <div>
+        Hello, Welcom to the Site.
+    </div>
+</apex:page>

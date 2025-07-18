@@ -1,0 +1,36 @@
+<template>
+    <lightning-quick-action-panel header="Create Discrepancy Lot">
+
+        <!-- Form Fields -->
+        <lightning-input label="Handover Person" value={handoverPerson} onchange={handleChange} data-id="handoverPerson"></lightning-input>
+        <lightning-input label="Requester Name" value={requesterName} onchange={handleChange} data-id="requesterName"></lightning-input>
+        <lightning-input label="Phone Number" type="tel" value={phoneNumber} onchange={handleChange} data-id="phoneNumber"></lightning-input>
+        <lightning-input label="Dispatched Date" type="date" value={dispatcheDate} onchange={handleChange} data-id="dispatcheDate"></lightning-input>
+        <lightning-combobox label="Mode of Transport" value={modeOfTransport} options={transportOptions} onchange={handleChange} data-id="modeOfTransport"></lightning-combobox>
+        <lightning-combobox label="Address of Consignee" value={addressOfConsignee} options={addressOptions} onchange={handleChange} data-id="addressOfConsignee"></lightning-combobox>
+        <lightning-textarea label="Purpose of Sending" value={purpose} onchange={handleChange} data-id="purpose"></lightning-textarea>
+        <div class="slds-m-top_medium">
+            <lightning-button label="Add Discrepancy Line Items" onclick={handleLoadLineItems}></lightning-button>
+        </div>
+
+        <template if:true={lineItems.length}>
+            <lightning-datatable
+                key-field="id"
+                data={lineItems}
+                columns={columns}
+                onrowselection={handleRowSelection}
+            ></lightning-datatable>
+        </template>
+
+        <!-- Footer Buttons in Modal -->
+        <div slot="footer">
+            <lightning-button label="Cancel" variant="neutral" onclick={handleCancel}></lightning-button>
+            <lightning-button label="Save" variant="brand" class="slds-m-left_small" onclick={handleSave}></lightning-button>
+        </div>
+
+           <template if:true={showSpinner}>
+                 <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </template>
+     
+    </lightning-quick-action-panel>
+</template>

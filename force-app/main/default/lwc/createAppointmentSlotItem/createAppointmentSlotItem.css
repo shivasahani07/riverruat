@@ -1,0 +1,53 @@
+/* Card Styling */
+.card-style {
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.card-style:hover {
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Combobox Styling */
+.custom-combobox {
+    margin-bottom: 20px;
+}
+
+/* Button Container: Centered Buttons */
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Button Styling */
+.custom-button {
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.custom-button:hover {
+    background-color: #0070d2; /* Change to any color */
+    transform: scale(1.05);
+}
+
+/* Custom Animation for slot combobox */
+@keyframes slotSelectAnimation {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Apply animation to combobox */
+.custom-combobox {
+    animation: slotSelectAnimation 0.5s ease-out;
+}
+
+lightning-combobox::part(combobox) {
+    font-weight: bold;
+}

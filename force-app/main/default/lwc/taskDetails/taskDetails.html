@@ -1,0 +1,13 @@
+<template>
+        <template if:true={task}>
+            <div class="slds-p-around_medium">
+                <p><strong>Subject:</strong> {task.Subject}</p>
+                <p><strong>Status:</strong> {task.Status}</p>
+                <p><strong>Due Date:</strong> {task.ActivityDate}</p>
+            </div>
+        </template>
+
+        <template if:true={error}>
+            <p class="slds-text-color_error">An error occurred: {error.body.message}</p>
+        </template>
+</template>

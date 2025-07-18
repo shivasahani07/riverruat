@@ -1,0 +1,54 @@
+<template>
+    <lightning-card title="Customer Concerns">
+        <template if:true={concerns}>
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                <thead>
+                    <tr>
+                        <th>Case Category</th>
+                        <th>Concern</th>
+                        <th>Sub Concern</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={concerns} for:item="concern">
+                        <tr key={concern.Id}>
+                            <td>
+                                <lightning-combobox
+                                    data-id={concern.Id}
+                                    value={concern.Case_Category__c}
+                                    options={categoryOptions}
+                                    onchange={handleCategoryChange}>
+                                </lightning-combobox>
+                            </td>
+                            <td>
+                                <lightning-combobox
+                                    data-id={concern.Id}
+                                    value={concern.Concern__c}
+                                    
+                                    onchange={handleConcernChange}><!--options={getConcernOptions(concern.Case_Category__c)}-->
+                                </lightning-combobox>
+                            </td>
+                            <td>
+                                <lightning-combobox
+                                    data-id={concern.Id}
+                                    value={concern.Subconcerns__c}
+                                   
+                                    onchange={handleSubConcernChange}>
+                                </lightning-combobox> <!-- options={getSubConcernOptions(concern.Concerns__c)}-->
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            <lightning-button
+                class="slds-m-top_medium"
+                label="Save Changes"
+                variant="brand"
+                onclick={handleSave}>
+            </lightning-button>
+        </template>
+        <template if:true={error}>
+            <p class="slds-text-color_error">{error}</p>
+        </template>
+    </lightning-card>
+</template>

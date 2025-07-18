@@ -1,0 +1,52 @@
+<!--
+  @description       : 
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             : 
+  @last modified on  : 03-27-2025
+  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+-->
+<template>
+    <lightning-card title="Add Supporting Media" icon-name="standard:record">
+        <div class="slds-m-around_medium">
+            <template if:true={lineItems}>
+                <table class="slds-table slds-table_bordered">
+                    <thead>
+                        <tr>
+                            <th>Discrepancy Line Item</th>
+                            <th>Supporting Media</th>
+                            <th>Approve</th>
+                            <th>Reject</th>
+                            <th>
+                                <template if:false={isSalesManager}>Feedback</template></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={lineItems} for:item="item">
+                            <tr key={item.Id}>
+                                <td>{item.Name}</td>
+                                <td>
+                                    <lightning-input type="url" data-id={item.Id} value={item.Supporting_Media__c} onchange={handleInputChange}></lightning-input>
+                                </td>
+                                <td>
+                                    <lightning-button label="✔" variant={item.approveStyle} data-id={item.Id} name="approve" onclick={handleApproval}></lightning-button>
+                                </td>
+                                <td>
+                                    <lightning-button label="✖" variant={item.rejectStyle} data-id={item.Id} name="reject" onclick={handleApproval}></lightning-button>
+                                </td>
+                                <td>
+                                    <template if:false={isSalesManager}>
+                                        <lightning-input type="text" data-id={item.Id} value={item.feedback} onchange={handleFeedbackChange}></lightning-input>
+                                    </template>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </template>
+            <div class="slds-m-top_medium slds-align_absolute-center">
+                <lightning-button label="Cancel" variant="neutral" onclick={handleExit}></lightning-button>
+                <lightning-button label="Submit" variant="brand" onclick={handleAddSupportingMedia}></lightning-button>
+            </div>
+        </div>
+    </lightning-card>
+</template>

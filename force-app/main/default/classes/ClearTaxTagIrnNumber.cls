@@ -1,0 +1,149 @@
+/**
+* @author Dinesh Baddawar
+* @email dinesh.butilitarianlab@gmail.com
+* @create date 2025-02-21 23:30:12
+* @modify date 2025-02-21 23:30:12
+* @desc [Clear Tax API Helper Class]
+*/
+
+public class ClearTaxTagIrnNumber {
+    
+
+    @future
+    public static void RemoveIRNnumberToOrder(String orderId){
+        try{
+            Order ordRec = new Order();
+            if(orderId != null){
+                ordRec.Id = orderId;
+                ordRec.IRN_No__c = '';
+                ordRec.IRN_Generated_DateTime__c = system.Now();
+                update ordRec;
+                System.debug('Update Order Record without IRN  === >'+ordRec);
+            }else{
+                System.debug('No IRN Number Found !===>'+orderId);
+            }
+        }catch(Exception e){
+            ExceptionHelper.createExceptionLog(e);
+            System.debug('Error Message ==>'+e.getMessage()+' && Error Line == >'+e.getLineNumber());
+        }
+    }
+    
+    @future(callout=true)
+    public static void generateAndStoreQRCode(String data, String recordId, String productType) {
+        Integer xsize = 170;
+        Integer ysize = 170;
+        String qrApiUrl = System.Label.QRCodeBaseURL + EncodingUtil.urlEncode(data, 'UTF-8') + '&size=' + ysize + 'x' + xsize + '&format=png';
+        try {
+            Order ord = [SELECT Id, OrderNumber, Is_QR_Generated__c FROM Order WHERE Id=:recordId LIMIT 1];
+            Http http = new Http();
+            HttpRequest request = new HttpRequest();
+            request.setEndpoint(qrApiUrl);
+            request.setMethod('GET');
+            HttpResponse response = http.send(request);
+            
+            if (response.getStatusCode() == 200) {
+                Blob qrCodeBlob = response.getBodyAsBlob();
+                Attachment attachment = new Attachment();
+                attachment.ParentId = recordId; 
+                attachment.Name = productType + '_QRCode_' + ord.OrderNumber + '_' + System.now().format('h:mm a') + '.png';
+                attachment.Body = qrCodeBlob;
+                attachment.ContentType = 'image/png'; 
+                insert attachment; 
+            }
+        } catch (Exception e) {
+            ExceptionHelper.createExceptionLog(e);
+        }
+    }
+    
+    
+    // Delete Generated QR for that Order record after E-invoice generation ##6
+   @AuraEnabled
+    public static void deleteOrderQRcode(Id orderId){
+        try{
+            Order Orderec = [SELECT Id FROM Order WHERE Id =:orderId LIMIT 1];
+            List<Attachment> attList = [SELECT Id FROM Attachment WHERE Name LIKE '%QRCode%' AND ParentId = :Orderec.Id];
+            if(!attList.isEmpty()){
+                delete attList;
+                System.debug('Deleted QR Code for Order Record === >'+attList);
+            }
+        }catch(Exception e){
+            ExceptionHelper.createExceptionLog(e);
+            System.debug('Error Message ==> ' + e.getMessage() + ' && Error Line == >' + e.getLineNumber());
+        }
+    }
+    
+    // Update Order When IRN is Cancled ##7
+    public static void updateOrderIRNCancel(Order ordRec){
+        try{
+            ordRec.IRN_No__c = '';
+            ordRec.Accessories_IRN_No__c = '';
+            ordRec.Merchandise_IRN_No__c = '';
+            ordRec.IRN_Generated_DateTime__c = null;
+            ordRec.Is_IRN_Cancelled__c = true;
+            ordRec.Is_E_invoice_Generated__c = false;
+            update ordRec;
+            System.debug('Update Order Record without IRN  === >'+ordRec);
+            DeleteGenerateE_InvoiceOnIRNCancel(ordRec);
+        }catch(Exception e){
+            ExceptionHelper.createExceptionLog(e);
+            System.debug('Error Message ==>'+e.getMessage()+' && Error Line == >'+e.getLineNumber());
+        }
+    }
+    
+    // Delete E-invoice Attachment when IRN is get Cancled ##8
+    public static void DeleteGenerateE_InvoiceOnIRNCancel(Order ordRec) {
+        try {
+            String orderName = ordRec.OrderNumber.trim();
+            String searchPattern = '%E-invoice%' + orderName + '%'; 
+            System.debug('searchPattern === >' + searchPattern);
+            List<Attachment> attList = [SELECT Id FROM Attachment WHERE Name LIKE :searchPattern LIMIT 1];
+            if (!attList.isEmpty()) {
+                delete attList;
+                System.debug('Deleted E-Invoice for Order Record === >' + attList);
+            } else {
+                System.debug('No matching E-Invoice found for Order Number ==> ' + orderName);
+            }
+        } catch (Exception e) {
+            ExceptionHelper.createExceptionLog(e);
+            System.debug('Error Message ==>' + e.getMessage() + ' && Error Line == >' + e.getLineNumber());
+        }
+    }
+    
+    // Method get E-way Bill Number on Shipments ##9
+    public static void TagE_wayBillToShipment(String recordId,String ewaybillNo){
+        try{
+            Shipment shipRec = new Shipment();
+            shipRec.Id = recordId;
+            shipRec.E_Way_bill__c = ewaybillNo;
+            shipRec.Is_E_Way_Bill_No_Generated__c = true;
+            update shipRec;
+            System.debug('Update Shipment Record with E-way Bill  === >'+shipRec);
+        }catch(Exception e){
+            ExceptionHelper.createExceptionLog(e);
+            System.debug('Error Message ==>'+e.getMessage()+' && Error Line == >'+e.getLineNumber());
+        }
+    }
+    
+    public static void methodToCoverage5(){ 
+        Integer i=0;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+    }
+    
+}

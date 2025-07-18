@@ -1,0 +1,35 @@
+<template>
+    <lightning-card title="VOR">
+        <div style="height:100%;">
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="12" medium-device-size="6" large-device-size="3" padding="horizontal-small">
+                    <div class="custom-box"></div>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" medium-device-size="6" large-device-size="3" padding="horizontal-small">
+                    <div class="custom-box"></div>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" medium-device-size="6" large-device-size="3" padding="horizontal-small">
+                    <div class="custom-box"></div>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" medium-device-size="6" large-device-size="3" padding="horizontal-small">
+                    <div class="custom-box">
+                        <lightning-combobox
+                            name="progress"
+                            label="Status"
+                            value={value}
+                            placeholder="Select Progress"
+                            options={options}
+                            onchange={handleChange}>
+                        </lightning-combobox>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+            <br/>
+            <lightning-datatable key-field="id" data={data} columns={columns}></lightning-datatable>
+            <div class="slds-m-top_medium slds-align_absolute-center">
+                <lightning-button label="Previous" onclick={handlePrevious} disabled={isPrevDisabled} class="slds-m-right_small"></lightning-button>
+                <lightning-button label="Next" onclick={handleNext} disabled={isNextDisabled}></lightning-button>
+            </div>
+        </div>
+    </lightning-card>
+</template>

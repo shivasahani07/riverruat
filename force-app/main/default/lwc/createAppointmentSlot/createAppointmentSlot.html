@@ -1,0 +1,40 @@
+<template>
+    <lightning-card title="Create Appointment Slots">
+        <div class="slds-p-around_medium">
+
+            <!-- ✅ Service Center Record Picker -->
+            <lightning-record-picker
+                label="Service Center"
+                placeholder="Search Service Center"
+                object-api-name="Account"
+                onchange={handleCenterSelected}>
+            </lightning-record-picker>
+
+            <!-- Slot Date -->
+            <lightning-input type="date"
+                             name="slotDate"
+                             label="Slot Date"
+                             value={slotDate}
+                             onchange={handleInputChange}>
+            </lightning-input>
+
+            <!-- Slot Duration -->
+            <lightning-input type="number"
+                             name="slotDuration"
+                             label="Slot Duration (minutes)"
+                             value={slotDuration}
+                             min="1"
+                             onchange={handleInputChange}>
+            </lightning-input>
+
+            <!-- Save -->
+            <div class="slds-m-top_medium">
+                <lightning-button variant="brand"
+                                  label="Create Slots"
+                                  onclick={createSlots}
+                                  disabled={disableSave}>
+                </lightning-button>
+            </div>
+        </div>
+    </lightning-card>
+</template>

@@ -1,0 +1,33 @@
+<template>
+    <lightning-card title="Case Attachments">
+        <template if:true={attachments.length}>
+            <lightning-layout multiple-rows>
+                <template for:each={attachments} for:item="file">
+                    <lightning-layout-item key={file.Id} size="12" padding="around-small">
+                        <div class="slds-box slds-box_xx-small">
+                            <p class="slds-text-heading_small">
+                                <a href={file.previewUrl} target="_self" class="slds-text-link">{file.Title}</a>
+                            </p>
+                            <p class="slds-text-body_small">Type: {file.FileType}</p>
+                            <a href={file.previewUrl} target="_self">
+                                <lightning-button label="View" variant="brand-outline"></lightning-button>
+                            </a>
+                        </div>
+                    </lightning-layout-item>
+                </template>
+            </lightning-layout>
+        </template>
+
+        <template if:true={error}>
+            <p class="slds-text-color_error slds-p-around_medium">{error}</p>
+        </template>
+
+        <template if:true={isLoading}>
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </template>
+
+        <template if:true={noFiles}>
+            <p class="slds-p-around_medium">No attachments found for this case.</p>
+        </template>
+    </lightning-card>
+</template>

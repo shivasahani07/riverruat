@@ -1,0 +1,17 @@
+<template>
+    <lightning-card title="Customer Concerns" icon-name="standard:case">
+        <div style="height: 100%; " clas="slds-p-horizontal_x-large"> 
+            <lightning-datatable
+                key-field="Id"
+                data={data}
+                columns={columns}
+                onsave={handleSave}
+                draft-values={draftValues}
+                hide-checkbox-column
+                sorted-by={sortBy}
+                sorted-direction={sortDirection}
+                onsort={doSorting}>
+            </lightning-datatable>
+        </div>
+    </lightning-card>
+</template>

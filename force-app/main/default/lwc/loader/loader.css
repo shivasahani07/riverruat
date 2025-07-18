@@ -1,0 +1,56 @@
+.backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: all; /* Block interaction */
+}
+
+.spinner-container {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.message {
+    margin-top: 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #1b5299;
+}
+
+/* Modern glowing spinner */
+.glow-spinner {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+.glow-spinner span {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    margin: 8px;
+    border: 6px solid #1b5299;
+    border-radius: 50%;
+    animation: glow-spin 1.2s linear infinite;
+    border-color: #1b5299 transparent transparent transparent;
+}
+.glow-spinner span:nth-child(1) { animation-delay: -0.45s; }
+.glow-spinner span:nth-child(2) { animation-delay: -0.3s; }
+.glow-spinner span:nth-child(3) { animation-delay: -0.15s; }
+
+@keyframes glow-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

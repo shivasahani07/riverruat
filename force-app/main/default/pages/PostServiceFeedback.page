@@ -1,0 +1,562 @@
+<!--
+  @description       : 
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             : 
+  @last modified on  : 07-17-2025
+  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+-->
+<apex:page controller="PSFController" showHeader="false" sidebar="false" standardStylesheets="false">
+    <apex:includeScript value="/soap/ajax/43.0/connection.js"/>
+    <apex:includeScript value="/soap/ajax/43.0/apex.js"/>
+   
+    <style>
+      body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: #f9f9f9;
+}
+
+/* Header remains unchanged */
+.header { /* ...existing styles... */ }
+.header-logo { /* ... */ }
+.user-name { /* ... */ }
+.highlight { /* ... */ }
+
+@media (max-width: 768px) { /* ... */ }
+@media (max-width: 480px) { /* ... */ }
+
+h2 { font-size: 24px; margin-top: 40px; }
+p { font-size: 18px; color: #666; margin-bottom: 30px; }
+
+/* 1. Grid layout for cards */
+#feedbackForm {
+  display: grid;
+  grid-template-columns: repeat(2, auto); /* 2 cards per row, don't stretch */
+  gap: 20px;
+  padding: 20px;
+  margin: 40px auto;
+  justify-content: center; /* center the whole grid if narrower than parent */
+}
+
+/* Question card style */
+.question-card {
+  background: #fff;
+  border-radius: 8px;
+  border:2px solid black;      
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 20px;
+  transition: transform .2s, box-shadow .2s;
+  width: 300px; /* fixed width */
+}
+
+/* Center the last (7th) question */
+#feedbackForm .question-card:nth-child(7) {
+  grid-column: span 2;        /* span both columns */
+  justify-self: center;       /* center it in the row */
+}
+.question-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0,0,0,1);
+}
+
+/* 3. Question Title */
+.question-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+/* 4. Star Ratings */
+.stars {
+  display: flex;
+  font-size: 1.8em;
+  color: #ccc;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+.star {
+  margin-right: 6px;
+  transition: color .2s;
+}
+.star.selected,
+.star:hover,
+.star:hover ~ .star {
+  color: #FFD700;
+}
+
+/* 5. Yes/No Buttons */
+.option-group {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.option-group button {
+  flex: 1;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background .2s, border-color .2s;
+}
+.option-group button.selected {
+  background: #037CB5;
+  color: #fff;
+  border-color: #037CB5;
+}
+
+/* 6. Submit button wrapper reposition */
+#submitBtnWrapper {
+  text-align: center;
+  margin: 30px 0;     
+}
+
+/* Success/Expired message blocks unchanged */
+.success-message { /* ... */ }
+.expired-message { /* ... */ }
+/* ...and any other existing styles like .expired-icon, DM Sans, etc. */
+
+@media (max-width: 768px) {
+  .question-card {
+    padding: 16px;
+  }
+}
+        .header {
+  background-color: #037CB5;
+  color: white;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.header-logo {
+  position: absolute;
+  left: 60px;
+  height: 80px; /* increased from 40px to 60px */
+  width:70px;      
+}
+
+.header-title {
+  font-size: 80px; /* increased from 30px to 36px */
+  font-weight: bold;
+}
+
+.highlight {
+  color: #f7ec2a;
+}
+
+        /* General container for centering */
+.success-message,
+.expired-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 80vh;
+    padding: 20px;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Common icon styling */
+.success-checkmark,
+.expired-icon {
+    font-size: 48px;
+    color: #28a745; /* Success green */
+    margin-bottom: 16px;
+}
+
+.expired-icon {
+    color: #dc3545; /* Red for warning */
+}
+
+/* Headings */
+.success-message h2,
+.expired-message h2 {
+    font-size: 28px;
+    margin: 10px 0;
+    color: #333;
+}
+
+/* Paragraph text */
+.success-message p,
+.expired-message p {
+    font-size: 16px;
+    color: #666;
+    max-width: 500px;
+    line-height: 1.5;
+    text-align:center; 
+    margin: 0 auto;    
+}
+        .user-name {
+    font-size: 30px; /* Increase to any desired size, e.g., 20px, 24px, etc. */
+    font-weight: bold; /* Optional */
+    margin-bottom: 10px; /* Optional spacing */
+}
+
+
+    
+    </style>
+   
+    <div class="header">
+        <img src="{!URLFOR($Resource.Ride_River_Logo_LWC)}" alt="Ride River Logo" class="header-logo" />
+       
+        <apex:outputPanel rendered="{!NOT(ISNULL(primaryContact))}">
+            <div class="user-name"><span class="highlight">Hi!</span> {!primaryContact.Name}</div>
+        </apex:outputPanel>
+    </div>
+   
+    <!-- Main Content -->
+<div id="mainContent" style="text-align: center;">
+    <h2>We'd love your feedback!</h2>
+    <p style="font-size: 20px;">
+        We’re always looking to improve your River experience.<br/>
+        Share your thoughts to help us keep getting better.
+    </p>
+
+    <div id="feedbackForm" >
+        <!-- Questions will be dynamically rendered here -->
+    </div>
+
+    <div id="submitBtnWrapper" style="margin-top: 20px;">
+        <button id="submitBtn" disabled="disabled">Submit</button>
+    </div>
+</div>
+    <!-- Success Message for first submission -->
+<div class="success-message" id="thankYouMessage" style="display:none;">
+    <div class="success-checkmark">&#10004;</div>
+    <h2>Thank You for Your Feedback!</h2>
+    <p>We appreciate you taking the time to share your experience with us.<br/>
+        Your feedback helps us improve our services.
+    </p>
+</div>
+
+<!-- Already Submitted Message -->
+<div class="success-message" id="alreadySubmittedMessage" style="display:none;">
+    <div class="success-checkmark">&#10004;</div>
+    <h2>Feedback Already Submitted</h2>
+    <p>Thanks for sharing your thoughts! We've already received your feedback.<br/>
+        If you need to update or have more to say, feel free to contact our team.
+    </p>
+</div>
+ 
+    <!-- Expired Message -->
+    <div class="expired-message" id="expiredMessage" style="display:none;">
+        <div class="expired-icon">&#9888;</div>
+        <h2>Oops! this Link isn't active anymore</h2>
+        <p>Looks like this feeedback link has expired or been used already.</p>
+    </div>
+   
+    <!-- JavaScript -->
+    <script>
+    //container.classList.add('question-card');
+
+      let leadId = null;
+    
+    let responseId = null;
+    const responses = {};
+
+    const questions = [
+        { id: 'q1', text: '1)Did you receive a call from the Service Team after your Indie was serviced?', type: 'yesno' },
+        { id: 'q2', text: '2)How convenient was it to schedule a service appointment for your Indie?', type: 'stars' },
+        { id: 'q3', text: '3)How helpful was the Service Advisor in resolving your issues?', type: 'stars' },
+        { id: 'q4', text: '4)Were the job card and invoice provided and explained to you?', type: 'yesno' },
+        { id: 'q5', text: '5)How clean was the delivered vehicle after service?', type: 'stars' },
+        { id: 'q6', text: '6)How effectively was your issue resolved during the service?', type: 'stars' },
+        { id: 'q7', text: '7)Was your Indie service completed on time?', type: 'yesno' }
+    ];
+
+    function getUrlParameter(name) {
+        const params = new URLSearchParams(window.location.search);
+        return params.get(name);
+    }
+
+    function renderQuestions() {
+        
+
+        const form = document.getElementById('feedbackForm');
+        questions.forEach(q => {
+            const container = document.createElement('div');
+            container.style.marginBottom = '20px';
+            
+            container.classList.add('question-card');
+
+            const label = document.createElement('div');
+            label.textContent = q.text;
+            label.className = 'question-title';
+            container.appendChild(label);
+
+            if (q.type === 'stars') {
+                const starDiv = document.createElement('div');
+                starDiv.className = 'stars';
+                for (let i = 1; i <= 5; i++) {
+                    const star = document.createElement('span');
+                    star.innerHTML = '&#9733;';
+                    star.className = 'star';
+                    star.setAttribute('data-value', i);
+                    star.onclick = () => {
+                        responses[q.text] = i.toString();
+                        updateStars(starDiv, i);
+                        checkCompletion();
+                    };
+                    starDiv.appendChild(star);
+                }
+                container.appendChild(starDiv);
+            } else if (q.type === 'yesno') {
+                ['Yes', 'No'].forEach(option => {
+                    const btn = document.createElement('button');
+                    btn.textContent = option;
+                    btn.type = 'button';
+                    btn.style.marginRight = '10px';
+                    btn.onclick = () => {
+                        responses[q.text] = option;
+                        highlightSelected(btn, container);
+                        checkCompletion();
+                    };
+                    container.appendChild(btn);
+                });
+            }
+
+            form.appendChild(container);
+        });
+    }
+
+    function updateStars(container, value) {
+        const stars = container.querySelectorAll('.star');
+        stars.forEach(star => {
+            const val = parseInt(star.getAttribute('data-value'));
+            star.style.color = val <= value ? '#ffc107' : '#ccc';
+        });
+    }
+
+    function highlightSelected(button, container) {
+        const buttons = container.querySelectorAll('button');
+        buttons.forEach(btn => btn.style.backgroundColor = '#f0f0f0');
+        button.style.backgroundColor = '#90caf9';
+    }
+
+    function checkCompletion() {
+        if (Object.keys(responses).length === questions.length) {
+            const submitBtn = document.getElementById('submitBtn');
+            const submitWrapper = document.getElementById('submitBtnWrapper');
+            submitBtn.disabled = false;
+            submitWrapper.style.display = 'block';
+        }
+    }
+
+    function showErrorAndDisable(message) {
+        document.getElementById('errorMessage').innerText = message;
+        document.getElementById('submitBtn').disabled = true;
+    }
+    
+    function isLinkExpired(sentDateTime) {
+
+    const sentDate = new Date(sentDateTime);
+    const currentDate = new Date();
+    const diffHours = Math.abs(currentDate - sentDate) / 36e5; // hours
+    console.log('Current time:', currentDate);
+    console.log('Sent time:', sentDate);
+    console.log('Difference in hours:', diffHours);
+    // return diffHours >= 48;
+     return false;//added by Aniket on 17/07/2025
+
+    }
+ 
+    
+    function showExpiredMessage() {
+    const mainContent = document.getElementById('mainContent');
+    const successMessage = document.getElementById('successMessage');
+    const alreadySubmittedMessage = document.getElementById('alreadySubmittedMessage');
+    const expiredMessage = document.getElementById('expiredMessage');
+
+    if (mainContent) mainContent.style.display = 'none';
+    else console.warn('#mainContent not found');
+
+    if (successMessage) successMessage.style.display = 'none';
+    else console.warn('#successMessage not found');
+
+    if (alreadySubmittedMessage) alreadySubmittedMessage.style.display = 'none';
+    else console.warn('#alreadySubmittedMessage not found');
+
+    if (expiredMessage) expiredMessage.style.display = 'block';
+    else console.warn('#expiredMessage not found');
+
+    linkExpired = true;
+    feedbackSubmitted = false;
+}
+
+
+function showAlreadySubmittedMessage() {
+    const mainContent = document.getElementById('mainContent');
+    const thankYouMessage = document.getElementById('thankYouMessage');
+    const alreadySubmittedMessage = document.getElementById('alreadySubmittedMessage');
+    const expiredMessage = document.getElementById('expiredMessage');
+
+    if (mainContent) mainContent.style.display = 'none';
+    else console.warn('#mainContent not found');
+
+    if (thankYouMessage) thankYouMessage.style.display = 'none';
+    else console.warn('#thankYouMessage not found');
+
+    if (alreadySubmittedMessage) alreadySubmittedMessage.style.display = 'block';
+    else console.warn('#alreadySubmittedMessage not found');
+
+    if (expiredMessage) expiredMessage.style.display = 'none';
+    else console.warn('#expiredMessage not found');
+
+    feedbackSubmitted = true;
+    linkExpired = false;
+}
+
+    
+    //to check existing feedback
+    function checkExistingFeedback() {
+    console.log('[checkExistingFeedback] Initiating feedback check for leadId:', leadId);
+    
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.PSFController.checkExistingFeedback}',
+        leadId,
+        function(result, event) {
+            console.log('[checkExistingFeedback] Remote action completed. Event status:', event.status);
+            console.log('[checkExistingFeedback] Full result:', JSON.stringify(result, null, 2));
+            console.log('[checkExistingFeedback] Event details:', JSON.stringify(event, null, 2));
+            
+            if (event.status) {
+                console.log('[checkExistingFeedback] Remote action succeeded');
+                
+                if (result) {
+                    console.log('[checkExistingFeedback] Feedback record exists:', result.Id);
+                    console.log('[checkExistingFeedback] Current status:', result.Response_Status__c);
+                    console.log('[checkExistingFeedback] Sent time:', result.Sent_Date_Time__c);
+                    console.log('[checkExistingFeedback] Submitted time:', result.Submitted_Date_Time__c);
+                    
+                    // Check for expired link
+                    if (result.Sent_Date_Time__c) {
+                        console.log('[checkExistingFeedback] Checking link expiration...');
+                        const isExpired = isLinkExpired(result.Sent_Date_Time__c);
+                        console.log('[checkExistingFeedback] Link expired:', isExpired);
+                        
+                        if (isExpired) {
+                            console.log('[checkExistingFeedback] Showing expired message');
+                            showExpiredMessage();
+                            return;
+                        }
+                    }
+                    
+                    // Check for already submitted feedback
+                    if (result.Response_Status__c) {
+                        const statusLower = result.Response_Status__c.toLowerCase();
+                        console.log('[checkExistingFeedback] Normalized status:', statusLower);
+                        
+                        if (statusLower === 'submitted') {
+                            console.log('[checkExistingFeedback] Feedback already submitted');
+                            console.log('[checkExistingFeedback] Submitted time exists:', !!result.Submitted_Date_Time__c);
+                            showAlreadySubmittedMessage();
+                            return;
+                        }
+                    }
+                    
+                    // If we have an ID but not submitted
+                    if (result.Id) {
+                        console.log('[checkExistingFeedback] Existing feedback record found (not submitted):', result.Id);
+                        responseId = result.Id;
+                        console.log('[checkExistingFeedback] Set responseId to:', responseId);
+                    }
+                } else {
+                    console.log('[checkExistingFeedback] No feedback record found, creating new one');
+                    createFeedbackResponse();
+                }
+            } else {
+                console.error('[checkExistingFeedback] Remote action failed:', event.message);
+                console.error('[checkExistingFeedback] Error type:', event.type);
+                console.error('[checkExistingFeedback] Where:', event.where);
+            }
+        },
+        {escape: false, buffer: false} // Additional options for better performance
+    );
+}
+    //upto here
+
+   function initializeFeedbackSession() {
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.PSFController.checkExistingFeedback}',
+        leadId,
+        function (result, event) {
+            if (event.status && result !== null) {
+                responseId = result.Id;
+                renderQuestions();
+            } else {
+                Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.PSFController.createEmptyResponse}',
+                    leadId,
+                    function (newId, event) {
+                        if (event.status && newId !== null) {
+                            responseId = newId;
+                            renderQuestions();
+                        } else {
+                            showErrorAndDisable('Failed to initialize feedback session.');
+                        }
+                    }
+                );
+            }
+        }
+    );
+}
+   
+    function createFeedbackResponse() {
+    PSFController.createEmptyFeedbackResponse(leadId, function (result, evt) {
+        if (evt.status) {
+            responseId = result;
+        } else {
+            showErrorAndDisable('Could not initialize feedback session.');
+        }
+    });
+}
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // renderQuestions();
+
+        document.getElementById('submitBtn').addEventListener('click', function () {
+            if (!responseId) {
+                alert('Feedback session not initialized.');
+                return;
+            }
+            const formatted = Object.entries(responses)
+            .map(([q, a]) => `${q} = ${a}`)
+            .join(', ');
+            //alert('Feedback submitted:\n' + formatted);
+
+            Visualforce.remoting.Manager.invokeAction(
+                '{!$RemoteAction.PSFController.saveFeedback}',
+                responseId,
+                responses,             // Map<String, String>
+                leadId,
+                window.location.href,  // form URL
+                '',                    // otherDescription
+                function (res, evt) {
+                    if (evt.status) {
+                        //alert('Thank you! Your feedback has been submitted.');
+                        location.reload();
+                    } else {
+                        alert('There was an error submitting your feedback.');
+                    }
+                }
+);
+
+        });
+    });
+
+    window.onload = function () {
+        leadId = getUrlParameter('id');
+        if (!leadId) {
+            showErrorAndDisable('Invalid link. Lead ID not found.');
+            return;
+        }
+        initializeFeedbackSession();
+        checkExistingFeedback();
+    };
+    </script>
+</apex:page>

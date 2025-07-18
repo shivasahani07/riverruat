@@ -1,0 +1,12 @@
+<template>
+    <template if:true={loading}>
+        <div class="backdrop">
+            <div class="spinner-container">
+                <div class="glow-spinner">
+                    <span></span><span></span><span></span><span></span>
+                </div>
+                <div class="message">{message}</div>
+            </div>
+        </div>
+    </template>
+</template>

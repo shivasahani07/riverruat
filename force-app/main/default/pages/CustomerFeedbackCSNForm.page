@@ -1,0 +1,43 @@
+<apex:page standardController="Order" extensions="CustomerFeedbackCSNFormController" applyHtmlTag="false" docType="html-5.0" showheader="false" renderAs="Pdf" standardStylesheets="true" sidebar="false">
+ <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+        <style type="text/css">
+            @page {
+            size: 10.5in 11.5in; 
+            margin-left: 0.5cm;
+            margin-right: 0.5cm;
+            margin-top: 0.5cm;
+            margin-bottom: 0.5cm;
+            }
+            .data_Table{
+            border: 1px solid black;
+            margin-top:100px;
+            text-align: center; 
+            border-top: 0;
+            border-right: 0;
+            }
+            .totals{
+            border: 1px solid black;
+            color: grey !important;
+            border-top: 0;
+            border-right: 0; 
+            }
+            .rectangle {
+            width: 10px;
+            height: 10px;
+            border: 1px solid #000;
+            display: inline-block;
+            margin-right: 30px;
+            margin-left: 5px;
+            }
+            .page-break {
+            page-break-after: always;
+            }
+            
+        </style>
+    </head>
+    <body style="font-family: sans-serif;font-size:10pt;  margin: 0; padding: 0;">
+        
+        
+    </body>
+</apex:page>

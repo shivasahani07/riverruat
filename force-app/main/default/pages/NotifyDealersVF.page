@@ -1,0 +1,9 @@
+<apex:page standardController="Discrepancy_Line_Item__c"
+           recordSetVar="records"
+           extensions="DiscrepancyLineItemListController"
+           lightningStylesheets="true"
+           action="{!sendNotifications}">
+    <apex:form >
+        <apex:pageMessages />
+    </apex:form>
+</apex:page>

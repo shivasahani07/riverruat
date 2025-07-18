@@ -1,0 +1,41 @@
+<template>
+    <lightning-card class="slds-m-top_medium slds-align_absolute-center">
+        <!-- <c-loader loading={isLoading}></c-loader> -->
+        <lightning-record-edit-form object-api-name="TFR_Sample__c" onsuccess={handleSuccess} record-id={recordId} onerror={handleError} >
+
+            <!-- Input Fields -->
+            <div class="slds-grid slds-wrap">
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input-field field-name="Name__c" disabled></lightning-input-field>
+                    <lightning-input-field field-name="Customer_Account__c"  disabled={isTFRRecordDisabled}></lightning-input-field>
+                    <lightning-input-field field-name="Customer_Contact__c" disabled={isTFRRecordDisabled}></lightning-input-field>
+                    <lightning-input-field field-name="Date_of_Complaint__c" disabled={isTFRRecordDisabled}></lightning-input-field>
+                    <lightning-input-field field-name="Date_of_Sale__c" disabled={isTFRRecordDisabled}></lightning-input-field>
+                    <lightning-input-field field-name="Date_of_Repair__c" disabled={isTFRRecordDisabled}></lightning-input-field>
+                    <lightning-input-field field-name="Part__c" value={inputObject.Id} disabled={inputObject.Id}></lightning-input-field>
+                    <lightning-input-field field-name="Failure_Code__c" value={inputObject.Failure_Code__c} disabled={inputObject.Failure_Code__c}></lightning-input-field>
+                    <lightning-input-field field-name="Job_Card__c" value={inputObject.WorkOrderId} disabled={inputObject.WorkOrderId}></lightning-input-field>
+                    
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input-field field-name="Issue_Severity__c" disabled={isTFRRecordDisabled}></lightning-input-field>
+                    <lightning-input-field field-name="Media__c" disabled={isTFRRecordDisabled}></lightning-input-field>
+                    <lightning-input-field field-name="Observations__c" disabled={isTFRRecordDisabled}></lightning-input-field>
+                    <lightning-input-field field-name="Odometer_Reading__c" disabled={isTFRRecordDisabled}></lightning-input-field> 
+                    <!-- <lightning-input-field field-name="TFR__c" disabled={isTFRRecordDisabled}></lightning-input-field> -->
+                    <lightning-input-field field-name="VOC__c" disabled={isTFRRecordDisabled}></lightning-input-field>
+                    <lightning-input-field field-name="Warranty_Claim_Number__c" disabled={isTFRRecordDisabled}></lightning-input-field>
+                    <lightning-input-field field-name="Approved_by__c" disabled={isTFRRecordDisabled}></lightning-input-field>
+                    <lightning-input-field field-name="VIN_No__c" disabled={isTFRRecordDisabled}></lightning-input-field>
+                    <lightning-input-field field-name="Service_Center__c" disabled={inputObject.WorkOrder.Service_Center__c} value={inputObject.WorkOrder.Service_Center__c}></lightning-input-field>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="slds-m-top_medium slds-align_absolute-center">
+                <lightning-button class="slds-m-right_small" variant="brand" type="submit" label="Submit" disabled={isTFRRecordDisabled}>
+                </lightning-button>
+            </div>
+        </lightning-record-edit-form>
+    </lightning-card>
+</template>

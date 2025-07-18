@@ -1,0 +1,14 @@
+<aura:component implements="force:appHostable,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader,lightning:isUrlAddressable" access="global" controller="GenerateCustomerFormCtrl">
+    <!--aura:html tag="style">
+        .slds-modal__container{
+        max-width: 50rem !important;
+        width:50% !important;    
+        }
+    </aura:html>
+    <aura:attribute name="siteURL" type="String" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <p class="slds-align_absolute-center" style="height : 210px; color:green; font-size:25px;">
+        𝐆𝐞𝐧𝐞𝐫𝐚𝐭𝐢𝐧𝐠 Customer Feedback 𝐏𝐃𝐅....
+    </p-->
+</aura:component>
