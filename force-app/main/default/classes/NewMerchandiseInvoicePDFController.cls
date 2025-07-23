@@ -81,7 +81,7 @@ public with sharing class NewMerchandiseInvoicePDFController {
                 Discount_on_Ex_Showroom_Price__c, Subsidy_Amount__c, State_Govt_Subsidy__c, Offers_Amount__c, Merchandise_Additional_Discount__c, Total_Merchandise_Unit_Price__c, Total_Accessories_Unit_Price__c,
                 Dealer__r.CIN__c, Dealer__r.RR_Customer_Care_Email__c, Dealer__r.RR_Customer_HelpLine_Number__c, Dealer__r.Email__c,  Dealer__r.GSTIN_Number__c,  Dealer__r.Phone,
                 Dealer__r.Beneficiary_Name__c, Dealer__r.Account_Number__c, Dealer__r.Bank_Name__c, Dealer__r.Swift_Code__c, Dealer__r.IFSC__c, Dealer__r.PAN_Number__c, IRN_No__c, Account.GSTIN_Number__c,
-                Dealer__r.Store_Type__c, RecordType.DeveloperName, OTC_Additional_Discount_Amount__c, Accessories_Discount_Amount__c, Coupon_Redeemed_Value__c, Coupon_Code__c FROM Order WHERE Id=:orderId];
+                Dealer__r.Store_Type__c, RecordType.DeveloperName, OTC_Additional_Discount_Amount__c, Accessories_Discount_Amount__c FROM Order WHERE Id=:orderId];
 
             // Store type & Dealer
             if (order.Dealer__r != null && order.Dealer__r.Store_Type__c != null) {
@@ -152,9 +152,9 @@ public with sharing class NewMerchandiseInvoicePDFController {
             itemWrappers = new List<OrderItemDiscountWrapper>();
             merchandiseDiscountAmount = 0;
             totalValueAfterAllTaxes = 0;
-            Decimal couponRedeemed = order.Coupon_Redeemed_Value__c != null ? order.Coupon_Redeemed_Value__c : 0;
+        /*    Decimal couponRedeemed = order.Coupon_Redeemed_Value__c != null ? order.Coupon_Redeemed_Value__c : 0;
             String couponCode = order.Coupon_Code__c != null ? order.Coupon_Code__c : '';
-            Boolean isCouponApplicable = (couponCode.startsWith('CCGWRG') || couponCode.startsWith('CCGWGR'));
+            Boolean isCouponApplicable = (couponCode.startsWith('CCGWRG') || couponCode.startsWith('CCGWGR')); */
 
             Decimal totalEligibleUnitPrice = 0;
             for (OrderItem oi : orderItemList) {
@@ -175,14 +175,14 @@ public with sharing class NewMerchandiseInvoicePDFController {
                         Decimal MerchandiseDiscountShare = (itemEligibleAmount / totalEligibleUnitPrice) * MerchandiseDiscountAmountOnOrder;
                         perItemTotalDiscount += MerchandiseDiscountShare;
                     }
-                    if (isCouponApplicable && totalEligibleUnitPrice > 0) {
+                  /*  if (isCouponApplicable && totalEligibleUnitPrice > 0) {
                         Decimal couponShare = (itemEligibleAmount / totalEligibleUnitPrice) * couponRedeemed;
                         perItemTotalDiscount += couponShare;
                         Coupon_Code = couponCode;
-                    }
+                    } */
                 }
                 merchandiseDiscountAmount += perItemTotalDiscount;
-                totalValueAfterAllTaxes += Math.Round(oi.Product_Total_Amount__c);
+                totalValueAfterAllTaxes += oi.Product_Total_Amount__c;
                 itemWrappers.add(new OrderItemDiscountWrapper(oi, perItemTotalDiscount));
             }
 

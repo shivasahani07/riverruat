@@ -9,7 +9,10 @@ private class TestUpdateAccountInSFFromWebsite {
         Account acc2 = new Account(Name='New Name',Phone = '9999999999');
         insert acc2;
         
-        River_Website_Details__c r = new River_Website_Details__c(Name='River Website',BaseURL__c='https://www.dummy.com');
+        /*River_Website_Details__c r = new River_Website_Details__c(Name='River Website',BaseURL__c='https://www.dummy.com');
+        insert r;*/
+        
+        Website_Creds__c r = new Website_Creds__c(Name='Website Creds',BaseURL__c='https://www.dummy.com');
         insert r;
         
         RestRequest req = new RestRequest();

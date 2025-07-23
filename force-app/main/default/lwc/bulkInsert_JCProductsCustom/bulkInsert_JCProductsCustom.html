@@ -3,7 +3,7 @@
         <div class="slds-p-around_medium">
             <!-- Existing WorkOrderLineItems Table -->
             <div class="slds-m-bottom_large">
-                <h2 class="slds-text-heading_medium slds-m-bottom_small">Existing Parts {currentVinNo}</h2>
+                <h2 class="slds-text-heading_medium slds-m-bottom_small">Existing Parts {currentVinNo}--{warrantyId}</h2>
                 <!-- <div class="slds-card slds-card_boundary">
                     <lightning-datatable 
                         key-field="id" 
@@ -18,10 +18,12 @@
                     </lightning-datatable>
                 </div> -->
                 <div class="slds-card slds-card_boundary">
-                    <lightning-tree-grid key-field="Id" data={existingWorkOrderLineItems} columns={treeColumns}
-                        expanded-rows={expandedRows} onrowaction={handleRowAction} hide-checkbox-column
-                        aria-label="Products Tree" sorted-by="sequence" sorted-direction="asc">
-                    </lightning-tree-grid>
+                    <template if:true={existingWorkOrderLineItems}>
+                        <lightning-tree-grid key-field="Id" data={existingWorkOrderLineItems} columns={treeColumns}
+                            expanded-rows={expandedRows} onrowaction={handleRowAction} hide-checkbox-column
+                            aria-label="Products Tree" sorted-by="sequence" sorted-direction="asc">
+                        </lightning-tree-grid>
+                    </template>
                 </div>
             </div>
 
@@ -54,7 +56,8 @@
                                     <template if:false={item.isChild}>
                                         <lightning-button variant="brand-outline" label="Add Consequential"
                                             title="Add Consequential Product" icon-name="utility:add"
-                                            onclick={addChildProduct} data-id={index} class="slds-m-right_x-small">
+                                            disabled={item.isDisableaddChildProduct} onclick={addChildProduct}
+                                            data-id={index} class="slds-m-right_x-small">
                                         </lightning-button>
                                     </template>
                                     <lightning-button-icon icon-name="utility:delete" alternative-text="Remove"
@@ -67,8 +70,9 @@
                                 <!-- Product Selection -->
                                 <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_3-of-12">
                                     <lightning-combobox label="Parts Category" value={item.partsCategory}
-                                        options={filteredReplacementTypeOptions} onchange={handlePicklistChange}
-                                        data-id={index} data-fieldname="RR_Parts_Category__c" required>
+                                        disabled={item.isChild} options={filteredReplacementTypeOptions}
+                                        onchange={handlePicklistChange} data-id={index}
+                                        data-fieldname="RR_Parts_Category__c" required>
                                     </lightning-combobox>
                                 </div>
 
@@ -110,13 +114,14 @@
                                         </div>
 
                                         <template if:true={item.isFailureCodeVisible}>
-                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12 slds-large-size_3-of-12">
-                                            <lightning-record-picker label="Failure Code " placeholder="Search Failure Code.."
-                                                object-api-name="Failure_Code__c" value={item.Failure_Code__c}
-                                                filter={item.filter}
-                                                variant="label-stacked" data-id={index}
-                                                onchange={handleFailureCodeChange}>
-                                            </lightning-record-picker>
+                                            <div
+                                                class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12 slds-large-size_3-of-12">
+                                                <lightning-record-picker label="Failure Code "
+                                                    placeholder="Search Failure Code.."
+                                                    object-api-name="Failure_Code__c" value={item.Failure_Code__c}
+                                                    filter={item.filter} variant="label-stacked" data-id={index}
+                                                    onchange={handleFailureCodeChange}>
+                                                </lightning-record-picker>
                                             </div>
                                         </template>
 
@@ -136,7 +141,7 @@
                                                 value={item.partDescription} onchange={handleInputChange}
                                                 data-id={index} data-fieldname="Part_Description__c">
                                             </lightning-input>
-                                        </div> 
+                                        </div>
                                     </template>
                                 </template>
                             </div>

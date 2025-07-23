@@ -38,7 +38,7 @@ public without sharing class WorkOrderLineItemController {
             List<TFR_Part_Effect__c> partEffectList = [
                 SELECT Id, Comments__c, Consequence__c, Product__c, Root_Cause__c, TFR__c, Name 
                 FROM TFR_Part_Effect__c 
-                WHERE Product__c = :productId AND TFR__r.Is_Active__c = TRUE 
+                WHERE Product__c = :productId //AND TFR__r.Is_Active__c = TRUE 
                 LIMIT 1
             ];
             
@@ -125,7 +125,7 @@ public without sharing class WorkOrderLineItemController {
         try{
             System.debug('Fetching related Products for Work Order Id: ' + workOrderId);
             List<WorkOrderLineItem> WorkOrderLineItems = [SELECT WorkOrderId, Id, LineItemNumber,Part__c, PricebookEntryId, PricebookEntry.Product2.Name,
-                                                          Quantity, RR_Parts_Category__c, Status,WorkOrder.Status,WorkOrder.Vehicle_Identification_Number__c,
+                                                          Quantity, RR_Parts_Category__c, Status,WorkOrder.Status,WorkOrder.Vehicle_Identification_Number__c,Replacement_Type__c,
                                                           PricebookEntry.Product2.ProductCode,CreatedDate,WorkOrder.WorkOrderNumber, PricebookEntry.Product2Id,Labour_Code__c,Labour_Code__r.Name, Product2.ProductCode
                                                           FROM WorkOrderLineItem
                                                           WHERE WorkOrderId=: workOrderId

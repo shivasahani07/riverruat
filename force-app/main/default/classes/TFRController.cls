@@ -72,7 +72,7 @@ public without sharing class TFRController {
         
         // Null-safe query for WorkOrderLineItem
         List<WorkOrderLineItem> woliList = [
-            SELECT Id, LineItemNumber, PricebookEntryId, Warranty_Prior__c, PricebookEntry.Product2.Name, TFR_Required__c,
+            SELECT Id, LineItemNumber, PricebookEntryId, Warranty_Prior__c, PricebookEntry.Product2.Name, TFR_Required__c,Warranty_Prior__r.Status__c,
             Failure_Code__c, PricebookEntry.Product2.ProductCode, Quantity, RR_Parts_Category__c, Status, Tax__c,
             Amount_per_Hour__c, CreatedDate, WorkOrder.WorkOrderNumber, PricebookEntry.Product2Id,
             Total_Labour_Charges__c, Total_NDP__c, Grand_Total__c, IGST_Percentage_formula__c,WorkOrder.Status,
@@ -119,6 +119,7 @@ public without sharing class TFRController {
             Integer serialNum1 = Integer.valueOf(serial1);
             Integer serialNum2 = Integer.valueOf(serial2);
             System.debug('serialNum2 > serialNum1'+ (serialNum2 > serialNum1));
+            //return serialNum2 > serialNum1;
             return serialNum2 > serialNum1;
         } catch (Exception e) {
             // If serial is not a number or any issue occurs
@@ -134,6 +135,7 @@ public without sharing class TFRController {
         TFRValidationWrapper tfrData = new TFRValidationWrapper(); 
         tfrData.vinNo=VINno;
         tfrData.isTFRApplicable=false;
+        tfrData.isPostVinCuttoff=false;
         Boolean isAfterCutoff=false;
         Failure_Code__c fc = [
             SELECT Id, VIN_Cut_off__c, TFR_Part_Effect__c,VIN_Cut_off_No__c 
@@ -142,23 +144,24 @@ public without sharing class TFRController {
             LIMIT 1
         ];
         
-        if (String.isBlank(fc.VIN_Cut_off__c)) {
-            //fc.VIN_Cut_off__c is lookup of TFR__c
+        if(!String.isBlank(fc.VIN_Cut_off__c)){
+            System.debug('VIN cutoff found for Failure Code');
+            System.debug('VIN cutt off found---'+fc.VIN_Cut_off_No__c);
+            System.debug('Job Card Vin---'+VINno);
+            isAfterCutoff = isVIN2AfterVIN1(fc.VIN_Cut_off_No__c, VINno);
+            if (isAfterCutoff) {
+                System.debug('Given VIN is after the cutoff VIN');
+                tfrData.isTFRApplicable=true;
+                tfrData.isPostVinCuttoff=true;
+            } else {
+                System.debug('Given VIN is before or equal to the cutoff VIN');
+                tfrData.isTFRApplicable=false;
+            }
+        }else{
             System.debug('No VIN cutoff found for Failure Code');
             tfrData.isTFRApplicable=true;
-        }else if(!String.isBlank(fc.VIN_Cut_off_No__c)){
-            isAfterCutoff = isVIN2AfterVIN1(fc.VIN_Cut_off_No__c, VINno);
         }
         
-        
-        
-        if (isAfterCutoff) {
-            System.debug('Given VIN is after the cutoff VIN');
-            tfrData.isTFRApplicable=true;
-        } else {
-            System.debug('Given VIN is before or equal to the cutoff VIN');
-            tfrData.isTFRApplicable=false;
-        }
         
         // Step 2 (Optional): You can find existing TFR__c related to this VIN or FailureCode if needed
         List<TFR__c> matchingTFRs = [
@@ -281,6 +284,8 @@ public without sharing class TFRController {
         public String vinNo;
         @AuraEnabled 
         public Boolean isTFRApplicable;
+        @AuraEnabled 
+        public Boolean isPostVinCuttoff;
     }
     
 }

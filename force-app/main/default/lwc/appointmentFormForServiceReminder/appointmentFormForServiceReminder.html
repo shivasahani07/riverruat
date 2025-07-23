@@ -2,20 +2,12 @@
     <lightning-card title="Book Appointment">
         <div class="slds-p-around_medium">
 
-            <!-- Service Center (Record Picker) -->
-            <!--lightning-record-picker
-                label="Service Center"
-                placeholder="Select Service Center"
-                filter={filter}
-                object-api-name="Account"
-                value={selectedServiceCenter}
-                onchange={handleServiceCenterChange}>
-            </lightning-record-picker-->
-
+            <!-- Service Center (Read-only input displaying fetched center name) -->
             <lightning-input
                 name="serviceCenter"
                 label="Service Center"
-                value={serviceCenterName}>
+                value={serviceCenterName}
+                disabled>
             </lightning-input>
 
             <!-- VRN (read-only) -->
@@ -46,46 +38,47 @@
             </lightning-input>
 
             <!-- Appointment Slot Item Picklist -->
-          <template if:true={slotsAvailable}>
-            <div class="slds-m-top_medium">
-                <lightning-combobox
-                    name="selectedSlotItem"
-                    label="Available Slot Items"
-                    placeholder="Select a slot"
-                    options={slotItemOptions}
-                    value={selectedSlotItem}
-                    onchange={handleSlotItemChange}>
-                </lightning-combobox>
-            </div>
-        </template>
-
-        <template if:true={slotSearchTriggered}>
-            <template if:false={slotsAvailable}>
-                <div class="slds-m-top_medium slds-text-color_error">
-                    No slots are available for the selected date.
+            <template if:true={slotsAvailable}>
+                <div class="slds-m-top_medium">
+                    <lightning-combobox
+                        name="selectedSlotItem"
+                        label="Available Slot Items"
+                        placeholder="Select a slot"
+                        options={slotItemOptions}
+                        value={selectedSlotItem}
+                        onchange={handleSlotItemChange}>
+                    </lightning-combobox>
                 </div>
             </template>
-        </template>
 
-        <!-- Appointment Date -->
-        <template if:true={showDescriptionField}>
-            <lightning-input
-                name="appointmentDesc"
-                type="text"
-                label="Appointment Description"
-                value={appointmentDescription}
-                onchange={handleAppointmentDesc}>
-            </lightning-input>
-        </template>
+            <template if:true={slotSearchTriggered}>
+                <template if:false={slotsAvailable}>
+                    <div class="slds-m-top_medium slds-text-color_error">
+                        No slots are available for the selected date.
+                    </div>
+                </template>
+            </template>
 
-        <!-- Submit Button -->
-        <div class="slds-m-top_medium slds-align_absolute-center">
-            <lightning-button
-                label="Submit"
-                variant="brand"
-                onclick={handleSubmit}>
-            </lightning-button>
-        </div>
+            <!-- Appointment Description (shown conditionally) -->
+            <template if:true={showDescriptionField}>
+                <lightning-input
+                    name="appointmentDesc"
+                    type="text"
+                    label="Appointment Description"
+                    value={appointmentDecription}
+                    onchange={handleAppointmentDesc}>
+                </lightning-input>
+            </template>
+
+            <!-- Submit Button -->
+            <div class="slds-m-top_medium slds-align_absolute-center">
+                <lightning-button
+                    label="Submit"
+                    variant="brand"
+                    onclick={handleSubmit}
+                    disabled={isSubmitDisabled}>
+                </lightning-button>
+            </div>
 
         </div>
     </lightning-card>

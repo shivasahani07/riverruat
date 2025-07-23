@@ -7,7 +7,7 @@
 **/
 public with sharing class NewAccessoriesInvoicePDFController {
     public List<OrderItem> orderItemList { get; set; }
-    public List<OrderItemDiscountWrapper> itemWrappers { get; set; } 
+    public List<OrderItemDiscountWrapper> itemWrappers { get; set; } // FOR VF TABLE
     public Date InvoiceDate { get; set; }
     public Order order { get; set; }
     public string inWords { get; set; }
@@ -89,7 +89,7 @@ public with sharing class NewAccessoriesInvoicePDFController {
                            Discount_on_Ex_Showroom_Price__c, Subsidy_Amount__c, State_Govt_Subsidy__c, Offers_Amount__c, Accessories_Discount_Amount__c, Total_Merchandise_Unit_Price__c, Total_Accessories_Unit_Price__c,
                            Dealer__r.CIN__c, Dealer__r.RR_Customer_Care_Email__c, Dealer__r.RR_Customer_HelpLine_Number__c, Dealer__r.Email__c, Dealer__r.GSTIN_Number__c, Dealer__r.Phone,
                            Dealer__r.Beneficiary_Name__c, Dealer__r.Account_Number__c, Dealer__r.Bank_Name__c, Dealer__r.Swift_Code__c, Dealer__r.IFSC__c, Dealer__r.PAN_Number__c,
-                           IRN_No__c, Account.GSTIN_Number__c, Dealer__r.Store_Type__c, OTC_Additional_Discount_Amount__c, RecordType.DeveloperName, Merchandise_Additional_Discount__c, Coupon_Redeemed_Value__c, Coupon_Code__c FROM Order WHERE Id=:orderId]; 
+                           IRN_No__c, Account.GSTIN_Number__c, Dealer__r.Store_Type__c, OTC_Additional_Discount_Amount__c, RecordType.DeveloperName, Merchandise_Additional_Discount__c  FROM Order WHERE Id=:orderId]; 
 
             if (order.Dealer__r.Store_Type__c != null) {
                 if (order.Dealer__r.Store_Type__c == 'DODO') {
@@ -145,9 +145,9 @@ public with sharing class NewAccessoriesInvoicePDFController {
             itemWrappers = new List<OrderItemDiscountWrapper>();
             merchandiseDiscountAmount = 0;
             totalValueAfterAllTaxes = 0;
-            Decimal couponRedeemed = order.Coupon_Redeemed_Value__c != null ? order.Coupon_Redeemed_Value__c : 0;
+         /*   Decimal couponRedeemed = order.Coupon_Redeemed_Value__c != null ? order.Coupon_Redeemed_Value__c : 0;
             String couponCode = order.Coupon_Code__c != null ? order.Coupon_Code__c : '';
-            Boolean isCouponApplicable = (couponCode.startsWith('CCGWAC') || couponCode.startsWith('CCGWGR'));
+            Boolean isCouponApplicable = (couponCode.startsWith('CCGWAC') || couponCode.startsWith('CCGWGR')); */
 
             Decimal totalEligibleUnitPrice = 0;
             for (OrderItem oi : orderItemList) {
@@ -163,7 +163,7 @@ public with sharing class NewAccessoriesInvoicePDFController {
             for (OrderItem oi : orderItemList) {
                 Decimal unitPrice = oi.UnitPrice != null ? oi.UnitPrice : 0;
                 Decimal quantity = oi.Quantity != null ? oi.Quantity : 0;
-                Decimal itemDiscount = oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0;
+                Decimal itemDiscount =  oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0;
                 Decimal itemTotalDiscount = itemDiscount;
                 Decimal itemEligibleAmount = unitPrice * quantity;
 
@@ -173,16 +173,16 @@ public with sharing class NewAccessoriesInvoicePDFController {
                         itemTotalDiscount += accessoriesDiscountShare;
                         System.debug('Accessories Discount Share for ItemId=' + oi.Id + ': ' + accessoriesDiscountShare);
                     }
-                    if (isCouponApplicable && totalEligibleUnitPrice > 0) {
+                 /*   if (isCouponApplicable && totalEligibleUnitPrice > 0) {
                         Decimal couponShare = (itemEligibleAmount / totalEligibleUnitPrice) * couponRedeemed;
                         itemTotalDiscount += couponShare;
                         Coupon_Code = couponCode;
                         System.debug('Coupon Share for ItemId=' + oi.Id + ': ' + couponShare + ', Coupon Code: ' + couponCode);
-                    }
+                    } */
                 }
 
                 merchandiseDiscountAmount += itemTotalDiscount;
-                totalValueAfterAllTaxes += Math.Round(oi.Product_Total_Amount__c);
+                totalValueAfterAllTaxes += oi.Product_Total_Amount__c;
 
                 System.debug('Item ID: ' + oi.Id);
                 System.debug('unitPrice: ' + unitPrice);
@@ -193,13 +193,14 @@ public with sharing class NewAccessoriesInvoicePDFController {
                 System.debug('Cumulative Merchandise Discount: ' + merchandiseDiscountAmount);
                 System.debug('Cumulative Total After Taxes: ' + totalValueAfterAllTaxes);
 
-                
+                // Store per-row result
                 itemWrappers.add(new OrderItemDiscountWrapper(oi, itemTotalDiscount));
             }
             System.debug('Final Merchandise Discount Total: ' + merchandiseDiscountAmount);
             System.debug('Final Total Value After Taxes: ' + totalValueAfterAllTaxes);
             System.debug('Prepared itemWrappers for Visualforce: ' + itemWrappers);
 
+            //InvoiceId generation (as per your logic)
             List<Order_Invoice__c> orderInvoices = [
                 SELECT Id, Name, Invoice_Number__c, Invoice_Type__c, Invoice_Date__c 
                 FROM Order_Invoice__c 
@@ -229,9 +230,6 @@ public with sharing class NewAccessoriesInvoicePDFController {
     }
 
 
-    
-    
-    
     public static void methodToCoverage(){ 
         Integer i=0;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;

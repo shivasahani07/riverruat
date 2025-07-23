@@ -1,4 +1,5 @@
-global class POGenerationBatchForMSL3 implements Database.Batchable<SObject> {
+global class POGenerationBatchForMSL4 implements Database.Batchable<SObject> {
+
     global Database.QueryLocator start(Database.BatchableContext context) {
         System.debug('================== POGenerationBatchForMSL ====================');
                 
@@ -70,16 +71,6 @@ global class POGenerationBatchForMSL3 implements Database.Batchable<SObject> {
             Date firstDay = today.addMonths(-i);
             monthBuckets.add(Date.newInstance(firstDay.year(), firstDay.month(), 1));
         }
-        
-        List<ProductBatchAssignment__c> batchAssignmentsList = [SELECT Id, Account__c, Product__c, First_Consumption_Date__c 
-                                                                FROM ProductBatchAssignment__c];
-        Map<String, ProductBatchAssignment__c> batchAssignments = new Map<String, ProductBatchAssignment__c>();
-        
-        List<ProductBatchAssignment__c> newAssignmentsToInsert = new List<ProductBatchAssignment__c>();
-        
-        for(ProductBatchAssignment__c item : batchAssignmentsList){
-            batchAssignments.put(item.Product__c + '|' + item.Account__c, item);
-        }
 
         for (Id accountId : dealerToRecords.keySet()) {
 
@@ -98,7 +89,7 @@ global class POGenerationBatchForMSL3 implements Database.Batchable<SObject> {
             for (Id productId : productToRecords.keySet()) {
 
                 String forecastKey = productId + '|' + accountId;
-                
+				
                 List<ProductConsumptionTracking__c> records = productToRecords.get(productId);
 
                 // 1. Find earliest consumption date for this product+account combo
@@ -115,18 +106,6 @@ global class POGenerationBatchForMSL3 implements Database.Batchable<SObject> {
                 String batchStatus;
                 if (earliestDate != null) {
                     batchStatus = (earliestDate.day() <= 15) ? '2nd Batch' : '1st Batch';
-                }
-                
-                String batchKey = productId + '|' + accountId;
-                if (!batchAssignments.containsKey(batchKey) && earliestDate != null) {
-                    ProductBatchAssignment__c newPBA = new ProductBatchAssignment__c();
-                    newPBA.Account__c = accountId;
-                    newPBA.Product__c = productId;
-                    newPBA.First_Consumption_Date__c = earliestDate;
-                    newPBA.Batch__c = (earliestDate.day() <= 15) ? '2nd Batch' : '1st Batch';
-                    
-                    newAssignmentsToInsert.add(newPBA);
-                    batchAssignments.put(batchKey, newPBA); // So PO logic later works
                 }
 
                 Decimal moq = getMOQ(records);
@@ -191,14 +170,6 @@ global class POGenerationBatchForMSL3 implements Database.Batchable<SObject> {
                              ' | Final: ' + finalQty);
 
                 if (finalQty > 0) {
-                    
-                    // Get comma-separated Tracking record IDs
-                    List<Id> trackingIds = new List<Id>();
-                    for (ProductConsumptionTracking__c t : sixUsed) {
-                        trackingIds.add(t.Id);
-                    }
-                    String trackingIdString = String.join(trackingIds, ',');
-                    
                     ProductRequestLineItem lineItem = new ProductRequestLineItem();
                     lineItem.Product2Id = productId;
                     lineItem.AccountId = accountId;
@@ -207,7 +178,6 @@ global class POGenerationBatchForMSL3 implements Database.Batchable<SObject> {
                     lineItem.MSL_Forecast_Value__c = avg.setScale(2);
                     lineItem.Used_MOQ__c = (finalQty == moq);
                     lineItem.PO_Batch_Status__c = batchStatus;
-                    lineItem.Related_Tracking_IDs_c__c = trackingIdString;
 
                     lineItems.add(lineItem);
                     hasEligibleProducts = true;
@@ -221,12 +191,10 @@ global class POGenerationBatchForMSL3 implements Database.Batchable<SObject> {
 
                     System.debug('Created Forecasted POLI → ' + productId + ' Qty: ' + finalQty);
                 } else {
-                    /*
                     for (ProductConsumptionTracking__c rec : sixUsed) {
                         rec.Processed_for_PO__c = true;
                         recordsToUpdate.add(rec);
                     }
-					*/
                     System.debug('Skipping POLI creation → ' + productId + ' | Account: ' + accountId + ' | FinalQty: 0');
                 }
             }            
@@ -238,28 +206,8 @@ global class POGenerationBatchForMSL3 implements Database.Batchable<SObject> {
                 po.ShipmentType = 'STK';
                 po.Is_Forcasted_PO__c = true;
                 po.Description = 'Auto-generated PO for Dealer: ' + accountId;
-                
-                // Batch assignment logic here
-                Date poBatchDate;
-                for (ProductRequestLineItem item : lineItems) {
-                    String key = item.Product2Id + '|' + accountId;
-                    
-                    if (batchAssignments.containsKey(key)) {
-                        Date d = batchAssignments.get(key).First_Consumption_Date__c;
-                        if (poBatchDate == null || d < poBatchDate) {
-                            poBatchDate = d;
-                        }
-                    }
-                }
-            
-                String poBatchStatus = (poBatchDate != null && poBatchDate.day() <= 15) ? '2nd Batch' : '1st Batch';
-                po.Batch_Stage__c = poBatchStatus;
-            
-                // Add to orders list
                 ordersToInsert.add(po);
                 accountToLines.put(accountId, lineItems);
-            
-                System.debug('po added');
             }
         }
 
@@ -277,17 +225,13 @@ global class POGenerationBatchForMSL3 implements Database.Batchable<SObject> {
         
         if (!allLineItems.isEmpty()) insert allLineItems;
         if (!recordsToUpdate.isEmpty()) update recordsToUpdate;
-        
-        if (!newAssignmentsToInsert.isEmpty()) {
-            insert newAssignmentsToInsert;
-        }
     }
 
     global void finish(Database.BatchableContext context) {
         // Optional logging or notifications
     }
 
-        private Decimal getMOQ(List<ProductConsumptionTracking__c> records) {
+    private Decimal getMOQ(List<ProductConsumptionTracking__c> records) {
         for (ProductConsumptionTracking__c rec : records) {
             if (rec.Product__r != null && rec.Product__r.Minimum_Order_Qty__c != null) {
                 return rec.Product__r.Minimum_Order_Qty__c;

@@ -299,7 +299,7 @@
                 </td>
             </tr>
             <!-- Coupon Code -->
-            <tr>            
+          <!--  <tr>            
                 <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">
                     <apex:outputText value="{!IF(order.RecordType.DeveloperName = 'OTC', 'Applied Coupon (incl.)', 'Applied Coupon (incl.)')}" />
                 </td>
@@ -309,7 +309,7 @@
                         <apex:param value="{!Coupon_Code}" />
                     </apex:outputText>
                 </td>
-            </tr>
+            </tr> -->
             
             <tr>            
                 <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">Net to be collected from Customer</td>

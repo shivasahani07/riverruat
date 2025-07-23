@@ -85,7 +85,7 @@ public class NewE_invoicePDFController {
                     Discount_on_Ex_Showroom_Price__c, Subsidy_Amount__c, State_Govt_Subsidy__c, Offers_Amount__c,Vehicle_Total_Discount__c,
                     Dealer__r.CIN__c, Dealer__r.RR_Customer_Care_Email__c, Dealer__r.RR_Customer_HelpLine_Number__c,  
                     Dealer__r.Beneficiary_Name__c, Dealer__r.Account_Number__c, Dealer__r.Bank_Name__c, Dealer__r.Swift_Code__c, Dealer__r.IFSC__c, Dealer__r.PAN_Number__c,
-                    IRN_No__c, Dealer__r.Store_Type__c, Dealer__r.Email__c, Dealer__r.Phone, Account.GSTIN_Number__c, Dealer__r.GSTIN_Number__c, Coupon_Redeemed_Value__c,Coupon_Code__c, RecordType.DeveloperName FROM Order  WHERE Id=:orderId ]; 
+                    IRN_No__c, Dealer__r.Store_Type__c, Dealer__r.Email__c, Dealer__r.Phone, Account.GSTIN_Number__c, Dealer__r.GSTIN_Number__c, RecordType.DeveloperName FROM Order  WHERE Id=:orderId ]; 
             cocoTC = [SELECT Id, Terms_and_Condition__c,DeveloperName FROM Terms_and_Condition__mdt WHERE DeveloperName = 'Coco_TC' LIMIT 1];
             if (cocoTC.Terms_and_Condition__c != null) {
                 cocoTC.Terms_and_Condition__c = cocoTC.Terms_and_Condition__c.replace('\n', '<br/>');
@@ -168,22 +168,22 @@ public class NewE_invoicePDFController {
                 Decimal igstPercentage = oi.Product2.IGST_Percentage__c != null ? oi.Product2.IGST_Percentage__c : 0;
                 merchandiseDiscountAmount = oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0;
                 //new Coupon
-                Decimal couponRedeemed = order.Coupon_Redeemed_Value__c != null ? order.Coupon_Redeemed_Value__c : 0;
-                String couponCode = order.Coupon_Code__c != null ? order.Coupon_Code__c : '';
+             /*   Decimal couponRedeemed = order.Coupon_Redeemed_Value__c != null ? order.Coupon_Redeemed_Value__c : 0;
+                String couponCode = order.Coupon_Code__c != null ? order.Coupon_Code__c : ''; */
                 if (oi.Type__c == 'Vehicle') {
-                    merchandiseDiscountAmount += oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0;
+                   // merchandiseDiscountAmount += oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0;
                     merchandiseDiscountAmount += order.Offers_Amount__c != null ? order.Offers_Amount__c : 0;
                     merchandiseDiscountAmount += order.Discount_on_Ex_Showroom_Price__c != null ? order.Discount_on_Ex_Showroom_Price__c : 0;
-                    if (couponCode.startsWith('CCGWVH') || couponCode.startsWith('CCGWGR')) {
+                   /* if (couponCode.startsWith('CCGWVH') || couponCode.startsWith('CCGWGR')) {
                                     Coupon_Code = couponCode;
                 					merchandiseDiscountAmount += couponRedeemed;
-            					}
+            					} */
                    System.debug('merchandiseDiscountAmount ==>'+merchandiseDiscountAmount);
 
                }
                 Decimal taxableAmount = (unitPrice * quantity) - merchandiseDiscountAmount;
                 
-               totalValueAfterAllTaxes += Math.round(oi.Product_Total_Amount__c);
+               totalValueAfterAllTaxes += oi.Product_Total_Amount__c;
             }
             //InvoiceId generation
              List<Order_Invoice__c> orderInvoices = [

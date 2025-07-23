@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Aniket Karmakar
  * @group             : 
- * @last modified on  : 07-17-2025
+ * @last modified on  : 07-23-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public without sharing class POCreationInSAPQueueable implements Queueable,Database.allowsCallouts{
@@ -62,14 +62,22 @@ public without sharing class POCreationInSAPQueueable implements Queueable,Datab
             System.debug('Payload==>'+serializedBody);
 
             Http http = new Http();
-            String username = 'RiverSalesForce';
-            String password = 'River_SF_Devp';
+            
+            List<SAP_API_Creds__c> rwd = SAP_API_Creds__c.getAll().values();
+            SAP_API_Creds__c r = SAP_API_Creds__c.getInstance('SAP API Creds');
+            
+            //String username = 'RiverSalesForce';
+            //String password = 'River_SF_Devp';
+            
+            String username = r.User_Name__c;
+            String password = r.Password__c;
+            String endPoint = r.Endpoint__c;
             
             String credentials = username + ':' + password;
             String encodedCredentials = EncodingUtil.base64Encode(Blob.valueOf(credentials));
 
             HttpRequest req = new HttpRequest();
-            req.setEndpoint('http://20.219.107.162:9096/river/sales-force/api/sales-order');
+            req.setEndpoint(endPoint);
             req.setMethod('POST');
             req.setHeader('Authorization', 'Basic ' + encodedCredentials);
             req.setHeader('Content-Type', 'application/json');
@@ -95,6 +103,15 @@ public without sharing class POCreationInSAPQueueable implements Queueable,Datab
                 Map<String,Object> responseMap = (Map<String,Object>) JSON.deserializeUntyped(res.getBody());
                 String msg = responseMap.containsKey('message') ? (String)responseMap.get('message') : 'Not Found';
                 System.debug('Error Message Is ==>'+msg);
+
+                Integration_Log__c logObj = new Integration_Log__c(
+                        Integration_Type__c = 'SAP',
+                        Request_Payload__c = serializedBody,
+                        Response_Payload__c = res.getBody(),
+                        Error_Message__c = msg,
+                        Status__c = 'Failed'
+                    );
+                    insert logObj;
 
                 //added by Aniket on 11/07/2025
                 Group g;
@@ -128,11 +145,7 @@ public without sharing class POCreationInSAPQueueable implements Queueable,Datab
                 mail2.setToAddresses(emailList);
                 mail2.setSubject('SAP Sync Failure');
                 mail2.setOrgWideEmailAddressId(oweaList[0].Id);
-                // mail2.setPlainTextBody('Hi SAP Group Users \n\n'+'The Following Purchase Order Got Failed To Get Updated On SAP \n\n'+
-                //                          'Purchase Order Number : '+p.ProductRequestNumber +'\n'+
-                //                          'Failure Reason : ' + msg + '\n\n' +
-                //                          'Please review and take actions accordingly.');
-
+               
                                     String htmlBody = 
                         '<html>' +
                         '<head>' +

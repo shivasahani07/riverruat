@@ -521,11 +521,12 @@ export default class RideRiverWarrantyRecord extends LightningElement {
 
         // Validate FFIR_Links__c
         const invalidFFIRLinks = this.additionalPartsData.filter(
-            (part) => !part.FFIR_Links__c || part.FFIR_Links__c.trim() === ''
+            (part) => (!part.FFIR_Links__c && part.TFR_Required__c !=true)|| (part.FFIR_Links__c.trim() === '' && part.TFR_Required__c !=true)
         );
 
         if (invalidFFIRLinks.length > 0) {
-            const errorMessage = 'FFIR Links are required for all parts.';
+            // const errorMessage = 'FFIR Links are required for all parts.';
+            const errorMessage = 'FFIR Links are required';
             console.error('Validation Error:', errorMessage);
             this.showToast('Validation Error', errorMessage, 'error');
             return; // Stop execution if validation fails

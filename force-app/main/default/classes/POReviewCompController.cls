@@ -1,4 +1,4 @@
-public with sharing class POReviewCompController {
+public class POReviewCompController {
 
     @AuraEnabled(cacheable=true)
     public static List<POReviewWrapper> getPOLineItems(Id poId) {
@@ -23,6 +23,11 @@ public with sharing class POReviewCompController {
         return wrapper;
     }
 
+    @AuraEnabled(cacheable = true)
+    public static void getProductMOQ(){
+
+    }
+
     @AuraEnabled
     public static void updatePOLineItems(Id poId, String jsonString) {
         List<ProductRequestLineItem> updateList = new List<ProductRequestLineItem>();
@@ -35,15 +40,15 @@ public with sharing class POReviewCompController {
                     Product2Id = item.Product2Id,
                     QuantityRequested = item.QuantityRequested,
                     Forecast_Quantity__c = 0,
-                    Approval_Status__c = item.ApprovalStatus,
+                    //Approval_Status__c = item.ApprovalStatus,
                     Is_Manually_Added__c = true
                 );
                 updateList.add(pli);
             } else {
                 ProductRequestLineItem pli = new ProductRequestLineItem(
                     Id = item.Id,
-                    QuantityRequested = item.QuantityRequested,
-                    Approval_Status__c = item.ApprovalStatus
+                    QuantityRequested = item.QuantityRequested
+                    //Approval_Status__c = item.ApprovalStatus
                 );
                 updateList.add(pli);
             }
@@ -56,20 +61,72 @@ public with sharing class POReviewCompController {
 
     @AuraEnabled(cacheable=true)
     public static List<Product2> getAllProducts() {
-        return [SELECT Id, Name FROM Product2 WHERE IsActive = true LIMIT 200];
+        return [SELECT Id, Name, Minimum_Order_Qty__c FROM Product2 WHERE IsActive = true LIMIT 200];
     }
 
     @AuraEnabled
     public static void softDeleteLineItem(Id lineItemId) {
-        ProductRequestLineItem lineItem = [SELECT Id FROM ProductRequestLineItem WHERE Id = :lineItemId LIMIT 1];
+        ProductRequestLineItem lineItem = [SELECT Id, Product2Id, AccountId, ParentId, QuantityRequested, Forecast_Quantity__c, Related_Tracking_IDs_c__c
+            FROM ProductRequestLineItem 
+            WHERE Id = :lineItemId 
+            LIMIT 1];
+        
+        //delete lineItem;
+
+        /*
         lineItem.Is_Deleted_Item__c = true;
         update lineItem;
+        */
+        
+        /*
+        Deleted_POLI__c d = new Deleted_POLI__c(
+            Product__c = lineItem.Product2Id,
+            Account__c = lineItem.AccountId,
+            Purchase_Order__c = lineItem.ParentId,
+            Deleted_POLI_Id__c = lineItem.Id,
+            Quantity_Requested__c = lineItem.QuantityRequested,
+            Forecast_Quantity__c = lineItem.Forecast_Quantity__c,
+            Is_Deleted_Item__c = true
+        );
+        insert d;
+        */
+
+        // Update Product Consumption Tracking to unmark Processed_for_PO__c
+        if(lineItem.Related_Tracking_IDs_c__c != null && lineItem.Related_Tracking_IDs_c__c != ''){
+
+            // Split into List<String> first
+            List<String> idStrings = lineItem.Related_Tracking_IDs_c__c.split(',');
+
+            // Convert to List<Id>
+            List<Id> idList = new List<Id>();
+            for (String s : idStrings) {
+                idList.add(Id.valueOf(s.trim()));
+            }
+
+            List<ProductConsumptionTracking__c> trackingRecords = [
+                SELECT Id, Processed_for_PO__c 
+                FROM ProductConsumptionTracking__c 
+                WHERE Id IN : idList
+            ];
+
+            for (ProductConsumptionTracking__c record : trackingRecords) {
+                record.Processed_for_PO__c = false;
+            }
+
+            if (!trackingRecords.isEmpty()) {
+                update trackingRecords;
+            }
+        }
+        
+        delete lineItem;
+        
     }
 
     @AuraEnabled
     public static void markPOSubmitted(Id poId) {
         ProductRequest po = [SELECT Id, PO_Submitted__c FROM ProductRequest WHERE Id = :poId LIMIT 1];
         po.PO_Submitted__c = true;
+        po.PO_Approval_Status__c = 'Submitted';
         
         try {
             update po;

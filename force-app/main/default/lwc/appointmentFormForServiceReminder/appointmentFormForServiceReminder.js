@@ -20,21 +20,19 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
     @track appointmentSlotId = '';
     @track selectedSlotItem = '';
     @track slotSearchTriggered = false;
-    @track slotsAvailable = false; 
+    @track slotsAvailable = false;
     @track slotItemOptions = [];
-    minDate;
-    showDescriptionField = false;
+    @track showDescriptionField = false;
 
+    minDate;
     serviceCenterId = '';
     serviceCenterName = '';
 
     @wire(getCurrentServiceCenter)
     wiredCenterName({ error, data }) {
         if (data) {
-            console.log('data : ', data);
             this.serviceCenterId = data.accountId;
             this.serviceCenterName = data.accountName;
-            console.log('this.serviceCenterName : ', this.serviceCenterName);
         } else if (error) {
             console.error('Could not get center name', error);
         }
@@ -59,10 +57,9 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
     setMinDate() {
         const today = new Date();
         const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-based
+        const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
         this.minDate = `${year}-${month}-${day}`;
-        console.log('this.minDate : ', this.minDate);
     }
 
     fetchVehicleData() {
@@ -76,17 +73,7 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
             .catch(() => this.showToast('Error', 'Failed to load vehicle data', 'error'));
     }
 
-    handleServiceCenterChange(e) {
-        this.selectedServiceCenter = e.detail.recordId;
-        this.loadSlotItems();
-    }
-
-    // handleDateChange(e) {
-    //     this.appointmentDate = e.target.value;
-    //     this.loadSlotItems();
-    // }
-
-    handleDateChange(e){
+    handleDateChange(e) {
         this.appointmentDate = e.target.value;
 
         const selectedDate = new Date(this.appointmentDate);
@@ -95,87 +82,72 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
         selectedDate.setHours(0, 0, 0, 0);
         today.setHours(0, 0, 0, 0);
 
-        if(selectedDate >= today){
+        if (selectedDate >= today) {
             this.loadSlotItems();
-        }
-        else {
+        } else {
             this.appointmentSlotId = '';
             this.slotItemOptions = [];
             this.slotsAvailable = false;
             this.selectedSlotItem = '';
         }
     }
-
 
     handleSlotItemChange(e) {
         this.selectedSlotItem = e.detail.value;
     }
 
-    handleAppointmentDesc(e){
+    handleAppointmentDesc(e) {
         this.appointmentDecription = e.detail.value;
     }
 
-   @track slotsAvailable = false; // <-- new tracked property
-
     loadSlotItems() {
-    if (!this.serviceCenterId || !this.appointmentDate) return;
+        if (!this.serviceCenterId || !this.appointmentDate) return;
 
-    this.slotSearchTriggered = true;
+        this.slotSearchTriggered = true;
 
-    getSlotItems({
-        serviceCenterId: this.serviceCenterId,
-        appointmentDate: this.appointmentDate
-    })
-        .then(res => {
-            this.appointmentSlotId = res.slotId;
-
-            const items = (res.slotItems || []).map(i => {
-                let start = new Date(i.Start_Time__c);
-                let end = new Date(i.End_Time__c);
-
-                // Convert from UTC to IST by subtracting 5 hours 30 minutes (330 mins)
-                start.setMinutes(start.getMinutes() - 330);
-                end.setMinutes(end.getMinutes() - 330);
-
-                const options = { hour: '2-digit', minute: '2-digit', hour12: true };
-
-                return {
-                    label: ` ${i.Name} | ${start.toLocaleTimeString([], options)} - ${end.toLocaleTimeString([], options)}`,
-                    value: i.Id
-                };
-            });
-
-            this.slotItemOptions = items;
-            this.slotsAvailable = items.length > 0;
-
-            if (this.slotsAvailable) {
-                this.showDescriptionField = true;
-            }
-
-            this.selectedSlotItem = '';
+        getSlotItems({
+            serviceCenterId: this.serviceCenterId,
+            appointmentDate: this.appointmentDate
         })
-        .catch(err => {
-            this.appointmentSlotId = '';
-            this.slotItemOptions = [];
-            this.slotsAvailable = false;
-            this.showToast(
-                'Error',
-                err?.body?.message || 'Failed to load slot items',
-                'error'
-            );
-        });
-}
+            .then(res => {
+                this.appointmentSlotId = res.slotId;
 
+                const items = (res.slotItems || []).map(i => {
+                    let start = new Date(i.Start_Time__c);
+                    let end = new Date(i.End_Time__c);
 
+                    // Convert UTC to IST
+                    start.setMinutes(start.getMinutes() - 330);
+                    end.setMinutes(end.getMinutes() - 330);
 
+                    const options = { hour: '2-digit', minute: '2-digit', hour12: true };
 
+                    return {
+                        label: `${i.Name} | ${start.toLocaleTimeString([], options)} - ${end.toLocaleTimeString([], options)}`,
+                        value: i.Id
+                    };
+                });
+
+                this.slotItemOptions = items;
+                this.slotsAvailable = items.length > 0;
+
+                this.showDescriptionField = this.slotsAvailable;
+                this.selectedSlotItem = '';
+            })
+            .catch(err => {
+                this.appointmentSlotId = '';
+                this.slotItemOptions = [];
+                this.slotsAvailable = false;
+                this.showToast(
+                    'Error',
+                    err?.body?.message || 'Failed to load slot items',
+                    'error'
+                );
+            });
+    }
 
     handleSubmit() {
-        debugger;
-        if (!this.serviceCenterId || !this.vrn || !this.appointmentDate
-            || !this.contactNumber || !this.selectedSlotItem
-            || !this.appointmentSlotId) {
-
+        if (this.isSubmitDisabled) {
             this.showToast('Missing Fields',
                 'Please fill all fields including slot item.',
                 'warning');
@@ -196,7 +168,6 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
                 this.showToast('Success', 'Appointment created successfully.', 'success');
                 this.dispatchEvent(new CloseActionScreenEvent());
 
-                // Redirect to Appointment record
                 this[NavigationMixin.Navigate]({
                     type: 'standard__recordPage',
                     attributes: {
@@ -215,15 +186,16 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
         this.dispatchEvent(new ShowToastEvent({ title, message: msg, variant }));
     }
 
-    get filter() {
-        return {
-            criteria: [
-                {
-                    fieldPath: 'Type',
-                    operator: 'eq',
-                    value: 'Service Center',
-                }
-            ]
-        };
+    get isSubmitDisabled() {
+        const baseFieldsFilled = this.serviceCenterId &&
+            this.vrn &&
+            this.contactNumber &&
+            this.appointmentDate &&
+            this.selectedSlotItem &&
+            this.appointmentSlotId;
+
+        return this.showDescriptionField
+            ? !(baseFieldsFilled && this.appointmentDecription)
+            : !baseFieldsFilled;
     }
 }

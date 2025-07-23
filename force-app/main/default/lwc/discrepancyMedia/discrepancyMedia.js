@@ -11,7 +11,7 @@ export default class DiscrepancyMedia extends LightningElement {
 
     @wire(getDiscrepancyLineItems, { shipmentId: '$recordId' })
     wiredItems({ error, data }) {
-        debugger
+        debugger;
         console.log(this.recordId);
         if (data) {
             this.lineItems = data.map(item => ({ ...item }));

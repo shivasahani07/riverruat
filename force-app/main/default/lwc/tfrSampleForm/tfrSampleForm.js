@@ -2,6 +2,14 @@ import { LightningElement, api, wire, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import verifyExistingTFR from '@salesforce/apex/TFRController.verifyExistingTFR';
 
+const BLOCKED_STATUSES = new Set([
+    'Cancelled',
+    'Rejected',
+    'Sumbit for Approval',
+]);
+
+const EDITABLE_STATUSES = new Set(['Pending', 'Approved']);
+
 export default class TfrSampleForm extends LightningElement {
 
     @api inputObject
@@ -11,6 +19,7 @@ export default class TfrSampleForm extends LightningElement {
     @track partId;
     @track isTFRRecordDisabled = false;
     @track isLoading = true;
+    
     connectedCallback() {
         this.partId = this.inputObject.Id
         console.log(JSON.stringify(this.inputObject))
@@ -26,6 +35,9 @@ export default class TfrSampleForm extends LightningElement {
             this.recordId = wireData?.tfrSampleRecord?.Id;
             if (this.relatedPart.WorkOrder.Status == 'Completed') {
                 this.isTFRRecordDisabled = true;
+            }else if (this.relatedPart?.Warranty_Prior__r?.Status__c){
+                let status=this.relatedPart?.Warranty_Prior__r?.Status__c
+                this.isTFRRecordDisabled =!(EDITABLE_STATUSES.has(status) && !BLOCKED_STATUSES.has(status));
             }
             this.isLoading = false;
             console.log('wireData', wireData);
@@ -57,5 +69,17 @@ export default class TfrSampleForm extends LightningElement {
             variant: variant
         });
         this.dispatchEvent(event);
+    }
+
+    sendEevntToParent(message,isSuccess){
+        debugger;
+        this.dispatchEvent(new CustomEvent('tfrsubmitsucess', {
+            detail: {
+                message:message,
+                isSuccess:isSuccess,
+                Object:isSuccess
+            }
+        }));
+
     }
 }

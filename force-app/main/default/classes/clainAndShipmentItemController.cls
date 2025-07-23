@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 05-06-2025
+ * @last modified on  : 07-22-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public with sharing class clainAndShipmentItemController {
@@ -23,11 +23,14 @@ public with sharing class clainAndShipmentItemController {
     }
     @AuraEnabled
     public static string updateShipmentItemList(List<ShipmentItem> shipmentItemList,String recordId){
-        Shipment s = [SELECT Id, Status FROM Shipment WHERE id=:recordId];
+        Shipment s = [SELECT Id, Status,Order__c FROM Shipment WHERE id=:recordId];
         s.Status='Delivered';
         update s;
         update shipmentItemList;
         updateProductTransferReceivedQuantity(shipmentItemList);
+        Order o = [SELECT Id,Status FROM Order WHERE Id=:s.Order__c LIMIT 1];
+        o.Status='Delivered';
+        update o;
         return 'SUCCESS';
     }
     //code adde by Aniket on 05/02/2025

@@ -6,7 +6,7 @@ import { CloseActionScreenEvent } from 'lightning/actions';
 export default class DiscrepancyMedia extends LightningElement {
     @api recordId;
     @track lineItems = [];
-    @track showapinner = False;
+   // @track showapinner = False;
     error;
 
     @wire(getDiscrepancyLineItems, { shipmentId: '$recordId' })
@@ -15,7 +15,7 @@ export default class DiscrepancyMedia extends LightningElement {
         console.log(this.recordId);
         if (data) {
             this.lineItems = data.map(item => ({ ...item }));
-            this.showapinner = False;
+           // this.showapinner = True;
             this.error = undefined;
         } else if (error) {
             this.error = error.body.message;
@@ -32,7 +32,7 @@ export default class DiscrepancyMedia extends LightningElement {
 
     handleSave() {
         debugger;
-        this.showapinner = True;
+        //this.showapinner = True;
         updateMediaUrls({ items: this.lineItems })
             .then(() => {
                 this.dispatchEvent(new ShowToastEvent({

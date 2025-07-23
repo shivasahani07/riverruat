@@ -39,20 +39,16 @@ global with sharing class AccountRegistrationAPI {
                 if (!existingLead.isEmpty()) {
                     system.debug('existing lead found>>'+existingLead[0]);
                     if (existingLead[0].Owner.Type == 'Queue') {
-                    //     User targetUser = [SELECT Id,LastName FROM User WHERE LastName LIKE '%@store' LIMIT 1];
-                        
-                    //     if (targetUser != null) {
-                    //         existingLead[0].OwnerId = targetUser.Id;
-                    String preferredStoreId = LeadTriggerHandler.getPreferredStoreByPincode(existingLead[0].postalCode); // ← you provide this logic
-                    if (preferredStoreId != null) {
-                        System.debug('Assigning preferred store: ' + preferredStoreId);
-                        existingLead[0].Dealer_Code__c = preferredStoreId;
-                        existingLead[0].Dealer_Allocation__c = true;
-                    }
-
-                            existingLead[0].Is_Order_Created__c = true;
-                            update existingLead[0];
-                    //     }
+                        String preferredStoreId = LeadTriggerHandler.getPreferredStoreByPincode(existingLead[0].postalCode);
+                        if (preferredStoreId != null) {
+                            System.debug('Assigning preferred store: ' + preferredStoreId);
+                            List<User> userList = [Select Id,Name from User Where Contact.Account.Center_Code__c =: preferredStoreId AND IsActive = true];
+                            existingLead[0].Dealer_Code__c = preferredStoreId;
+                            existingLead[0].Dealer_Allocation__c = true;
+                            existingLead[0].OwnerId = userList[0].Id;
+                        }
+                        existingLead[0].Is_Order_Created__c = true;
+                        update existingLead[0];
                     }
                     
                     Database.LeadConvert lc = new Database.LeadConvert();

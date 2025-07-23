@@ -108,14 +108,33 @@
                 </template>
             </template>
 
-            <!-- Slot Creation Form -->
+             
             <template if:true={showForm}>
+                 <template if:true={showForm}>
                 <div class="slds-col slds-size_1-of-2">
-                    <lightning-input type="date" name="startDate" label="Start Date" required value={startDate} onchange={handleInput}></lightning-input>
+                    <lightning-input
+                        type="date"
+                        name="startDate"
+                        label="Start Date"
+                        required
+                        value={startDate}
+                        onchange={handleInput}
+                        min={minStartDate}>
+                    </lightning-input>
                 </div>
                 <div class="slds-col slds-size_1-of-2">
-                    <lightning-input type="date" name="endDate" label="End Date" required value={endDate} onchange={handleInput}></lightning-input>
+                    <lightning-input
+                        type="date"
+                        name="endDate"
+                        label="End Date"
+                        required
+                        value={endDate}
+                        onchange={handleInput}
+                        min={startDate}>
+                    </lightning-input>
                 </div>
+                 
+            </template>
                 <div class="slds-col slds-size_1-of-2">
                     <lightning-input type="time" name="dayStart" label="Start Time" required value={dayStart} onchange={handleInput}></lightning-input>
                 </div>

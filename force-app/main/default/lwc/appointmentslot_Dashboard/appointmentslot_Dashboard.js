@@ -8,7 +8,6 @@ import getRemainingBays from '@salesforce/apex/AppointmentSlotController.getRema
 const PAGE_SIZE = 10;
 
 export default class CreateAppointmentSlots extends LightningElement {
-    // Component properties
     @track serviceCenterId;
     @track serviceCenterName = '';
     @track fullSlotItems = [];
@@ -31,7 +30,13 @@ export default class CreateAppointmentSlots extends LightningElement {
     currentPage = 1;
     totalPages = 1;
 
-    // Computed properties
+    // 👇 New Getter: Min date for Start Date (15 days from today)
+    get minStartDate() {
+        const today = new Date();
+        today.setDate(today.getDate() + 15);
+        return today.toISOString().split('T')[0];
+    }
+
     get hasSlotItems() {
         return this.slotItems && this.slotItems.length > 0;
     }
@@ -61,6 +66,7 @@ export default class CreateAppointmentSlots extends LightningElement {
                !this.duration || 
                !this.bayNumber ||
                new Date(this.startDate) > new Date(this.endDate) ||
+               new Date(this.startDate) < new Date(this.minStartDate) ||  
                this.dayEnd <= this.dayStart ||
                this.duration < 15 || 
                this.duration > 60 ||
@@ -68,7 +74,6 @@ export default class CreateAppointmentSlots extends LightningElement {
                (this.bayCount && this.bayNumber > this.bayCount);
     }
 
-    // Wire methods
     @wire(getCurrentContactServiceCenter)
     wiredCenterName({ error, data }) {
         if (data) {
@@ -81,94 +86,74 @@ export default class CreateAppointmentSlots extends LightningElement {
             this.handleError(error, 'Failed to load service center data');
         }
     }
-    
 
-    // Helper methods
-  processSlotItems(rawList) {
-    function convertUTCToIST(dateTimeStr) {
-        const utcDate = new Date(dateTimeStr);
-        utcDate.setMinutes(utcDate.getMinutes() - 330); // Convert UTC to IST by subtracting 5.5 hours
-        return utcDate;
+    processSlotItems(rawList) {
+        function convertUTCToIST(dateTimeStr) {
+            const utcDate = new Date(dateTimeStr);
+            utcDate.setMinutes(utcDate.getMinutes() - 330);
+            return utcDate;
+        }
+
+        return rawList.map(row => {
+            const start = convertUTCToIST(row.Start_Time__c);
+            const end = convertUTCToIST(row.End_Time__c);
+
+            return {
+                Id: row.Id,
+                slotitemName: row.Name,
+                apppointDate: new Date(row.Appointment_Slot_Date__c).toLocaleDateString('en-IN'),
+                formattedStart: start.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
+                formattedEnd: end.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
+                slotUrl: row.Appointment_Slot__c ? '/' + row.Appointment_Slot__c : '',
+                slotName: row.Appointment_Slot__r?.Name || '—',
+                asiUrl: '/' + row.Id,
+                bayId: row.Service_Bay__c || '',
+                bayName: row.Service_Bay__r?.Name || '—',
+                bookingstatus: row.Booking_Status__c,
+                rawDate: row.Appointment_Slot_Date__c
+            };
+        });
     }
 
-    return rawList.map(row => {
-        const start = convertUTCToIST(row.Start_Time__c);
-        const end = convertUTCToIST(row.End_Time__c);
-
-        return {
-            Id: row.Id,
-            slotitemName: row.Name,
-            apppointDate: new Date(row.Appointment_Slot_Date__c).toLocaleDateString('en-IN'),
-            formattedStart: start.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
-            formattedEnd: end.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
-            slotUrl: row.Appointment_Slot__c ? '/' + row.Appointment_Slot__c : '',
-            slotName: row.Appointment_Slot__r?.Name || '—',
-            asiUrl: '/' + row.Id,
-            bayId: row.Service_Bay__c || '',
-            bayName: row.Service_Bay__r?.Name || '—',
-            bookingstatus: row.Booking_Status__c,
-            rawDate: row.Appointment_Slot_Date__c
-        };
-    });
-}
-
-
     filteredSlotItems() {
-        if (!this.filterStartDate && !this.filterEndDate) {
-            return this.fullSlotItems;
-        }
-        
         const startDate = this.filterStartDate ? new Date(this.filterStartDate) : null;
         const endDate = this.filterEndDate ? new Date(this.filterEndDate) : null;
-        
+
         return this.fullSlotItems.filter(item => {
             if (!item.rawDate) return false;
-            
             const itemDate = new Date(item.rawDate);
-            
-            // Reset time components for date comparison
             itemDate.setHours(0, 0, 0, 0);
             if (startDate) startDate.setHours(0, 0, 0, 0);
             if (endDate) endDate.setHours(0, 0, 0, 0);
-            
-            const afterStart = !startDate || itemDate >= startDate;
-            const beforeEnd = !endDate || itemDate <= endDate;
-            
-            return afterStart && beforeEnd;
+            return (!startDate || itemDate >= startDate) && (!endDate || itemDate <= endDate);
         });
     }
 
     updatePaginatedItems() {
         const filtered = this.filteredSlotItems();
         this.totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
-        
-        // Ensure current page is within bounds
         if (this.currentPage > this.totalPages) {
             this.currentPage = this.totalPages;
         }
-        
         const startIdx = (this.currentPage - 1) * PAGE_SIZE;
         const endIdx = startIdx + PAGE_SIZE;
         this.slotItems = filtered.slice(startIdx, endIdx);
     }
 
-    // Event handlers
     handleFilterDateChange(event) {
         const { name, value } = event.target;
         this[name] = value;
-        
-        // Validate date range
+
         if (this.filterStartDate && this.filterEndDate) {
             const start = new Date(this.filterStartDate);
             const end = new Date(this.filterEndDate);
-            
             if (start > end) {
                 event.target.setCustomValidity('End date must be after start date');
                 event.target.reportValidity();
                 return;
             }
         }
-        
+
         event.target.setCustomValidity('');
         this.currentPage = 1;
         this.updatePaginatedItems();
@@ -177,8 +162,7 @@ export default class CreateAppointmentSlots extends LightningElement {
     handleInput(event) {
         const { name, value } = event.target;
         this[name] = value;
-        
-        // Validate bay number
+
         if (name === 'bayNumber') {
             const bays = Number(value);
             const max = Number(this.bayCount);
@@ -188,8 +172,7 @@ export default class CreateAppointmentSlots extends LightningElement {
                 event.target.setCustomValidity('');
             }
         }
-        
-        // Validate duration
+
         if (name === 'duration') {
             const dur = Number(value);
             if (dur < 15 || dur > 60) {
@@ -198,8 +181,7 @@ export default class CreateAppointmentSlots extends LightningElement {
                 event.target.setCustomValidity('');
             }
         }
-        
-        // Validate time range
+
         if ((name === 'dayStart' || name === 'dayEnd') && this.dayStart && this.dayEnd) {
             if (this.dayEnd <= this.dayStart) {
                 this.template.querySelector(`[name="${name}"]`).setCustomValidity('End time must be after start time');
@@ -207,10 +189,20 @@ export default class CreateAppointmentSlots extends LightningElement {
                 this.template.querySelector(`[name="${name}"]`).setCustomValidity('');
             }
         }
-        
+
+        // 👇 Check startDate minimum (15 days rule)
+        if (name === 'startDate') {
+            const selected = new Date(value);
+            const min = new Date(this.minStartDate);
+            if (selected < min) {
+                event.target.setCustomValidity(`Start Date must be at least 15 days from today`);
+            } else {
+                event.target.setCustomValidity('');
+            }
+        }
+
         event.target.reportValidity();
-        
-        // Check remaining bays when dates change
+
         if ((name === 'startDate' || name === 'endDate') && this.startDate && this.endDate) {
             this.checkRemainingBays();
         }
@@ -242,22 +234,17 @@ export default class CreateAppointmentSlots extends LightningElement {
         this.errorMessage = '';
     }
 
-    // Data operations
     fetchBayCount() {
         if (!this.serviceCenterId) return;
-        
         getServiceBayCount({ serviceCenterId: this.serviceCenterId })
             .then(count => {
                 this.bayCount = count;
             })
-            .catch(error => {
-                this.handleError(error, 'Failed to load bay count');
-            });
+            .catch(error => this.handleError(error, 'Failed to load bay count'));
     }
 
     checkRemainingBays() {
         if (!this.serviceCenterId || !this.startDate || !this.endDate) return;
-        
         getRemainingBays({
             serviceCenterId: this.serviceCenterId,
             startDate: this.startDate,
@@ -266,14 +253,11 @@ export default class CreateAppointmentSlots extends LightningElement {
         .then(count => {
             this.remainingBays = count;
         })
-        .catch(error => {
-            this.handleError(error, 'Failed to check available bays');
-        });
+        .catch(error => this.handleError(error, 'Failed to check available bays'));
     }
 
     createSlot() {
         this.errorMessage = '';
-        
         createSlot({
             serviceCenterId: this.serviceCenterId,
             startDate: this.startDate,
@@ -313,10 +297,8 @@ export default class CreateAppointmentSlots extends LightningElement {
         this.remainingBays = null;
     }
 
-    // Utility methods
     formatTimeForApex(timeString) {
-        if (!timeString) return null;
-        return `${timeString}:00.000Z`;
+        return timeString ? `${timeString}:00.000Z` : null;
     }
 
     showToast(title, message, variant) {

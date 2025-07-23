@@ -11,7 +11,7 @@
 * 1.0 | July 11, 2025 |   | Initial Version
 **/
 
-public class ResubmitDiscrepancyMediaController {
+public without sharing class ResubmitDiscrepancyMediaController {
 	  @AuraEnabled(cacheable=true)
     public static List<Discrepancy_Line_Item__c> getDiscrepancyLineItems(Id shipmentId) {
         System.debug('Shipment ID: ' + shipmentId);

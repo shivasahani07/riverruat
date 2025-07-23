@@ -14,6 +14,7 @@ export default class POReviewLWC extends NavigationMixin(LightningElement) {
     @track selectedProductId;
     @track newQty;
     @track productOptions = [];
+    @track productMap = {};
 
     statusOptions = [
         { label: 'Pending', value: 'Pending' },
@@ -45,6 +46,14 @@ export default class POReviewLWC extends NavigationMixin(LightningElement) {
                 label: prod.Name,
                 value: prod.Id
             }));
+
+            this.productMap = {};
+            data.forEach(prod => {
+                this.productMap[prod.Id] = {
+                    name: prod.Name,
+                    moq: prod.Minimum_Order_Qty__c
+                };
+            });
         } else if (error) {
             console.error('Error loading products:', error);
         }
@@ -79,6 +88,12 @@ export default class POReviewLWC extends NavigationMixin(LightningElement) {
 
     handleProductSelection(event) {
         this.selectedProductId = event.detail.value;
+
+        if (this.productMap[this.selectedProductId]) {
+            this.newQty = this.productMap[this.selectedProductId].moq;
+        } else {
+            this.newQty = null;
+        }
     }
 
     handleNewQtyChange(event) {
@@ -108,8 +123,8 @@ export default class POReviewLWC extends NavigationMixin(LightningElement) {
             Id: item.Id,
             Product2Id: item.Product2Id,
             QuantityRequested: item.updatedQuantity,
-            ApprovalStatus: item.approvalStatus,
-            IsNew: item.isNew
+            IsNew: item.isNew,
+            // ApprovalStatus: 'Submitted',
         }));
 
         return updatePOLineItems({ poId: this.recordId, jsonString: JSON.stringify(payload) })
@@ -118,19 +133,24 @@ export default class POReviewLWC extends NavigationMixin(LightningElement) {
                 this.navigateBack();
             })
             .catch(err => {
-                this.showToast('Error', 'Update failed', 'error');
+                //this.showToast('Error', 'Update failed', 'error');
             });
     }
 
     handleSubmit() {
+        // Send the Email and Notification
+        
+        /*
         const pendingOrRejected = this.lineItems.some(item => item.approvalStatus !== 'Approved');
         if (pendingOrRejected) {
             this.showToast('Error', 'Only approved items can be submitted.', 'error');
             return;
         }
+        */
+
         // Save line items, then mark PO as submitted
         this.handleSave().then(() => {
-            markPOSubmitted({ poId: this.recordId })
+            markPOSubmitted({ poId: this.recordId  })
                 .then(() => {
                     this.showToast('Success', 'PO Submitted Successfully', 'success');
 
@@ -142,6 +162,7 @@ export default class POReviewLWC extends NavigationMixin(LightningElement) {
                     //this.showToast('Error', 'Failed to mark PO as submitted: ' + this.parseError(error), 'error');
                 });
         });
+
     }
 
     parseError(error) {
