@@ -1,138 +1,133 @@
-/**
- * @description       : 
- * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
- * @group             : 
- * @last modified on  : 04-07-2025
- * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
-**/
 public class WorkOrderLineItemTriggerHandler {
-
+    
     public static void handleInsert(List<WorkOrderLineItem> workOrderLineItems) {
-    // Step 1: Collect WorkOrder IDs from WorkOrderLineItems
-    Set<String> restrictedPartsCategories = new Set<String>();
-    for (Parts_Category_Restricted__mdt meta : [SELECT Parts_Category__c FROM Parts_Category_Restricted__mdt]) {
-        restrictedPartsCategories.add(meta.Parts_Category__c);
-    }
-
-    Set<Id> workOrderIds = new Set<Id>();
-    Set<Id> warrantyPriorIds = new Set<Id>();
-    for (WorkOrderLineItem item : workOrderLineItems) {
-        if (item.WorkOrderId != null && !restrictedPartsCategories.contains(item.RR_Parts_Category__c)) {
-            workOrderIds.add(item.WorkOrderId);
+        // Step 1: Collect WorkOrder IDs from WorkOrderLineItems
+        List<WorkOrderLineItem> warrantyPriorWOITems = new List<WorkOrderLineItem> ();
+        Set<String> restrictedPartsCategories = new Set<String>();
+        for (Parts_Category_Restricted__mdt meta : [SELECT Parts_Category__c FROM Parts_Category_Restricted__mdt]) {
+            restrictedPartsCategories.add(meta.Parts_Category__c);
         }
-        if (item.Warranty_Prior__c != null) {
-            warrantyPriorIds.add(item.Warranty_Prior__c);
+        
+        Set<Id> workOrderIds = new Set<Id>();
+        Set<Id> warrantyPriorIds = new Set<Id>();
+        for (WorkOrderLineItem item : workOrderLineItems) {
+            if (item.WorkOrderId != null && !restrictedPartsCategories.contains(item.RR_Parts_Category__c)) {
+                warrantyPriorWOITems.add(item);
+                workOrderIds.add(item.WorkOrderId);
+            }
+            if (item.Warranty_Prior__c != null) {
+                warrantyPriorIds.add(item.Warranty_Prior__c);
+            }
         }
-    }
-    System.debug('WorkOrder IDs: ' + workOrderIds);
-
-    // Step 2: Query existing Warranty Priors related to WorkOrder IDs
-    Map<Id, Warranty_Prior__c> existingWarrantyMap = new Map<Id, Warranty_Prior__c>(
-        [SELECT Id, Job_Card__c, Status__c, Total_Claim_Amount__c 
-         FROM Warranty_Prior__c 
-         WHERE Job_Card__c IN :workOrderIds]
-    );
-    System.debug('Existing Warranties: ' + existingWarrantyMap);
-
-    // Step 3: Update the status of existing warranties with status 'Approved' to 'Pending'
-    List<Warranty_Prior__c> warrantiesToUpdate = new List<Warranty_Prior__c>();
-    for (Warranty_Prior__c warranty : existingWarrantyMap.values()) {
-        if (warranty.Status__c == 'Approved') {
-            warranty.Status__c = 'Pending';
-            warrantiesToUpdate.add(warranty);
-        }
-    }
-
-    if (!warrantiesToUpdate.isEmpty()) {
-        update warrantiesToUpdate;
-        System.debug('Updated Warranties: ' + warrantiesToUpdate);
-    }
-
-    // Step 4: Create new warranties for WorkOrders without an existing warranty
-    List<Warranty_Prior__c> newWarranties = new List<Warranty_Prior__c>();
-    Map<Id, Id> workOrderToWarrantyMap = new Map<Id, Id>();
-
-    // Map existing warranties
-    for (Warranty_Prior__c warranty : existingWarrantyMap.values()) {
-        workOrderToWarrantyMap.put(warranty.Job_Card__c, warranty.Id);
-    }
-
-    // Prepare new warranties for missing WorkOrders
-    if (!workOrderIds.isEmpty()) {
-        Map<Id, WorkOrder> workOrderMap = new Map<Id, WorkOrder>(
-            [SELECT Id,
-                    Vehicle__c,
-                    Odometer_Reading__c,
-                    Vehicle_Registration_Number__c,
-                    Vehicle__r.EngineNumber,
-                    Vehicle__r.VehicleIdentificationNumber
-             FROM WorkOrder
-             WHERE Id IN :workOrderIds]
+        System.debug('WorkOrder IDs: ' + workOrderIds);
+        
+        // Step 2: Query existing Warranty Priors related to WorkOrder IDs
+        Map<Id, Warranty_Prior__c> existingWarrantyMap = new Map<Id, Warranty_Prior__c>(
+            [SELECT Id, Job_Card__c, Status__c, Total_Claim_Amount__c 
+             FROM Warranty_Prior__c 
+             WHERE Job_Card__c IN :workOrderIds]
         );
-
-        Set<Id> workOrdersToCreateWarranty = new Set<Id>();
-
-		// Identify unique WorkOrderIds without warranty
-        for (Id woId : workOrderIds) {
-            if (!workOrderToWarrantyMap.containsKey(woId)) {
-                workOrdersToCreateWarranty.add(woId);
+        System.debug('Existing Warranties: ' + existingWarrantyMap);
+        
+        // Step 3: Update the status of existing warranties with status 'Approved' to 'Pending'
+        List<Warranty_Prior__c> warrantiesToUpdate = new List<Warranty_Prior__c>();
+        for (Warranty_Prior__c warranty : existingWarrantyMap.values()) {
+            if (warranty.Status__c == 'Approved') {
+                warranty.Status__c = 'Pending';
+                warrantiesToUpdate.add(warranty);
             }
         }
         
-        for (Id woId : workOrdersToCreateWarranty) {
-            WorkOrder relatedWorkOrder = workOrderMap.get(woId);
-            if (relatedWorkOrder != null) {
-                Warranty_Prior__c newWarranty = new Warranty_Prior__c(
-                    Job_Card__c = woId,
-                    Motor_Number__c = relatedWorkOrder.Vehicle__r.EngineNumber,
-                    Odometer_Reading__c = relatedWorkOrder.Odometer_Reading__c,
-                    Registration_Number__c = relatedWorkOrder.Vehicle_Registration_Number__c,
-                    VIN__c = relatedWorkOrder.Vehicle__r.VehicleIdentificationNumber,
-                    Warranty_Prior_Date__c = Date.today(),
-                    Status__c = 'Pending',
-                    Total_Claim_Amount__c = 0
-                );
-                newWarranties.add(newWarranty);
+        if (!warrantiesToUpdate.isEmpty()) {
+            update warrantiesToUpdate;
+            System.debug('Updated Warranties: ' + warrantiesToUpdate);
+        }
+        
+        // Step 4: Create new warranties for WorkOrders without an existing warranty
+        List<Warranty_Prior__c> newWarranties = new List<Warranty_Prior__c>();
+        Map<Id, Id> workOrderToWarrantyMap = new Map<Id, Id>();
+        
+        // Map existing warranties
+        for (Warranty_Prior__c warranty : existingWarrantyMap.values()) {
+            workOrderToWarrantyMap.put(warranty.Job_Card__c, warranty.Id);
+        }
+        
+        // Prepare new warranties for missing WorkOrders
+        if (!workOrderIds.isEmpty()) {
+            Map<Id, WorkOrder> workOrderMap = new Map<Id, WorkOrder>(
+                [SELECT Id,
+                 Vehicle__c,
+                 Odometer_Reading__c,
+                 Vehicle_Registration_Number__c,
+                 Vehicle__r.EngineNumber,
+                 Vehicle__r.VehicleIdentificationNumber
+                 FROM WorkOrder
+                 WHERE Id IN :workOrderIds]
+            );
+            
+            Set<Id> workOrdersToCreateWarranty = new Set<Id>();
+            
+            // Identify unique WorkOrderIds without warranty
+            for (Id woId : workOrderIds) {
+                if (!workOrderToWarrantyMap.containsKey(woId)) {
+                    workOrdersToCreateWarranty.add(woId);
+                }
+            }
+            
+            for (Id woId : workOrdersToCreateWarranty) {
+                WorkOrder relatedWorkOrder = workOrderMap.get(woId);
+                if (relatedWorkOrder != null) {
+                    Warranty_Prior__c newWarranty = new Warranty_Prior__c(
+                        Job_Card__c = woId,
+                        Motor_Number__c = relatedWorkOrder.Vehicle__r.EngineNumber,
+                        Odometer_Reading__c = relatedWorkOrder.Odometer_Reading__c,
+                        Registration_Number__c = relatedWorkOrder.Vehicle_Registration_Number__c,
+                        VIN__c = relatedWorkOrder.Vehicle__r.VehicleIdentificationNumber,
+                        Warranty_Prior_Date__c = Date.today(),
+                        Status__c = 'Pending',
+                        Total_Claim_Amount__c = 0
+                    );
+                    newWarranties.add(newWarranty);
+                }
+            }
+            
+        }
+        
+        if (!newWarranties.isEmpty()) {
+            insert newWarranties;
+            for (Warranty_Prior__c warranty : newWarranties) {
+                workOrderToWarrantyMap.put(warranty.Job_Card__c, warranty.Id);
+                warrantyPriorIds.add(warranty.Id);
             }
         }
-
-    }
-
-    if (!newWarranties.isEmpty()) {
-        insert newWarranties;
-        for (Warranty_Prior__c warranty : newWarranties) {
-            workOrderToWarrantyMap.put(warranty.Job_Card__c, warranty.Id);
-            warrantyPriorIds.add(warranty.Id);
+        
+        System.debug('WorkOrder to Warranty Map: ' + workOrderToWarrantyMap);
+        
+        // Step 5: Update WorkOrderLineItems with the associated warranties
+        List<WorkOrderLineItem> workOrderLineItemsToUpdate = new List<WorkOrderLineItem>();
+        for (WorkOrderLineItem item : warrantyPriorWOITems) {
+            if (item.WorkOrderId != null && workOrderToWarrantyMap.containsKey(item.WorkOrderId)) {
+                WorkOrderLineItem updatedItem = new WorkOrderLineItem(
+                    Id = item.Id,
+                    Warranty_Prior__c = workOrderToWarrantyMap.get(item.WorkOrderId)
+                );
+                workOrderLineItemsToUpdate.add(updatedItem);
+            }
+        }
+        
+        if (!workOrderLineItemsToUpdate.isEmpty()) {
+            update workOrderLineItemsToUpdate;
+        }
+        
+        System.debug('Updated WorkOrderLineItems: ' + workOrderLineItemsToUpdate);
+        
+        // Step 6: Update Total Claimed Amount on Warranty Priors
+        if (!warrantyPriorIds.isEmpty()) {
+            updateWarrantyTotalClaimedAmount(warrantyPriorIds);
         }
     }
-
-    System.debug('WorkOrder to Warranty Map: ' + workOrderToWarrantyMap);
-
-    // Step 5: Update WorkOrderLineItems with the associated warranties
-    List<WorkOrderLineItem> workOrderLineItemsToUpdate = new List<WorkOrderLineItem>();
-    for (WorkOrderLineItem item : workOrderLineItems) {
-        if (item.WorkOrderId != null && workOrderToWarrantyMap.containsKey(item.WorkOrderId)) {
-            WorkOrderLineItem updatedItem = new WorkOrderLineItem(
-                Id = item.Id,
-                Warranty_Prior__c = workOrderToWarrantyMap.get(item.WorkOrderId)
-            );
-            workOrderLineItemsToUpdate.add(updatedItem);
-        }
-    }
-
-    if (!workOrderLineItemsToUpdate.isEmpty()) {
-        update workOrderLineItemsToUpdate;
-    }
-
-    System.debug('Updated WorkOrderLineItems: ' + workOrderLineItemsToUpdate);
-
-    // Step 6: Update Total Claimed Amount on Warranty Priors
-    if (!warrantyPriorIds.isEmpty()) {
-        updateWarrantyTotalClaimedAmount(warrantyPriorIds);
-    }
-}
-
-
+    
+    
     public static void handleUpdate(List<WorkOrderLineItem> workOrderLineItems, Map<Id, WorkOrderLineItem> oldMap) {
         // Step 1: Collect Warranty Prior IDs for updated items
         Set<Id> warrantyPriorIds = new Set<Id>();
@@ -145,7 +140,7 @@ public class WorkOrderLineItemTriggerHandler {
                 warrantyPriorIds.add(oldItem.Warranty_Prior__c);
             }
         }
-
+        
         // Step 2: Update Total Claimed Amount on Warranty Priors
         if (!warrantyPriorIds.isEmpty()) {
             updateWarrantyTotalClaimedAmount(warrantyPriorIds);
@@ -160,11 +155,11 @@ public class WorkOrderLineItemTriggerHandler {
                     warrantyPriorIds.add(item.Warranty_Prior__c);
                 }
             }
-    
+            
             // Step 2: Filter Warranty Priors that still have related WorkOrderLineItems
             if (!warrantyPriorIds.isEmpty()) {
                 Set<Id> warrantyIdsToUpdate = new Set<Id>();
-    
+                
                 // Query to check remaining WorkOrderLineItems
                 List<AggregateResult> remainingItems = [
                     SELECT Warranty_Prior__c, COUNT(Id) recordCount
@@ -172,7 +167,7 @@ public class WorkOrderLineItemTriggerHandler {
                     WHERE Warranty_Prior__c IN :warrantyPriorIds
                     GROUP BY Warranty_Prior__c
                 ];
-    
+                
                 // Add to update set only if there are remaining items
                 for (AggregateResult result : remainingItems) {
                     Id warrantyId = (Id) result.get('Warranty_Prior__c');
@@ -181,7 +176,7 @@ public class WorkOrderLineItemTriggerHandler {
                         warrantyIdsToUpdate.add(warrantyId);
                     }
                 }
-    
+                
                 // Step 3: Update Total Claimed Amount on valid Warranty Priors
                 if (!warrantyIdsToUpdate.isEmpty()) {
                     updateWarrantyTotalClaimedAmount(warrantyIdsToUpdate);
@@ -197,34 +192,34 @@ public class WorkOrderLineItemTriggerHandler {
     
     private static void updateWarrantyTotalClaimedAmount(Set<Id> warrantyPriorIds) {
         // added on for that no duplicate warranties were create
-            if (!warrantyPriorIds.isEmpty()) {
-        // Step 0.1: Get IDs of warranties that DO have parts
-       /* Set<Id> warrantiesWithParts = new Set<Id>();
-        List<AggregateResult> aggregateResultsWithParts = [
-            SELECT Warranty_Prior__c 
-            FROM WorkOrderLineItem 
-            WHERE Warranty_Prior__c IN :warrantyPriorIds 
-            GROUP BY Warranty_Prior__c
-        ];
+        if (!warrantyPriorIds.isEmpty()) {
+            // Step 0.1: Get IDs of warranties that DO have parts
+            /* Set<Id> warrantiesWithParts = new Set<Id>();
+List<AggregateResult> aggregateResultsWithParts = [
+SELECT Warranty_Prior__c 
+FROM WorkOrderLineItem 
+WHERE Warranty_Prior__c IN :warrantyPriorIds 
+GROUP BY Warranty_Prior__c
+];
 
-        for (AggregateResult ar : aggregateResultsWithParts) {
-            warrantiesWithParts.add((Id)ar.get('Warranty_Prior__c'));
+for (AggregateResult ar : aggregateResultsWithParts) {
+warrantiesWithParts.add((Id)ar.get('Warranty_Prior__c'));
+}
+
+// Step 0.2: Find warranties that have NO parts
+Set<Id> warrantiesWithNoParts = new Set<Id>(warrantyPriorIds);
+warrantiesWithNoParts.removeAll(warrantiesWithParts);
+
+if (!warrantiesWithNoParts.isEmpty()) {
+System.debug('Deleting warranties with no parts: ' + warrantiesWithNoParts);
+delete [SELECT Id FROM Warranty_Prior__c WHERE Id IN :warrantiesWithNoParts];
+// Remove from original set so we don't update them
+warrantyPriorIds.removeAll(warrantiesWithNoParts);
+}*/
         }
-
-        // Step 0.2: Find warranties that have NO parts
-        Set<Id> warrantiesWithNoParts = new Set<Id>(warrantyPriorIds);
-        warrantiesWithNoParts.removeAll(warrantiesWithParts);
-
-        if (!warrantiesWithNoParts.isEmpty()) {
-            System.debug('Deleting warranties with no parts: ' + warrantiesWithNoParts);
-            delete [SELECT Id FROM Warranty_Prior__c WHERE Id IN :warrantiesWithNoParts];
-            // Remove from original set so we don't update them
-            warrantyPriorIds.removeAll(warrantiesWithNoParts);
-        }*/
-    }
         try {
             System.debug('Warranty Prior IDs for Total Claimed Amount Update: ' + warrantyPriorIds);
-        
+            
             // Step 1: Aggregate TotalAmount__c from WorkOrderLineItems
             Map<Id, Decimal> warrantyToTotalAmountMap = new Map<Id, Decimal>();
             List<AggregateResult> aggregateResults = [
@@ -233,25 +228,25 @@ public class WorkOrderLineItemTriggerHandler {
                 WHERE Warranty_Prior__c IN :warrantyPriorIds
                 GROUP BY Warranty_Prior__c
             ];
-        
+            
             System.debug('Aggregate Results for TotalAmount__c: ' + aggregateResults);
-        
+            
             for (AggregateResult result : aggregateResults) {
                 warrantyToTotalAmountMap.put(
                     (Id) result.get('Warranty_Prior__c'),
                     (Decimal) result.get('totalAmount')
                 );
             }
-        
+            
             System.debug('Map of Warranty Prior to Total Amount: ' + warrantyToTotalAmountMap);
-        
+            
             // Step 2: Update Warranty Prior records
             List<Warranty_Prior__c> warrantiesToUpdate = new List<Warranty_Prior__c>();
             for (Id warrantyId : warrantyPriorIds) {
                 if (warrantyId != null) { // Ensure warrantyId is not null
                     Decimal totalAmount = warrantyToTotalAmountMap.get(warrantyId) != null ? warrantyToTotalAmountMap.get(warrantyId) : 0;
                     System.debug('Warranty ID: ' + warrantyId + ', Total Amount: ' + totalAmount);
-        
+                    
                     warrantiesToUpdate.add(new Warranty_Prior__c(
                         Id = warrantyId,
                         Total_Claim_Amount__c = totalAmount
@@ -260,7 +255,7 @@ public class WorkOrderLineItemTriggerHandler {
                     System.debug('Skipping update for null Warranty ID.');
                 }
             }
-        
+            
             if (!warrantiesToUpdate.isEmpty()) {
                 System.debug('Warranties to Update: ' + warrantiesToUpdate);
                 update warrantiesToUpdate;
@@ -276,53 +271,53 @@ public class WorkOrderLineItemTriggerHandler {
     public static void CheckTFrisRequired(List<WorkOrderLineItem> workOrderLineItems){
         
     }
-
-
-
-// public static void handleUpdate(List<WorkOrderLineItem> workOrderLineItems, Map<Id, WorkOrderLineItem> oldMap) {
-//     // Step 1: Identify WorkOrderLineItems where WorkOrderId has changed
-//     Set<Id> changedWorkOrderIds = new Set<Id>();
-//     for (WorkOrderLineItem item : workOrderLineItems) {
-//         WorkOrderLineItem oldItem = oldMap.get(item.Id);
-//         if (item.WorkOrderId != oldItem.WorkOrderId) {
-//             changedWorkOrderIds.add(item.WorkOrderId);
-//             changedWorkOrderIds.add(oldItem.WorkOrderId);
-//         }
-//     }
-//     System.debug('Changed WorkOrder IDs: ' + changedWorkOrderIds);
-
-//     // Step 2: Query existing Warranty Priors for the changed WorkOrders
-//     Map<Id, Warranty_Prior__c> warrantyMap = new Map<Id, Warranty_Prior__c>(
-//         [SELECT Id, Job_Card__c FROM Warranty_Prior__c WHERE Job_Card__c IN :changedWorkOrderIds]
-//     );
-//     System.debug('Queried Warranty Priors: ' + warrantyMap);
-
-//     // Step 3: Update WorkOrderLineItems with the correct Warranty Prior
-//     List<WorkOrderLineItem> itemsToUpdate = new List<WorkOrderLineItem>();
-
-//     for (WorkOrderLineItem item : workOrderLineItems) {
-//         if (item.WorkOrderId == null) continue;
-
-//         // Get the correct Warranty Prior for the new WorkOrder
-//         Warranty_Prior__c warranty = warrantyMap.get(item.WorkOrderId);
-
-//         if (warranty != null) {
-//             item.Warranty_Prior__c = warranty.Id;
-//             itemsToUpdate.add(item);
-//         }
-//     }
-//     System.debug('Items to Update on Update: ' + itemsToUpdate);
-
-//     // Step 4: Update WorkOrderLineItems
-//     if (!itemsToUpdate.isEmpty()) {
-//         update itemsToUpdate;
-//     }
-// }
-
+    
+    
+    
+    // public static void handleUpdate(List<WorkOrderLineItem> workOrderLineItems, Map<Id, WorkOrderLineItem> oldMap) {
+    //     // Step 1: Identify WorkOrderLineItems where WorkOrderId has changed
+    //     Set<Id> changedWorkOrderIds = new Set<Id>();
+    //     for (WorkOrderLineItem item : workOrderLineItems) {
+    //         WorkOrderLineItem oldItem = oldMap.get(item.Id);
+    //         if (item.WorkOrderId != oldItem.WorkOrderId) {
+    //             changedWorkOrderIds.add(item.WorkOrderId);
+    //             changedWorkOrderIds.add(oldItem.WorkOrderId);
+    //         }
+    //     }
+    //     System.debug('Changed WorkOrder IDs: ' + changedWorkOrderIds);
+    
+    //     // Step 2: Query existing Warranty Priors for the changed WorkOrders
+    //     Map<Id, Warranty_Prior__c> warrantyMap = new Map<Id, Warranty_Prior__c>(
+    //         [SELECT Id, Job_Card__c FROM Warranty_Prior__c WHERE Job_Card__c IN :changedWorkOrderIds]
+    //     );
+    //     System.debug('Queried Warranty Priors: ' + warrantyMap);
+    
+    //     // Step 3: Update WorkOrderLineItems with the correct Warranty Prior
+    //     List<WorkOrderLineItem> itemsToUpdate = new List<WorkOrderLineItem>();
+    
+    //     for (WorkOrderLineItem item : workOrderLineItems) {
+    //         if (item.WorkOrderId == null) continue;
+    
+    //         // Get the correct Warranty Prior for the new WorkOrder
+    //         Warranty_Prior__c warranty = warrantyMap.get(item.WorkOrderId);
+    
+    //         if (warranty != null) {
+    //             item.Warranty_Prior__c = warranty.Id;
+    //             itemsToUpdate.add(item);
+    //         }
+    //     }
+    //     System.debug('Items to Update on Update: ' + itemsToUpdate);
+    
+    //     // Step 4: Update WorkOrderLineItems
+    //     if (!itemsToUpdate.isEmpty()) {
+    //         update itemsToUpdate;
+    //     }
+    // }
+    
     public static void createProductConsumed(List<WorkOrderLineItem> newPartList){
         
         workOrderLineItemWrapper woli = new workOrderLineItemWrapper();
-       
+        
         
         
         List<ProductConsumed> pcToInsert = new List<ProductConsumed>();
@@ -365,35 +360,35 @@ public class WorkOrderLineItemTriggerHandler {
             for (WorkOrderLineItem ww : insertedPartList) {
                 
                 Id inventoryId = woli.productInventoryMap.get(ww.PricebookEntry.Product2Id);
-            if (inventoryId != null) {
-                ProductConsumed p = new ProductConsumed();
-                p.WorkOrderId = ww.WorkOrderId;
-                p.WorkOrderLineItemId = ww.Id;
-                p.QuantityConsumed = ww.Quantity;
-                p.Quantity_Consumed__c = ww.Quantity;
-                p.PricebookEntryId = ww.PricebookEntryId;
-                p.Product__c = ww.Product2Id;
-                p.ProductItemId = inventoryId;
-                pcToInsert.add(p);
-            }
+                if (inventoryId != null) {
+                    ProductConsumed p = new ProductConsumed();
+                    p.WorkOrderId = ww.WorkOrderId;
+                    p.WorkOrderLineItemId = ww.Id;
+                    p.QuantityConsumed = ww.Quantity;
+                    p.Quantity_Consumed__c = ww.Quantity;
+                    p.PricebookEntryId = ww.PricebookEntryId;
+                    p.Product__c = ww.Product2Id;
+                    p.ProductItemId = inventoryId;
+                    pcToInsert.add(p);
+                }
                 
             }
             
             
             if (!pcToInsert.isEmpty()) {
-            insert pcToInsert;
-            System.debug('Inserted Product Consumed ==>'+pcToInsert);
+                insert pcToInsert;
+                System.debug('Inserted Product Consumed ==>'+pcToInsert);
+            }
+            
+            
+            
+        } catch (Exception e) {
+            System.debug('Error Occured==>'+e.getMessage()+'Error Occured in Line Number==>'+e.getLineNumber());
+            System.debug('Type: ' + e.getTypeName());
+            System.debug('Stack Trace: ' + e.getStackTraceString());
+            System.debug('Cause: ' + e.getCause());
+            
         }
-
-        
-        
-    } catch (Exception e) {
-        System.debug('Error Occured==>'+e.getMessage()+'Error Occured in Line Number==>'+e.getLineNumber());
-        System.debug('Type: ' + e.getTypeName());
-        System.debug('Stack Trace: ' + e.getStackTraceString());
-        System.debug('Cause: ' + e.getCause());
-        
-    }
     }
     public class workOrderLineItemWrapper{
         Set<Id> partId = new Set<Id>();
@@ -402,130 +397,130 @@ public class WorkOrderLineItemTriggerHandler {
         Set<Id> locationIds = new Set<Id>();
         Map<Id,Id> productInventoryMap = new Map<Id,Id>();
     }
-  /*  public static void deleteProductConsumedRecord(List<WorkOrderLineItem> deletedRecords){
-        Set<Id> partIds = new Set<Id>();
-        try{
-            for(WorkOrderLineItem w : deletedRecords){
-                partIds.add(w.Id);
-            }
-            System.debug('partIds===>'+partIds);
-            
-            List<ProductConsumed> pcList = [Select Id,WorkOrderLineItemId from ProductConsumed Where WorkOrderLineItemId IN:partIds];
-           
-            System.debug('pcList===>'+pcList);
-            
-            
-        }catch(Exception e){
-            System.debug('Error Occured===>'+e.getMessage()+'Error Occured In Line Number===>'+e.getLineNumber());
-        }
-        
-        
-    }*/
+    /*  public static void deleteProductConsumedRecord(List<WorkOrderLineItem> deletedRecords){
+Set<Id> partIds = new Set<Id>();
+try{
+for(WorkOrderLineItem w : deletedRecords){
+partIds.add(w.Id);
+}
+System.debug('partIds===>'+partIds);
+
+List<ProductConsumed> pcList = [Select Id,WorkOrderLineItemId from ProductConsumed Where WorkOrderLineItemId IN:partIds];
+
+System.debug('pcList===>'+pcList);
+
+
+}catch(Exception e){
+System.debug('Error Occured===>'+e.getMessage()+'Error Occured In Line Number===>'+e.getLineNumber());
+}
+
+
+}*/
     //added by Aniket to tag Warranty even after update on 22/05/2025
     public static void createWarrantyAfterUpdate(List<WorkOrderLineItem> workOrderLineItems,Map<Id,WorkOrderLineItem> oldMapParts){
         try{
             Set<String> restrictedPartsCategories = new Set<String>();
-          for (Parts_Category_Restricted__mdt meta : [SELECT Parts_Category__c FROM Parts_Category_Restricted__mdt]) {
-               restrictedPartsCategories.add(meta.Parts_Category__c);
-           }
-        
-        Set<Id> workOrderIds = new Set<Id>();
-        Set<Id> warrantyPriorIds = new Set<Id>();
-        for (WorkOrderLineItem item : workOrderLineItems) {
-            if(item.RR_Parts_Category__c != oldMapParts.get(item.Id).RR_Parts_Category__c){
-                if (item.WorkOrderId != null && !restrictedPartsCategories.contains(item.RR_Parts_Category__c)) {
-                workOrderIds.add(item.WorkOrderId);
-            }
-            if (item.Warranty_Prior__c != null) {
-                warrantyPriorIds.add(item.Warranty_Prior__c);
-            }
+            for (Parts_Category_Restricted__mdt meta : [SELECT Parts_Category__c FROM Parts_Category_Restricted__mdt]) {
+                restrictedPartsCategories.add(meta.Parts_Category__c);
             }
             
-        }
-        System.debug('WorkOrder IDs: ' + workOrderIds);
-    
-        // Step 2: Query existing Warranty Priors related to WorkOrder IDs
-        Map<Id, Warranty_Prior__c> existingWarrantyMap = new Map<Id, Warranty_Prior__c>(
-            [SELECT Id, Job_Card__c, Total_Claim_Amount__c 
-             FROM Warranty_Prior__c 
-             WHERE Job_Card__c IN :workOrderIds]
-        );
-        System.debug('Existing Warranties: ' + existingWarrantyMap);
-    
-        // Step 3: Create new warranties for WorkOrders without an existing warranty
-        List<Warranty_Prior__c> newWarranties = new List<Warranty_Prior__c>();
-        Map<Id, Id> workOrderToWarrantyMap = new Map<Id, Id>();
-    
-        // Map existing warranties
-        for (Warranty_Prior__c warranty : existingWarrantyMap.values()) {
-            workOrderToWarrantyMap.put(warranty.Job_Card__c, warranty.Id);
-        }
-
-        // Prepare new warranties for missing WorkOrders
-        if (!workOrderIds.isEmpty()) {
-            Map<Id, WorkOrder> workOrderMap = new Map<Id, WorkOrder>(
-                [SELECT Id,
-                        Vehicle__c,
-                        Odometer_Reading__c,
-                        Vehicle_Registration_Number__c,
-                        Vehicle__r.EngineNumber,
-                        Vehicle__r.VehicleIdentificationNumber
-                 FROM WorkOrder
-                 WHERE Id IN :workOrderIds]
-            );
-
+            Set<Id> workOrderIds = new Set<Id>();
+            Set<Id> warrantyPriorIds = new Set<Id>();
             for (WorkOrderLineItem item : workOrderLineItems) {
-                if (item.WorkOrderId != null && !workOrderToWarrantyMap.containsKey(item.WorkOrderId)) {
-                    WorkOrder relatedWorkOrder = workOrderMap.get(item.WorkOrderId);
-                    if (relatedWorkOrder != null) {
-                        Warranty_Prior__c newWarranty = new Warranty_Prior__c(
-                            Job_Card__c = item.WorkOrderId,
-                            Motor_Number__c = relatedWorkOrder.Vehicle__r.EngineNumber,
-                            Odometer_Reading__c = relatedWorkOrder.Odometer_Reading__c,
-                            Registration_Number__c = relatedWorkOrder.Vehicle_Registration_Number__c,
-                            VIN__c = relatedWorkOrder.Vehicle__r.VehicleIdentificationNumber,
-                            Warranty_Prior_Date__c = Date.today(),
-                            Status__c = 'Pending',
-                            Total_Claim_Amount__c = 0 // Initialize Total Claimed Amount
-                        );
-                        newWarranties.add(newWarranty);
+                if(item.RR_Parts_Category__c != oldMapParts.get(item.Id).RR_Parts_Category__c){
+                    if (item.WorkOrderId != null && !restrictedPartsCategories.contains(item.RR_Parts_Category__c)) {
+                        workOrderIds.add(item.WorkOrderId);
+                    }
+                    if (item.Warranty_Prior__c != null) {
+                        warrantyPriorIds.add(item.Warranty_Prior__c);
+                    }
+                }
+                
+            }
+            System.debug('WorkOrder IDs: ' + workOrderIds);
+            
+            // Step 2: Query existing Warranty Priors related to WorkOrder IDs
+            Map<Id, Warranty_Prior__c> existingWarrantyMap = new Map<Id, Warranty_Prior__c>(
+                [SELECT Id, Job_Card__c, Total_Claim_Amount__c 
+                 FROM Warranty_Prior__c 
+                 WHERE Job_Card__c IN :workOrderIds]
+            );
+            System.debug('Existing Warranties: ' + existingWarrantyMap);
+            
+            // Step 3: Create new warranties for WorkOrders without an existing warranty
+            List<Warranty_Prior__c> newWarranties = new List<Warranty_Prior__c>();
+            Map<Id, Id> workOrderToWarrantyMap = new Map<Id, Id>();
+            
+            // Map existing warranties
+            for (Warranty_Prior__c warranty : existingWarrantyMap.values()) {
+                workOrderToWarrantyMap.put(warranty.Job_Card__c, warranty.Id);
+            }
+            
+            // Prepare new warranties for missing WorkOrders
+            if (!workOrderIds.isEmpty()) {
+                Map<Id, WorkOrder> workOrderMap = new Map<Id, WorkOrder>(
+                    [SELECT Id,
+                     Vehicle__c,
+                     Odometer_Reading__c,
+                     Vehicle_Registration_Number__c,
+                     Vehicle__r.EngineNumber,
+                     Vehicle__r.VehicleIdentificationNumber
+                     FROM WorkOrder
+                     WHERE Id IN :workOrderIds]
+                );
+                
+                for (WorkOrderLineItem item : workOrderLineItems) {
+                    if (item.WorkOrderId != null && !workOrderToWarrantyMap.containsKey(item.WorkOrderId)) {
+                        WorkOrder relatedWorkOrder = workOrderMap.get(item.WorkOrderId);
+                        if (relatedWorkOrder != null) {
+                            Warranty_Prior__c newWarranty = new Warranty_Prior__c(
+                                Job_Card__c = item.WorkOrderId,
+                                Motor_Number__c = relatedWorkOrder.Vehicle__r.EngineNumber,
+                                Odometer_Reading__c = relatedWorkOrder.Odometer_Reading__c,
+                                Registration_Number__c = relatedWorkOrder.Vehicle_Registration_Number__c,
+                                VIN__c = relatedWorkOrder.Vehicle__r.VehicleIdentificationNumber,
+                                Warranty_Prior_Date__c = Date.today(),
+                                Status__c = 'Pending',
+                                Total_Claim_Amount__c = 0 // Initialize Total Claimed Amount
+                            );
+                            newWarranties.add(newWarranty);
+                        }
                     }
                 }
             }
-        }
-
-        if (!newWarranties.isEmpty()) {
-            insert newWarranties;
-            for (Warranty_Prior__c warranty : newWarranties) {
-                workOrderToWarrantyMap.put(warranty.Job_Card__c, warranty.Id);
-                warrantyPriorIds.add(warranty.Id);
+            
+            if (!newWarranties.isEmpty()) {
+                insert newWarranties;
+                for (Warranty_Prior__c warranty : newWarranties) {
+                    workOrderToWarrantyMap.put(warranty.Job_Card__c, warranty.Id);
+                    warrantyPriorIds.add(warranty.Id);
+                }
             }
-        }
-
-        System.debug('WorkOrder to Warranty Map: ' + workOrderToWarrantyMap);
-
-        // Step 4: Update WorkOrderLineItems with the associated warranties
-        List<WorkOrderLineItem> workOrderLineItemsToUpdate = new List<WorkOrderLineItem>();
-        for (WorkOrderLineItem item : workOrderLineItems) {
-            if (item.WorkOrderId != null && workOrderToWarrantyMap.containsKey(item.WorkOrderId)) {
-                WorkOrderLineItem updatedItem = new WorkOrderLineItem(
-                    Id = item.Id,
-                    Warranty_Prior__c = workOrderToWarrantyMap.get(item.WorkOrderId)
-                );
-                workOrderLineItemsToUpdate.add(updatedItem);
+            
+            System.debug('WorkOrder to Warranty Map: ' + workOrderToWarrantyMap);
+            
+            // Step 4: Update WorkOrderLineItems with the associated warranties
+            List<WorkOrderLineItem> workOrderLineItemsToUpdate = new List<WorkOrderLineItem>();
+            for (WorkOrderLineItem item : workOrderLineItems) {
+                if (item.WorkOrderId != null && workOrderToWarrantyMap.containsKey(item.WorkOrderId)) {
+                    WorkOrderLineItem updatedItem = new WorkOrderLineItem(
+                        Id = item.Id,
+                        Warranty_Prior__c = workOrderToWarrantyMap.get(item.WorkOrderId)
+                    );
+                    workOrderLineItemsToUpdate.add(updatedItem);
+                }
             }
-        }
-
-        if (!workOrderLineItemsToUpdate.isEmpty()) {
-            update workOrderLineItemsToUpdate;
-        }
-
-        System.debug('Updated WorkOrderLineItems: ' + workOrderLineItemsToUpdate);
-
-        // Step 5: Update Total Claimed Amount on Warranty Priors
-        if (!warrantyPriorIds.isEmpty()) {
-            updateWarrantyTotalClaimedAmount(warrantyPriorIds);
-        }
+            
+            if (!workOrderLineItemsToUpdate.isEmpty()) {
+                update workOrderLineItemsToUpdate;
+            }
+            
+            System.debug('Updated WorkOrderLineItems: ' + workOrderLineItemsToUpdate);
+            
+            // Step 5: Update Total Claimed Amount on Warranty Priors
+            if (!warrantyPriorIds.isEmpty()) {
+                updateWarrantyTotalClaimedAmount(warrantyPriorIds);
+            }
             
         }catch(Exception e){
             System.debug('Error occured ==>'+e.getMessage());
