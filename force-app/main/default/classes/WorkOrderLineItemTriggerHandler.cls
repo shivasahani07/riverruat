@@ -70,24 +70,32 @@ public class WorkOrderLineItemTriggerHandler {
              WHERE Id IN :workOrderIds]
         );
 
-        for (WorkOrderLineItem item : workOrderLineItems) {
-            if (item.WorkOrderId != null && !workOrderToWarrantyMap.containsKey(item.WorkOrderId)) {
-                WorkOrder relatedWorkOrder = workOrderMap.get(item.WorkOrderId);
-                if (relatedWorkOrder != null) {
-                    Warranty_Prior__c newWarranty = new Warranty_Prior__c(
-                        Job_Card__c = item.WorkOrderId,
-                        Motor_Number__c = relatedWorkOrder.Vehicle__r.EngineNumber,
-                        Odometer_Reading__c = relatedWorkOrder.Odometer_Reading__c,
-                        Registration_Number__c = relatedWorkOrder.Vehicle_Registration_Number__c,
-                        VIN__c = relatedWorkOrder.Vehicle__r.VehicleIdentificationNumber,
-                        Warranty_Prior_Date__c = Date.today(),
-                        Status__c = 'Pending',
-                        Total_Claim_Amount__c = 0 // Initialize Total Claimed Amount
-                    );
-                    newWarranties.add(newWarranty);
-                }
+        Set<Id> workOrdersToCreateWarranty = new Set<Id>();
+
+		// Identify unique WorkOrderIds without warranty
+        for (Id woId : workOrderIds) {
+            if (!workOrderToWarrantyMap.containsKey(woId)) {
+                workOrdersToCreateWarranty.add(woId);
             }
         }
+        
+        for (Id woId : workOrdersToCreateWarranty) {
+            WorkOrder relatedWorkOrder = workOrderMap.get(woId);
+            if (relatedWorkOrder != null) {
+                Warranty_Prior__c newWarranty = new Warranty_Prior__c(
+                    Job_Card__c = woId,
+                    Motor_Number__c = relatedWorkOrder.Vehicle__r.EngineNumber,
+                    Odometer_Reading__c = relatedWorkOrder.Odometer_Reading__c,
+                    Registration_Number__c = relatedWorkOrder.Vehicle_Registration_Number__c,
+                    VIN__c = relatedWorkOrder.Vehicle__r.VehicleIdentificationNumber,
+                    Warranty_Prior_Date__c = Date.today(),
+                    Status__c = 'Pending',
+                    Total_Claim_Amount__c = 0
+                );
+                newWarranties.add(newWarranty);
+            }
+        }
+
     }
 
     if (!newWarranties.isEmpty()) {

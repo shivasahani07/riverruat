@@ -224,14 +224,14 @@
                 <apex:variable value="{!rowNumber + 1}" var="rowNumber" />
             </apex:repeat>
             <tr>            
-                <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">Total Value After GST(Ex-Showroom Price)</td>
+                <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">Total Value After GST</td>
                 <td colspan="1" style="border-bottom:1px solid;border-top:1px solid;border-right:1px solid; border-collapse:collapse;" width="17%">
                     <apex:outputText value="{0, number, #,##,##0}">
                         <apex:param value="{!totalValueAfterAllTaxes}"/>
                     </apex:outputText>
                 </td>
             </tr>
-            <tr>            
+           <!-- <tr>            
                 <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">
                     <apex:outputText value="{!IF(order.RecordType.DeveloperName = 'OTC', 'Less: Total Product Discount (incl.)', 'Less: Offer Amount (incl.)')}" />
                 </td>
@@ -240,7 +240,7 @@
                         <apex:param value="{!merchandiseDiscountAmount}" />
                     </apex:outputText>
                 </td>
-            </tr>
+            </tr> -->
            <!-- <tr>            
                 <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">
                     <apex:outputText value="{!IF(order.RecordType.DeveloperName = 'OTC', 'Applied Coupon (incl.)', 'Applied Coupon (incl.)')}" />

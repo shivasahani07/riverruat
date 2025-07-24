@@ -27,6 +27,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             FROM Sales_Consumption__c
             WHERE Product__c IN :productIds
             AND Manual_Date_Test__c >= :System.today().addMonths(-6)
+            AND Order__r.Dealer__r.Type != 'Customer' AND Order__r.Account.Type != 'Customer'
         ]) {
             allConsumption.add(new ConsumptionRecord(
                 sale.Order__r.AccountId,
@@ -43,6 +44,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             FROM ProductConsumed
             WHERE Product2Id IN :productIds
             AND Manual_Created_Date__c >= :System.today().addMonths(-6)
+            AND WorkOrder.Service_Center__r.Type != 'Customer'
         ]) {
             allConsumption.add(new ConsumptionRecord(
                 consumed.WorkOrder.Service_Center__c,
@@ -102,7 +104,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
         insert trackingMap.values();
 
         // ========== New Fortnightly Forecast Inventory Logic ==========
-
+ 
         Map<String, FortnightlyForecastInventory__c> forecastMap = new Map<String, FortnightlyForecastInventory__c>();
 
         for (ConsumptionRecord rec : allConsumption) {
@@ -132,7 +134,6 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
     }
 
     global void finish(Database.BatchableContext bc) {
-        // Optionally call POGeneration batch here
         // Database.executeBatch(new POGenerationBatchForMSL(), 200);
     }
 

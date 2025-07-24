@@ -105,6 +105,7 @@ public with sharing class NewMerchandiseE_InvoicePDFController {
                 }
             }
             QRAtt = [SELECT Id,Name FROM Attachment WHERE ParentId = :orderId AND Name LIKE '%Merchandise%' Order BY CreatedDate DESC LIMIT 1];
+            System.debug('QRAtt===>'+QRAtt);
             IsQrGenerated = QRAtt != null && QRAtt.size() > 0;
 
             if(order.Merchandise_IRN_No__c != null){

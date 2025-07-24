@@ -255,7 +255,7 @@
             </apex:repeat>
             
             <tr>            
-                <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">Total Value After GST(Ex-Showroom Price incl.)</td>
+                <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">Total Value After GST(Ex-Showroom Price)</td>
                 <td colspan="1" style="border-bottom:1px solid;border-top:1px solid;border-right:1px solid; border-collapse:collapse;" width="17%">
                     <apex:outputText value="{0, number, #,##,##0}">
                         <apex:param value="{!totalValueAfterAllTaxes}"/>
@@ -263,14 +263,14 @@
                 </td>
             </tr>
             
-            <tr>            
+          <!--  <tr>            
                 <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">Less: Discount on EX-Showroom Price (incl.)</td>
                 <td colspan="1" style="border-bottom:1px solid;border-top:1px solid;border-right:1px solid; border-collapse:collapse;" width="17%">
                     <apex:outputText value="{0, number, #,##,###}">
                         <apex:param value="{!DiscountOnEx}"/>
                     </apex:outputText>
                 </td>
-            </tr>
+            </tr> -->
             
             <tr>            
                 <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">Less:PM E-Drive Incentive from Govt. of India</td>
@@ -290,14 +290,14 @@
                 </td>
             </tr>
             
-            <tr>            
+          <!--  <tr>            
                 <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">Less: Offer Amount (incl.)</td>
                 <td colspan="1" style="border-bottom:1px solid;border-top:1px solid; border-right:1px solid; border-collapse:collapse;" width="17%">
                     <apex:outputText value="{0, number, #,##,###}">
                         <apex:param value="{!offerAmount}"/>
                     </apex:outputText>
                 </td>
-            </tr>
+            </tr> -->
             <!-- Coupon Code -->
           <!--  <tr>            
                 <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">
@@ -344,7 +344,7 @@
         </div>
         <div style="clear: both;"></div>
        <!-- <div style="page-break-before: always;"></div> -->
-        
+        <br/><br/><br/><br/><br/><br/><br/><br/>
         <div style="text-align: center; width: 100%;">
             <apex:outputPanel rendered="{!NOT(ISBLANK(cocoTC.DeveloperName))}">
                 <table style="margin: 50px auto; text-align: center; font-family: Arial, Helvetica, sans-serif; font-weight: bold;" width="70%">

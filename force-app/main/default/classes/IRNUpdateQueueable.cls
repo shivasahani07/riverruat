@@ -37,7 +37,7 @@ public class IRNUpdateQueueable implements Queueable, Database.AllowsCallouts {
             }
 
             update updateOrd;
-            System.debug('Order update successful');
+            System.debug('Order update successful ==>'+updateOrd);
 
         } catch (Exception e) {
             System.debug('Exception in IRNUpdateQueueable: ' + e.getMessage());

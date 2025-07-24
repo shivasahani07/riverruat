@@ -1,0 +1,60 @@
+<template>
+    <lightning-quick-action-panel header="Approval Component">
+        <div>
+            <template if:true={lineItems.length}>
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Forecast Quantity</th>
+                            <th>Requested Quantity</th>
+                            <th>Approve</th>
+                            <th>Reject</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={lineItems} for:item="item" for:index="index">
+                            <tr key={item.Id}>
+                                <td>{item.ProductName}</td>
+                                <td>
+                                    {item.ForecastQty}
+                                </td>
+                                <td>
+                                    {item.QuantityRequested}
+                                </td>
+                                <td>
+                                    <template if:true={item.isApproved}>
+                                        <lightning-icon icon-name="action:approval" size="small"></lightning-icon>
+                                    </template>
+                                    <template if:false={item.isApproved}>
+                                        <lightning-icon icon-name="utility:success" size="small" onclick={handleClick}
+                                            name="approve" data-index={index}>
+                                        </lightning-icon>
+                                    </template>
+                                </td>
+                                <td>
+                                    <template if:true={item.isRejected}>
+                                        <lightning-icon icon-name="action:close" size="small"></lightning-icon>
+                                    </template>
+                                    <template if:false={item.isRejected}>
+                                        <lightning-icon icon-name="utility:close" size="small" onclick={handleClick}
+                                            name="reject" data-index={index}></lightning-icon>
+                                    </template>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+
+                <br/>
+                <div class="slds-align_absolute-center">
+                    <lightning-button label="Save" variant="brand" onclick={handleSave}></lightning-button>
+                </div>
+            </template>
+        </div>
+        <div slot="footer">
+            <lightning-button variant="neutral" label="Cancel"></lightning-button>
+            <lightning-button variant="brand" label="Save" class="slds-m-left_x-small"></lightning-button>
+        </div>
+    </lightning-quick-action-panel>
+</template>

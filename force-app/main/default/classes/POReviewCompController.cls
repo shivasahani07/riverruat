@@ -1,14 +1,16 @@
 public class POReviewCompController {
 
     @AuraEnabled(cacheable=true)
-    public static List<POReviewWrapper> getPOLineItems(Id poId) {
+    public static POResponseWrapper getPOLineItems(Id poId) {
         List<POReviewWrapper> wrapper = new List<POReviewWrapper>();
 
-        for (ProductRequestLineItem line : [
+        List<ProductRequestLineItem> lineItems = [
             SELECT Id, Product2Id, Product2.Name, Forecast_Quantity__c, QuantityRequested, Approval_Status__c, Was_Previously_Deleted__c
             FROM ProductRequestLineItem
             WHERE ParentId = :poId AND Is_Deleted_Item__c = false
-        ]) {
+        ];
+
+        for (ProductRequestLineItem line : lineItems) {
             wrapper.add(new POReviewWrapper(
                 line.Id, 
                 line.Product2Id, 
@@ -19,14 +21,47 @@ public class POReviewCompController {
                 line.Was_Previously_Deleted__c
             ));
         }
-        System.debug('wrapper :  ' + wrapper.size());
-        return wrapper;
+
+        // Fetch Parent PO Status
+        String poStatus = '';
+        ProductRequest po = [SELECT PO_Approval_Status__c FROM ProductRequest WHERE Id = :poId LIMIT 1];
+        poStatus = po.PO_Approval_Status__c;
+
+        return new POResponseWrapper(wrapper, poStatus);
     }
 
-    @AuraEnabled(cacheable = true)
-    public static void getProductMOQ(){
+    @AuraEnabled(cacheable=true)
+    public static POResponseWrapper getPOLineItems2(Id poId) {
+        List<POReviewWrapper> wrapper = new List<POReviewWrapper>();
 
+        List<ProductRequestLineItem> lineItems = [
+            SELECT Id, Product2Id, Product2.Name, Forecast_Quantity__c, QuantityRequested, Approval_Status__c, Was_Previously_Deleted__c
+            FROM ProductRequestLineItem
+            WHERE ParentId = :poId 
+            AND Is_Deleted_Item__c = false
+            AND Requested_Qty_Less_Than_Forecast__c = true
+        ];
+
+        for (ProductRequestLineItem line : lineItems) {
+            wrapper.add(new POReviewWrapper(
+                line.Id, 
+                line.Product2Id, 
+                line.Product2.Name,
+                line.Forecast_Quantity__c, 
+                line.QuantityRequested,
+                line.Approval_Status__c,
+                line.Was_Previously_Deleted__c
+            ));
+        }
+
+        // Fetch Parent PO Status
+        String poStatus = '';
+        ProductRequest po = [SELECT PO_Approval_Status__c FROM ProductRequest WHERE Id = :poId LIMIT 1];
+        poStatus = po.PO_Approval_Status__c;
+
+        return new POResponseWrapper(wrapper, poStatus);
     }
+
 
     @AuraEnabled
     public static void updatePOLineItems(Id poId, String jsonString) {
@@ -92,34 +127,39 @@ public class POReviewCompController {
         */
 
         // Update Product Consumption Tracking to unmark Processed_for_PO__c
-        if(lineItem.Related_Tracking_IDs_c__c != null && lineItem.Related_Tracking_IDs_c__c != ''){
+        if (String.isNotBlank(lineItem.Related_Tracking_IDs_c__c)) {
+            try {
+                List<String> idStrings = lineItem.Related_Tracking_IDs_c__c.split(',');
+                List<Id> idList = new List<Id>();
+                for (String s : idStrings) {
+                    s = s.trim();
+                    if (String.isNotBlank(s)) {
+                        idList.add(Id.valueOf(s));
+                    }
+                }
 
-            // Split into List<String> first
-            List<String> idStrings = lineItem.Related_Tracking_IDs_c__c.split(',');
+                if (!idList.isEmpty()) {
+                    List<ProductConsumptionTracking__c> trackingRecords = [
+                        SELECT Id, Processed_for_PO__c 
+                        FROM ProductConsumptionTracking__c 
+                        WHERE Id IN :idList
+                    ];
 
-            // Convert to List<Id>
-            List<Id> idList = new List<Id>();
-            for (String s : idStrings) {
-                idList.add(Id.valueOf(s.trim()));
-            }
+                    for (ProductConsumptionTracking__c record : trackingRecords) {
+                        record.Processed_for_PO__c = false;
+                    }
 
-            List<ProductConsumptionTracking__c> trackingRecords = [
-                SELECT Id, Processed_for_PO__c 
-                FROM ProductConsumptionTracking__c 
-                WHERE Id IN : idList
-            ];
+                    update trackingRecords;
+                }
 
-            for (ProductConsumptionTracking__c record : trackingRecords) {
-                record.Processed_for_PO__c = false;
-            }
-
-            if (!trackingRecords.isEmpty()) {
-                update trackingRecords;
+            } catch (Exception e) {
+                System.debug('Failed to unmark tracking records: ' + e.getMessage());
+                // Optional: throw custom error or skip silently
             }
         }
-        
-        delete lineItem;
-        
+
+        // Finally delete the line item
+        delete lineItem;        
     }
 
     @AuraEnabled
@@ -136,6 +176,42 @@ public class POReviewCompController {
             throw new AuraHandledException('Failed to update PO: ' + e.getMessage());
         }
 
+    }
+
+    @AuraEnabled
+    public static void submitApprovalDecision(List<Id> approvedIds, List<Id> rejectedIds) {
+        List<ProductRequestLineItem> approvalIst = new List<ProductRequestLineItem>();
+        List<ProductRequestLineItem> rejectlIst = new List<ProductRequestLineItem>();
+        for (Id id : approvedIds) {
+            ProductRequestLineItem prodLineItemRec = new ProductRequestLineItem();
+            prodLineItemRec.Approval_Status__c = 'Approved';
+            prodLineItemRec.Id = id;
+            approvalIst.add(prodLineItemRec);
+        }
+
+        for (Id id : rejectedIds) {
+            ProductRequestLineItem prodLineItemRec = new ProductRequestLineItem();
+            prodLineItemRec.Approval_Status__c = 'Rejected';
+            prodLineItemRec.Id = id;
+            rejectlIst.add(prodLineItemRec);
+
+        }
+
+        List<Id> allIds = new List<Id>();
+        allIds.addAll(approvedIds);
+        allIds.addAll(rejectedIds);
+
+        List<ProductRequestLineItem> prodLineItemList = [
+            SELECT Id, ParentId 
+            FROM ProductRequestLineItem 
+            WHERE Id IN :allIds
+        ];
+
+        if(!approvalIst.isempty()){
+            update approvalIst;
+        }if(!rejectlIst.isempty()){
+            update rejectlIst;
+        }
     }
 
 
@@ -157,6 +233,16 @@ public class POReviewCompController {
             this.QuantityRequested = QuantityRequested;
             this.ApprovalStatus = ApprovalStatus;
             this.WasPreviouslyDeleted = WasPreviouslyDeleted;
+        }
+    }
+
+    public class POResponseWrapper {
+        @AuraEnabled public List<POReviewWrapper> lineItems;
+        @AuraEnabled public String poApprovalStatus;
+
+        public POResponseWrapper(List<POReviewWrapper> lineItems, String poApprovalStatus) {
+            this.lineItems = lineItems;
+            this.poApprovalStatus = poApprovalStatus;
         }
     }
 }

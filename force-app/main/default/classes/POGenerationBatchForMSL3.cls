@@ -8,7 +8,7 @@ global class POGenerationBatchForMSL3 implements Database.Batchable<SObject> {
                    Product__r.Minimum_Order_Qty__c, Total_Month_Qty__c, First_Consumption_Date__c
             FROM ProductConsumptionTracking__c
             WHERE First_Consumption_Date__c >= :sixMonthsAgo
-            AND Processed_For_PO__c = FALSE
+            AND Processed_For_PO__c = FALSE AND Account__r.type IN ('Dealer', 'Service Center')
         ]);
     }
 
@@ -79,6 +79,23 @@ global class POGenerationBatchForMSL3 implements Database.Batchable<SObject> {
         
         for(ProductBatchAssignment__c item : batchAssignmentsList){
             batchAssignments.put(item.Product__c + '|' + item.Account__c, item);
+        }
+        
+        Set<Id> accountIds = new Set<Id>();
+        for(Id accId : dealerToRecords.keySet()){
+            accountIds.add(accId);
+        }
+        
+        List<User> lstUsers = [SELECT Id, Name, Contact.AccountId FROM User WHERE Contact.AccountId IN : accountIds]; //  AND Contact.Designation__c = ''
+        Map<String, List<User>> mapAccAndUsers = new Map<String, List<User>>();
+        
+        for(User u : lstUsers){
+            if(!mapAccAndUsers.containskey(u.Contact.AccountId)){
+                mapAccAndUsers.put(u.Contact.AccountId, new List<User>());
+            }
+            else{
+                mapAccAndUsers.get(u.Contact.AccountId).add(u);
+            }
         }
 
         for (Id accountId : dealerToRecords.keySet()) {
@@ -234,10 +251,12 @@ global class POGenerationBatchForMSL3 implements Database.Batchable<SObject> {
             if (hasEligibleProducts) {
                 ProductRequest po = new ProductRequest();
                 po.AccountId = accountId;
+                System.debug('accountId==============> ' + accountId);
                 po.Status = 'New';
                 po.ShipmentType = 'STK';
                 po.Is_Forcasted_PO__c = true;
                 po.Description = 'Auto-generated PO for Dealer: ' + accountId;
+                po.OwnerId = mapAccAndUsers.get(accountId)[0].Id;
                 
                 // Batch assignment logic here
                 Date poBatchDate;

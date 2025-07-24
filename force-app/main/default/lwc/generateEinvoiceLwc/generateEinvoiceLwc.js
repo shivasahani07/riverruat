@@ -65,15 +65,16 @@ export default class GenerateEinvoiceLwc extends LightningElement {
         debugger;
         generateEInvoice({ recordId: this.recordId }).then(result => {
             if (result != null && result.includes('SUCCESS')) {
-                updateRecord({ fields: { Id: this.recordId } });
+               // updateRecord({ fields: { Id: this.recordId } });
                 setTimeout(() => {
                     this.handleSave();
-                }, 15000);
+                }, 30000);
             } else {
                 this.showToast('ERROR', result, 'error');
             }
         })
         .catch(error => {
+            
             console.log('Error == >' + this.error);
         });
     }
@@ -85,7 +86,7 @@ export default class GenerateEinvoiceLwc extends LightningElement {
         genereteE_invoicePDF({ recordId: this.recordId }).then(result => {
             if (result && result === 'success') {
                 this.loading = false;
-                updateRecord({ fields: { Id: this.recordId } });
+              //  updateRecord({ fields: { Id: this.recordId } });
                 this.showToast('Success', 'Invoice generated successfully', 'success');
             } else {
                 this.showToast('Error', result, 'error');

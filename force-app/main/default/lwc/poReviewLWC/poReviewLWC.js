@@ -15,6 +15,7 @@ export default class POReviewLWC extends NavigationMixin(LightningElement) {
     @track newQty;
     @track productOptions = [];
     @track productMap = {};
+    @track disableComponent = false;
 
     statusOptions = [
         { label: 'Pending', value: 'Pending' },
@@ -27,7 +28,15 @@ export default class POReviewLWC extends NavigationMixin(LightningElement) {
     @wire(getPOLineItems, { poId: '$recordId' })
     wiredLineItems({ data, error }) {
         if (data) {
-            this.lineItems = data.map(item => ({
+            // Check if PO is already submitted
+            if (data.poApprovalStatus === 'Submitted') {
+                this.showToast('Info', 'This Purchase Order has already been submitted. Editing is not allowed.', 'info');
+                this.disableComponent = true; // new tracked property
+                this.isLoading = false;
+                return;
+            }
+
+            this.lineItems = data.lineItems.map(item => ({
                 ...item,
                 updatedQuantity: item.QuantityRequested,
                 approvalStatus: item.ApprovalStatus || 'Pending'
@@ -64,7 +73,8 @@ export default class POReviewLWC extends NavigationMixin(LightningElement) {
         const newVal = parseFloat(event.target.value);
         if (newVal < this.lineItems[index].ForecastQty) {
             this.showToast('Error', 'Cannot reduce below forecast quantity.', 'error');
-            this.lineItems[index].updatedQuantity = this.lineItems[index].ForecastQty;
+            // this.lineItems[index].updatedQuantity = this.lineItems[index].ForecastQty;
+            this.lineItems[index].updatedQuantity = newVal;
         } else {
             this.lineItems[index].updatedQuantity = newVal;
         }
@@ -78,11 +88,28 @@ export default class POReviewLWC extends NavigationMixin(LightningElement) {
     handleDelete(event) {
         const index = event.target.dataset.index;
         const lineItemId = event.target.dataset.id;
+
+        if (this.lineItems.length <= 1) {
+            this.showToast('Error', 'A Purchase Order must have at least one line item.', 'error');
+            return;
+        }
+
+        if (!lineItemId) {
+            // Just remove from UI if it's not saved in DB yet
+            this.lineItems.splice(index, 1);
+            this.lineItems = [...this.lineItems];
+            return;
+        }
+
         softDeleteLineItem({ lineItemId })
             .then(() => {
                 this.lineItems.splice(index, 1);
                 this.lineItems = [...this.lineItems];
                 this.showToast('Success', 'Line item deleted', 'success');
+            })
+            .catch(err => {
+                this.showToast('Error', 'Deletion failed', 'error');
+                console.error(err);
             });
     }
 
