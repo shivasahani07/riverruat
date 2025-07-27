@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PSF_Ticket</fullName>
+    <active>true</active>
+    <label>PSF Ticket</label>
+    <picklistValues>
+        <picklist>Query_Type__c</picklist>
+        <values>
+            <fullName>Complaint</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Configuration Help</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>General Inquiry</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Installation Request</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Maintenance Request</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Service Request</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Technical Issue</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Upgrade Request</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Resolution_Status__c</picklist>
+        <values>
+            <fullName>Not Working</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Re Open</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Working</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Status__c</picklist>
+        <values>
+            <fullName>Appointment Requested</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Call Back Requested</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Call Later</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Closed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Complained Resolved via Explaination</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>NFA</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Open</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending</fullName>
+            <default>true</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Sub_Status__c</picklist>
+        <values>
+            <fullName>Appointment</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Explanation</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>NFA</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

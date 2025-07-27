@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Aniket Karmakar
  * @group             : 
- * @last modified on  : 07-02-2025
+ * @last modified on  : 07-25-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public with sharing class QueueableForUpdateOrderOnWebsite implements Queueable, Database.allowsCallouts{
@@ -32,11 +32,15 @@ public with sharing class QueueableForUpdateOrderOnWebsite implements Queueable,
 
         try{
             if(orderId!=null){
-                List<Order> orderList = [Select id,AccountId,Status,Description,BillingStreet,BillingCity,BillingPostalCode,BillingState, TotalAmount,Pricebook2Id,Grand_Total__c,Assigned_Vehicle__c,Delivery_Date__c from Order Where id =:orderId];
+                List<Order> orderList = [Select id,AccountId,Status,Description,BillingStreet,BillingCity,BillingPostalCode,BillingState, TotalAmount,Pricebook2Id,Grand_Total__c,Assigned_Vehicle__c,Delivery_Date__c,Website_Response_Id__c from Order Where id =:orderId];
 
                 if(!orderList.isEmpty()){
                     Order o = orderList[0];
                     System.debug('Order ===>'+o);
+                    if(o.Website_Response_Id__c == '' || o.Website_Response_Id__c == null){
+                        System.debug('Update Order API Should Not be called');
+                        return;
+                    }
                      
                     Vehicle v;
                     List<Vehicle> vehicleList = [Select Id,VehicleIdentificationNumber,VehicleRegistrationNumber from Vehicle WHERE Id=:o.Assigned_Vehicle__c LIMIT 1];
@@ -90,6 +94,11 @@ public with sharing class QueueableForUpdateOrderOnWebsite implements Queueable,
                     //payLoad.put('vin_number',String.valueof(v.VehicleIdentificationNumber));
                     //payLoad.put('vehicle_number',String.valueof(v.VehicleRegistrationNumber));
                     
+                    if (o.Assigned_Vehicle__c != null && v != null) {
+                        payLoad.put('delivery_date', String.valueOf(o.Delivery_Date__c));
+                        payLoad.put('vin_number', String.valueOf(v.VehicleIdentificationNumber));
+                        payLoad.put('vehicle_number', String.valueOf(v.VehicleRegistrationNumber));
+                    }
                     payLoad.put('order_status',o.Status);
                     // payLoad.put('order_amount',o.Grand_Total__c);
                     payLoad.put('crm_account_id',o.AccountId);

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>RR_Concern_Category__c</fullName>
+    <label>Concern Category</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Range</fullName>
+                <default>false</default>
+                <label>Range</label>
+            </value>
+            <value>
+                <fullName>Charger</fullName>
+                <default>false</default>
+                <label>Charger</label>
+            </value>
+            <value>
+                <fullName>Belt</fullName>
+                <default>false</default>
+                <label>Belt</label>
+            </value>
+            <value>
+                <fullName>Switch Gear RH</fullName>
+                <default>false</default>
+                <label>Switch Gear RH</label>
+            </value>
+            <value>
+                <fullName>Switch Gear LH</fullName>
+                <default>false</default>
+                <label>Switch Gear LH</label>
+            </value>
+            <value>
+                <fullName>Suspension</fullName>
+                <default>false</default>
+                <label>Suspension</label>
+            </value>
+            <value>
+                <fullName>Display</fullName>
+                <default>false</default>
+                <label>Display</label>
+            </value>
+            <value>
+                <fullName>Steering</fullName>
+                <default>false</default>
+                <label>Steering</label>
+            </value>
+            <value>
+                <fullName>Wheels</fullName>
+                <default>false</default>
+                <label>Wheels</label>
+            </value>
+            <value>
+                <fullName>PRCD</fullName>
+                <default>false</default>
+                <label>PRCD</label>
+            </value>
+            <value>
+                <fullName>Lockset</fullName>
+                <default>false</default>
+                <label>Lockset</label>
+            </value>
+            <value>
+                <fullName>Brakes</fullName>
+                <default>false</default>
+                <label>Brakes</label>
+            </value>
+            <value>
+                <fullName>Horn</fullName>
+                <default>false</default>
+                <label>Horn</label>
+            </value>
+            <value>
+                <fullName>Indicator</fullName>
+                <default>false</default>
+                <label>Indicator</label>
+            </value>
+            <value>
+                <fullName>HeadLamp</fullName>
+                <default>false</default>
+                <label>HeadLamp</label>
+            </value>
+            <value>
+                <fullName>TailLamp</fullName>
+                <default>false</default>
+                <label>TailLamp</label>
+            </value>
+            <value>
+                <fullName>Accessories</fullName>
+                <default>false</default>
+                <label>Accessories</label>
+            </value>
+            <value>
+                <fullName>Bootlamp</fullName>
+                <default>false</default>
+                <label>Bootlamp</label>
+            </value>
+            <value>
+                <fullName>Centre Stand</fullName>
+                <default>false</default>
+                <label>Centre Stand</label>
+            </value>
+            <value>
+                <fullName>Crash Guard</fullName>
+                <default>false</default>
+                <label>Crash Guard</label>
+            </value>
+            <value>
+                <fullName>Foot Peg LH</fullName>
+                <default>false</default>
+                <label>Foot Peg LH</label>
+            </value>
+            <value>
+                <fullName>Mode</fullName>
+                <default>false</default>
+                <label>Mode</label>
+            </value>
+            <value>
+                <fullName>Panel</fullName>
+                <default>false</default>
+                <label>Panel</label>
+            </value>
+            <value>
+                <fullName>Performance</fullName>
+                <default>false</default>
+                <label>Performance</label>
+            </value>
+            <value>
+                <fullName>Vehicle Power Cut OFF</fullName>
+                <default>false</default>
+                <label>Vehicle Power Cut OFF</label>
+            </value>
+            <value>
+                <fullName>Side stand</fullName>
+                <default>false</default>
+                <label>Side stand</label>
+            </value>
+            <value>
+                <fullName>Software</fullName>
+                <default>false</default>
+                <label>Software</label>
+            </value>
+            <value>
+                <fullName>General</fullName>
+                <default>false</default>
+                <label>General</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

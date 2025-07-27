@@ -2,7 +2,7 @@
 * @description       : 
 * @author            : Aniket Karmakar
 * @group             : 
-* @last modified on  : 07-23-2025
+* @last modified on  : 07-25-2025
 * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 @RestResource(urlMapping='/shipment2')
@@ -74,7 +74,7 @@ global without sharing class OrderAndShipmentController {
                 s.SourceLocationId = hardcodedSourceLocationId;
                 s.ShipToName = shipToName;
                 s.sap_shipment_id__c = sapShipment;
-                s.Purchase_Order__c=existingOrders[0].Purchase_Order__c;
+                //s.Purchase_Order__c=existingOrders[0].Purchase_Order__c;
                 
                 try {
                     insert s;
@@ -328,7 +328,7 @@ global without sharing class OrderAndShipmentController {
             s.Order__c=newOrder.Id;
             s.Status='New';
             //s.Status = 'Dispatched';
-            s.Purchase_Order__c=p.Id;
+            //s.Purchase_Order__c=p.Id;
             s.SourceLocationId = hardcodedSourceLocationId;
             s.DestinationLocationId = p.Destination_Location__c;
             s.ShipToName=shipToName;

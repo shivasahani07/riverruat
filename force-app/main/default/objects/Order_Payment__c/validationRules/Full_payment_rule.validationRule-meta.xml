@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Full_payment_rule</fullName>
+    <active>true</active>
+    <description>Order payment can&apos;t be created after full payment</description>
+    <errorConditionFormula>IF( AND( Order__r.Remaining_Amount__c == 0, Order__r.Grand_Total__c &lt;&gt; 0), true, false)</errorConditionFormula>
+    <errorMessage>Order Payment can&apos;t be created after full payment</errorMessage>
+</ValidationRule>

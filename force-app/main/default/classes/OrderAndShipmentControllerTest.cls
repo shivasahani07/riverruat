@@ -158,7 +158,7 @@ public class OrderAndShipmentControllerTest {
         Shipment s = new Shipment();
             s.Order__c=newOrder.Id;
             s.Status = 'New';
-            s.Purchase_Order__c=po.Id;
+            //s.Purchase_Order__c=po.Id;
             s.SourceLocationId = testLocation.Id;
             s.DestinationLocationId = po.Destination_Location__c;
             s.ShipToName='Prathap Sir';
@@ -593,7 +593,7 @@ public class OrderAndShipmentControllerTest {
          Shipment s = new Shipment();
             s.Order__c=newOrder.Id;
             s.Status = 'New';
-            s.Purchase_Order__c=po.Id;
+            //s.Purchase_Order__c=po.Id;
             s.SourceLocationId = testLocation.Id;
             s.DestinationLocationId = po.Destination_Location__c;
             s.ShipToName='Prathap Sir';
@@ -721,7 +721,7 @@ public class OrderAndShipmentControllerTest {
         Shipment s = new Shipment();
             s.Order__c=newOrder.Id;
             s.Status = 'New';
-            s.Purchase_Order__c=po.Id;
+            //s.Purchase_Order__c=po.Id;
             s.SourceLocationId = testLocation.Id;
             s.DestinationLocationId = po.Destination_Location__c;
             s.ShipToName='Prathap Sir';
@@ -851,7 +851,7 @@ public class OrderAndShipmentControllerTest {
         Shipment s = new Shipment();
             s.Order__c=newOrder.Id;
             s.Status = 'New';
-            s.Purchase_Order__c=po.Id;
+            //s.Purchase_Order__c=po.Id;
             s.SourceLocationId = testLocation.Id;
             s.DestinationLocationId = po.Destination_Location__c;
             s.ShipToName='Prathap Sir';
@@ -981,7 +981,7 @@ public class OrderAndShipmentControllerTest {
         Shipment s = new Shipment();
             s.Order__c=newOrder.Id;
             s.Status = 'New';
-            s.Purchase_Order__c=po.Id;
+          //  s.Purchase_Order__c=po.Id;
             s.SourceLocationId = testLocation.Id;
             s.DestinationLocationId = po.Destination_Location__c;
             s.ShipToName='Prathap Sir';
@@ -1111,7 +1111,7 @@ public class OrderAndShipmentControllerTest {
         Shipment s = new Shipment();
             s.Order__c=newOrder.Id;
             s.Status = 'New';
-            s.Purchase_Order__c=po.Id;
+            //s.Purchase_Order__c=po.Id;
             s.SourceLocationId = testLocation.Id;
             s.DestinationLocationId = po.Destination_Location__c;
             s.ShipToName='Prathap Sir';

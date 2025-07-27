@@ -11,6 +11,7 @@ public class OrderController {
     public static Id OrderRecordTypeMerchAccess;
     
     static {
+
         OrderRecordTypeMerchAccess = Schema.SObjectType.Order.getRecordTypeInfosByName().get('OTC').getRecordTypeId();
         }
 
@@ -389,7 +390,8 @@ public static String createOrderRecord(String shipmentType, Integer additonal, S
                     }
                 }
                 List<Order> finalOrderList = [select id,Assigned_Vehicle__c,Assigned_Vehicle__r.VehicleIdentificationNumber,Assigned_Vehicle__r.VehicleRegistrationNumber,Account.Name, Account.Phone from Order where Id IN:orderIdsToGetOrderList];
-                List<Order> finalOrderListForEW = [select id,Assigned_Vehicle__c,Assigned_Vehicle__r.VehicleIdentificationNumber,Assigned_Vehicle__r.VehicleRegistrationNumber,Account.Name, Account.Phone,Assigned_Vehicle__r.PDI_Status_Pass__c from Order where Id IN:orderIdsForEW];
+                List<Order> finalOrderListForEW = [select id,Assigned_Vehicle__c,Assigned_Vehicle__r.VehicleIdentificationNumber,Dealer__r.Type,Dealer__r.Service_Center__r.Type
+ ,Dealer__r.Center_Code__c,Dealer__r.Store_Type__c,Dealer__r.Service_Center__r.Store_Type__c,Dealer__r.Service_Center__r.Center_Code__c,Assigned_Vehicle__r.VehicleRegistrationNumber,Account.Name, Account.Phone,Assigned_Vehicle__r.PDI_Status_Pass__c from Order where Id IN:orderIdsForEW];
                 System.debug('finalOrderList==>'+finalOrderList);
                 System.debug('finalOrderListForEW==>'+finalOrderListForEW);
                 if(!finalOrderListForEW.isEmpty()){
@@ -398,7 +400,9 @@ public static String createOrderRecord(String shipmentType, Integer additonal, S
                         Vehicle v = vehicleMap.get(order.Assigned_Vehicle__c);
                         wrapperForEWIntegration w = new wrapperForEWIntegration();
                         w.vehicleId = v.Id;
-                        w.dealerCode = v.Dealer__r.Center_Code__c !=null ? v.Dealer__r.Center_Code__c : '';
+                       // w.dealerCode = v.Dealer__r.Center_Code__c !=null ? v.Dealer__r.Center_Code__c : '';
+                       //w.dealerCode = order.Dealer__r.Center_Code__c !=null ? order.Dealer__r.Center_Code__c : '';
+                        w.dealerCode = order.Dealer__r.Type=='Dealer' && order.Dealer__r.Store_Type__c == 'DODO' && order.Dealer__r.Service_Center__r.Type=='Service Center' && order.Dealer__r.Service_Center__r.Store_Type__c =='DODO' ? order.Dealer__r.Service_center__r.Center_Code__c : order.Dealer__r.Type=='Dealer' && order.Dealer__r.Store_Type__c == 'COCO' && order.Dealer__r.Service_Center__r.Type=='Service Center' && order.Dealer__r.Service_Center__r.Store_Type__c =='COCO' ? order.Dealer__r.Center_Code__c : order.Dealer__r.Type=='Dealer' && order.Dealer__r.Store_Type__c =='DODO' && order.Dealer__r.Service_Center__r.Type=='Service Center' && order.Dealer__r.Service_Center__r.Store_Type__c=='COCO' ? order.Dealer__r.Center_Code__c : order.Dealer__r.Center_Code__c;
                         w.purchaseDate = v.Purchased_Date__c != null ? v.Purchased_Date__c : null;
                         w.chassisNumber = v.VehicleIdentificationNumber != null ? v.VehicleIdentificationNumber :'';
                         w.model = v.Name != null ? v.Name :'';

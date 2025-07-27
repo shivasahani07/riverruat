@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Status_Changes_Validation</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+    OR(
+         
+        ISPICKVAL(Status__c, &apos;Dispatched&apos;),
+        ISPICKVAL(Status__c, &apos;Received&apos;)
+    ),
+    ISCHANGED(Status__c),
+    OR(
+        ISBLANK(Batch_Dispatch_Date__c),
+        ISBLANK(Vehicle_No__c),
+        ISBLANK(E_Way_Bill_No__c),
+        ISBLANK(Transporter_ID__c),
+        ISBLANK(Transport_Name__c),
+        ISBLANK(LR_Attachment__c),
+        ISBLANK(LR_Number__c),
+        ISBLANK(River_GST__c),
+        ISPICKVAL(Mode_of_Transport__c, &apos;&apos;)
+    )
+)</errorConditionFormula>
+    <errorMessage>Before moving to Readdy for Dispatche, you must have to enter all Shipping Details</errorMessage>
+</ValidationRule>

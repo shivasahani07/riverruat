@@ -2,7 +2,7 @@
   @description       : 
   @author            : ChangeMeIn@UserSettingsUnder.SFDoc
   @group             : 
-  @last modified on  : 04-25-2025
+  @last modified on  : 07-25-2025
   @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 -->
 <template>
@@ -11,11 +11,56 @@
             <template if:true={showSpinner}>
                 <lightning-spinner></lightning-spinner>
             </template>
+
+            <template if:true={showForecastedData}>
+                <div class="slds-text-align_center slds-p-around_medium" style="background-color:#f3f3f3; border-radius:8px;">
+                <h3 class="slds-text-heading_medium" style="font-weight:600; color:#032d60;">
+                    Forecast Items
+                </h3>
+            </div>
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                        <thead>
+                            <tr>
+                                <th>Sr No</th>
+                                <th>
+                                    <lightning-input type="checkbox" onchange={handleSelectAllForForecast}
+                                        checked={selectAllCheckedForForecast}></lightning-input>
+                                </th>
+                                <th scope="col">Product Name</th>
+                                <th scope="col">Product Code</th>
+                                <th scope="col">Forecast Quantity</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={forecastedLineItems} for:item="item" for:index="Index">
+                                <tr key={item.Id}>
+                                    <td>{item.index}</td>
+                                    <td>
+                                        <lightning-input type="checkbox" data-id={item.Id} checked={item.selected}
+                                            onchange={handleCheckboxChangeForForecast}></lightning-input>
+                                    </td>
+                                    <td>{item.ProductName}</td>
+                                    <td>{item.ProductCode}</td>
+                                    <td>
+                                        <lightning-input type="number" data-id={item.Id} value={item.AllocatedQuantity}
+                                            disabled={item.isChargesDisabled} style="margin-bottom:14px">
+                                        </lightning-input>
+                                    </td>
+
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+            </template>
+
             <div class="slds-p-around_medium">
-                <lightning-input
-                    type="text"
-                    placeholder="Search by Product Name..."
-                    onchange={handleSearchInput}
+                <div class="slds-text-align_center slds-p-around_medium" style="background-color:#f3f3f3; border-radius:8px;">
+                <h2 class="slds-text-heading_medium" style="font-weight:600; color:#032d60;">
+                    Add More Products
+                </h2>
+            </div>
+                <lightning-input type="text" placeholder="Search by Product Name..." onchange={handleSearchInput}
                     class="slds-m-bottom_medium">
                 </lightning-input>
                 <!-- Main Table -->
@@ -24,26 +69,32 @@
                         <thead>
                             <tr>
                                 <th>Sr No</th>
-                                <th><lightning-input type="checkbox" onchange={handleSelectAll} checked={selectAllChecked}></lightning-input></th>
+                                <th>
+                                    <lightning-input type="checkbox" onchange={handleSelectAll}
+                                        checked={selectAllChecked}></lightning-input>
+                                </th>
                                 <th scope="col">Product Name</th>
                                 <th scope="col">Product Code</th>
                                 <th scope="col">Quantity</th>
-                               
+
                             </tr>
                         </thead>
                         <tbody>
-                            <template for:each={currentPageData} for:item="item" for:index="Index" >
+                            <template for:each={currentPageData} for:item="item" for:index="Index">
                                 <tr key={item.Id}>
                                     <td>{item.index}</td>
                                     <td>
-                                        <lightning-input type="checkbox" data-id={item.Id} checked={item.selected} onchange={handleCheckboxChange}></lightning-input>
+                                        <lightning-input type="checkbox" data-id={item.Id} checked={item.selected}
+                                            onchange={handleCheckboxChange}></lightning-input>
                                     </td>
                                     <td>{item.ProductName}</td>
                                     <td>{item.ProductCode}</td>
                                     <td>
-                                        <lightning-input type="number" data-id={item.Id} value={item.AllocatedQuantity} disabled={item.isChargesDisabled} style="margin-bottom:14px"></lightning-input>
+                                        <lightning-input type="number" data-id={item.Id} value={item.AllocatedQuantity}
+                                            disabled={item.isChargesDisabled} style="margin-bottom:14px">
+                                        </lightning-input>
                                     </td>
-                                   
+
                                 </tr>
                             </template>
                         </tbody>
@@ -55,39 +106,26 @@
                 <!---Pagination Button-->
                 <template if:true={currentPageData.length}>
                     <div class="slds-p-top_medium slds-text-align_center">
-                        <lightning-button-icon icon-name="utility:left" alternative-text="Previous" 
-                                               onclick={handlePreviousPage} 
-                                               disabled={isPreviousDisabled}
-                                               class="slds-m-right_small">
+                        <lightning-button-icon icon-name="utility:left" alternative-text="Previous"
+                            onclick={handlePreviousPage} disabled={isPreviousDisabled} class="slds-m-right_small">
                         </lightning-button-icon>
-                        <lightning-button 
-                                               label="First Page"
-                                               variant="brand"
-                                               alternative-text="First Page" 
-                                               onclick={handleFirstPage} 
-                                               disabled={isFirstDisabled}
-                                               class="slds-m-right_small">
+                        <lightning-button label="First Page" variant="brand" alternative-text="First Page"
+                            onclick={handleFirstPage} disabled={isFirstDisabled} class="slds-m-right_small">
                         </lightning-button>
                         <span class="slds-p-horizontal_small">Page {currentPage} of {totalPages}</span>
-                        <lightning-button 
-                                              label="Last Page"
-                                              variant="brand"
-                                              alternative-text="Last Page" 
-                                              onclick={handleLastPage} 
-                                              disabled={isLastDisabled}
-                                              class="slds-m-left_small">
+                        <lightning-button label="Last Page" variant="brand" alternative-text="Last Page"
+                            onclick={handleLastPage} disabled={isLastDisabled} class="slds-m-left_small">
                         </lightning-button>
-                        <lightning-button-icon icon-name="utility:right" alternative-text="Next" 
-                                               onclick={handleNextPage} 
-                                               disabled={isNextDisabled}
-                                               class="slds-m-left_small">
+                        <lightning-button-icon icon-name="utility:right" alternative-text="Next"
+                            onclick={handleNextPage} disabled={isNextDisabled} class="slds-m-left_small">
                         </lightning-button-icon>
                     </div>
                 </template>
-                
+
                 <!-- Selected Items Table -->
                 <template if:true={selectedItems.length}>
-                    <h3 class="slds-text-align_center slds-text-title_large" style="font-size:large;margin-top:7px">Selected Items</h3>
+                    <h3 class="slds-text-align_center slds-text-title_large" style="font-size:large;margin-top:7px">
+                        Selected Items</h3>
                     <div class="slds-m-top_medium">
                         <table class="slds-table slds-table_bordered slds-table_cell-buffer">
                             <thead>
@@ -103,33 +141,28 @@
                                 <template for:each={selectedItems} for:item="item" for:index="index">
                                     <tr key={item.Id}>
                                         <td>{item.index}</td>
-                                        
+
                                         <td>{item.ProductName}</td>
                                         <td>{item.ProductCode}</td>
-                                        <td><lightning-input
-                                            type="number"
-                                            data-id={item.Id}
-                                            value={item.AllocatedQuantity}
-                                            onchange={handleQuantityChange}
-                                            style="margin-bottom:14px">
-                                        </lightning-input></td>
-                                        <td> <lightning-button
-                                            icon-name="utility:delete"
-                                            alternative-text="Delete"
-                                            onclick={handleDeleteSelectedItem}
-                                            data-id={item.Id}
-                                            size="small"
-                                            variant="destructive"
-                                            class="slds-m-left_x-small"
-                                            >
-                                        </lightning-button></td>
+                                        <td>
+                                            <lightning-input type="number" data-id={item.Id}
+                                                value={item.AllocatedQuantity} onchange={handleQuantityChange}
+                                                style="margin-bottom:14px">
+                                            </lightning-input>
+                                        </td>
+                                        <td>
+                                            <lightning-button icon-name="utility:delete" alternative-text="Delete"
+                                                onclick={handleDeleteSelectedItem} data-id={item.Id} size="small"
+                                                variant="destructive" class="slds-m-left_x-small">
+                                            </lightning-button>
+                                        </td>
                                     </tr>
                                 </template>
                             </tbody>
                         </table>
- 
+
                     </div>
-                   
+
                 </template>
             </div>
             <!--Added by Aniket On 25/-4/2025-->
@@ -138,12 +171,14 @@
             </template>
             <center>
                 <template if:true={buttonVisible}>
-                    <lightning-button label="Cancel" variant="destructive" onclick={closeModal} class="slds-m-right_medium"></lightning-button>
-                    <lightning-button label="Submit" variant="brand" onclick={methodToCreatePORecords}></lightning-button>
+                    <lightning-button label="Cancel" variant="destructive" onclick={closeModal}
+                        class="slds-m-right_medium"></lightning-button>
+                    <lightning-button label="Submit" variant="brand" onclick={methodToCreatePORecords}>
+                    </lightning-button>
                 </template>
-                
+
             </center>
         </lightning-card>
     </lightning-quick-action-panel>
-   
+
 </template>

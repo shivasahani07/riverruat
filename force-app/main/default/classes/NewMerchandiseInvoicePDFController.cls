@@ -144,7 +144,7 @@ public with sharing class NewMerchandiseInvoicePDFController {
             orderItemList = [SELECT Id, HSN_Code__c, Quantity, UnitPrice, TotalPrice, Description, Order.Invoice_No__c, Charger_Included__c, 
                 Product2.CGST_Percentage__c, Taxable_Amount__c, Product_IGST__c, Product_IGST_Amount__c, Product_CGST__c, Product_CGST_Amount__c, Product_SGST__c, 
                 Product_SGST_Amount__c, Product_Total_Amount__c, Product2.IGST_Percentage__c, Product2.SGST_Percentage__c, OrderItemNumber, Product2.Name, Type__c, 
-                Product2.Type__c, Product2.Merchandise_discount_price__c, Merchandise_Disccount_Amount__c  
+                Product2.Type__c, Product2.Merchandise_discount_price__c, Merchandise_Disccount_Amount__c, Discounted_Amount_on_Merchandise__c  
                 FROM OrderItem WHERE OrderId = :orderId AND Type__c = 'Merchandise'
             ];
             
@@ -167,7 +167,7 @@ public with sharing class NewMerchandiseInvoicePDFController {
             for (OrderItem oi : orderItemList) {
                 Decimal unitPrice = oi.UnitPrice != null ? oi.UnitPrice : 0;
                 Decimal quantity = oi.Quantity != null ? oi.Quantity : 0;
-                Decimal itemDiscount = oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0;
+                Decimal itemDiscount =  (oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0) + (oi.Discounted_Amount_on_Merchandise__c != null ? oi.Discounted_Amount_on_Merchandise__c : 0);
                 Decimal perItemTotalDiscount = itemDiscount;
                 Decimal itemEligibleAmount = unitPrice * quantity;
                 if (oi.Product2.Type__c == 'Merchandise') {

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>River_GST__c</fullName>
+    <externalId>false</externalId>
+    <formula>CASE(
+Address_of_Consignee__c,
+&quot;River HQ&quot;,
+$CustomMetadata.Bill_To_Addresse__mdt.River_HQ.GST__c,
+&quot;River Factory&quot;,
+$CustomMetadata.Bill_To_Addresse__mdt.River_Factory.GST__c,
+&quot;No Address&quot;
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>River GST</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

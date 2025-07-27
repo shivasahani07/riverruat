@@ -16,7 +16,7 @@ public with sharing class InvoicePDFLinkOnJobCard {
         }
 
         if (!eligibleIds.isEmpty()) {
-            InvoicePDFLinkOnJobCard.getPublicInvoiceLink(eligibleIds);
+            getPublicInvoiceLink(eligibleIds);
         }
     }
 

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All</fullName>
+    <columns>NAME</columns>
+    <columns>Job_Card__c</columns>
+    <columns>Last_Updated_VOR_Reason__c</columns>
+    <columns>Remark__c</columns>
+    <columns>VOR_Reason__c</columns>
+    <columns>Ageing__c</columns>
+    <columns>UPDATEDBY_USER</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Job_Status__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>VOR_Creation_hours__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <label>All VOR DMS</label>
+    <sharedTo>
+        <allPartnerUsers></allPartnerUsers>
+        <portalRoleAndSubordinates>AUserPartnerPersonAccount</portalRoleAndSubordinates>
+    </sharedTo>
+</ListView>

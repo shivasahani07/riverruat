@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Full_Payment</fullName>
+    <active>true</active>
+    <errorConditionFormula>IF( AND( Work_Order__r.Total_Amount_Paid__c  ==   Work_Order__r.Estimation_Bill__c), true, false)</errorConditionFormula>
+    <errorDisplayField>Payments__c</errorDisplayField>
+    <errorMessage>Work Order Payment can&apos;t be created after full payment</errorMessage>
+</ValidationRule>

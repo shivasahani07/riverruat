@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>EW__c</fullName>
+    <formula>CONTAINS( Order_Name__c , &quot;Extended Warranty&quot;)</formula>
+    <label>EW</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

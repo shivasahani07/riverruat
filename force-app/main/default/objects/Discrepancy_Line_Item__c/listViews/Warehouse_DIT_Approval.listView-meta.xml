@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Warehouse_DIT_Approval</fullName>
+    <columns>NAME</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Quantity__c</columns>
+    <columns>SPM_Apporoved_Quantity__c</columns>
+    <columns>Ware_House_Approved_Quantity__c</columns>
+    <columns>Warehousr_Rejection_Reason__c</columns>
+    <columns>Discrepancy__c</columns>
+    <columns>Shipment__c</columns>
+    <columns>Product_Name__c</columns>
+    <columns>Type__c</columns>
+    <columns>Status__c</columns>
+    <columns>Supporting_Media__c</columns>
+    <columns>Warehouse_Approval__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Type__c</field>
+        <operation>equals</operation>
+        <value>DIT</value>
+    </filters>
+    <filters>
+        <field>Status__c</field>
+        <operation>equals</operation>
+        <value>Under Warehouse Review</value>
+    </filters>
+    <filters>
+        <field>CREATED_DATE</field>
+        <operation>equals</operation>
+        <value>TODAY</value>
+    </filters>
+    <label>Warehouse DIT Approval</label>
+    <sharedTo>
+        <group>Warehouse_Group</group>
+    </sharedTo>
+</ListView>

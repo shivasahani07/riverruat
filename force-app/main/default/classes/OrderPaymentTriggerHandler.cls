@@ -4,7 +4,7 @@
 * Last Modified By : Sudarshan N B - 10/07/2024
 * Description : Handler for order payment trigger
 *****************************************************************************/
-public class OrderPaymentTriggerHandler {
+public without sharing class OrderPaymentTriggerHandler {
     public static final Id otcRecordType = Schema.SObjectType.Order.getRecordTypeInfosByName().get('OTC').getRecordTypeId();
     
     public static void insertHandler(List<Order_Payment__c> newRecords){

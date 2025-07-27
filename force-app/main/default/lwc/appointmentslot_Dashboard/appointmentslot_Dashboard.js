@@ -31,6 +31,21 @@ export default class CreateAppointmentSlots extends LightningElement {
     totalPages = 1;
 
     // 👇 New Getter: Min date for Start Date (15 days from today)
+
+
+    value = 'inProgress';
+
+    get options() {
+        return [
+            { label: 'Available', value: 'Available' },
+            { label: 'Booked', value: 'Booked' },
+             
+        ];
+    }
+
+    handleChange(event) {
+        this.value = event.detail.value;
+    }
     get minStartDate() {
         const today = new Date();
         today.setDate(today.getDate() + 15);

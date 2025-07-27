@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Subject__c</fullName>
+    <label>Subject</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>PDI</fullName>
+                <default>false</default>
+                <label>PDI</label>
+            </value>
+            <value>
+                <fullName>Lead Management System</fullName>
+                <default>false</default>
+                <label>Lead Management System</label>
+            </value>
+            <value>
+                <fullName>Order Management System</fullName>
+                <default>false</default>
+                <label>Order Management System</label>
+            </value>
+            <value>
+                <fullName>Job Card Process</fullName>
+                <default>false</default>
+                <label>Job Card Process</label>
+            </value>
+            <value>
+                <fullName>Case Management</fullName>
+                <default>false</default>
+                <label>Case Management</label>
+            </value>
+            <value>
+                <fullName>Credential Related Issues</fullName>
+                <default>false</default>
+                <label>Credential Related Issues</label>
+            </value>
+            <value>
+                <fullName>Warranty Management Issue</fullName>
+                <default>false</default>
+                <label>Warranty Management Issue</label>
+            </value>
+            <value>
+                <fullName>Vehicle Related Issue</fullName>
+                <default>false</default>
+                <label>Vehicle Related Issue</label>
+            </value>
+            <value>
+                <fullName>Inventory Management</fullName>
+                <default>false</default>
+                <label>Inventory Management</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

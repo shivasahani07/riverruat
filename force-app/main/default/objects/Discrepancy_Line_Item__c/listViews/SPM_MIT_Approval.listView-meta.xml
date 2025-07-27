@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SPM_MIT_Approval</fullName>
+    <columns>NAME</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Quantity__c</columns>
+    <columns>Approved_Quantity__c</columns>
+    <columns>SPM_Apporoved_Quantity__c</columns>
+    <columns>Rejection_Reason__c</columns>
+    <columns>Discrepancy__c</columns>
+    <columns>Shipment__c</columns>
+    <columns>Product_Name__c</columns>
+    <columns>Type__c</columns>
+    <columns>Status__c</columns>
+    <columns>Supporting_Media__c</columns>
+    <columns>Spare_Approval__c</columns>
+    <columns>Feedback_From_Spare__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Type__c</field>
+        <operation>equals</operation>
+        <value>MIT</value>
+    </filters>
+    <filters>
+        <field>Status__c</field>
+        <operation>equals</operation>
+        <value>Under SPM Review</value>
+    </filters>
+    <label>SPM MIT Approval</label>
+    <sharedTo>
+        <group>SPM_User</group>
+    </sharedTo>
+</ListView>

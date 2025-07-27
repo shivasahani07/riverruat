@@ -48,8 +48,8 @@ public class NewE_invoicePDFController {
     public string dodoBillPostalCode { get; set; }
     public string dodoBillEmail { get; set; }
     public String dodoPhone { get; set; }
-    public string cocoBillEmail { get; set; }
-    public String cocoPhone { get; set; }
+     public string cocoBillEmail { get; set; }
+    public String cocoPhone { get; set; } 
     public String cocoCIN { get; set; }
     public Terms_and_Condition__mdt cocoTC { get; set; }
     public String formatedIRNNumber { get; set; }
@@ -85,7 +85,7 @@ public class NewE_invoicePDFController {
                     Discount_on_Ex_Showroom_Price__c, Subsidy_Amount__c, State_Govt_Subsidy__c, Offers_Amount__c,Vehicle_Total_Discount__c,
                     Dealer__r.CIN__c, Dealer__r.RR_Customer_Care_Email__c, Dealer__r.RR_Customer_HelpLine_Number__c,  
                     Dealer__r.Beneficiary_Name__c, Dealer__r.Account_Number__c, Dealer__r.Bank_Name__c, Dealer__r.Swift_Code__c, Dealer__r.IFSC__c, Dealer__r.PAN_Number__c,
-                    IRN_No__c, Dealer__r.Store_Type__c, Dealer__r.Email__c, Dealer__r.Phone, Account.GSTIN_Number__c, Dealer__r.GSTIN_Number__c, RecordType.DeveloperName FROM Order  WHERE Id=:orderId ]; 
+                    IRN_No__c, Dealer__r.Store_Type__c, Dealer__r.Email__c, Dealer__r.Phone, Account.GSTIN_Number__c, Dealer__r.GSTIN_Number__c, RecordType.DeveloperName, Finance__r.Name FROM Order  WHERE Id=:orderId ]; 
             cocoTC = [SELECT Id, Terms_and_Condition__c,DeveloperName FROM Terms_and_Condition__mdt WHERE DeveloperName = 'Coco_TC' LIMIT 1];
             if (cocoTC.Terms_and_Condition__c != null) {
                 cocoTC.Terms_and_Condition__c = cocoTC.Terms_and_Condition__c.replace('\n', '<br/>');
@@ -105,9 +105,14 @@ public class NewE_invoicePDFController {
                     dodoBillCityName = order.Dealer__r.BillingCity;
                     dodoBillStateName = order.Dealer__r.BillingState;
                     dodoBillPostalCode = order.Dealer__r.BillingPostalCode;
+                    dodoBillEmail = order.Dealer__r.Email__c;
+                    dodoPhone = order.Dealer__r.Phone;
                     cocoBillEmail = system.Label.COCOEmail;
                     cocoPhone = System.label.COCOPhone;
                     cocoCIN = System.label.COCOCIN;
+                    System.debug('cocoBillEmail ==>'+cocoBillEmail);
+                    System.debug('cocoPhone ==>'+cocoPhone);
+                    System.debug('cocoCIN ==>'+cocoCIN);
                 }
             }
             
@@ -132,6 +137,7 @@ public class NewE_invoicePDFController {
             
             DealerName = order.Dealer__r.Name != null ? order.Dealer__r.Name.toUpperCase() : '';
             List<Contact> contacts = [SELECT Id, Name, Email, Phone, MailingCity, MailingCountry, MailingPostalCode, MailingState, MailingStreet FROM Contact  WHERE AccountId = :order.AccountId AND Primary_Contact__c = true   LIMIT 1];
+            System.debug('contacts ==>'+contacts);
             If(contacts.size()>0){
                 contact = contacts[0];
             }
@@ -159,14 +165,14 @@ public class NewE_invoicePDFController {
                 System.debug('samestate---'+sameState);
             }
            
-            orderItemList = [SELECT Id, HSN_Code__c, Quantity, UnitPrice,Type__c, TotalPrice, Description, Order.Invoice_No__c,Charger_Included__c, Product2.CGST_Percentage__c, Product2.IGST_Percentage__c, Product2.SGST_Percentage__c,  Product2.Merchandise_discount_price__c, Taxable_Amount__c,Product_IGST__c,Product_IGST_Amount__c,Product_CGST__c,Product_CGST_Amount__c,Product_SGST__c,Product_SGST_Amount__c,Product_Total_Amount__c, Merchandise_Disccount_Amount__c FROM OrderItem  WHERE  OrderId = :orderId AND Type__c = 'Vehicle'];
+            orderItemList = [SELECT Id, HSN_Code__c, Quantity, UnitPrice,Type__c, TotalPrice, Description, Order.Invoice_No__c,Charger_Included__c, Product2.CGST_Percentage__c, Product2.IGST_Percentage__c, Product2.SGST_Percentage__c,  Product2.Merchandise_discount_price__c, Taxable_Amount__c,Product_IGST__c,Product_IGST_Amount__c,Product_CGST__c,Product_CGST_Amount__c,Product_SGST__c,Product_SGST_Amount__c,Product_Total_Amount__c, Merchandise_Disccount_Amount__c, Discounted_Amount_on_Merchandise__c FROM OrderItem  WHERE  OrderId = :orderId AND Type__c = 'Vehicle'];
             for (OrderItem oi : orderItemList) {
                 Decimal unitPrice = oi.UnitPrice != null ? oi.UnitPrice : 0;
                 Decimal quantity = oi.Quantity != null ? oi.Quantity : 0;
                 Decimal cgstPercentage = oi.Product2.CGST_Percentage__c != null ? oi.Product2.CGST_Percentage__c : 0;
                 Decimal sgstPercentage = oi.Product2.SGST_Percentage__c != null ? oi.Product2.SGST_Percentage__c : 0;
                 Decimal igstPercentage = oi.Product2.IGST_Percentage__c != null ? oi.Product2.IGST_Percentage__c : 0;
-                merchandiseDiscountAmount = oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0;
+                merchandiseDiscountAmount = (oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0) + (oi.Discounted_Amount_on_Merchandise__c != null ? oi.Discounted_Amount_on_Merchandise__c : 0);
                 //new Coupon
              /*   Decimal couponRedeemed = order.Coupon_Redeemed_Value__c != null ? order.Coupon_Redeemed_Value__c : 0;
                 String couponCode = order.Coupon_Code__c != null ? order.Coupon_Code__c : ''; */
@@ -205,7 +211,9 @@ public class NewE_invoicePDFController {
             vfPagepdf.getParameters().put('sequence', invoiceSequenceVH);
             system.debug('invoicesequence == >'+invoiceSequenceVH);
             
-            InvoiceDate = orderInvoices[0].Invoice_Date__c;
+            if(!orderInvoices.isEmpty()){
+                 InvoiceDate = orderInvoices[0].Invoice_Date__c;
+            }
             
             If(invoiceSequenceVH != null && invoiceSequenceVH != ''){
                 invoiceId = invoiceSequenceVH;
@@ -214,7 +222,7 @@ public class NewE_invoicePDFController {
             }
             System.debug('invoiceId>>'+invoiceId);
          
-            NetAmount = totalValueAfterAllTaxes - Order.Subsidy_Amount__c - Order.State_Govt_Subsidy__c;
+            netAmount = totalValueAfterAllTaxes - (order.Subsidy_Amount__c != null ? order.Subsidy_Amount__c : 0) - (order.State_Govt_Subsidy__c != null ? order.State_Govt_Subsidy__c : 0);
             if(NetAmount < 0){
                 NetAmount = 0;
             }

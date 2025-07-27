@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>VOR_Reason_Duration_Time_Minutes__c</fullName>
+    <externalId>false</externalId>
+    <formula>TEXT(FLOOR(VOR_Reason_Duration_Time__c / 24)) &amp; &quot; Days &quot; &amp;
+TEXT(ROUND(MOD(VOR_Reason_Duration_Time__c, 24), 0)) &amp; &quot; Hours&quot;</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>VOR Reason Duration Time</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

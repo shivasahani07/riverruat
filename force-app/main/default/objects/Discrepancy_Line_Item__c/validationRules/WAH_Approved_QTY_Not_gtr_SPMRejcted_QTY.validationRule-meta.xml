@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>WAH_Approved_QTY_Not_gtr_SPMRejcted_QTY</fullName>
+    <active>true</active>
+    <errorConditionFormula>Ware_House_Approved_Quantity__c &gt;  SPM_Apporoved_Quantity__c</errorConditionFormula>
+    <errorMessage>Warehouse Approved Quantity cannot be greater than SPM Approved Quantity.</errorMessage>
+</ValidationRule>

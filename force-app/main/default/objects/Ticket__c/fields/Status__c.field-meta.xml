@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Status__c</fullName>
+    <label>Status</label>
+    <required>false</required>
+    <trackFeedHistory>true</trackFeedHistory>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Pending</fullName>
+                <default>false</default>
+                <label>Pending</label>
+            </value>
+            <value>
+                <fullName>Complained Resolved via Explaination</fullName>
+                <default>false</default>
+                <label>Complained Resolved via Explaination</label>
+            </value>
+            <value>
+                <fullName>Call Later</fullName>
+                <default>false</default>
+                <label>Call Later</label>
+            </value>
+            <value>
+                <fullName>Appointment Requested</fullName>
+                <default>false</default>
+                <label>Appointment Requested</label>
+            </value>
+            <value>
+                <fullName>Open</fullName>
+                <default>true</default>
+                <label>Open</label>
+            </value>
+            <value>
+                <fullName>Re Open</fullName>
+                <default>false</default>
+                <label>Re Open</label>
+            </value>
+            <value>
+                <fullName>POC Assigned</fullName>
+                <default>false</default>
+                <label>POC Assigned</label>
+            </value>
+            <value>
+                <fullName>Resolved</fullName>
+                <default>false</default>
+                <label>Resolved</label>
+            </value>
+            <value>
+                <fullName>Resolution Under Review</fullName>
+                <default>false</default>
+                <label>Resolution Under Review</label>
+            </value>
+            <value>
+                <fullName>Pending Rivision</fullName>
+                <default>false</default>
+                <label>Pending Rivision</label>
+            </value>
+            <value>
+                <fullName>Closed</fullName>
+                <default>false</default>
+                <label>Closed</label>
+            </value>
+            <value>
+                <fullName>Solution not accepted</fullName>
+                <default>false</default>
+                <label>Solution not accepted</label>
+            </value>
+            <value>
+                <fullName>NFA</fullName>
+                <default>false</default>
+                <label>NFA</label>
+            </value>
+            <value>
+                <fullName>Call Back Requested</fullName>
+                <default>false</default>
+                <label>Call Back Requested</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

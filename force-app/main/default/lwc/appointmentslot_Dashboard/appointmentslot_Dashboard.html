@@ -29,6 +29,16 @@
                                 onclick={toggleForm}>
                             </lightning-button>
                         </template>
+
+                         <lightning-combobox
+            name="progress"
+            label="Status"
+            value={value}
+            placeholder="-not select-"
+            options={options}
+            onchange={handleChange} ></lightning-combobox>
+
+    <p>Selected value is: {value}</p>
                     </div>
                 </div>
             </div>

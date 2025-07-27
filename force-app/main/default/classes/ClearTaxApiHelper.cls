@@ -281,7 +281,7 @@ public static String generatePayloadForIRN(Id orderId) {
         for (OrderItem item : items) {
             Decimal grossAmount = (item.UnitPrice != null ? item.UnitPrice : 0) * (item.Quantity != null ? item.Quantity : 0);
             Decimal perItemTotalDiscount = 0;
-            if (item.Merchandise_Disccount_Amount__c != null) perItemTotalDiscount += item.Merchandise_Disccount_Amount__c;
+           if (item.Merchandise_Disccount_Amount__c != null || item.Discounted_Amount_on_Merchandise__c != null) perItemTotalDiscount += (item.Merchandise_Disccount_Amount__c != null ? item.Merchandise_Disccount_Amount__c : 0) + (item.Discounted_Amount_on_Merchandise__c != null ? item.Discounted_Amount_on_Merchandise__c : 0);
             if (item.Type__c == 'Vehicle') {
                 if (orderRecord.Offers_Amount__c != null) perItemTotalDiscount += orderRecord.Offers_Amount__c;
                 if (orderRecord.Discount_on_Ex_Showroom_Price__c != null) perItemTotalDiscount += orderRecord.Discount_on_Ex_Showroom_Price__c;

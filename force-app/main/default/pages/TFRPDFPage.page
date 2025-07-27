@@ -1,0 +1,28 @@
+<apex:page standardController="workorder" extensions="JobCardPDFController" renderAs="pdf">
+    
+    <h1 style="text-align:center;">Job Card Report</h1>
+    
+    
+    
+    
+    <apex:outputPanel rendered="{!NOT(ISNULL(jobCard))}">
+        <h2>Job Card: {!jobCard.workordernumber}</h2>
+        <p><strong>Status:</strong> {!jobCard.Status}</p>
+        <p><strong>Odometer Reading:</strong> {!jobCard.Odometer_Reading__c}</p>
+        <p><strong>Created Date:</strong> {!jobCard.CreatedDate}</p>
+        
+        <br/>
+        <h3>Related TFR Samples</h3>
+        <apex:repeat value="{!tfrSamples}" var="sample">
+            <hr/>
+            <p><strong>TFR Sample:</strong> {!sample.Name}</p>
+            <p><strong>VIN:</strong> {!sample.VIN_No__c}</p>
+            <p><strong>Date of Sale:</strong> {!sample.Date_of_Sale__c}</p>
+            <p><strong>Failure Code:</strong> {!sample.Failure_Code__r.name}</p>
+            <p><strong>Issue Severity:</strong> {!sample.Issue_Severity__c}</p>
+            <p><strong>Observations:</strong> {!sample.Observations__c}</p>
+            <p><strong>Actions Taken:</strong> {!sample.Actions_Taken__c}</p>
+            <p><strong>Post Cutt off :</strong> {!sample.TFR_Post_Vin_Cutt_off__c}</p>
+        </apex:repeat>
+    </apex:outputPanel>
+</apex:page>

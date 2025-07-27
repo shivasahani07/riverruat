@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Qualified_For_MSL__c</fullName>
+    <formula>AND(
+    NOT(
+        AND(
+            X5th_Month__c = 0,
+            X6th_Month__c = 0
+        )
+    ),
+    (
+        IF(X1st_Month__c &gt; 0, 1, 0) +
+        IF(X2nd_Month__c &gt; 0, 1, 0) +
+        IF(X3rd_Month__c &gt; 0, 1, 0) +
+        IF(X4th_Month__c &gt; 0, 1, 0) +
+        IF(X5th_Month__c &gt; 0, 1, 0) +
+        IF(X6th_Month__c &gt; 0, 1, 0)
+    ) &gt;= 4
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Qualified For MSL</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

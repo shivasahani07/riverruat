@@ -32,7 +32,7 @@ global class POGenerationBatchForMSL3 implements Database.Batchable<SObject> {
             SELECT Id, AccountId 
             FROM ProductRequest 
             WHERE AccountId IN :allAccountIds 
-            AND Status IN ('New') 
+            AND Status IN ('New', 'Processing', 'Partial Fulfilment') 
             AND Is_Forcasted_PO__c = true
         ]) {
             openPOMap.put(po.AccountId, po);
@@ -44,8 +44,8 @@ global class POGenerationBatchForMSL3 implements Database.Batchable<SObject> {
             SELECT Product2Id, AccountId, QuantityRequested
             FROM ProductRequestLineItem
             WHERE Parent.Is_Forcasted_PO__c = TRUE
-              AND Parent.Status = 'New'
-              AND AccountId IN :allAccountIds
+            AND Parent.Status IN ('New', 'Processing', 'Partial Fulfilment') 
+            AND AccountId IN :allAccountIds
         ];
 
         for (ProductRequestLineItem item : openLineItems) {

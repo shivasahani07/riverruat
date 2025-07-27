@@ -320,6 +320,32 @@ public Without Sharing class ProductRequestLineController {
             }
             if (!recordsToInsert.isEmpty()) {
                 insert recordsToInsert;
+                 Set<Id> productids = new Set<Id>();
+                 Set<Id> accountids = new Set<Id>();
+                 Map<Id,Decimal> totalQuanMap = new Map<Id,Decimal>();
+                for(ProductRequestLineItem pp : recordsToInsert){
+                    productids.add(pp.Product2Id);
+                    accountids.add(pp.ParentId);
+                    totalQuanMap.put(pp.Product2Id,pp.QuantityRequested);
+                }
+                ProductRequest pp =[SELECT Id,Account__c FROM ProductRequest WHERE Id=:accountids LIMIT 1];
+                Id accId = pp.Account__c;
+                System.debug('accountids==>'+accountids);
+                List<FortnightlyForecastInventory__c> fortsList = [SELECT Id,Product__c,PO_Status__c,Six_Months_Average_Consumption__c FROM FortnightlyForecastInventory__c WHERE Product__c IN:productids AND Account__c =:accId];
+                System.debug('fortsList==>'+fortsList);
+                List<FortnightlyForecastInventory__c> fortsToUpdate = new List<FortnightlyForecastInventory__c>();
+                for(FortnightlyForecastInventory__c f : fortsList){
+                    Decimal toBeDeducted = totalQuanMap.get(f.Product__c);
+                    FortnightlyForecastInventory__c ff = new FortnightlyForecastInventory__c();
+                    ff.Id = f.Id;
+                    ff.PO_Status__c = 'Submitted';
+                    ff.Six_Months_Average_Consumption__c = f.Six_Months_Average_Consumption__c - toBeDeducted;
+                    fortsToUpdate.add(ff);
+
+                }
+                if(!fortsToUpdate.isEmpty()){
+                    update fortsToUpdate;
+                }
                 System.debug('recordsToInsert === >'+recordsToInsert);
                 System.debug('recordsToInsert === >'+recordsToInsert);
                 Set<Id> uniquePoIds = new Set<Id>();
@@ -331,7 +357,7 @@ public Without Sharing class ProductRequestLineController {
                 }
                 if(recordsToInsert.size()>0){
                     return 'SUCCESS';
-                }
+                } 
             }
         } catch (Exception e) {
             System.debug('Error Message ==>'+e.getMessage()+' && Error Line == >'+e.getLineNumber());
@@ -1051,8 +1077,74 @@ System.debug('Error sending email: ' + e.getMessage());
 System.debug('=== End sendEmail ===');
 } */
     
-    
-    
+
+    @AuraEnabled
+    public static List<FortnightlyForecastInventory__c> showForeCastedData(String loggedInUserId, String productTypeFilter) {
+        System.debug('loggedInUserId == >' + loggedInUserId);
+        System.debug('productTypeFilter == >' + productTypeFilter);
+
+        List<FortnightlyForecastInventory__c> listOfForeCastedData = new List<FortnightlyForecastInventory__c>();
+        Set<Id> Product2IdSet = new Set<Id>();
+        Set<String> ProductTypeNotToShow = new Set<String>();
+        
+        try {
+            if (loggedInUserId != null) {
+                User logedUser = [SELECT Id, ContactId FROM User WHERE Id = :loggedInUserId LIMIT 1];
+                if (logedUser.ContactId != null) {
+                    Contact loggedInUserContactRecord = [
+                        SELECT Id, Role_Type__c, Location__r.Price_Book__c,AccountId
+                        FROM Contact 
+                        WHERE Id = :logedUser.ContactId 
+                        LIMIT 1
+                    ];
+
+                    if (productTypeFilter == null) {
+                        productTypeFilter = loggedInUserContactRecord.Role_Type__c;
+                    }
+
+                    if (productTypeFilter == 'Service') {
+                        ProductTypeNotToShow = new Set<String>{'Vehicle', 'Merchandise'};
+                    } else if (productTypeFilter == 'Sales') {
+                        ProductTypeNotToShow = new Set<String>{'Parts'};
+                    } else if (productTypeFilter == 'Merchandise') {
+                        ProductTypeNotToShow = new Set<String>{'Vehicle', 'Parts', 'Accessories', 'Extended Warranty', 'Add-ons', 'Road Side Assistance'};
+                    } else if (productTypeFilter == 'Accessories') {
+                        ProductTypeNotToShow = new Set<String>{'Vehicle', 'Parts', 'Merchandise', 'Extended Warranty', 'Add-ons', 'Road Side Assistance'};
+                    } else if (productTypeFilter == 'Vehicle') {
+                        ProductTypeNotToShow = new Set<String>{'Parts', 'Accessories', 'Extended Warranty', 'Add-ons', 'Road Side Assistance'};
+                    }
+
+                    List<PricebookEntry> getProdItemList = [
+                        SELECT Product2Id 
+                        FROM PricebookEntry 
+                        WHERE Pricebook2Id = :loggedInUserContactRecord.Location__r.Price_Book__c
+                    ];
+
+                    for (PricebookEntry pbe : getProdItemList) {
+                        if (pbe.Product2Id != null) {
+                            Product2IdSet.add(pbe.Product2Id);
+                        }
+                    }
+
+                    if (!Product2IdSet.isEmpty()) {
+                        listOfForeCastedData = [
+                            SELECT Id, Name, Product__c,Product__r.Name,Product__r.ProductCode,Product__r.Type__c, Account__c, Six_Months_Average_Consumption__c,PO_Status__c
+                            FROM FortnightlyForecastInventory__c
+                            WHERE Product__c IN :Product2IdSet AND PO_Status__c IN ('Not Submitted','')
+                            AND Product__r.Type__c NOT IN :ProductTypeNotToShow AND Account__c =: loggedInUserContactRecord.AccountId
+                        ];
+                        System.debug('Filtered forecasted data size ==>' + listOfForeCastedData.size());
+                    }
+                }
+            }
+        } catch(Exception e) {
+            System.debug('Error message ====>' + e.getMessage() + ' at line number ======>' + e.getLineNumber());
+        }
+
+        return listOfForeCastedData;
+    }
+
+
     public class PricebookEntryNotFoundException extends Exception {}
     
     

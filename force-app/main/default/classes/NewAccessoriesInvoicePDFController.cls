@@ -139,7 +139,7 @@ public with sharing class NewAccessoriesInvoicePDFController {
                 AccessoriesDiscountAmountOnOrder = order.Accessories_Discount_Amount__c != null ? order.Accessories_Discount_Amount__c : 0;
             }
 
-            orderItemList = [SELECT Id, HSN_Code__c, Quantity, UnitPrice, TotalPrice, Description, Order.Invoice_No__c, Charger_Included__c, Product2.CGST_Percentage__c, Product2.IGST_Percentage__c, Product2.SGST_Percentage__c, OrderItemNumber, Product2.Name, Taxable_Amount__c, Product_IGST__c, Product_IGST_Amount__c, Product_CGST__c, Product_CGST_Amount__c, Product_SGST__c, Product_SGST_Amount__c, Product_Total_Amount__c, Order.Accessories_Discount_Amount__c, Product_Accessories_Taxable_Amount__c, Product2.Merchandise_discount_price__c, Merchandise_Disccount_Amount__c, Type__c, Product2.Type__c FROM OrderItem WHERE OrderId = :orderId AND (Type__c = 'Accessories' OR Type__c = 'Parts')];
+            orderItemList = [SELECT Id, HSN_Code__c, Quantity, UnitPrice, TotalPrice, Description, Order.Invoice_No__c, Charger_Included__c, Product2.CGST_Percentage__c, Product2.IGST_Percentage__c, Product2.SGST_Percentage__c, OrderItemNumber, Product2.Name, Taxable_Amount__c, Product_IGST__c, Product_IGST_Amount__c, Product_CGST__c, Product_CGST_Amount__c, Product_SGST__c,Discounted_Amount_on_Merchandise__c, Product_SGST_Amount__c, Product_Total_Amount__c, Order.Accessories_Discount_Amount__c, Product_Accessories_Taxable_Amount__c, Product2.Merchandise_discount_price__c, Merchandise_Disccount_Amount__c, Type__c, Product2.Type__c FROM OrderItem WHERE OrderId = :orderId AND (Type__c = 'Accessories' OR Type__c = 'Parts')];
             System.debug('orderItemList===>' + orderItemList);
 
             itemWrappers = new List<OrderItemDiscountWrapper>();
@@ -163,7 +163,7 @@ public with sharing class NewAccessoriesInvoicePDFController {
             for (OrderItem oi : orderItemList) {
                 Decimal unitPrice = oi.UnitPrice != null ? oi.UnitPrice : 0;
                 Decimal quantity = oi.Quantity != null ? oi.Quantity : 0;
-                Decimal itemDiscount =  oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0;
+                Decimal itemDiscount =  (oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0) + (oi.Discounted_Amount_on_Merchandise__c != null ? oi.Discounted_Amount_on_Merchandise__c : 0);
                 Decimal itemTotalDiscount = itemDiscount;
                 Decimal itemEligibleAmount = unitPrice * quantity;
 
@@ -182,7 +182,7 @@ public with sharing class NewAccessoriesInvoicePDFController {
                 }
 
                 merchandiseDiscountAmount += itemTotalDiscount;
-                totalValueAfterAllTaxes += oi.Product_Total_Amount__c;
+                totalValueAfterAllTaxes += (oi.Product_Total_Amount__c != null ? oi.Product_Total_Amount__c : 0);
 
                 System.debug('Item ID: ' + oi.Id);
                 System.debug('unitPrice: ' + unitPrice);

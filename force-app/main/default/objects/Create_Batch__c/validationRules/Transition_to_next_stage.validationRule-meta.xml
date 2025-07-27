@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Transition_to_next_stage</fullName>
+    <active>false</active>
+    <errorConditionFormula>AND(
+    ISCHANGED(Status__c),
+    OR(
+        AND(
+            ISPICKVAL(PRIORVALUE(Status__c), &apos;New&apos;),
+            NOT(ISPICKVAL(Status__c, &apos;Dispatched&apos;))
+        ),
+        AND(
+            ISPICKVAL(PRIORVALUE(Status__c), &apos;Dispatched&apos;),
+            NOT(ISPICKVAL(Status__c, &apos;Received&apos;))
+        ),
+        AND(
+            ISPICKVAL(PRIORVALUE(Status__c), &apos;Received&apos;),
+            NOT(ISPICKVAL(Status__c, &apos;Dispatched&apos;))
+        )
+    )
+)</errorConditionFormula>
+    <errorMessage>status moves only in sequence</errorMessage>
+</ValidationRule>

@@ -6,11 +6,11 @@
  * @desc [Component to update Receive GRN]
  */
 
-import getPOrelatedPLI from '@salesforce/apex/ProductRequestLineController.getPOrelatedPLI';
-import getShipmentDetail from '@salesforce/apex/ProductRequestLineController.getShipmentDetail';
+import getPOrelatedPLI from '@salesforce/apex/bulkreceiveGRNController.getPOrelatedPLI';
+import getShipmentDetail from '@salesforce/apex/bulkreceiveGRNController.getShipmentDetail';
 import { CurrentPageReference } from 'lightning/navigation';
-import updateShipmentItemQuantities from '@salesforce/apex/ProductRequestLineController.updateShipmentItemQuantities';
-import createDiscrepancyAndLineitem from '@salesforce/apex/ProductRequestLineController.createDiscrepancyAndLineitem';
+import updateShipmentItemQuantities from '@salesforce/apex/bulkreceiveGRNController.updateShipmentItemQuantities';
+import createDiscrepancyAndLineitem from '@salesforce/apex/bulkreceiveGRNController.createDiscrepancyAndLineitem';
 import { CloseActionScreenEvent } from 'lightning/actions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { LightningElement, api, track, wire } from 'lwc';

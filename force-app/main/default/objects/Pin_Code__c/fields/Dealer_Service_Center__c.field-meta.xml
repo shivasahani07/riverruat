@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Dealer_Service_Center__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Dealer/Service Center</label>
+    <lookupFilter>
+        <active>true</active>
+        <errorMessage>Please select a Dealer/COCO Store/Service Center Account.</errorMessage>
+        <filterItems>
+            <field>Account.Type</field>
+            <operation>equals</operation>
+            <value>Dealer, COCO Store, Service Center</value>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Pin Codes</relationshipLabel>
+    <relationshipName>Pin_Codes</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

@@ -70,7 +70,7 @@ public class NewCreateReceiptVehicleController {
                     Account.Name, Account.Phone,Account.Secondary_Phone_Number__c,Account.Email__c, Account.BillingCity,Account.BillingCountry, Account.BillingPostalCode, Account.BillingState, Account.BillingStreet,
                     Assigned_Vehicle__r.VehicleIdentificationNumber, Assigned_Vehicle__r.VehicleDefinition.ModelCode, Assigned_Vehicle__r.EngineNumber, Assigned_Vehicle__r.Colour__c,
                     Assigned_Vehicle__r.VehicleDefinition.Battery_Name__c,Assigned_Vehicle__r.VehicleDefinition.Battery_Quantity__c,Assigned_Vehicle__r.VehicleDefinition.BatteryCapacity,
-                    Assigned_Vehicle__r.Name, Finance_Name__c, Assigned_Vehicle__r.VehicleDefinition.Battery_Capacity__c, Assigned_Vehicle__r.Vehicle_Details__c, Dealer__r.Name, Dealer__r.Center_Code__c,
+                    Assigned_Vehicle__r.Name, Finance__r.Name, Assigned_Vehicle__r.VehicleDefinition.Battery_Capacity__c, Assigned_Vehicle__r.Vehicle_Details__c, Dealer__r.Name, Dealer__r.Center_Code__c,
                     Dealer__r.BillingCity,Dealer__r.BillingCountry, Dealer__r.BillingPostalCode, Dealer__r.BillingState, Dealer__r.BillingStreet,	Transportation_Charges__c,Internal_Purchase__c,
                     Discount_on_Ex_Showroom_Price__c, Subsidy_Amount__c, State_Govt_Subsidy__c, Offers_Amount__c, Dealer__r.CIN__c, Dealer__r.RR_Customer_Care_Email__c, Dealer__r.RR_Customer_HelpLine_Number__c,  
                     Dealer__r.Beneficiary_Name__c, Dealer__r.Account_Number__c, Dealer__r.Bank_Name__c, Dealer__r.Swift_Code__c, Dealer__r.IFSC__c, Dealer__r.PAN_Number__c,
@@ -100,6 +100,9 @@ public class NewCreateReceiptVehicleController {
                     cocoBillEmail = system.Label.COCOEmail;
                     cocoPhone = System.label.COCOPhone;
                     cocoCIN = System.label.COCOCIN;
+                    System.debug('cocoBillEmail ==>'+cocoBillEmail);
+                    System.debug('cocoPhone ==>'+cocoPhone);
+                    System.debug('cocoCIN ==>'+cocoCIN);
                 }
             }
             
@@ -137,7 +140,7 @@ public class NewCreateReceiptVehicleController {
                 System.debug('samestate == >'+sameState);
             }
             
-            orderItemList = [SELECT Id, HSN_Code__c, Quantity, UnitPrice,Type__c, TotalPrice, Description, Order.Invoice_No__c,Charger_Included__c, Product2.CGST_Percentage__c, Product2.IGST_Percentage__c, Product2.SGST_Percentage__c,  Product2.Merchandise_discount_price__c, Taxable_Amount__c,Product_IGST__c,Product_IGST_Amount__c,Product_CGST__c,Product_CGST_Amount__c,Product_SGST__c,Product_SGST_Amount__c,Product_Total_Amount__c, Merchandise_Disccount_Amount__c FROM OrderItem  WHERE  OrderId = :orderId AND Type__c = 'Vehicle']; 
+            orderItemList = [SELECT Id, HSN_Code__c, Quantity, UnitPrice,Type__c, TotalPrice, Description, Order.Invoice_No__c,Charger_Included__c, Product2.CGST_Percentage__c, Product2.IGST_Percentage__c, Product2.SGST_Percentage__c,  Product2.Merchandise_discount_price__c, Taxable_Amount__c,Product_IGST__c,Product_IGST_Amount__c,Product_CGST__c,Product_CGST_Amount__c,Product_SGST__c,Product_SGST_Amount__c,Product_Total_Amount__c, Merchandise_Disccount_Amount__c, Discounted_Amount_on_Merchandise__c FROM OrderItem  WHERE  OrderId = :orderId AND Type__c = 'Vehicle']; 
             
            for (OrderItem oi : orderItemList) {
                 Decimal unitPrice = oi.UnitPrice != null ? oi.UnitPrice : 0;
@@ -145,7 +148,8 @@ public class NewCreateReceiptVehicleController {
                 Decimal cgstPercentage = oi.Product2.CGST_Percentage__c != null ? oi.Product2.CGST_Percentage__c : 0;
                 Decimal sgstPercentage = oi.Product2.SGST_Percentage__c != null ? oi.Product2.SGST_Percentage__c : 0;
                 Decimal igstPercentage = oi.Product2.IGST_Percentage__c != null ? oi.Product2.IGST_Percentage__c : 0;
-                merchandiseDiscountAmount = oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0;
+                merchandiseDiscountAmount = (oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0) + (oi.Discounted_Amount_on_Merchandise__c != null ? oi.Discounted_Amount_on_Merchandise__c : 0);
+               
                System.debug('merchandiseDiscountAmount1==>'+merchandiseDiscountAmount);
                System.debug('Offer Amount==>'+order.Offers_Amount__c);
                System.debug('Ex showroom discount==>'+order.Discount_on_Ex_Showroom_Price__c);
@@ -189,12 +193,14 @@ public class NewCreateReceiptVehicleController {
                 invoiceId = 'RV_INVOICE_VH';
             }
             
-            InvoiceDate = orderInvoices[0].Invoice_Date__c;
+            if(!orderInvoices.isEmpty()){
+                 InvoiceDate = orderInvoices[0].Invoice_Date__c;
+            }
             
             System.debug('invoiceId>>'+invoiceId);
             decimal trpCharges = order.Transportation_Charges__c == Null? 0: order.Transportation_Charges__c;
             System.debug('trpCharges>>'+trpCharges);
-             NetAmount = totalValueAfterAllTaxes - Order.Subsidy_Amount__c - Order.State_Govt_Subsidy__c; 
+            netAmount = totalValueAfterAllTaxes - (order.Subsidy_Amount__c != null ? order.Subsidy_Amount__c : 0) - (order.State_Govt_Subsidy__c != null ? order.State_Govt_Subsidy__c : 0);
             System.debug('totalValueAfterAllTaxes ==> '+ totalValueAfterAllTaxes);
 			System.debug('Discount_on_Ex_Showroom_Price__c ==> '+ Order.Subsidy_Amount__c);
             System.debug('Offers_Amount__c ==> '+ Order.State_Govt_Subsidy__c);

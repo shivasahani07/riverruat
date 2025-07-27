@@ -2,7 +2,7 @@
  * @description       :
  * @author            : Aniket Karmakar
  * @group             :
- * @last modified on  : 07-02-2025
+ * @last modified on  : 07-25-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
  **/
 public with sharing class QueueableForCreateOrderOnWebsite implements Queueable, Database.allowsCallouts{
@@ -37,11 +37,17 @@ public with sharing class QueueableForCreateOrderOnWebsite implements Queueable,
                 System.debug('Create Order API is called 2');
 
                 List<Order> orderList = [Select Id,Website_Order_Id__c,AccountId,Account.Phone,Account.Name,Account.Email__c,Account.Center_Code__c,Notify_By_SMS__c,Notify_By_Email__c,Account.BillingStreet,Account.BillingCity,Account.BillingPostalCode,
-                Account.BillingState,OrderNumber,TotalAmount,Status,Description,BillingStreet,BillingCity,BillingPostalCode,BillingState,Offers_Amount__c,Offer_description__c,Pricebook2Id,Payment_Status__c,Grand_Total__c,Booking_Form_File_URL__c,Remaining_Amount__c
+                Account.BillingState,OrderNumber,TotalAmount,Status,Description,BillingStreet,BillingCity,BillingPostalCode,BillingState,Offers_Amount__c,Offer_description__c,Pricebook2Id,Payment_Status__c,Grand_Total__c,Booking_Form_File_URL__c,Remaining_Amount__c,Order_Source__c
                 FROM Order Where Id=:orderId];
 
                 if(!orderList.isEmpty()){
                     Order o = orderList[0];
+                    
+                    if(o.Order_Source__c == 'Website') {
+                            System.debug('Skipping API call: Order source is Website for Order Id ' + o.Id);
+                            return;
+                        }
+ 
                     System.debug('Order ==>'+o);
                     System.debug('Order Account Email==>'+o.Account.Email__c);
 

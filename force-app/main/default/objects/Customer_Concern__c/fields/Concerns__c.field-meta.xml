@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Concerns__c</fullName>
+    <label>Concerns</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>Case_Category__c</controllingField>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>None</fullName>
+                <default>false</default>
+                <label>None</label>
+            </value>
+            <value>
+                <fullName>Accessories</fullName>
+                <default>false</default>
+                <label>Accessories</label>
+            </value>
+            <value>
+                <fullName>Belt</fullName>
+                <default>false</default>
+                <label>Belt</label>
+            </value>
+            <value>
+                <fullName>Brakes</fullName>
+                <default>false</default>
+                <label>Brakes</label>
+            </value>
+            <value>
+                <fullName>Bootlamp</fullName>
+                <default>false</default>
+                <label>Bootlamp</label>
+            </value>
+            <value>
+                <fullName>Centre Stand</fullName>
+                <default>false</default>
+                <label>Centre Stand</label>
+            </value>
+            <value>
+                <fullName>Charger</fullName>
+                <default>false</default>
+                <label>Charger</label>
+            </value>
+            <value>
+                <fullName>Crash Guard</fullName>
+                <default>false</default>
+                <label>Crash Guard</label>
+            </value>
+            <value>
+                <fullName>Display</fullName>
+                <default>false</default>
+                <label>Display</label>
+            </value>
+            <value>
+                <fullName>Foot Peg LH</fullName>
+                <default>false</default>
+                <label>Foot Peg LH</label>
+            </value>
+            <value>
+                <fullName>HeadLamp</fullName>
+                <default>false</default>
+                <label>HeadLamp</label>
+            </value>
+            <value>
+                <fullName>Horn</fullName>
+                <default>false</default>
+                <label>Horn</label>
+            </value>
+            <value>
+                <fullName>Indicator</fullName>
+                <default>false</default>
+                <label>Indicator</label>
+            </value>
+            <value>
+                <fullName>Lockset</fullName>
+                <default>false</default>
+                <label>Lockset</label>
+            </value>
+            <value>
+                <fullName>Mode</fullName>
+                <default>false</default>
+                <label>Mode</label>
+            </value>
+            <value>
+                <fullName>Pannel</fullName>
+                <default>false</default>
+                <label>Pannel</label>
+            </value>
+            <value>
+                <fullName>Performance</fullName>
+                <default>false</default>
+                <label>Performance</label>
+            </value>
+            <value>
+                <fullName>PRCD</fullName>
+                <default>false</default>
+                <label>PRCD</label>
+            </value>
+            <value>
+                <fullName>Range</fullName>
+                <default>false</default>
+                <label>Range</label>
+            </value>
+            <value>
+                <fullName>Vehicle Power Cut OFF</fullName>
+                <default>false</default>
+                <label>Vehicle Power Cut OFF</label>
+            </value>
+            <value>
+                <fullName>Throttle</fullName>
+                <default>false</default>
+                <label>Throttle</label>
+            </value>
+            <value>
+                <fullName>Side stand</fullName>
+                <default>false</default>
+                <label>Side stand</label>
+            </value>
+            <value>
+                <fullName>Steering</fullName>
+                <default>false</default>
+                <label>Steering</label>
+            </value>
+            <value>
+                <fullName>Suspension</fullName>
+                <default>false</default>
+                <label>Suspension</label>
+            </value>
+            <value>
+                <fullName>Switch Gear LH</fullName>
+                <default>false</default>
+                <label>Switch Gear LH</label>
+            </value>
+            <value>
+                <fullName>Switch Gear RH</fullName>
+                <default>false</default>
+                <label>Switch Gear RH</label>
+            </value>
+            <value>
+                <fullName>Tailamp</fullName>
+                <default>false</default>
+                <label>Tailamp</label>
+            </value>
+            <value>
+                <fullName>Tyre</fullName>
+                <default>false</default>
+                <label>Tyre</label>
+            </value>
+            <value>
+                <fullName>USB</fullName>
+                <default>false</default>
+                <label>USB</label>
+            </value>
+            <value>
+                <fullName>Wheels</fullName>
+                <default>false</default>
+                <label>Wheels</label>
+            </value>
+            <value>
+                <fullName>Product Enquiry</fullName>
+                <default>false</default>
+                <label>Product Enquiry</label>
+            </value>
+            <value>
+                <fullName>Service Enquiry</fullName>
+                <default>false</default>
+                <label>Service Enquiry</label>
+            </value>
+            <value>
+                <fullName>Stores Enquiry</fullName>
+                <default>false</default>
+                <label>Stores Enquiry</label>
+            </value>
+            <value>
+                <fullName>Accessories Related</fullName>
+                <default>false</default>
+                <label>Accessories Related</label>
+            </value>
+            <value>
+                <fullName>App Related</fullName>
+                <default>false</default>
+                <label>App Related</label>
+            </value>
+            <value>
+                <fullName>Account Update</fullName>
+                <default>false</default>
+                <label>Account Update</label>
+            </value>
+            <value>
+                <fullName>Merchandise Related</fullName>
+                <default>false</default>
+                <label>Merchandise Related</label>
+            </value>
+            <value>
+                <fullName>Returns and Refunds</fullName>
+                <default>false</default>
+                <label>Returns and Refunds</label>
+            </value>
+            <value>
+                <fullName>Dealer Store - Sales &amp; Deliveries</fullName>
+                <default>false</default>
+                <label>Dealer Store - Sales &amp; Deliveries</label>
+            </value>
+            <value>
+                <fullName>COCO Store- Sales &amp; Deliveries</fullName>
+                <default>false</default>
+                <label>COCO Store- Sales &amp; Deliveries</label>
+            </value>
+            <value>
+                <fullName>Customer Care Issues</fullName>
+                <default>false</default>
+                <label>Customer Care Issues</label>
+            </value>
+            <value>
+                <fullName>Foot Peg RH</fullName>
+                <default>false</default>
+                <label>Foot Peg RH</label>
+            </value>
+            <value>
+                <fullName>SOC</fullName>
+                <default>false</default>
+                <label>SOC</label>
+            </value>
+            <value>
+                <fullName>Software</fullName>
+                <default>false</default>
+                <label>Software</label>
+            </value>
+            <value>
+                <fullName>General Query</fullName>
+                <default>false</default>
+                <label>General Query</label>
+            </value>
+            <value>
+                <fullName>Periodic Service</fullName>
+                <default>false</default>
+                <label>Periodic Service</label>
+            </value>
+            <value>
+                <fullName>Running Repairs</fullName>
+                <default>false</default>
+                <label>Running Repairs</label>
+            </value>
+            <value>
+                <fullName>Accidental Repairs</fullName>
+                <default>false</default>
+                <label>Accidental Repairs</label>
+            </value>
+            <value>
+                <fullName>Service Experience</fullName>
+                <default>false</default>
+                <label>Service Experience</label>
+            </value>
+            <value>
+                <fullName>Water Wash</fullName>
+                <default>false</default>
+                <label>Water Wash</label>
+            </value>
+            <value>
+                <fullName>Service Center</fullName>
+                <default>false</default>
+                <label>Service Center</label>
+            </value>
+            <value>
+                <fullName>Booking Related</fullName>
+                <default>false</default>
+                <label>Booking Related</label>
+            </value>
+            <value>
+                <fullName>Other Payments Related</fullName>
+                <default>false</default>
+                <label>Other Payments Related</label>
+            </value>
+            <value>
+                <fullName>Customer Care Associate Concerns</fullName>
+                <default>false</default>
+                <label>Customer Care Associate Concerns</label>
+            </value>
+            <value>
+                <fullName>Customer Care Manager Concerns</fullName>
+                <default>false</default>
+                <label>Customer Care Manager Concerns</label>
+            </value>
+            <value>
+                <fullName>Parts</fullName>
+                <default>false</default>
+                <label>Parts</label>
+            </value>
+            <value>
+                <fullName>Parts Price</fullName>
+                <default>false</default>
+                <label>Parts Price</label>
+            </value>
+            <value>
+                <fullName>Labour Charges</fullName>
+                <default>false</default>
+                <label>Labour Charges</label>
+            </value>
+            <value>
+                <fullName>Pick Drop Charges</fullName>
+                <default>false</default>
+                <label>Pick Drop Charges</label>
+            </value>
+            <value>
+                <fullName>Repairs Quality</fullName>
+                <default>false</default>
+                <label>Repairs Quality</label>
+            </value>
+            <value>
+                <fullName>Staff Behaviour</fullName>
+                <default>false</default>
+                <label>Staff Behaviour</label>
+            </value>
+            <value>
+                <fullName>Facility</fullName>
+                <default>false</default>
+                <label>Facility</label>
+            </value>
+            <value>
+                <fullName>Customer handling</fullName>
+                <default>false</default>
+                <label>Customer handling</label>
+            </value>
+        </valueSetDefinition>
+        <valueSettings>
+            <controllingFieldValue>Process</controllingFieldValue>
+            <valueName>Service Experience</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Process</controllingFieldValue>
+            <valueName>Staff Behaviour</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Process</controllingFieldValue>
+            <valueName>Facility</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Process</controllingFieldValue>
+            <valueName>Customer handling</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Parts</controllingFieldValue>
+            <valueName>Parts</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Accessories</controllingFieldValue>
+            <valueName>Accessories</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Price</controllingFieldValue>
+            <valueName>Parts Price</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Price</controllingFieldValue>
+            <valueName>Pick Drop Charges</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Price</controllingFieldValue>
+            <valueName>Repairs Quality</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Belt</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Brakes</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Bootlamp</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Centre Stand</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Charger</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Crash Guard</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Display</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Foot Peg LH</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>HeadLamp</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Horn</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Indicator</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Lockset</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Mode</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Pannel</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Performance</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>PRCD</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Range</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Vehicle Power Cut OFF</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Side stand</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Steering</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Suspension</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Switch Gear LH</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Switch Gear RH</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Tailamp</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Tyre</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Wheels</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Foot Peg RH</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>SOC</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Product</controllingFieldValue>
+            <valueName>Software</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Amenities/Facilities</controllingFieldValue>
+            <valueName>Water Wash</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Amenities/Facilities</controllingFieldValue>
+            <valueName>Service Center</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>

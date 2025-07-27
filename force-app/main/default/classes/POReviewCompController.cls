@@ -164,18 +164,67 @@ public class POReviewCompController {
 
     @AuraEnabled
     public static void markPOSubmitted(Id poId) {
-        ProductRequest po = [SELECT Id, PO_Submitted__c FROM ProductRequest WHERE Id = :poId LIMIT 1];
+        ProductRequest po = [SELECT Id, ProductRequestNumber, PO_Submitted__c, OwnerId, Owner.Name, Owner.Email 
+            FROM ProductRequest 
+            WHERE Id = :poId LIMIT 1];
+
         po.PO_Submitted__c = true;
         po.PO_Approval_Status__c = 'Submitted';
         
         try {
             update po;
-            System.debug('*** PO updated successfully');
-        } catch (Exception e) {
+            System.debug('*** PO Approval Submitted Successfully');
+
+            String baseUrl = System.Url.getOrgDomainUrl().toExternalForm();
+            String poLink = baseUrl + '/' + poId;
+
+            // Sending an Email
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+
+            email.setToAddresses(new List<String>{'saurabh4sfdc@gmail.com'});
+            email.setSubject('PO Approval Request !');
+
+            String htmlBody = '<html>' +
+                '<body style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">' +
+                '<p>Dear Sir/Madam,</p>' +
+
+                '<p>' +
+                'Kindly review and approve the following Purchase Order (PO) at your earliest convenience. ' +
+                'Your timely action will help ensure smooth processing.' +
+                '</p>' +
+
+                '<p>' +
+                '<strong>Action Required:</strong><br/>' +
+                'Please log in to the system and navigate to the PO Review section to approve or reject the PO.' +
+                '<p>PO Number : ' + po.ProductRequestNumber + '</p>' +
+                '<p>' +
+                    '<strong>PO Link:</strong><br/>' +
+                    '<a href="' + poLink + '">Click here to view the Purchase Order</a>' +
+                '</p>' +
+                '</p>' +
+
+                '<p>' +
+                'If you have any questions or require additional information, feel free to contact the concerned team.' +
+                '</p>' +
+
+                '<p>Thank you for your attention.</p>' +
+
+                '<br/>' +
+
+                'Best regards, <br/>' +
+                '<em> ' + po.Owner.Name + ' </em><br/>' +
+                '<em> ' + po.Owner.Email + ' </em><br/>' + 
+                '</body>' +
+                '</html>';
+
+            email.setHtmlBody(htmlBody);
+
+            Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ email });
+        } 
+        catch (Exception e) {
             System.debug('*** Error updating PO: ' + e.getMessage());
             throw new AuraHandledException('Failed to update PO: ' + e.getMessage());
         }
-
     }
 
     @AuraEnabled

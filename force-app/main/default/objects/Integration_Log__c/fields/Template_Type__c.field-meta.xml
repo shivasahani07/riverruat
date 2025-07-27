@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Template_Type__c</fullName>
+    <label>Template Type</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>New Lead</fullName>
+                <default>false</default>
+                <label>New Lead</label>
+            </value>
+            <value>
+                <fullName>Lead Age 2 Days</fullName>
+                <default>false</default>
+                <label>Lead Age 2 Days</label>
+            </value>
+            <value>
+                <fullName>RNR Stage</fullName>
+                <default>false</default>
+                <label>RNR Stage</label>
+            </value>
+            <value>
+                <fullName>Test Ride Scheduled</fullName>
+                <default>false</default>
+                <label>Test Ride Scheduled</label>
+            </value>
+            <value>
+                <fullName>On Test Ride Day</fullName>
+                <default>false</default>
+                <label>On Test Ride Day</label>
+            </value>
+            <value>
+                <fullName>Test Ride Cancelled</fullName>
+                <default>false</default>
+                <label>Test Ride Cancelled</label>
+            </value>
+            <value>
+                <fullName>Test Ride Completed</fullName>
+                <default>false</default>
+                <label>Test Ride Completed</label>
+            </value>
+            <value>
+                <fullName>Lead Unresponsive 4 Days</fullName>
+                <default>false</default>
+                <label>Lead Unresponsive 4 Days</label>
+            </value>
+            <value>
+                <fullName>Lead Unresponsive 7 Days</fullName>
+                <default>false</default>
+                <label>Lead Unresponsive 7 Days</label>
+            </value>
+            <value>
+                <fullName>Order Creation</fullName>
+                <default>false</default>
+                <label>Order Creation</label>
+            </value>
+            <value>
+                <fullName>Allotment in Process(Order)</fullName>
+                <default>false</default>
+                <label>Allotment in Process(Order)</label>
+            </value>
+            <value>
+                <fullName>RTO Stage(Order)</fullName>
+                <default>false</default>
+                <label>RTO Stage(Order)</label>
+            </value>
+            <value>
+                <fullName>Ready For Delivery(Order)</fullName>
+                <default>false</default>
+                <label>Ready For Delivery(Order)</label>
+            </value>
+            <value>
+                <fullName>Vehicle Delivered(Order)</fullName>
+                <default>false</default>
+                <label>Vehicle Delivered(Order)</label>
+            </value>
+            <value>
+                <fullName>Order Cancelled</fullName>
+                <default>false</default>
+                <label>Order Cancelled</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

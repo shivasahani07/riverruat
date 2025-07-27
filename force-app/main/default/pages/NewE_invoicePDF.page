@@ -50,7 +50,7 @@
                         <p style="margin-top: 2px;">
                             
                             <apex:outputPanel rendered="{!storeType = 'DODO'}">
-                                <b><span style="font-size: 16px;"> {!dodoAccName} </span></b> <br/>
+                                <b><span style="font-size: 15px;"> {!dodoAccName} </span></b> <br/>
                                 <apex:outputText value="{!formattedBillingStreet}" escape="false"/>,
                                 {!order.Dealer__r.BillingCity}<br/>
                                 {!order.Dealer__r.BillingState}-{!order.Dealer__r.BillingPostalCode}
@@ -59,7 +59,7 @@
                             </apex:outputPanel>
                             
                             <apex:outputPanel rendered="{!storeType = 'COCO'}">
-                                <b><span style="font-size: 16px;"> {!dcPdf.CompanyName__c} </span></b> 
+                                <b><span style="font-size: 15px;"> {!dcPdf.CompanyName__c} </span></b> 
                                 <br /> <span style="font-size: 14px;"> No. 25/3, KIADB EPIP Zone, Seetharampalya–Hoodi Road, Mahadevapura, </span>
                                 <br /> <span style="font-size: 14px;"> Whitefield, Bengaluru, Bengaluru Urban, Karnataka, India 560048 </span>
                                 <br /> <span style="font-size: 14px;"> Email: {!cocoBillEmail}, &nbsp; Phone: +91 {!cocoPhone} </span>

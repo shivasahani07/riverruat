@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Case_Category__c</fullName>
+    <label>Case Category</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>Department__c</controllingField>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Parts</fullName>
+                <default>false</default>
+                <label>Parts</label>
+            </value>
+            <value>
+                <fullName>Accessories</fullName>
+                <default>false</default>
+                <label>Accessories</label>
+            </value>
+            <value>
+                <fullName>Price</fullName>
+                <default>false</default>
+                <label>Price</label>
+            </value>
+            <value>
+                <fullName>Product</fullName>
+                <default>false</default>
+                <label>Product</label>
+            </value>
+            <value>
+                <fullName>Amenities/Facilities</fullName>
+                <default>false</default>
+                <label>Amenities/Facilities</label>
+            </value>
+            <value>
+                <fullName>Service Quality</fullName>
+                <default>false</default>
+                <label>Service Quality</label>
+            </value>
+            <value>
+                <fullName>Service Experience</fullName>
+                <default>false</default>
+                <label>Service Experience</label>
+            </value>
+            <value>
+                <fullName>Sales Concerns</fullName>
+                <default>false</default>
+                <label>Sales Concerns</label>
+            </value>
+            <value>
+                <fullName>Merchandise Related</fullName>
+                <default>false</default>
+                <label>Merchandise Related</label>
+            </value>
+            <value>
+                <fullName>Returns and Refunds</fullName>
+                <default>false</default>
+                <label>Returns and Refunds</label>
+            </value>
+            <value>
+                <fullName>Customer Care Issues</fullName>
+                <default>false</default>
+                <label>Customer Care Issues</label>
+            </value>
+            <value>
+                <fullName>Service Request</fullName>
+                <default>false</default>
+                <label>Service Request</label>
+            </value>
+            <value>
+                <fullName>General Query</fullName>
+                <default>false</default>
+                <label>General Query</label>
+            </value>
+            <value>
+                <fullName>Process</fullName>
+                <default>false</default>
+                <label>Process</label>
+            </value>
+        </valueSetDefinition>
+        <valueSettings>
+            <controllingFieldValue>Service</controllingFieldValue>
+            <valueName>Parts</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Service</controllingFieldValue>
+            <valueName>Accessories</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Service</controllingFieldValue>
+            <valueName>Product</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Service</controllingFieldValue>
+            <valueName>Process</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>

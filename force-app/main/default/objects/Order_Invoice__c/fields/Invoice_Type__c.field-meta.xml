@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Invoice_Type__c</fullName>
+    <label>Invoice Type</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Vehicle Invoice</fullName>
+                <default>false</default>
+                <label>Vehicle Invoice</label>
+            </value>
+            <value>
+                <fullName>Accessories Invoice</fullName>
+                <default>false</default>
+                <label>Accessories Invoice</label>
+            </value>
+            <value>
+                <fullName>Other Charges Invoice</fullName>
+                <default>false</default>
+                <label>Other Charges Invoice</label>
+            </value>
+            <value>
+                <fullName>Add-ons Invoice</fullName>
+                <default>false</default>
+                <label>Add-ons Invoice</label>
+            </value>
+            <value>
+                <fullName>Merchandise Invoice</fullName>
+                <default>false</default>
+                <label>Merchandise Invoice</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

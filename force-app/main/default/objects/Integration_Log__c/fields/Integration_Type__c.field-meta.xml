@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Integration_Type__c</fullName>
+    <label>Integration Type</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Lead Creation</fullName>
+                <default>false</default>
+                <label>Lead Creation</label>
+            </value>
+            <value>
+                <fullName>Account Registration</fullName>
+                <default>false</default>
+                <label>Account Registration</label>
+            </value>
+            <value>
+                <fullName>Order Creation</fullName>
+                <default>false</default>
+                <label>Order Creation</label>
+            </value>
+            <value>
+                <fullName>Order Update</fullName>
+                <default>false</default>
+                <label>Order Update</label>
+            </value>
+            <value>
+                <fullName>Payment Creation</fullName>
+                <default>false</default>
+                <label>Payment Creation</label>
+            </value>
+            <value>
+                <fullName>Payment Update</fullName>
+                <default>false</default>
+                <label>Payment Update</label>
+            </value>
+            <value>
+                <fullName>VIN Verification</fullName>
+                <default>false</default>
+                <label>VIN Verification</label>
+            </value>
+            <value>
+                <fullName>Service Appointment creation</fullName>
+                <default>false</default>
+                <label>Service Appointment creation</label>
+            </value>
+            <value>
+                <fullName>Case creation</fullName>
+                <default>false</default>
+                <label>Case creation</label>
+            </value>
+            <value>
+                <fullName>Service Milestone Notification</fullName>
+                <default>false</default>
+                <label>Service Milestone Notification</label>
+            </value>
+            <value>
+                <fullName>Ozontel WhatsApp</fullName>
+                <default>false</default>
+                <label>Ozontel WhatsApp</label>
+            </value>
+            <value>
+                <fullName>Lead Creation - BikeDekho</fullName>
+                <default>false</default>
+                <label>Lead Creation - BikeDekho</label>
+            </value>
+            <value>
+                <fullName>Lead Creation - 91Wheels</fullName>
+                <default>false</default>
+                <label>Lead Creation - 91Wheels</label>
+            </value>
+            <value>
+                <fullName>Lead Creation - HT Auto</fullName>
+                <default>false</default>
+                <label>Lead Creation - HT Auto</label>
+            </value>
+            <value>
+                <fullName>Lead Creation - ThinkResult</fullName>
+                <default>false</default>
+                <label>Lead Creation - ThinkResult</label>
+            </value>
+            <value>
+                <fullName>Lead Creation - WhatsApp</fullName>
+                <default>false</default>
+                <label>Lead Creation - WhatsApp</label>
+            </value>
+            <value>
+                <fullName>Lead Creation - CarBike360</fullName>
+                <default>false</default>
+                <label>Lead Creation - CarBike360</label>
+            </value>
+            <value>
+                <fullName>Lead Creation - EV India</fullName>
+                <default>false</default>
+                <label>Lead Creation - EV India</label>
+            </value>
+            <value>
+                <fullName>Lead Creation - OzoneTel</fullName>
+                <default>false</default>
+                <label>Lead Creation - OzoneTel</label>
+            </value>
+            <value>
+                <fullName>Lead creation - BikeWale</fullName>
+                <default>false</default>
+                <label>Lead creation - BikeWale</label>
+            </value>
+            <value>
+                <fullName>Mobile App</fullName>
+                <default>false</default>
+                <label>Mobile App</label>
+            </value>
+            <value>
+                <fullName>SAP</fullName>
+                <default>false</default>
+                <label>SAP</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

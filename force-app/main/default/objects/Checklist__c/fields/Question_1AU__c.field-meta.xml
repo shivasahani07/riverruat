@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Question_1AU__c</fullName>
+    <inlineHelpText>- Indicator Lamp functions - Turn Signal Lamp LH and RH - Both side ( Front and Rear )
+
+- Park assist mode
+
+- Lights not working / intermittent / flilckering
+
+- Headlamps functioning</inlineHelpText>
+    <label>Question 1</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>OK</fullName>
+                <default>false</default>
+                <label>OK</label>
+            </value>
+            <value>
+                <fullName>NOT OK</fullName>
+                <default>false</default>
+                <label>NOT OK</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

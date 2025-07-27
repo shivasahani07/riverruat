@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MIT</fullName>
+    <columns>NAME</columns>
+    <columns>Quantity__c</columns>
+    <columns>Approved_Quantity__c</columns>
+    <columns>SPM_Reject_Quantity__c</columns>
+    <columns>Rejection_Reason__c</columns>
+    <columns>Discrepancy__c</columns>
+    <columns>Shipment__c</columns>
+    <columns>Product_Name__c</columns>
+    <columns>Type__c</columns>
+    <columns>Status__c</columns>
+    <columns>Spare_Approval__c</columns>
+    <columns>Supporting_Media__c</columns>
+    <columns>CREATED_DATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Type__c</field>
+        <operation>equals</operation>
+        <value>MIT</value>
+    </filters>
+    <label>MIT</label>
+</ListView>

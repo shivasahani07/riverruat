@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Warehouse_Lot_Approval</fullName>
+    <columns>NAME</columns>
+    <columns>Product_Name__c</columns>
+    <columns>Discrepancy__c</columns>
+    <columns>Discrepancy_Lot__c</columns>
+    <columns>Shipment__c</columns>
+    <columns>Request_Part_Quantity__c</columns>
+    <columns>Is_Warehouse_Received__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Discrepancy_Lot__c</field>
+        <operation>notEqual</operation>
+    </filters>
+    <filters>
+        <field>Is_Warehouse_Received__c</field>
+        <operation>equals</operation>
+        <value>0</value>
+    </filters>
+    <label>Warehouse Lot Approval</label>
+</ListView>

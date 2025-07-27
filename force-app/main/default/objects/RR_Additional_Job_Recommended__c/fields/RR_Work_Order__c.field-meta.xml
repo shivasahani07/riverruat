@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>RR_Work_Order__c</fullName>
+    <label>Work Order</label>
+    <referenceTo>WorkOrder</referenceTo>
+    <relationshipLabel>Additional Jobs Recommended</relationshipLabel>
+    <relationshipName>Additional_Jobs_Recommended</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

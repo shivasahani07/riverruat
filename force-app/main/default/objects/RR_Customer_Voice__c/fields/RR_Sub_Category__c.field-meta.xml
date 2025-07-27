@@ -1,0 +1,1890 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>RR_Sub_Category__c</fullName>
+    <label>Sub Category</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>RR_Concern_Category__c</controllingField>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>SOC Drop</fullName>
+                <default>false</default>
+                <label>SOC Drop</label>
+            </value>
+            <value>
+                <fullName>Insufficient</fullName>
+                <default>false</default>
+                <label>Insufficient</label>
+            </value>
+            <value>
+                <fullName>Improper display</fullName>
+                <default>false</default>
+                <label>Improper display</label>
+            </value>
+            <value>
+                <fullName>Inlet Mechanism Fault</fullName>
+                <default>false</default>
+                <label>Inlet Mechanism Fault</label>
+            </value>
+            <value>
+                <fullName>not charging</fullName>
+                <default>false</default>
+                <label>not charging</label>
+            </value>
+            <value>
+                <fullName>Insertion Issue</fullName>
+                <default>false</default>
+                <label>Insertion Issue</label>
+            </value>
+            <value>
+                <fullName>Solenoid Latching</fullName>
+                <default>false</default>
+                <label>Solenoid Latching</label>
+            </value>
+            <value>
+                <fullName>Noise</fullName>
+                <default>false</default>
+                <label>Noise</label>
+            </value>
+            <value>
+                <fullName>Teeth wornout</fullName>
+                <default>false</default>
+                <label>Teeth wornout</label>
+            </value>
+            <value>
+                <fullName>Failure</fullName>
+                <default>false</default>
+                <label>Failure</label>
+            </value>
+            <value>
+                <fullName>Tension</fullName>
+                <default>false</default>
+                <label>Tension</label>
+            </value>
+            <value>
+                <fullName>Mode switch Fault</fullName>
+                <default>false</default>
+                <label>Mode switch Fault</label>
+            </value>
+            <value>
+                <fullName>Sticky Throttle</fullName>
+                <default>false</default>
+                <label>Sticky Throttle</label>
+            </value>
+            <value>
+                <fullName>Throttle cutoff</fullName>
+                <default>false</default>
+                <label>Throttle cutoff</label>
+            </value>
+            <value>
+                <fullName>Loose</fullName>
+                <default>false</default>
+                <label>Loose</label>
+            </value>
+            <value>
+                <fullName>Damage</fullName>
+                <default>false</default>
+                <label>Damage</label>
+            </value>
+            <value>
+                <fullName>Kill Switch Fault</fullName>
+                <default>false</default>
+                <label>Kill Switch Fault</label>
+            </value>
+            <value>
+                <fullName>Pre-Load</fullName>
+                <default>false</default>
+                <label>Pre-Load</label>
+            </value>
+            <value>
+                <fullName>Oil leak</fullName>
+                <default>false</default>
+                <label>Oil leak</label>
+            </value>
+            <value>
+                <fullName>Spring failure</fullName>
+                <default>false</default>
+                <label>Spring failure</label>
+            </value>
+            <value>
+                <fullName>Inner tube dent</fullName>
+                <default>false</default>
+                <label>Inner tube dent</label>
+            </value>
+            <value>
+                <fullName>Outer tube damage</fullName>
+                <default>false</default>
+                <label>Outer tube damage</label>
+            </value>
+            <value>
+                <fullName>Regen Fault</fullName>
+                <default>false</default>
+                <label>Regen Fault</label>
+            </value>
+            <value>
+                <fullName>Time issue</fullName>
+                <default>false</default>
+                <label>Time issue</label>
+            </value>
+            <value>
+                <fullName>Flickering</fullName>
+                <default>false</default>
+                <label>Flickering</label>
+            </value>
+            <value>
+                <fullName>Not turning ON</fullName>
+                <default>false</default>
+                <label>Not turning ON</label>
+            </value>
+            <value>
+                <fullName>Charging time</fullName>
+                <default>false</default>
+                <label>Charging time</label>
+            </value>
+            <value>
+                <fullName>Blank during ride</fullName>
+                <default>false</default>
+                <label>Blank during ride</label>
+            </value>
+            <value>
+                <fullName>Vibration</fullName>
+                <default>false</default>
+                <label>Vibration</label>
+            </value>
+            <value>
+                <fullName>Fog formation</fullName>
+                <default>false</default>
+                <label>Fog formation</label>
+            </value>
+            <value>
+                <fullName>Spot/Airbubble</fullName>
+                <default>false</default>
+                <label>Spot/Airbubble</label>
+            </value>
+            <value>
+                <fullName>Glitch</fullName>
+                <default>false</default>
+                <label>Glitch</label>
+            </value>
+            <value>
+                <fullName>Freeness</fullName>
+                <default>false</default>
+                <label>Freeness</label>
+            </value>
+            <value>
+                <fullName>Handlebar knocking</fullName>
+                <default>false</default>
+                <label>Handlebar knocking</label>
+            </value>
+            <value>
+                <fullName>Handlebar bent</fullName>
+                <default>false</default>
+                <label>Handlebar bent</label>
+            </value>
+            <value>
+                <fullName>Handlebar crack</fullName>
+                <default>false</default>
+                <label>Handlebar crack</label>
+            </value>
+            <value>
+                <fullName>Handlebar rust</fullName>
+                <default>false</default>
+                <label>Handlebar rust</label>
+            </value>
+            <value>
+                <fullName>Handlebar vibration</fullName>
+                <default>false</default>
+                <label>Handlebar vibration</label>
+            </value>
+            <value>
+                <fullName>Column rust</fullName>
+                <default>false</default>
+                <label>Column rust</label>
+            </value>
+            <value>
+                <fullName>Column bent</fullName>
+                <default>false</default>
+                <label>Column bent</label>
+            </value>
+            <value>
+                <fullName>Top locknut loose</fullName>
+                <default>false</default>
+                <label>Top locknut loose</label>
+            </value>
+            <value>
+                <fullName>Bearing rust</fullName>
+                <default>false</default>
+                <label>Bearing rust</label>
+            </value>
+            <value>
+                <fullName>Understeer</fullName>
+                <default>false</default>
+                <label>Understeer</label>
+            </value>
+            <value>
+                <fullName>Rear noise</fullName>
+                <default>false</default>
+                <label>Rear noise</label>
+            </value>
+            <value>
+                <fullName>Front noise</fullName>
+                <default>false</default>
+                <label>Front noise</label>
+            </value>
+            <value>
+                <fullName>Rim bent</fullName>
+                <default>false</default>
+                <label>Rim bent</label>
+            </value>
+            <value>
+                <fullName>Dustseal/Bearings</fullName>
+                <default>false</default>
+                <label>Dustseal/Bearings</label>
+            </value>
+            <value>
+                <fullName>Wobbling</fullName>
+                <default>false</default>
+                <label>Wobbling</label>
+            </value>
+            <value>
+                <fullName>Seat Fault</fullName>
+                <default>false</default>
+                <label>Seat Fault</label>
+            </value>
+            <value>
+                <fullName>Glovebox Fault</fullName>
+                <default>false</default>
+                <label>Glovebox Fault</label>
+            </value>
+            <value>
+                <fullName>Steering Fault</fullName>
+                <default>false</default>
+                <label>Steering Fault</label>
+            </value>
+            <value>
+                <fullName>Key lost</fullName>
+                <default>false</default>
+                <label>Key lost</label>
+            </value>
+            <value>
+                <fullName>Key bent</fullName>
+                <default>false</default>
+                <label>Key bent</label>
+            </value>
+            <value>
+                <fullName>Steering lock fault</fullName>
+                <default>false</default>
+                <label>Steering lock fault</label>
+            </value>
+            <value>
+                <fullName>Key loose</fullName>
+                <default>false</default>
+                <label>Key loose</label>
+            </value>
+            <value>
+                <fullName>Line damage</fullName>
+                <default>false</default>
+                <label>Line damage</label>
+            </value>
+            <value>
+                <fullName>Sponginess</fullName>
+                <default>false</default>
+                <label>Sponginess</label>
+            </value>
+            <value>
+                <fullName>Caliper Rear noise</fullName>
+                <default>false</default>
+                <label>Caliper Rear noise</label>
+            </value>
+            <value>
+                <fullName>Caliper Front noise</fullName>
+                <default>false</default>
+                <label>Caliper Front noise</label>
+            </value>
+            <value>
+                <fullName>MC oil leak</fullName>
+                <default>false</default>
+                <label>MC oil leak</label>
+            </value>
+            <value>
+                <fullName>Caliper oil leak</fullName>
+                <default>false</default>
+                <label>Caliper oil leak</label>
+            </value>
+            <value>
+                <fullName>Disc bent</fullName>
+                <default>false</default>
+                <label>Disc bent</label>
+            </value>
+            <value>
+                <fullName>Brake pad wornout</fullName>
+                <default>false</default>
+                <label>Brake pad wornout</label>
+            </value>
+            <value>
+                <fullName>Bite</fullName>
+                <default>false</default>
+                <label>Bite</label>
+            </value>
+            <value>
+                <fullName>Improper sound</fullName>
+                <default>false</default>
+                <label>Improper sound</label>
+            </value>
+            <value>
+                <fullName>Front Fault</fullName>
+                <default>false</default>
+                <label>Front Fault</label>
+            </value>
+            <value>
+                <fullName>Rear Fault</fullName>
+                <default>false</default>
+                <label>Rear Fault</label>
+            </value>
+            <value>
+                <fullName>Dim</fullName>
+                <default>false</default>
+                <label>Dim</label>
+            </value>
+            <value>
+                <fullName>Height Adjustment</fullName>
+                <default>false</default>
+                <label>Height Adjustment</label>
+            </value>
+            <value>
+                <fullName>Fault</fullName>
+                <default>false</default>
+                <label>Fault</label>
+            </value>
+            <value>
+                <fullName>Visor Replace</fullName>
+                <default>false</default>
+                <label>Visor Replace</label>
+            </value>
+            <value>
+                <fullName>Visor Fitment</fullName>
+                <default>false</default>
+                <label>Visor Fitment</label>
+            </value>
+            <value>
+                <fullName>Floor Mat Replace</fullName>
+                <default>false</default>
+                <label>Floor Mat Replace</label>
+            </value>
+            <value>
+                <fullName>Floor Mat Fitment</fullName>
+                <default>false</default>
+                <label>Floor Mat Fitment</label>
+            </value>
+            <value>
+                <fullName>adied Footrest Replacement</fullName>
+                <default>false</default>
+                <label>adied Footrest Replacement</label>
+            </value>
+            <value>
+                <fullName>Ladies Footrest Fitment</fullName>
+                <default>false</default>
+                <label>Ladies Footrest Fitment</label>
+            </value>
+            <value>
+                <fullName>Seat Replacement</fullName>
+                <default>false</default>
+                <label>Seat Replacement</label>
+            </value>
+            <value>
+                <fullName>Seat Cover Replace</fullName>
+                <default>false</default>
+                <label>Seat Cover Replace</label>
+            </value>
+            <value>
+                <fullName>Seat Cover Fitment</fullName>
+                <default>false</default>
+                <label>Seat Cover Fitment</label>
+            </value>
+            <value>
+                <fullName>Mobile mount Replace</fullName>
+                <default>false</default>
+                <label>Mobile mount Replace</label>
+            </value>
+            <value>
+                <fullName>Mobile mount Loose</fullName>
+                <default>false</default>
+                <label>Mobile mount Loose</label>
+            </value>
+            <value>
+                <fullName>LH Mirror Replacement</fullName>
+                <default>false</default>
+                <label>LH Mirror Replacement</label>
+            </value>
+            <value>
+                <fullName>LH Mirror Fitment</fullName>
+                <default>false</default>
+                <label>LH Mirror Fitment</label>
+            </value>
+            <value>
+                <fullName>RH Mirror Replacement</fullName>
+                <default>false</default>
+                <label>RH Mirror Replacement</label>
+            </value>
+            <value>
+                <fullName>RH Mirror Fitment</fullName>
+                <default>false</default>
+                <label>RH Mirror Fitment</label>
+            </value>
+            <value>
+                <fullName>Panier Mount LH Replace</fullName>
+                <default>false</default>
+                <label>Panier Mount LH Replace</label>
+            </value>
+            <value>
+                <fullName>Panier Mount LH Fitment</fullName>
+                <default>false</default>
+                <label>Panier Mount LH Fitment</label>
+            </value>
+            <value>
+                <fullName>Panier Mount RH Replace</fullName>
+                <default>false</default>
+                <label>Panier Mount RH Replace</label>
+            </value>
+            <value>
+                <fullName>Panier Mount RH Fitment</fullName>
+                <default>false</default>
+                <label>Panier Mount RH Fitment</label>
+            </value>
+            <value>
+                <fullName>Brakes Stuck</fullName>
+                <default>false</default>
+                <label>Stuck</label>
+            </value>
+            <value>
+                <fullName>Brakes Lever Damage LH</fullName>
+                <default>false</default>
+                <label>Lever Damage LH</label>
+            </value>
+            <value>
+                <fullName>Brakes Lever Damage RH</fullName>
+                <default>false</default>
+                <label>Lever Damage RH</label>
+            </value>
+            <value>
+                <fullName>Brakes Disc bent FR</fullName>
+                <default>false</default>
+                <label>Disc bent FR</label>
+            </value>
+            <value>
+                <fullName>Brakes Disc bent RR</fullName>
+                <default>false</default>
+                <label>Disc bent RR</label>
+            </value>
+            <value>
+                <fullName>Brakes FR Pad Worn out</fullName>
+                <default>false</default>
+                <label>FR Pad Worn out</label>
+            </value>
+            <value>
+                <fullName>Brakes RR Pad Worn out</fullName>
+                <default>false</default>
+                <label>RR Pad Worn out</label>
+            </value>
+            <value>
+                <fullName>Brakes FR Disc Worn out</fullName>
+                <default>false</default>
+                <label>FR Disc Worn out</label>
+            </value>
+            <value>
+                <fullName>Brakes RR Disc Worn out</fullName>
+                <default>false</default>
+                <label>RR Disc Worn out</label>
+            </value>
+            <value>
+                <fullName>Brakes FR Disc Rusting</fullName>
+                <default>false</default>
+                <label>FR Disc Rusting</label>
+            </value>
+            <value>
+                <fullName>Brakes RR Disc Rusting</fullName>
+                <default>false</default>
+                <label>RR Disc Rusting</label>
+            </value>
+            <value>
+                <fullName>Brakes Ineffective</fullName>
+                <default>false</default>
+                <label>Ineffective</label>
+            </value>
+            <value>
+                <fullName>Brakes Play Adjust</fullName>
+                <default>false</default>
+                <label>Play Adjust</label>
+            </value>
+            <value>
+                <fullName>Brakes Oil Top Up</fullName>
+                <default>false</default>
+                <label>Oil Top Up</label>
+            </value>
+            <value>
+                <fullName>Brakes Jerking</fullName>
+                <default>false</default>
+                <label>Jerking</label>
+            </value>
+            <value>
+                <fullName>Brakes MC Damage</fullName>
+                <default>false</default>
+                <label>MC Damage</label>
+            </value>
+            <value>
+                <fullName>Bootlamp Not working</fullName>
+                <default>false</default>
+                <label>Not working</label>
+            </value>
+            <value>
+                <fullName>Bootlamp Sensor Damage</fullName>
+                <default>false</default>
+                <label>Sensor Damage</label>
+            </value>
+            <value>
+                <fullName>Bootlamp Damaged</fullName>
+                <default>false</default>
+                <label>Damaged</label>
+            </value>
+            <value>
+                <fullName>Centre Stand Stuck</fullName>
+                <default>false</default>
+                <label>Stand Stuck</label>
+            </value>
+            <value>
+                <fullName>Centre Stand Replacement</fullName>
+                <default>false</default>
+                <label>Replacement</label>
+            </value>
+            <value>
+                <fullName>Centre Stand Fitment</fullName>
+                <default>false</default>
+                <label>Stand Fitment</label>
+            </value>
+            <value>
+                <fullName>Centre Stand Bent</fullName>
+                <default>false</default>
+                <label>Stand Bent</label>
+            </value>
+            <value>
+                <fullName>Centre Stand Loose</fullName>
+                <default>false</default>
+                <label>Stand Loose</label>
+            </value>
+            <value>
+                <fullName>Centre Stand Damaged</fullName>
+                <default>false</default>
+                <label>Centre Stand Damaged</label>
+            </value>
+            <value>
+                <fullName>Centre Stand Rusting</fullName>
+                <default>false</default>
+                <label>Rusting</label>
+            </value>
+            <value>
+                <fullName>Charger Lid Stuck</fullName>
+                <default>false</default>
+                <label>Lid Stuck</label>
+            </value>
+            <value>
+                <fullName>Charger Lid Broken</fullName>
+                <default>false</default>
+                <label>Lid Broken</label>
+            </value>
+            <value>
+                <fullName>Charger Inlet Rubber Cap Damage</fullName>
+                <default>false</default>
+                <label>Inlet Rubber Cap Damage</label>
+            </value>
+            <value>
+                <fullName>Charger Inlet Rubber Cap Replace</fullName>
+                <default>false</default>
+                <label>Inlet Rubber Cap Replace</label>
+            </value>
+            <value>
+                <fullName>Crash Guard Damaged</fullName>
+                <default>false</default>
+                <label>Guard Damaged</label>
+            </value>
+            <value>
+                <fullName>Crash Guard Rusting</fullName>
+                <default>false</default>
+                <label>Crash Guard Rusting</label>
+            </value>
+            <value>
+                <fullName>Crash Guard Loose</fullName>
+                <default>false</default>
+                <label>Crash Guard Loose</label>
+            </value>
+            <value>
+                <fullName>Crash Guard Replacement</fullName>
+                <default>false</default>
+                <label>Crash Guard Replacement</label>
+            </value>
+            <value>
+                <fullName>Crash Guard Fitment</fullName>
+                <default>false</default>
+                <label>Crash Guard Fitment</label>
+            </value>
+            <value>
+                <fullName>Display Backlight Fault</fullName>
+                <default>false</default>
+                <label>Display Backlight Fault</label>
+            </value>
+            <value>
+                <fullName>Display Cracks</fullName>
+                <default>false</default>
+                <label>Display Cracks</label>
+            </value>
+            <value>
+                <fullName>Display Faded</fullName>
+                <default>false</default>
+                <label>Display Faded</label>
+            </value>
+            <value>
+                <fullName>Display Warning Symbol</fullName>
+                <default>false</default>
+                <label>Display Warning Symbol</label>
+            </value>
+            <value>
+                <fullName>Foot Peg LH Broken</fullName>
+                <default>false</default>
+                <label>Foot Peg LH Broken</label>
+            </value>
+            <value>
+                <fullName>Foot Peg LH Loose</fullName>
+                <default>false</default>
+                <label>Foot Peg LH Loose</label>
+            </value>
+            <value>
+                <fullName>Foot Peg RH Broken</fullName>
+                <default>false</default>
+                <label>Foot Peg RH Broken</label>
+            </value>
+            <value>
+                <fullName>Foot Peg RH Loose</fullName>
+                <default>false</default>
+                <label>Foot Peg RH Loose</label>
+            </value>
+            <value>
+                <fullName>HeadLamp Flickering</fullName>
+                <default>false</default>
+                <label>HeadLamp Flickering</label>
+            </value>
+            <value>
+                <fullName>HeadLamp Crack</fullName>
+                <default>false</default>
+                <label>HeadLamp Crack</label>
+            </value>
+            <value>
+                <fullName>HeadLamp Led Fuse</fullName>
+                <default>false</default>
+                <label>HeadLamp Led Fuse</label>
+            </value>
+            <value>
+                <fullName>HeadLamp Water entry</fullName>
+                <default>false</default>
+                <label>HeadLamp Water entry</label>
+            </value>
+            <value>
+                <fullName>HeadLamp Moisture Formation</fullName>
+                <default>false</default>
+                <label>HeadLamp Moisture Formation</label>
+            </value>
+            <value>
+                <fullName>HeadLamp Rattling Noise</fullName>
+                <default>false</default>
+                <label>HeadLamp Rattling Noise</label>
+            </value>
+            <value>
+                <fullName>HeadLamp Broken</fullName>
+                <default>false</default>
+                <label>HeadLamp Broken</label>
+            </value>
+            <value>
+                <fullName>Indicator Front Not Working</fullName>
+                <default>false</default>
+                <label>Indicator Front Not Working</label>
+            </value>
+            <value>
+                <fullName>Indicator Front replace</fullName>
+                <default>false</default>
+                <label>Indicator Front replace</label>
+            </value>
+            <value>
+                <fullName>Indicator Rear Not Working</fullName>
+                <default>false</default>
+                <label>Indicator Rear Not Working</label>
+            </value>
+            <value>
+                <fullName>Indicator Rear Replace</fullName>
+                <default>false</default>
+                <label>Indicator Rear Replace</label>
+            </value>
+            <value>
+                <fullName>Mode Unable to change</fullName>
+                <default>false</default>
+                <label>Mode Unable to change</label>
+            </value>
+            <value>
+                <fullName>Panel Fade</fullName>
+                <default>false</default>
+                <label>Panel Fade</label>
+            </value>
+            <value>
+                <fullName>Pannel Broken</fullName>
+                <default>false</default>
+                <label>Pannel Broken</label>
+            </value>
+            <value>
+                <fullName>Pannel Paint peel off</fullName>
+                <default>false</default>
+                <label>Pannel Paint peel off</label>
+            </value>
+            <value>
+                <fullName>Pannel Scratch</fullName>
+                <default>false</default>
+                <label>Pannel Scratch</label>
+            </value>
+            <value>
+                <fullName>Pannel Rattling Noise</fullName>
+                <default>false</default>
+                <label>Pannel Rattling Noise</label>
+            </value>
+            <value>
+                <fullName>Pannel Damaged</fullName>
+                <default>false</default>
+                <label>Pannel Damaged</label>
+            </value>
+            <value>
+                <fullName>Pannel Replacement</fullName>
+                <default>false</default>
+                <label>Pannel Replacement</label>
+            </value>
+            <value>
+                <fullName>Pannel Gap</fullName>
+                <default>false</default>
+                <label>Pannel Gap</label>
+            </value>
+            <value>
+                <fullName>Performance Unable to reach top speed</fullName>
+                <default>false</default>
+                <label>Performance Unable to reach top speed</label>
+            </value>
+            <value>
+                <fullName>Performance Pickup Low</fullName>
+                <default>false</default>
+                <label>Performance Pickup Low</label>
+            </value>
+            <value>
+                <fullName>PRCD Broken</fullName>
+                <default>false</default>
+                <label>PRCD Broken</label>
+            </value>
+            <value>
+                <fullName>Range Sudden SOC drop</fullName>
+                <default>false</default>
+                <label>Range Sudden SOC drop</label>
+            </value>
+            <value>
+                <fullName>Range Hyb. mode SOC drop</fullName>
+                <default>false</default>
+                <label>Range Hyb. mode SOC drop</label>
+            </value>
+            <value>
+                <fullName>Vehicle Power Cut OFF During Ride</fullName>
+                <default>false</default>
+                <label>Vehicle Power Cut OFF During Ride</label>
+            </value>
+            <value>
+                <fullName>Side stand Stuck</fullName>
+                <default>false</default>
+                <label>Side stand Stuck</label>
+            </value>
+            <value>
+                <fullName>Side stand Bent</fullName>
+                <default>false</default>
+                <label>Side stand Bent</label>
+            </value>
+            <value>
+                <fullName>Side stand Broken</fullName>
+                <default>false</default>
+                <label>Side stand Broken</label>
+            </value>
+            <value>
+                <fullName>Side stand Rusting</fullName>
+                <default>false</default>
+                <label>Side stand Rusting</label>
+            </value>
+            <value>
+                <fullName>Side stand Sensor Error</fullName>
+                <default>false</default>
+                <label>Side stand Sensor Error</label>
+            </value>
+            <value>
+                <fullName>Side Stand sensor Replacement</fullName>
+                <default>false</default>
+                <label>Side Stand sensor Replacement</label>
+            </value>
+            <value>
+                <fullName>Software Update</fullName>
+                <default>false</default>
+                <label>Software Update</label>
+            </value>
+            <value>
+                <fullName>Steering loose</fullName>
+                <default>false</default>
+                <label>Steering loose</label>
+            </value>
+            <value>
+                <fullName>Steering Handlebar knocking</fullName>
+                <default>false</default>
+                <label>Steering Handlebar knocking</label>
+            </value>
+            <value>
+                <fullName>Steering wobling</fullName>
+                <default>false</default>
+                <label>Steering wobling</label>
+            </value>
+            <value>
+                <fullName>Steering Tight</fullName>
+                <default>false</default>
+                <label>Steering Tight</label>
+            </value>
+            <value>
+                <fullName>Steering noise</fullName>
+                <default>false</default>
+                <label>Steering noise</label>
+            </value>
+            <value>
+                <fullName>Suspension Pre-Load</fullName>
+                <default>false</default>
+                <label>Suspension Pre-Load</label>
+            </value>
+            <value>
+                <fullName>Suspension Noise FR</fullName>
+                <default>false</default>
+                <label>Suspension Noise FR</label>
+            </value>
+            <value>
+                <fullName>Suspension Noise RR</fullName>
+                <default>false</default>
+                <label>Suspension Noise RR</label>
+            </value>
+            <value>
+                <fullName>Suspension Oil leak FR</fullName>
+                <default>false</default>
+                <label>Suspension Oil leak FR</label>
+            </value>
+            <value>
+                <fullName>Suspension Oil leak RR</fullName>
+                <default>false</default>
+                <label>Suspension Oil leak RR</label>
+            </value>
+            <value>
+                <fullName>Suspension Hard FR</fullName>
+                <default>false</default>
+                <label>Suspension Hard FR</label>
+            </value>
+            <value>
+                <fullName>Suspension Hard RR</fullName>
+                <default>false</default>
+                <label>Suspension Hard RR</label>
+            </value>
+            <value>
+                <fullName>Suspension Bent FR</fullName>
+                <default>false</default>
+                <label>Suspension Bent FR</label>
+            </value>
+            <value>
+                <fullName>Suspension Bent RR</fullName>
+                <default>false</default>
+                <label>Suspension Bent RR</label>
+            </value>
+            <value>
+                <fullName>Suspension Inner tube dent</fullName>
+                <default>false</default>
+                <label>Suspension Inner tube dent</label>
+            </value>
+            <value>
+                <fullName>Suspension Outer tube dent</fullName>
+                <default>false</default>
+                <label>Suspension Outer tube dent</label>
+            </value>
+            <value>
+                <fullName>Switch Gear LH Loose</fullName>
+                <default>false</default>
+                <label>Switch Gear LH Loose</label>
+            </value>
+            <value>
+                <fullName>Switch Gear LH Not woking</fullName>
+                <default>false</default>
+                <label>Switch Gear LH Not woking</label>
+            </value>
+            <value>
+                <fullName>Switch Gear LH Stuck</fullName>
+                <default>false</default>
+                <label>Switch Gear LH Stuck</label>
+            </value>
+            <value>
+                <fullName>Switch Gear LH Broken</fullName>
+                <default>false</default>
+                <label>Switch Gear LH Broken</label>
+            </value>
+            <value>
+                <fullName>Switch Gear LH Fault</fullName>
+                <default>false</default>
+                <label>Switch Gear LH Fault</label>
+            </value>
+            <value>
+                <fullName>Switch Gear RH Mode switch Fault</fullName>
+                <default>false</default>
+                <label>Switch Gear RH Mode switch Fault</label>
+            </value>
+            <value>
+                <fullName>Switch Gear RH Sticky Throttle</fullName>
+                <default>false</default>
+                <label>Switch Gear RH Sticky Throttle</label>
+            </value>
+            <value>
+                <fullName>Switch Gear RH Throttle cutoff</fullName>
+                <default>false</default>
+                <label>Switch Gear RH Throttle cutoff</label>
+            </value>
+            <value>
+                <fullName>Switch Gear RH Loose</fullName>
+                <default>false</default>
+                <label>Switch Gear RH Loose</label>
+            </value>
+            <value>
+                <fullName>Switch Gear RH Broken</fullName>
+                <default>false</default>
+                <label>Switch Gear RH Broken</label>
+            </value>
+            <value>
+                <fullName>Switch Gear RH Kill Switch Not working</fullName>
+                <default>false</default>
+                <label>Switch Gear RH Kill Switch Not working</label>
+            </value>
+            <value>
+                <fullName>Tailamp Flickering</fullName>
+                <default>false</default>
+                <label>Tailamp Flickering</label>
+            </value>
+            <value>
+                <fullName>Tailamp Crack</fullName>
+                <default>false</default>
+                <label>Tailamp Crack</label>
+            </value>
+            <value>
+                <fullName>Tailamp Led Fuse</fullName>
+                <default>false</default>
+                <label>Tailamp Led Fuse</label>
+            </value>
+            <value>
+                <fullName>Tailamp Water entry</fullName>
+                <default>false</default>
+                <label>Tailamp Water entry</label>
+            </value>
+            <value>
+                <fullName>Tailamp Moisture Formation</fullName>
+                <default>false</default>
+                <label>Tailamp Moisture Formation</label>
+            </value>
+            <value>
+                <fullName>Tailamp Rattling Noise</fullName>
+                <default>false</default>
+                <label>Tailamp Rattling Noise</label>
+            </value>
+            <value>
+                <fullName>Tailamp Broken</fullName>
+                <default>false</default>
+                <label>Tailamp Broken</label>
+            </value>
+            <value>
+                <fullName>Tailamp Adjustment</fullName>
+                <default>false</default>
+                <label>Tailamp Adjustment</label>
+            </value>
+            <value>
+                <fullName>Tyre Puncture</fullName>
+                <default>false</default>
+                <label>Tyre Puncture</label>
+            </value>
+            <value>
+                <fullName>Tyre Replacement</fullName>
+                <default>false</default>
+                <label>Tyre Replacement</label>
+            </value>
+            <value>
+                <fullName>Wheels Noise FR</fullName>
+                <default>false</default>
+                <label>Wheels Noise FR</label>
+            </value>
+            <value>
+                <fullName>Wheels Noise RR</fullName>
+                <default>false</default>
+                <label>Wheels Noise RR</label>
+            </value>
+            <value>
+                <fullName>Wheels Rim bent FR</fullName>
+                <default>false</default>
+                <label>Wheels Rim bent FR</label>
+            </value>
+            <value>
+                <fullName>Wheels Rim bent RR</fullName>
+                <default>false</default>
+                <label>Wheels Rim bent RR</label>
+            </value>
+            <value>
+                <fullName>Wheels Dustseal/Bearings FR</fullName>
+                <default>false</default>
+                <label>Wheels Dustseal/Bearings FR</label>
+            </value>
+            <value>
+                <fullName>Wheels Dustseal/Bearings RR</fullName>
+                <default>false</default>
+                <label>Wheels Dustseal/Bearings RR</label>
+            </value>
+            <value>
+                <fullName>Wheels Wobbling FR</fullName>
+                <default>false</default>
+                <label>Wheels Wobbling FR</label>
+            </value>
+            <value>
+                <fullName>Wheels Wobbling RR</fullName>
+                <default>false</default>
+                <label>Wheels Wobbling RR</label>
+            </value>
+            <value>
+                <fullName>Extended Warranty</fullName>
+                <default>false</default>
+                <label>Extended Warranty</label>
+            </value>
+            <value>
+                <fullName>RSA</fullName>
+                <default>false</default>
+                <label>RSA</label>
+            </value>
+        </valueSetDefinition>
+        <valueSettings>
+            <controllingFieldValue>Mode</controllingFieldValue>
+            <valueName>Mode Unable to change</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Panel</controllingFieldValue>
+            <valueName>Panel Fade</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Panel</controllingFieldValue>
+            <valueName>Pannel Broken</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Panel</controllingFieldValue>
+            <valueName>Pannel Paint peel off</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Panel</controllingFieldValue>
+            <valueName>Pannel Scratch</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Panel</controllingFieldValue>
+            <valueName>Pannel Rattling Noise</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Panel</controllingFieldValue>
+            <valueName>Pannel Damaged</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Panel</controllingFieldValue>
+            <valueName>Pannel Replacement</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Panel</controllingFieldValue>
+            <valueName>Pannel Gap</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Performance</controllingFieldValue>
+            <valueName>Performance Unable to reach top speed</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Performance</controllingFieldValue>
+            <valueName>Performance Pickup Low</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Vehicle Power Cut OFF</controllingFieldValue>
+            <valueName>Vehicle Power Cut OFF During Ride</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Side stand</controllingFieldValue>
+            <valueName>Side stand Stuck</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Side stand</controllingFieldValue>
+            <valueName>Side stand Bent</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Side stand</controllingFieldValue>
+            <valueName>Side stand Broken</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Side stand</controllingFieldValue>
+            <valueName>Side stand Rusting</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Side stand</controllingFieldValue>
+            <valueName>Side stand Sensor Error</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Side stand</controllingFieldValue>
+            <valueName>Side Stand sensor Replacement</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Software</controllingFieldValue>
+            <valueName>Software Update</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>General</controllingFieldValue>
+            <controllingFieldValue>Switch Gear LH</controllingFieldValue>
+            <valueName>Extended Warranty</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>General</controllingFieldValue>
+            <controllingFieldValue>Switch Gear LH</controllingFieldValue>
+            <valueName>RSA</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>PRCD</controllingFieldValue>
+            <controllingFieldValue>Horn</controllingFieldValue>
+            <controllingFieldValue>HeadLamp</controllingFieldValue>
+            <controllingFieldValue>TailLamp</controllingFieldValue>
+            <controllingFieldValue>Switch Gear LH</controllingFieldValue>
+            <valueName>Fault</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>PRCD</controllingFieldValue>
+            <valueName>PRCD Broken</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Lockset</controllingFieldValue>
+            <valueName>Seat Fault</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Lockset</controllingFieldValue>
+            <valueName>Glovebox Fault</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Lockset</controllingFieldValue>
+            <valueName>Steering Fault</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Lockset</controllingFieldValue>
+            <valueName>Key lost</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Lockset</controllingFieldValue>
+            <valueName>Key bent</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Lockset</controllingFieldValue>
+            <valueName>Steering lock fault</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Lockset</controllingFieldValue>
+            <valueName>Key loose</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Line damage</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Sponginess</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Caliper Rear noise</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Caliper Front noise</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>MC oil leak</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Caliper oil leak</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Disc bent</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Brake pad wornout</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Bite</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Brakes Stuck</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Brakes Lever Damage LH</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Brakes Lever Damage RH</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Brakes Disc bent FR</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Brakes Disc bent RR</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Brakes FR Pad Worn out</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Brakes RR Pad Worn out</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Brakes FR Disc Worn out</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Brakes RR Disc Worn out</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Brakes FR Disc Rusting</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Brakes RR Disc Rusting</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Brakes Ineffective</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Brakes Play Adjust</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Brakes Oil Top Up</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Brakes Jerking</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brakes</controllingFieldValue>
+            <valueName>Brakes MC Damage</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Horn</controllingFieldValue>
+            <valueName>Improper sound</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Indicator</controllingFieldValue>
+            <valueName>Front Fault</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Indicator</controllingFieldValue>
+            <valueName>Rear Fault</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Indicator</controllingFieldValue>
+            <valueName>Indicator Front Not Working</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Indicator</controllingFieldValue>
+            <valueName>Indicator Front replace</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Indicator</controllingFieldValue>
+            <valueName>Indicator Rear Not Working</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Indicator</controllingFieldValue>
+            <valueName>Indicator Rear Replace</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>HeadLamp</controllingFieldValue>
+            <controllingFieldValue>TailLamp</controllingFieldValue>
+            <valueName>Dim</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>HeadLamp</controllingFieldValue>
+            <valueName>Height Adjustment</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>HeadLamp</controllingFieldValue>
+            <valueName>HeadLamp Flickering</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>HeadLamp</controllingFieldValue>
+            <valueName>HeadLamp Crack</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>HeadLamp</controllingFieldValue>
+            <valueName>HeadLamp Led Fuse</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>HeadLamp</controllingFieldValue>
+            <valueName>HeadLamp Water entry</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>HeadLamp</controllingFieldValue>
+            <valueName>HeadLamp Moisture Formation</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>HeadLamp</controllingFieldValue>
+            <valueName>HeadLamp Rattling Noise</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>HeadLamp</controllingFieldValue>
+            <valueName>HeadLamp Broken</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>TailLamp</controllingFieldValue>
+            <valueName>Tailamp Flickering</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>TailLamp</controllingFieldValue>
+            <valueName>Tailamp Crack</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>TailLamp</controllingFieldValue>
+            <valueName>Tailamp Led Fuse</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>TailLamp</controllingFieldValue>
+            <valueName>Tailamp Water entry</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>TailLamp</controllingFieldValue>
+            <valueName>Tailamp Moisture Formation</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>TailLamp</controllingFieldValue>
+            <valueName>Tailamp Rattling Noise</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>TailLamp</controllingFieldValue>
+            <valueName>Tailamp Broken</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>TailLamp</controllingFieldValue>
+            <valueName>Tailamp Adjustment</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Accessories</controllingFieldValue>
+            <valueName>Visor Replace</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Accessories</controllingFieldValue>
+            <valueName>Visor Fitment</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Accessories</controllingFieldValue>
+            <valueName>Floor Mat Replace</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Accessories</controllingFieldValue>
+            <valueName>Floor Mat Fitment</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Accessories</controllingFieldValue>
+            <valueName>adied Footrest Replacement</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Accessories</controllingFieldValue>
+            <valueName>Ladies Footrest Fitment</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Accessories</controllingFieldValue>
+            <valueName>Seat Replacement</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Accessories</controllingFieldValue>
+            <valueName>Seat Cover Replace</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Accessories</controllingFieldValue>
+            <valueName>Seat Cover Fitment</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Accessories</controllingFieldValue>
+            <valueName>Mobile mount Replace</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Accessories</controllingFieldValue>
+            <valueName>Mobile mount Loose</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Bootlamp</controllingFieldValue>
+            <valueName>Bootlamp Not working</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Bootlamp</controllingFieldValue>
+            <valueName>Bootlamp Sensor Damage</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Bootlamp</controllingFieldValue>
+            <valueName>Bootlamp Damaged</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Centre Stand</controllingFieldValue>
+            <valueName>Centre Stand Stuck</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Centre Stand</controllingFieldValue>
+            <valueName>Centre Stand Replacement</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Centre Stand</controllingFieldValue>
+            <valueName>Centre Stand Fitment</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Centre Stand</controllingFieldValue>
+            <valueName>Centre Stand Bent</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Centre Stand</controllingFieldValue>
+            <valueName>Centre Stand Loose</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Centre Stand</controllingFieldValue>
+            <valueName>Centre Stand Damaged</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Centre Stand</controllingFieldValue>
+            <valueName>Centre Stand Rusting</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Range</controllingFieldValue>
+            <valueName>SOC Drop</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Range</controllingFieldValue>
+            <valueName>Insufficient</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Range</controllingFieldValue>
+            <valueName>Improper display</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Range</controllingFieldValue>
+            <valueName>Range Sudden SOC drop</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Range</controllingFieldValue>
+            <valueName>Range Hyb. mode SOC drop</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Charger</controllingFieldValue>
+            <valueName>Inlet Mechanism Fault</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Charger</controllingFieldValue>
+            <valueName>not charging</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Charger</controllingFieldValue>
+            <valueName>Insertion Issue</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Charger</controllingFieldValue>
+            <valueName>Solenoid Latching</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Charger</controllingFieldValue>
+            <valueName>Charger Lid Stuck</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Charger</controllingFieldValue>
+            <valueName>Charger Lid Broken</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Charger</controllingFieldValue>
+            <valueName>Charger Inlet Rubber Cap Damage</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Charger</controllingFieldValue>
+            <valueName>Charger Inlet Rubber Cap Replace</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Belt</controllingFieldValue>
+            <controllingFieldValue>Suspension</controllingFieldValue>
+            <valueName>Noise</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Belt</controllingFieldValue>
+            <valueName>Teeth wornout</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Belt</controllingFieldValue>
+            <valueName>Failure</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Belt</controllingFieldValue>
+            <valueName>Tension</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Switch Gear RH</controllingFieldValue>
+            <valueName>Mode switch Fault</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Switch Gear RH</controllingFieldValue>
+            <valueName>Sticky Throttle</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Switch Gear RH</controllingFieldValue>
+            <valueName>Throttle cutoff</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Switch Gear RH</controllingFieldValue>
+            <controllingFieldValue>Switch Gear LH</controllingFieldValue>
+            <valueName>Loose</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Switch Gear RH</controllingFieldValue>
+            <controllingFieldValue>Switch Gear LH</controllingFieldValue>
+            <valueName>Damage</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Switch Gear RH</controllingFieldValue>
+            <valueName>Kill Switch Fault</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Switch Gear RH</controllingFieldValue>
+            <valueName>Switch Gear RH Mode switch Fault</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Switch Gear RH</controllingFieldValue>
+            <valueName>Switch Gear RH Sticky Throttle</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Switch Gear RH</controllingFieldValue>
+            <valueName>Switch Gear RH Throttle cutoff</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Switch Gear RH</controllingFieldValue>
+            <valueName>Switch Gear RH Loose</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Switch Gear RH</controllingFieldValue>
+            <valueName>Switch Gear RH Broken</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Switch Gear LH</controllingFieldValue>
+            <valueName>Switch Gear LH Loose</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Switch Gear LH</controllingFieldValue>
+            <valueName>Switch Gear LH Not woking</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Switch Gear LH</controllingFieldValue>
+            <valueName>Switch Gear LH Stuck</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Switch Gear LH</controllingFieldValue>
+            <valueName>Switch Gear LH Broken</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Switch Gear LH</controllingFieldValue>
+            <valueName>Switch Gear LH Fault</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Suspension</controllingFieldValue>
+            <valueName>Pre-Load</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Suspension</controllingFieldValue>
+            <valueName>Oil leak</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Suspension</controllingFieldValue>
+            <valueName>Spring failure</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Suspension</controllingFieldValue>
+            <valueName>Inner tube dent</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Suspension</controllingFieldValue>
+            <valueName>Outer tube damage</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Suspension</controllingFieldValue>
+            <valueName>Suspension Pre-Load</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Suspension</controllingFieldValue>
+            <valueName>Suspension Noise FR</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Suspension</controllingFieldValue>
+            <valueName>Suspension Noise RR</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Suspension</controllingFieldValue>
+            <valueName>Suspension Oil leak FR</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Suspension</controllingFieldValue>
+            <valueName>Suspension Oil leak RR</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Suspension</controllingFieldValue>
+            <valueName>Suspension Hard FR</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Suspension</controllingFieldValue>
+            <valueName>Suspension Hard RR</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Suspension</controllingFieldValue>
+            <valueName>Suspension Bent FR</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Suspension</controllingFieldValue>
+            <valueName>Suspension Bent RR</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Suspension</controllingFieldValue>
+            <valueName>Suspension Inner tube dent</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Suspension</controllingFieldValue>
+            <valueName>Suspension Outer tube dent</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Display</controllingFieldValue>
+            <valueName>Regen Fault</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Display</controllingFieldValue>
+            <valueName>Time issue</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Display</controllingFieldValue>
+            <valueName>Flickering</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Display</controllingFieldValue>
+            <valueName>Not turning ON</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Display</controllingFieldValue>
+            <valueName>Charging time</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Display</controllingFieldValue>
+            <valueName>Blank during ride</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Display</controllingFieldValue>
+            <valueName>Vibration</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Display</controllingFieldValue>
+            <valueName>Fog formation</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Display</controllingFieldValue>
+            <valueName>Spot/Airbubble</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Display</controllingFieldValue>
+            <valueName>Glitch</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Display</controllingFieldValue>
+            <valueName>Display Backlight Fault</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Display</controllingFieldValue>
+            <valueName>Display Cracks</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Display</controllingFieldValue>
+            <valueName>Display Faded</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Display</controllingFieldValue>
+            <valueName>Display Warning Symbol</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Steering</controllingFieldValue>
+            <valueName>Freeness</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Steering</controllingFieldValue>
+            <valueName>Handlebar knocking</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Steering</controllingFieldValue>
+            <valueName>Handlebar bent</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Steering</controllingFieldValue>
+            <valueName>Handlebar crack</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Steering</controllingFieldValue>
+            <valueName>Handlebar rust</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Steering</controllingFieldValue>
+            <valueName>Handlebar vibration</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Steering</controllingFieldValue>
+            <valueName>Column rust</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Steering</controllingFieldValue>
+            <valueName>Column bent</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Steering</controllingFieldValue>
+            <valueName>Top locknut loose</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Steering</controllingFieldValue>
+            <valueName>Bearing rust</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Steering</controllingFieldValue>
+            <valueName>Understeer</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Steering</controllingFieldValue>
+            <valueName>Steering loose</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Steering</controllingFieldValue>
+            <valueName>Steering Handlebar knocking</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Steering</controllingFieldValue>
+            <valueName>Steering wobling</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Steering</controllingFieldValue>
+            <valueName>Steering Tight</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Steering</controllingFieldValue>
+            <valueName>Steering noise</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Wheels</controllingFieldValue>
+            <valueName>Rear noise</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Wheels</controllingFieldValue>
+            <valueName>Front noise</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Wheels</controllingFieldValue>
+            <valueName>Rim bent</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Wheels</controllingFieldValue>
+            <valueName>Dustseal/Bearings</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Wheels</controllingFieldValue>
+            <valueName>Wobbling</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Wheels</controllingFieldValue>
+            <valueName>Wheels Noise FR</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Wheels</controllingFieldValue>
+            <valueName>Wheels Noise RR</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Wheels</controllingFieldValue>
+            <valueName>Wheels Rim bent FR</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Wheels</controllingFieldValue>
+            <valueName>Wheels Rim bent RR</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Wheels</controllingFieldValue>
+            <valueName>Wheels Dustseal/Bearings FR</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Wheels</controllingFieldValue>
+            <valueName>Wheels Dustseal/Bearings RR</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Wheels</controllingFieldValue>
+            <valueName>Wheels Wobbling FR</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Wheels</controllingFieldValue>
+            <valueName>Wheels Wobbling RR</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Crash Guard</controllingFieldValue>
+            <valueName>Crash Guard Damaged</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Crash Guard</controllingFieldValue>
+            <valueName>Crash Guard Rusting</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Crash Guard</controllingFieldValue>
+            <valueName>Crash Guard Loose</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Crash Guard</controllingFieldValue>
+            <valueName>Crash Guard Replacement</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Crash Guard</controllingFieldValue>
+            <valueName>Crash Guard Fitment</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Foot Peg LH</controllingFieldValue>
+            <valueName>Foot Peg LH Broken</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Foot Peg LH</controllingFieldValue>
+            <valueName>Foot Peg LH Loose</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Foot Peg LH</controllingFieldValue>
+            <valueName>Foot Peg RH Broken</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Foot Peg LH</controllingFieldValue>
+            <valueName>Foot Peg RH Loose</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>

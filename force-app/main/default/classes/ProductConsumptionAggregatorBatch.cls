@@ -1,6 +1,11 @@
 global class ProductConsumptionAggregatorBatch implements Database.Batchable<SObject> {
 
     global Database.QueryLocator start(Database.BatchableContext bc) {
+        for(ProductItem itm : [SELECT Id, Product2Id, Product2.Name
+            FROM ProductItem WHERE Manual_Created_Date__c >= :System.today().addMonths(-6)]){
+        	System.debug(Product2.Name);
+        }
+        
         return Database.getQueryLocator([
             SELECT Id, Product2Id
             FROM ProductItem 
@@ -9,17 +14,14 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
     }
 
     global void execute(Database.BatchableContext bc, List<ProductItem> items) {
-
-        Set<Id> productItemIds = new Map<Id, ProductItem>(items).keySet();
         Set<Id> productIds = new Set<Id>();
-
-        for(ProductItem pi : items){
+        for(ProductItem pi : items) {
             productIds.add(pi.Product2Id);    
         }
 
         List<ConsumptionRecord> allConsumption = new List<ConsumptionRecord>();
 
-        // --- Fetch Sales Consumption ---
+        // Fetch Sales Consumption
         for (Sales_Consumption__c sale : [
             SELECT Id, CreatedDate, Quantity_Consumed__c, Dealer__c, Product__c,
                    Product_Inventory__r.Product2Id, Manual_Date_Test__c,
@@ -37,7 +39,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             ));
         }
 
-        // --- Fetch Product Consumed ---
+        // Fetch Product Consumed
         for (ProductConsumed consumed : [
             SELECT Id, ProductItemId, Quantity_Consumed__c, QuantityConsumed, Product2Id, WorkOrder.Service_Center__c,
                    CreatedDate
@@ -54,91 +56,169 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             ));
         }
 
-        // ========== Existing Monthly Logic ==========
-
-        Map<String, ProductConsumptionTracking__c> trackingMap = new Map<String, ProductConsumptionTracking__c>();
+        // ========== NEW DYNAMIC PERIOD LOGIC ==========
         Map<String, Date> firstConsumptionMap = new Map<String, Date>();
+        Map<String, List<ConsumptionRecord>> consumptionByKey = new Map<String, List<ConsumptionRecord>>();
+        Map<String, List<Decimal>> monthlyConsumptionMap = new Map<String, List<Decimal>>();
+        Map<String, Decimal> totalConsumptionMap = new Map<String, Decimal>();
 
+        // Group records by account+product and find first consumption date
         for (ConsumptionRecord rec : allConsumption) {
             if (rec.DealerId == null || rec.ProductId == null || rec.ConsumedDate == null) continue;
-
-            Date created = rec.ConsumedDate;
-            Integer day = created.day();
-            Date monthStart = Date.newInstance(created.year(), created.month(), 1);
-            String[] monthNames = new List<String>{ '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' };
-            String monthLabel = monthNames[monthStart.month()] + ' ' + monthStart.year();
-            String key = rec.DealerId + '-' + rec.ProductId + '-' + monthLabel;
-
-            if (!trackingMap.containsKey(key)) {
-                ProductConsumptionTracking__c t = new ProductConsumptionTracking__c();
-                t.Account__c = rec.DealerId;
-                t.Product__c = rec.ProductId;
-                t.Month_Name__c = monthLabel;
-                t.Month_Start_Date__c = monthStart;
-                t.Bucket_Start_Date__c = monthStart;
-                t.First_Half_Start_Date__c = monthStart;
-                t.First_Half_End_Date__c = monthStart.addDays(14);
-                t.Second_Half_Start_Date__c = monthStart.addDays(15);
-                t.Second_Half_End_Date__c = monthStart.addMonths(1).addDays(-1);
-                t.First_Half_Qty__c = 0;
-                t.Second_Half_Qty__c = 0;
-                trackingMap.put(key, t);
-                firstConsumptionMap.put(key, created);
+            
+            String key = rec.DealerId + '|' + rec.ProductId;
+            
+            // Initialize maps
+            if (!firstConsumptionMap.containsKey(key)) {
+                firstConsumptionMap.put(key, rec.ConsumedDate);
+                consumptionByKey.put(key, new List<ConsumptionRecord>());
+                monthlyConsumptionMap.put(key, new List<Decimal> {0,0,0,0,0,0});
+                totalConsumptionMap.put(key, 0);
             }
-
-            ProductConsumptionTracking__c tracking = trackingMap.get(key);
-            if (day <= 15) tracking.First_Half_Qty__c += rec.Qty;
-            else tracking.Second_Half_Qty__c += rec.Qty;
-
-            if (created < firstConsumptionMap.get(key)) {
-                firstConsumptionMap.put(key, created);
+            
+            // Update first consumption date if earlier
+            if (rec.ConsumedDate < firstConsumptionMap.get(key)) {
+                firstConsumptionMap.put(key, rec.ConsumedDate);
             }
+            
+            consumptionByKey.get(key).add(rec);
         }
 
-        for (ProductConsumptionTracking__c record : trackingMap.values()) {
-            String key = record.Account__c + '-' + record.Product__c + '-' + record.Month_Name__c;
-            record.First_Consumption_Date__c = firstConsumptionMap.get(key);
-            record.Total_Month_Qty__c = record.First_Half_Qty__c + record.Second_Half_Qty__c;
+        // Calculate consumption for dynamic periods
+        for (String key : consumptionByKey.keySet()) {
+            Date firstDate = firstConsumptionMap.get(key);
+            List<Decimal> monthlyQtys = monthlyConsumptionMap.get(key);
+            Decimal totalQty = 0;
+            
+            for (ConsumptionRecord rec : consumptionByKey.get(key)) {
+                // Calculate period index (0-5) based on months from first date
+                Integer monthsDiff = firstDate.monthsBetween(rec.ConsumedDate);
+                
+                // Ensure we only consider last 6 periods
+                if (monthsDiff >= 0 && monthsDiff < 6) {
+                    monthlyQtys[monthsDiff] += rec.Qty;
+                    totalQty += rec.Qty;
+                }
+            }
+            
+            totalConsumptionMap.put(key, totalQty);
         }
 
-        insert trackingMap.values();
-
-        // ========== New Fortnightly Forecast Inventory Logic ==========
- 
-        Map<String, FortnightlyForecastInventory__c> forecastMap = new Map<String, FortnightlyForecastInventory__c>();
-
-        for (ConsumptionRecord rec : allConsumption) {
-            if (rec.DealerId == null || rec.ProductId == null || rec.ConsumedDate == null) continue;
-
-            String key = rec.DealerId + '-' + rec.ProductId;
-
-            if (!forecastMap.containsKey(key)) {
-                FortnightlyForecastInventory__c forecast = new FortnightlyForecastInventory__c();
-                forecast.Account__c = rec.DealerId;
-                forecast.Product__c = rec.ProductId;
-                forecast.First_Consumed_Date__c = rec.ConsumedDate;
-                forecast.Total_6_Month_Consumption__c = 0;
-                forecast.Batch_Executed_Date__c = System.today();
-                forecastMap.put(key, forecast);
-            }
-
-            FortnightlyForecastInventory__c f = forecastMap.get(key);
-			
-            if (rec.ConsumedDate < f.First_Consumed_Date__c) {
-                f.First_Consumed_Date__c = rec.ConsumedDate; // Update earliest date
-            }
-            f.Total_6_Month_Consumption__c += rec.Qty;
+        // Create ProductConsumptionTracking records
+        List<ProductConsumptionTracking__c> trackingToInsert = new List<ProductConsumptionTracking__c>();
+        
+        for (String key : firstConsumptionMap.keySet()) {
+            List<Decimal> monthlyQtys = monthlyConsumptionMap.get(key);
+            String[] parts = key.split('\\|');
+            Id accountId = (Id)parts[0];
+            Id productId = (Id)parts[1];
+            Date firstDate = firstConsumptionMap.get(key);
+            
+            for (Integer i = 0; i < 6; i++) {
+                /*
+                Date periodStart = firstDate.addMonths(i);
+                Date periodEnd = periodStart.addMonths(1);
+                
+                Date firstHalfEnd = periodStart.addDays(14);
+                Date secondHalfStart = periodStart.addDays(15);
+                Date secondHalfEnd = periodEnd.addDays(-1);
+                */
+                
+                Date periodStart = firstDate.addMonths(i);
+                Date periodEnd = periodStart.toStartOfMonth().addMonths(1).addDays(-1);
+                
+                Date firstHalfStart = periodStart.toStartOfMonth(); // Always 1st
+                Date firstHalfEnd = Date.newInstance(periodStart.year(), periodStart.month(), 15);
+                
+                Date secondHalfStart = Date.newInstance(periodStart.year(), periodStart.month(), 16);
+                Date secondHalfEnd = periodEnd;
+                
+                // Calculation Logic for 15-15 Days Product Consumption
+                Decimal firstHalfQty = 0;
+                Decimal secondHalfQty = 0;
+            
+                for (ConsumptionRecord rec : consumptionByKey.get(key)) {
+                    if (rec.ConsumedDate >= periodStart && rec.ConsumedDate <= firstHalfEnd) {
+                        firstHalfQty += rec.Qty;
+                    } else if (rec.ConsumedDate >= secondHalfStart && rec.ConsumedDate <= secondHalfEnd) {
+                        secondHalfQty += rec.Qty;
+                    }
+                }
+                
+                ProductConsumptionTracking__c pct = new ProductConsumptionTracking__c(
+                    Account__c = accountId,
+                    Product__c = productId,
+                    Month_Start_Date__c = periodStart,
+                    Month_End_Date__c = periodEnd,
+                    Total_Month_Qty__c = monthlyQtys[i],
+                    First_Consumption_Date__c = firstDate,
+                    First_Half_Start_Date__c = periodStart,
+                    First_Half_End_Date__c = firstHalfEnd,
+                    Second_Half_Start_Date__c = secondHalfStart,
+                    Second_Half_End_Date__c = secondHalfEnd,
+					First_Half_Qty__c = firstHalfQty,
+                    Second_Half_Qty__c = secondHalfQty
+                );
+                trackingToInsert.add(pct);
+            }	
         }
+        insert trackingToInsert;
 
-        insert forecastMap.values();
+        // Create FortnightlyForecastInventory records
+        List<FortnightlyForecastInventory__c> forecastToInsert = new List<FortnightlyForecastInventory__c>();
+        Set<Id> productIdSet = new Set<Id>();
+        for (String key : firstConsumptionMap.keySet()) {
+            productIdSet.add((Id) key.split('\\|')[1]);
+        }
+        Map<Id, Product2> productMap = new Map<Id, Product2>([
+            SELECT Id, Minimum_Order_Qty__c FROM Product2 WHERE Id IN :productIdSet
+        ]);
+        
+        for (String key : firstConsumptionMap.keySet()) {
+            String[] parts = key.split('\\|');
+            Id accountId = (Id)parts[0];
+            Id productId = (Id)parts[1];
+            List<Decimal> monthlyQtys = monthlyConsumptionMap.get(key);
+            Decimal totalQty = totalConsumptionMap.get(key);
+            
+            // MSL Logic
+            if (monthlyQtys[4] == 0 && monthlyQtys[5] == 0) continue;
+            
+            Integer validMonths = 0;
+            Decimal totalValid = 0;
+            for (Decimal qty : monthlyQtys) {
+                if (qty > 0) {
+                    validMonths++;
+                    totalValid += qty;
+                }
+            }
+            if (validMonths < 4) continue;
+            
+            Decimal avg = totalValid / validMonths;
+            Decimal moq = productMap.containsKey(productId) 
+                ? productMap.get(productId).Minimum_Order_Qty__c : 1;
+            Decimal finalQty = (moq > avg && avg > 0) ? moq : avg;
+            
+            if (finalQty <= 0) continue;
+            
+            forecastToInsert.add(new FortnightlyForecastInventory__c(
+                Account__c = accountId,
+                Product__c = productId,
+                First_Consumed_Date__c = firstConsumptionMap.get(key),
+                Six_Months_Average_Consumption__c = Math.roundToLong(finalQty),
+                Total_Qty__c = totalQty,
+                Batch_Executed_Date__c = System.today()
+            ));
+        }
+        
+        if (!forecastToInsert.isEmpty()) insert forecastToInsert;
     }
 
     global void finish(Database.BatchableContext bc) {
         // Database.executeBatch(new POGenerationBatchForMSL(), 200);
     }
 
-    // ========== Helper Classes ==========
-
+    // Helper Classes
     class ConsumptionRecord {
         public Id DealerId;
         public Id ProductId;

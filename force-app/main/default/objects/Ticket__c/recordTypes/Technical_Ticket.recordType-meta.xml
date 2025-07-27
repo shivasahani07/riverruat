@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Technical_Ticket</fullName>
+    <active>true</active>
+    <label>Technical Ticket</label>
+    <picklistValues>
+        <picklist>Query_Type__c</picklist>
+        <values>
+            <fullName>Complaint</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Configuration Help</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>General Inquiry</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Installation Request</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Maintenance Request</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Service Request</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Technical Issue</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Upgrade Request</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Resolution_Status__c</picklist>
+        <values>
+            <fullName>Re Open</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Status__c</picklist>
+        <values>
+            <fullName>Closed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Open</fullName>
+            <default>true</default>
+        </values>
+        <values>
+            <fullName>POC Assigned</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending Rivision</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Sub_Status__c</picklist>
+        <values>
+            <fullName>Appointment</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Explanation</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>NFA</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

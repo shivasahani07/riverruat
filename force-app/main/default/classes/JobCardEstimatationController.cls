@@ -31,7 +31,7 @@ public class JobCardEstimatationController {
         
 
         WorkOrder workOrder = [SELECT Id,createdDate,Service_Center__r.Company_GSTIN_name__c,Service_Center__r.Center_Code__c,Company__c, Estimate_No__c,WorkOrderNumber, Vehicle__r.Name, Vehicle__r.EngineNumber,Vehicle__r.isCustomerStateSame__c, Service_Center__c, Service_Center__r.BillingState,
-                                    Vehicle__r.Dealer__r.name,Vehicle__r.Policy_Number__c, Account.Name, Contact.Name, Account.ShippingCity, Account.BillingState, Contact.MailingState, State, Same_State__c,
+                                    Vehicle__r.Dealer__r.name,Vehicle__r.Policy_Number__c, Account.Name, Contact.Name, Account.ShippingCity, Account.BillingState, Contact.MailingState, State, Same_State__c,Account.Company_GSTIN_name__c,
                                     Account.ShippingCountry,Account.ShippingPostalCode, Account.ShippingState, Account.ShippingStreet, Account.Phone, Odometer_Reading__c,
                                     Vehicle__r.LastOdometerReading, Vehicle__r.VehicleIdentificationNumber, Vehicle__r.VehicleRegistrationNumber,
                                     Vehicle__r.ChassisNumber, Vehicle__r.Insurance__r.Name,Vehicle__r.Dealer__r.Center_code__c,Vehicle__r.Dealer__r.ShippingState,

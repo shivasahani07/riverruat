@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Aniket Karmakar
  * @group             : 
- * @last modified on  : 05-21-2025
+ * @last modified on  : 07-25-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public with sharing class QueueableForDeletePaymentOnWebsite implements Queueable, Database.allowsCallouts{
@@ -24,7 +24,11 @@ public with sharing class QueueableForDeletePaymentOnWebsite implements Queueabl
             Website_Creds__c r = Website_Creds__c.getInstance('Website Creds');
             String BASE_URL_FOR_WEBSITE = r.BaseURL__c != null ? r.BaseURL__c : 'could not find base url';
 
-            Order order = [Select id,AccountId,Remaining_Amount__c from Order WHERE Id =:current.orderId LIMIT 1];
+            Order order = [Select id,AccountId,Remaining_Amount__c,Website_Response_Id__c from Order WHERE Id =:current.orderId LIMIT 1];
+            if(order.Website_Response_Id__c == null || order.Website_Response_Id__c == ''){
+                System.debug('Delete Payment API is not eligible to be called');
+                return ;
+            }
             Payment__c p = [Select id,Transaction_Id__c from Payment__c WHERE Id =: current.paymentId LIMIT 1];
 
             Map<String,Object> payload = new Map<String,Object>();

@@ -127,7 +127,6 @@ public class WorkOrderLineItemTriggerHandler {
         }
     }
     
-    
     public static void handleUpdate(List<WorkOrderLineItem> workOrderLineItems, Map<Id, WorkOrderLineItem> oldMap) {
         // Step 1: Collect Warranty Prior IDs for updated items
         Set<Id> warrantyPriorIds = new Set<Id>();

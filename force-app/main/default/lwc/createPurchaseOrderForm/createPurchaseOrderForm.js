@@ -72,7 +72,6 @@ export default class CreatePurchaseOrderForm extends LightningModal {
 
     get typeOptions() {
         return [
-            { label: 'Vehicle', value: 'Vehicle' },
             { label: 'Service', value: 'Service' },
             { label: 'Merchandise', value: 'Merchandise' },
             { label: 'Accessories', value: 'Accessories' }

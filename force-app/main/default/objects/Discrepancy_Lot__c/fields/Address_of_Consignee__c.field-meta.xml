@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Address_of_Consignee__c</fullName>
+    <label>Address of Consignee</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>River Factory</fullName>
+                <default>false</default>
+                <label>River Factory</label>
+            </value>
+            <value>
+                <fullName>River HQ</fullName>
+                <default>false</default>
+                <label>River HQ</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

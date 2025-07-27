@@ -1,0 +1,136 @@
+<apex:page name="JobCardPDFPage" renderAs="pdf" standardController="TFR_Sample__c">
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 12px;
+            }
+            .header {
+                background-color: #0070d2;
+                color: white;
+                text-align: center;
+                padding: 10px;
+                font-size: 16px;
+                font-weight: bold;
+            }
+            .container {
+                width: 95%;
+                margin: 10px auto;
+            }
+            .form-section {
+                display: flex;
+                flex-wrap: wrap;
+                margin-top: 15px;
+            }
+            .form-group {
+                width: 48%;
+                margin: 1%;
+            }
+            .form-group label {
+                display: block;
+                font-weight: bold;
+                margin-bottom: 2px;
+            }
+            .form-group span {
+                display: block;
+                padding: 6px;
+                border: 1px solid #ccc;
+                background: #f8f8f8;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="header">TFR Form</div>
+
+        <div class="container">
+            <div class="form-section">
+                <div class="form-group">
+                    <label>Name</label>
+                    <span>{!TFR_Sample__c.Name}</span>
+                </div>
+                <div class="form-group">
+                    <label>Issue Severity</label>
+                    <span>{!TFR_Sample__c.Issue_Severity__c}</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Customer Account</label>
+                    
+                </div>
+                <div class="form-group">
+                    <label>Media</label>
+                    <span>{!TFR_Sample__c.Media__c}</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Customer Contact</label>
+                    
+                </div>
+                <div class="form-group">
+                    <label>Observations</label>
+                    <span>{!TFR_Sample__c.Observations__c}</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Date of Complaint</label>
+                    <span>{!TFR_Sample__c.Date_of_Complaint__c}</span>
+                </div>
+                <div class="form-group">
+                    <label>Odometer Reading</label>
+                    <span>{!TFR_Sample__c.Odometer_Reading__c}</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Date of Sale</label>
+                    <span>{!TFR_Sample__c.Date_of_Sale__c}</span>
+                </div>
+                <div class="form-group">
+                    <label>VOC</label>
+                    <span>{!TFR_Sample__c.VOC__c}</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Date of Repair</label>
+                    <span>{!TFR_Sample__c.Date_of_Repair__c}</span>
+                </div>
+                <div class="form-group">
+                    <label>Warranty Claim Number</label>
+                    <span>{!TFR_Sample__c.Warranty_Claim_Number__c}</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Part</label>
+                    <!-- <span>{!TFR_Sample__c.Part__r.Name}</span> -->
+                </div>
+                <div class="form-group">
+                    <label>Approved By</label>
+                    <!-- <span>{!TFR_Sample__c.Approved_By__r.Name}</span> -->
+                </div>
+
+                <div class="form-group">
+                    <label>Failure Code</label>
+                    <!-- <span>{!TFR_Sample__c.Failure_Code__r.Name}</span> -->
+                </div>
+                <div class="form-group">
+                    <label>VIN No</label>
+                    <span>{!TFR_Sample__c.VIN_No__c}</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Job Card</label>
+                    <span>{!TFR_Sample__c.Job_Card__r.WorkorderNumber}</span>
+                </div>
+                <div class="form-group">
+                    <label>Service Center</label>
+                    <!-- <span>{!TFR_Sample__c.Service_Center__r.Name}</span> -->
+                </div>
+
+                <div class="form-group">
+                    <label>TFR Post VIN Cut Off</label>
+                    <span>{!IF(TFR_Sample__c.TFR_Post_Vin_Cutt_off__c, '✔️', '❌')}</span>
+                </div>
+            </div>
+        </div>
+    </body>
+</apex:page>

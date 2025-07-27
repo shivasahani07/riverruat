@@ -420,7 +420,7 @@ public without sharing class OrderStatusHandler {
                         invoiceNumber += 1;
                         
                         //Invoice generation for Accessories
-                        if (itemTypes.contains('Accessories')){
+                        if (itemTypes.contains('Accessories') || itemTypes.contains('Parts')){
                         string invoiceSequenceAC = GenerateInvoiceId.generateInvoiceId('RV', accIdToAccMap.get(orderIdToDealerId.get(orderId)).Center_Code__c, 'AC', string.valueOf(invoiceNumber+1));
                         Order_Invoice__c accessoriesInvoice = createInvoice(orderId, 'Accessories', invoiceSequenceAC, orderItemToProductNameMap.get('Accessories'));
                         orderInvoicesToInsert.add(accessoriesInvoice);
@@ -447,7 +447,7 @@ public without sharing class OrderStatusHandler {
 
                         
                         //Invoice generation for Merchandise
-                            if (itemTypes.contains('Merchandise')){
+                         if (itemTypes.contains('Merchandise')){
                         string invoiceSequenceMD = GenerateInvoiceId.generateInvoiceId('RV', accIdToAccMap.get(orderIdToDealerId.get(orderId)).Center_Code__c, 'MD', string.valueOf(invoiceNumber+1));
                         Order_Invoice__c merchandiseInvoice = createInvoice(orderId, 'Merchandise', invoiceSequenceMD, orderItemToProductNameMap.get('Merchandise'));
                         orderInvoicesToInsert.add(merchandiseInvoice);
@@ -473,7 +473,7 @@ public without sharing class OrderStatusHandler {
                         //Invoice generation for Accessories
                         string invoiceSequenceAC = GenerateInvoiceId.generateInvoiceId('RV', accIdToAccMap.get(orderIdToDealerId.get(orderId)).Center_Code__c, 'AC', string.valueOf(invoiceNumber+1));
                         
-                        if(itemTypes.contains('Accessories')){
+                        if(itemTypes.contains('Accessories') || itemTypes.contains('Parts')){
                             Order_Invoice__c accessoriesInvoice = createInvoice(orderId, 'Accessories', invoiceSequenceAC, orderItemToProductNameMap.get('Accessories'));
                             orderInvoicesToInsert.add(accessoriesInvoice);
                             invoiceNumber += 1;

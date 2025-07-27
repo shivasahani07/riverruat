@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>If_spare_approval_reject_mand_spare_fdb</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+    ISPICKVAL(Spare_Approval__c, &quot;Rejected&quot;),
+    OR(
+        ISBLANK(Feedback_From_Spare__c)
+       
+    )
+)</errorConditionFormula>
+    <errorDisplayField>Feedback_From_Spare__c</errorDisplayField>
+    <errorMessage>&apos;Feedback  From Reason &amp; &apos; is required when Spare Approval is Rejected.</errorMessage>
+</ValidationRule>

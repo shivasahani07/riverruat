@@ -58,9 +58,9 @@ public class ProductRequestLineControllerTest {
        // OrderItem ord = ProductRequestLineController.createOrderItem(order,lineItem2,pricebookEntry1.id,4,pricebook.Id);
         
         User use = [SELECt Id,Name,Profile.Name from User WHeRE Profile.Name = 'Sales Manager (Partner)' AND isActive = true AND  Contact.Location__c != null LIMIT 1];
-        List<Product2> Data1 =   ProductRequestLineController.getLogedInUserRelatedLocationPOLI(use.id);
+        List<Product2> Data1 =   ProductRequestLineController.getLogedInUserRelatedLocationPOLI(use.id, 'Accessories');
         String Data2 =   ProductRequestLineController.getCurrentLogedUserAccountRecord(use.id);
-        String Data6 =   ProductRequestLineController.createPurchaseorder('VOR',use.id);
+        String Data6 =   ProductRequestLineController.createPurchaseorder('VOR',use.id, 'Accessories');
         Shipment ship = [SELECT Id,SourceLocationId,DestinationLocationId,Order__c,ShipmentNumber FROM Shipment LIMIT 1];
         List<ShipmentItem> Data4 =   ProductRequestLineController.getPOrelatedPLI(ship.id);
         Shipment Data5 =   ProductRequestLineController.getShipmentDetail(ship.id);
@@ -86,6 +86,14 @@ public class ProductRequestLineControllerTest {
         ProductRequestLineController.testData2();
         ProductRequestLineController.testData3();
         ProductRequestLineController.testData4();
+        ProductRequestLineController.testData5();
+        ProductRequestLineController.testData6();
+        ProductRequestLineController.testData7();
+        ProductRequestLineController.testData8();
+        ProductRequestLineController.testData9();
+        ProductRequestLineController.testData10();
+        ProductRequestLineController.testData11();
+        ProductRequestLineController.testData12();
         
         Test.stopTest();
     }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>If_SPM_Approve_SPM_Approve_Qnty_MND</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+ISPICKVAL(Spare_Approval__c, &quot;Approved&quot;),
+OR(
+ISBLANK( SPM_Apporoved_Quantity__c )
+
+)
+)</errorConditionFormula>
+    <errorDisplayField>SPM_Apporoved_Quantity__c</errorDisplayField>
+    <errorMessage>&apos;SPM Approval Quantity&apos; is required when Spare Approval is Approved.</errorMessage>
+</ValidationRule>

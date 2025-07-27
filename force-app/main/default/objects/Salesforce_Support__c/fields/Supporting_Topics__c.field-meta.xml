@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Supporting_Topics__c</fullName>
+    <label>Supporting Topics</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>Subject__c</controllingField>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>New Lead Creation</fullName>
+                <default>false</default>
+                <label>New Lead Creation</label>
+            </value>
+            <value>
+                <fullName>Test Ride Related</fullName>
+                <default>false</default>
+                <label>Test Ride Related</label>
+            </value>
+            <value>
+                <fullName>Follow-up Related</fullName>
+                <default>false</default>
+                <label>Follow-up Related</label>
+            </value>
+            <value>
+                <fullName>Lead Visibility</fullName>
+                <default>false</default>
+                <label>Lead Visibility</label>
+            </value>
+            <value>
+                <fullName>Lead Transfer</fullName>
+                <default>false</default>
+                <label>Lead Transfer</label>
+            </value>
+            <value>
+                <fullName>Account Visibility</fullName>
+                <default>false</default>
+                <label>Account Visibility</label>
+            </value>
+            <value>
+                <fullName>Account Details Related</fullName>
+                <default>false</default>
+                <label>Account Details Related</label>
+            </value>
+            <value>
+                <fullName>Phone Number Change</fullName>
+                <default>false</default>
+                <label>Phone Number Change</label>
+            </value>
+            <value>
+                <fullName>Order Products Related</fullName>
+                <default>false</default>
+                <label>Order Products Related</label>
+            </value>
+            <value>
+                <fullName>Order Amount Related</fullName>
+                <default>false</default>
+                <label>Order Amount Related</label>
+            </value>
+            <value>
+                <fullName>Order Invoice Related</fullName>
+                <default>false</default>
+                <label>Order Invoice Related</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+            <value>
+                <fullName>Vehicle Not Visible Under Store Account</fullName>
+                <default>false</default>
+                <label>Vehicle Not Visible Under Store Account</label>
+            </value>
+            <value>
+                <fullName>Vehicle Not Uploaded in Salesforce</fullName>
+                <default>false</default>
+                <label>Vehicle Not Uploaded in Salesforce</label>
+            </value>
+            <value>
+                <fullName>Vehicle Details Missing</fullName>
+                <default>false</default>
+                <label>Vehicle Details Missing</label>
+            </value>
+            <value>
+                <fullName>PDI Access Not Available</fullName>
+                <default>false</default>
+                <label>PDI Access Not Available</label>
+            </value>
+            <value>
+                <fullName>PDI PDF Related Issue</fullName>
+                <default>false</default>
+                <label>PDI PDF Related Issue</label>
+            </value>
+            <value>
+                <fullName>PDI Checklist Not Reflecting</fullName>
+                <default>false</default>
+                <label>PDI Checklist Not Reflecting</label>
+            </value>
+            <value>
+                <fullName>Job Card Not Opening</fullName>
+                <default>false</default>
+                <label>Job Card Not Opening</label>
+            </value>
+            <value>
+                <fullName>Vehicle Not Found</fullName>
+                <default>false</default>
+                <label>Vehicle Not Found</label>
+            </value>
+            <value>
+                <fullName>Parts/Labour Assignment Issue</fullName>
+                <default>false</default>
+                <label>Parts/Labour Assignment Issue</label>
+            </value>
+            <value>
+                <fullName>Parts/Labour Deletion Issue</fullName>
+                <default>false</default>
+                <label>Parts/Labour Deletion Issue</label>
+            </value>
+            <value>
+                <fullName>Invoice Related Issue</fullName>
+                <default>false</default>
+                <label>Invoice Related Issue</label>
+            </value>
+            <value>
+                <fullName>Inventory Not Found</fullName>
+                <default>false</default>
+                <label>Inventory Not Found</label>
+            </value>
+            <value>
+                <fullName>Unable to Login</fullName>
+                <default>false</default>
+                <label>Unable to Login</label>
+            </value>
+            <value>
+                <fullName>Need New Credentials</fullName>
+                <default>false</default>
+                <label>Need New Credentials</label>
+            </value>
+            <value>
+                <fullName>Need to Block Credentials</fullName>
+                <default>false</default>
+                <label>Need to Block Credentials</label>
+            </value>
+        </valueSetDefinition>
+        <valueSettings>
+            <controllingFieldValue>Inventory Management</controllingFieldValue>
+            <valueName>Inventory Not Found</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>PDI</controllingFieldValue>
+            <valueName>PDI Access Not Available</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>PDI</controllingFieldValue>
+            <valueName>PDI PDF Related Issue</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>PDI</controllingFieldValue>
+            <valueName>PDI Checklist Not Reflecting</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Lead Management System</controllingFieldValue>
+            <valueName>New Lead Creation</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Lead Management System</controllingFieldValue>
+            <valueName>Test Ride Related</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Lead Management System</controllingFieldValue>
+            <valueName>Follow-up Related</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Lead Management System</controllingFieldValue>
+            <valueName>Lead Visibility</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Lead Management System</controllingFieldValue>
+            <valueName>Lead Transfer</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Order Management System</controllingFieldValue>
+            <valueName>Account Visibility</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Order Management System</controllingFieldValue>
+            <valueName>Account Details Related</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Order Management System</controllingFieldValue>
+            <valueName>Phone Number Change</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Order Management System</controllingFieldValue>
+            <valueName>Order Products Related</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Order Management System</controllingFieldValue>
+            <valueName>Order Amount Related</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Order Management System</controllingFieldValue>
+            <valueName>Order Invoice Related</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Order Management System</controllingFieldValue>
+            <controllingFieldValue>Job Card Process</controllingFieldValue>
+            <valueName>Other</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Job Card Process</controllingFieldValue>
+            <valueName>Job Card Not Opening</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Job Card Process</controllingFieldValue>
+            <valueName>Vehicle Not Found</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Job Card Process</controllingFieldValue>
+            <valueName>Parts/Labour Assignment Issue</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Job Card Process</controllingFieldValue>
+            <valueName>Parts/Labour Deletion Issue</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Job Card Process</controllingFieldValue>
+            <valueName>Invoice Related Issue</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Credential Related Issues</controllingFieldValue>
+            <valueName>Unable to Login</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Credential Related Issues</controllingFieldValue>
+            <valueName>Need New Credentials</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Credential Related Issues</controllingFieldValue>
+            <valueName>Need to Block Credentials</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Vehicle Related Issue</controllingFieldValue>
+            <valueName>Vehicle Not Visible Under Store Account</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Vehicle Related Issue</controllingFieldValue>
+            <valueName>Vehicle Not Uploaded in Salesforce</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Vehicle Related Issue</controllingFieldValue>
+            <valueName>Vehicle Details Missing</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>

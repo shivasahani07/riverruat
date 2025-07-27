@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Product_should_be_Vehicle</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+OR(
+ISPICKVAL(Type__c, &quot;Accessories&quot;),
+ISPICKVAL(Type__c, &quot;parts&quot;)
+
+
+),
+ISPICKVAL(Product__r.Type__c , &quot;Vehicle&quot;)
+)</errorConditionFormula>
+    <errorDisplayField>Type__c</errorDisplayField>
+    <errorMessage>Product Type should be Vehicle</errorMessage>
+</ValidationRule>

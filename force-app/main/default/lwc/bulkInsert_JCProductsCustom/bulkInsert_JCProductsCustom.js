@@ -22,7 +22,7 @@ const BLOCKED_STATUSES = new Set([
 ]);
 const EDITABLE_STATUSES = new Set(['New', 'In Progress', 'Re work']);
 
-const WARRANTY_PRIOR_APPLICABLE= new Set(['River Warranty','EW(Extended Warranty)','Goodwill Warranty','Parts Warranty'])
+const WARRANTY_PRIOR_APPLICABLE = new Set(['River Warranty', 'EW(Extended Warranty)', 'Goodwill Warranty', 'Parts Warranty'])
 
 export default class BulkInsertJCProductsCustom extends NavigationMixin(LightningElement) {
     @api recordId;
@@ -203,6 +203,8 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
             isElectricalValueRequired: false,
             isDisableaddChildProduct: true,
             Post_Vin_cutt_off__c: false,
+            isDisbaledProduct:isChild ? false:true,
+            isDisbaledProductQuantity: true,
         };
     }
 
@@ -291,10 +293,31 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
         debugger;
         const index = event.target.dataset.id;
         const productId = event.detail.recordId;
+        if (this.itemList[index].RR_Parts_Category__c == '' || this.itemList[index].RR_Parts_Category__c == null) {
+            setTimeout(() => {
+                const inputEl = this.template.querySelector(`lightning-record-picker[data-id="${index}"]`);
+                if (inputEl) {
+                    inputEl.value = null;
+                    this.showError(index, `You can not add parts without Parts Category`);
+
+                }
+            }, 100);
+
+            return;
+
+        }
         let foundDuplicateProductInChild = false;
         for (let i = 0; i < this.itemList.length; i++) {
             if (this.itemList[i].productId == productId && this.itemList[i].isChild) {
                 foundDuplicateProductInChild = true
+                //  this.showError(i, `You can not add duplicate parts`);
+                this.showError(index, `You can not add duplicate parts`);
+                return;
+            }
+            if (this.itemList[i].productId == productId && this.itemList[i].RR_Parts_Category__c == this.itemList[index].RR_Parts_Category__c && !this.itemList[index].isChild) {
+                foundDuplicateProductInChild = true
+                this.showError(index, `You can not add duplicate parts in :`);
+                return;
             }
         }
 
@@ -329,6 +352,7 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
             });
 
             this.itemList[index].availableQuantity = availableQuantity;
+            
             this.setFailureCodeFilter(index, EffectedParts?.Id);
             this.validateQuantity(index);
         }
@@ -354,6 +378,11 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
                 }
             ]
         };
+    }
+
+
+    clearProducrHtml(index) {
+
     }
 
     clearProductDetails(index) {
@@ -384,8 +413,9 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
         if (item.quantity <= 0) error = 'Quantity must be greater than 0';
         else if (item.quantity > item.availableQuantity) {
             error = `Quantity exceeds available stock (${item.availableQuantity})`;
+            this.itemList[index].isDisbaledProductQuantity = true;
         }
-
+        else this.itemList[index].isDisbaledProductQuantity = false;
         error ? this.showError(index, error) : this.clearError(index);
     }
 
@@ -403,6 +433,7 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
             this.itemList[index].showAdditionalFields = value !== 'Paid';
             this.itemList[index].isElectricalValueRequired = false;
             this.itemList[index]['partsCategory'] = this.itemList[index]['RR_Parts_Category__c']
+            this.itemList[index].isDisbaledProduct=false;
         }
 
         if (fieldName === 'Replacement_Type__c') {

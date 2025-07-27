@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All</fullName>
+    <columns>NAME</columns>
+    <columns>ApprovalCode__c</columns>
+    <columns>Order__c</columns>
+    <columns>Status__c</columns>
+    <columns>Payment_Mode__c</columns>
+    <columns>Pay_Amount__c</columns>
+    <columns>Plutus_Txn_ref_Id__c</columns>
+    <columns>Hardware_Id__c</columns>
+    <columns>Merchant_ID__c</columns>
+    <columns>Retrieval_Reference_Number__c</columns>
+    <columns>Transaction_Log_Id__c</columns>
+    <columns>TID__c</columns>
+    <columns>Transaction_Date__c</columns>
+    <columns>Transaction_Time__c</columns>
+    <columns>CREATED_DATE</columns>
+    <filterScope>Everything</filterScope>
+    <label>All Log Payments</label>
+</ListView>

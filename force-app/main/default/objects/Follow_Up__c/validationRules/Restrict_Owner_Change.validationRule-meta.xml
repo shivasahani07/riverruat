@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Restrict_Owner_Change</fullName>
+    <active>false</active>
+    <errorConditionFormula>ISCHANGED(OwnerId) &amp;&amp; 
+NOT($Profile.Name = &quot;System Administrator&quot;)</errorConditionFormula>
+    <errorMessage>You cannot change the owner of this record. The owner is updated automatically when the Lead Owner changes.</errorMessage>
+</ValidationRule>

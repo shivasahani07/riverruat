@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Case_Category_Update__c</fullName>
+    <label>CRM Binning</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Parts</fullName>
+                <default>false</default>
+                <label>Parts</label>
+            </value>
+            <value>
+                <fullName>Accessories</fullName>
+                <default>false</default>
+                <label>Accessories</label>
+            </value>
+            <value>
+                <fullName>Product</fullName>
+                <default>false</default>
+                <label>Product</label>
+            </value>
+            <value>
+                <fullName>Process</fullName>
+                <default>false</default>
+                <label>Process</label>
+            </value>
+            <value>
+                <fullName>Amenities/Facilities</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Amenities/Facilities</label>
+            </value>
+            <value>
+                <fullName>Customer Care Issues</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Customer Care Issues</label>
+            </value>
+            <value>
+                <fullName>General Query</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>General Query</label>
+            </value>
+            <value>
+                <fullName>Merchandise Related</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Merchandise Related</label>
+            </value>
+            <value>
+                <fullName>Price</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Price</label>
+            </value>
+            <value>
+                <fullName>Returns and Refunds</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Returns and Refunds</label>
+            </value>
+            <value>
+                <fullName>Sales Concerns</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Sales Concerns</label>
+            </value>
+            <value>
+                <fullName>Service Experience</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Service Experience</label>
+            </value>
+            <value>
+                <fullName>Service Quality</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Service Quality</label>
+            </value>
+            <value>
+                <fullName>Service Request</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Service Request</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
