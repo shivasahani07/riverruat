@@ -9,7 +9,8 @@
 import createProductRequestLineItems from '@salesforce/apex/ProductRequestLineController.createProductRequestLineItems';
 import createPurchaseorder from '@salesforce/apex/ProductRequestLineController.createPurchaseorder';
 import getLogedInUserRelatedLocationPOLI from '@salesforce/apex/ProductRequestLineController.getLogedInUserRelatedLocationPOLI';
-import showForeCastedData from '@salesforce/apex/ProductRequestLineController.showForeCastedData';
+//import showForeCastedData from '@salesforce/apex/ProductRequestLineController.showForeCastedData';
+import showForeCastedData from '@salesforce/apex/RecordAddProductRequestLineItemNew.getrecomendedProducts';
 import userId from '@salesforce/user/Id';
 import { CloseActionScreenEvent } from 'lightning/actions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
@@ -111,7 +112,7 @@ export default class AddProductRequestLiteItem extends LightningElement {
                         Id: res.Product__r.Id,
                         ProductName: res.Product__r.Name,
                         ProductCode: res.Product__r.ProductCode,
-                        AllocatedQuantity: res.Six_Months_Average_Consumption__c,
+                        AllocatedQuantity: res.Quantity__c,
                         selected: false,
                         isChargesDisabled: true
                     }));

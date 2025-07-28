@@ -331,15 +331,17 @@ public Without Sharing class ProductRequestLineController {
                 ProductRequest pp =[SELECT Id,Account__c FROM ProductRequest WHERE Id=:accountids LIMIT 1];
                 Id accId = pp.Account__c;
                 System.debug('accountids==>'+accountids);
-                List<FortnightlyForecastInventory__c> fortsList = [SELECT Id,Product__c,PO_Status__c,Six_Months_Average_Consumption__c FROM FortnightlyForecastInventory__c WHERE Product__c IN:productids AND Account__c =:accId];
+                List<Month_Split__c> fortsList = [SELECT Id,Product__c,Quantity_Orderd__c FROM Month_Split__c WHERE Product__c IN:productids];
                 System.debug('fortsList==>'+fortsList);
-                List<FortnightlyForecastInventory__c> fortsToUpdate = new List<FortnightlyForecastInventory__c>();
-                for(FortnightlyForecastInventory__c f : fortsList){
+                List<Month_Split__c> fortsToUpdate = new List<Month_Split__c>();
+                for(Month_Split__c f : fortsList){
                     Decimal toBeDeducted = totalQuanMap.get(f.Product__c);
-                    FortnightlyForecastInventory__c ff = new FortnightlyForecastInventory__c();
+                    System.debug('toBeDeducted==>'+toBeDeducted);
+                    Month_Split__c ff = new Month_Split__c();
                     ff.Id = f.Id;
-                    ff.PO_Status__c = 'Submitted';
-                    ff.Six_Months_Average_Consumption__c = f.Six_Months_Average_Consumption__c - toBeDeducted;
+                    //ff.PO_Status__c = 'Submitted';
+                    ff.Quantity_Orderd__c = f.Quantity_Orderd__c == null ?  toBeDeducted : f.Quantity_Orderd__c + toBeDeducted;
+                    ff.PO_Submitted__c =  true;
                     fortsToUpdate.add(ff);
 
                 }
@@ -1133,6 +1135,8 @@ System.debug('=== End sendEmail ===');
                             WHERE Product__c IN :Product2IdSet AND PO_Status__c IN ('Not Submitted','')
                             AND Product__r.Type__c NOT IN :ProductTypeNotToShow AND Account__c =: loggedInUserContactRecord.AccountId
                         ];
+                        
+                        
                         System.debug('Filtered forecasted data size ==>' + listOfForeCastedData.size());
                     }
                 }

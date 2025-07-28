@@ -16,7 +16,7 @@ trigger OrderItemTrigger on OrderItem (before insert, after insert, after delete
     }
      
     if(Trigger.isAfter && Trigger.isInsert) {
-       // OrderItemTriggerHandler.handleAfterInsert(Trigger.new);
+        OrderItemTriggerHandler.handleAfterInsert(Trigger.new);
         Trigger_Handler__mdt  TriggerInstancee = Trigger_Handler__mdt.getInstance('OrderItemTriggerHandler_createProductOnW');
              if(TriggerInstancee.isActive__c == true){
            OrderItemTriggerHandler.createProductOnWebsite(Trigger.new);//added by Aniket on 14/05/2025
