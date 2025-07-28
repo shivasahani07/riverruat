@@ -3,7 +3,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
     global Database.QueryLocator start(Database.BatchableContext bc) {
         for(ProductItem itm : [SELECT Id, Product2Id, Product2.Name
             FROM ProductItem WHERE Manual_Created_Date__c >= :System.today().addMonths(-6)]){
-        	System.debug(Product2.Name);
+            System.debug(Product2.Name);
         }
         
         return Database.getQueryLocator([
@@ -156,11 +156,11 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                     First_Half_End_Date__c = firstHalfEnd,
                     Second_Half_Start_Date__c = secondHalfStart,
                     Second_Half_End_Date__c = secondHalfEnd,
-					First_Half_Qty__c = firstHalfQty,
+                    First_Half_Qty__c = firstHalfQty,
                     Second_Half_Qty__c = secondHalfQty
                 );
                 trackingToInsert.add(pct);
-            }	
+            }   
         }
         insert trackingToInsert;
 

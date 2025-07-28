@@ -25,27 +25,20 @@ export default class CreateAppointmentSlots extends LightningElement {
     @track errorMessage = '';
     @track filterStartDate;
     @track filterEndDate;
+    @track selectedStatus = '';
     @api recordId;
 
     currentPage = 1;
     totalPages = 1;
 
-    // 👇 New Getter: Min date for Start Date (15 days from today)
-
-
-    value = 'inProgress';
-
     get options() {
         return [
+            { label: 'All', value: '' },
             { label: 'Available', value: 'Available' },
-            { label: 'Booked', value: 'Booked' },
-             
+            { label: 'Booked', value: 'Booked' }
         ];
     }
 
-    handleChange(event) {
-        this.value = event.detail.value;
-    }
     get minStartDate() {
         const today = new Date();
         today.setDate(today.getDate() + 15);
@@ -57,7 +50,7 @@ export default class CreateAppointmentSlots extends LightningElement {
     }
 
     get filterApplied() {
-        return this.filterStartDate || this.filterEndDate;
+        return this.filterStartDate || this.filterEndDate || this.selectedStatus;
     }
 
     get disablePrev() {
@@ -130,29 +123,10 @@ export default class CreateAppointmentSlots extends LightningElement {
         });
     }
 
-    filteredSlotItems() {
-        const startDate = this.filterStartDate ? new Date(this.filterStartDate) : null;
-        const endDate = this.filterEndDate ? new Date(this.filterEndDate) : null;
-
-        return this.fullSlotItems.filter(item => {
-            if (!item.rawDate) return false;
-            const itemDate = new Date(item.rawDate);
-            itemDate.setHours(0, 0, 0, 0);
-            if (startDate) startDate.setHours(0, 0, 0, 0);
-            if (endDate) endDate.setHours(0, 0, 0, 0);
-            return (!startDate || itemDate >= startDate) && (!endDate || itemDate <= endDate);
-        });
-    }
-
-    updatePaginatedItems() {
-        const filtered = this.filteredSlotItems();
-        this.totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
-        if (this.currentPage > this.totalPages) {
-            this.currentPage = this.totalPages;
-        }
-        const startIdx = (this.currentPage - 1) * PAGE_SIZE;
-        const endIdx = startIdx + PAGE_SIZE;
-        this.slotItems = filtered.slice(startIdx, endIdx);
+    statushandleChange(event) {
+        this.selectedStatus = event.detail.value;
+        this.currentPage = 1;
+        this.updatePaginatedItems();
     }
 
     handleFilterDateChange(event) {
@@ -170,8 +144,46 @@ export default class CreateAppointmentSlots extends LightningElement {
         }
 
         event.target.setCustomValidity('');
+        event.target.reportValidity();
+
         this.currentPage = 1;
         this.updatePaginatedItems();
+    }
+
+    filteredSlotItems() {
+        const startDate = this.filterStartDate ? new Date(this.filterStartDate) : null;
+        const endDate = this.filterEndDate ? new Date(this.filterEndDate) : null;
+        const status = this.selectedStatus;
+
+        return this.fullSlotItems.filter(item => {
+            let matches = true;
+
+            if (startDate || endDate) {
+                const itemDate = new Date(item.rawDate);
+                itemDate.setHours(0, 0, 0, 0);
+                if (startDate) startDate.setHours(0, 0, 0, 0);
+                if (endDate) endDate.setHours(0, 0, 0, 0);
+                if (startDate && itemDate < startDate) matches = false;
+                if (endDate && itemDate > endDate) matches = false;
+            }
+
+            if (status && item.bookingstatus !== status) {
+                matches = false;
+            }
+
+            return matches;
+        });
+    }
+
+    updatePaginatedItems() {
+        const filtered = this.filteredSlotItems();
+        this.totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
+        if (this.currentPage > this.totalPages) {
+            this.currentPage = this.totalPages;
+        }
+        const startIdx = (this.currentPage - 1) * PAGE_SIZE;
+        const endIdx = startIdx + PAGE_SIZE;
+        this.slotItems = filtered.slice(startIdx, endIdx);
     }
 
     handleInput(event) {
@@ -205,12 +217,11 @@ export default class CreateAppointmentSlots extends LightningElement {
             }
         }
 
-        // 👇 Check startDate minimum (15 days rule)
         if (name === 'startDate') {
             const selected = new Date(value);
             const min = new Date(this.minStartDate);
             if (selected < min) {
-                event.target.setCustomValidity(`Start Date must be at least 15 days from today`);
+                event.target.setCustomValidity('Start Date must be at least 15 days from today');
             } else {
                 event.target.setCustomValidity('');
             }

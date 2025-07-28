@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Purchase_Order_Recommendation__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Purchase Order Recommendation</label>
+    <referenceTo>Purchase_Order_Recommendation__c</referenceTo>
+    <relationshipLabel>Purchase Order Recommendation Lines</relationshipLabel>
+    <relationshipName>Purchase_Order_Recommendation_Lines</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>
