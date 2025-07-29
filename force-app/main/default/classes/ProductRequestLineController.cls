@@ -1130,7 +1130,7 @@ System.debug('=== End sendEmail ===');
 
                     if (!Product2IdSet.isEmpty()) {
                         listOfForeCastedData = [
-                            SELECT Id, Name, Product__c,Product__r.Name,Product__r.ProductCode,Product__r.Type__c, Account__c, Six_Months_Average_Consumption__c,PO_Status__c
+                            SELECT Id, Name, Product__c,Product__r.Name,Product__r.ProductCode,Product__r.Type__c, Account__c, Six_Months_Average_Consumption__c, PO_Status__c
                             FROM FortnightlyForecastInventory__c
                             WHERE Product__c IN :Product2IdSet AND PO_Status__c IN ('Not Submitted','')
                             AND Product__r.Type__c NOT IN :ProductTypeNotToShow AND Account__c =: loggedInUserContactRecord.AccountId

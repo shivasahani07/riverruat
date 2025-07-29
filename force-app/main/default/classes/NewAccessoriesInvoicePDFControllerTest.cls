@@ -188,7 +188,7 @@ public class NewAccessoriesInvoicePDFControllerTest {
         insert testOrder;
         
         
-        PageReference pageRef = Page.NewAccessoriesInvoicePDF; 
+        PageReference pageRef = Page.NewAccessoriesInvoicePDF; // Replace with your Visualforce page name
         Test.setCurrentPage(pageRef);
         
         ApexPages.StandardController standardController = new ApexPages.StandardController(testOrder);

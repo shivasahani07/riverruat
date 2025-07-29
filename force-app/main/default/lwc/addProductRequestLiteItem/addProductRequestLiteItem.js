@@ -109,10 +109,10 @@ export default class AddProductRequestLiteItem extends LightningElement {
             .then((data) => {
                 if (data) {
                     this.forecastedLineItems = data.map((res) => ({
-                        Id: res.Product__r.Id,
-                        ProductName: res.Product__r.Name,
-                        ProductCode: res.Product__r.ProductCode,
-                        AllocatedQuantity: res.Quantity__c,
+                        Id: res.id,
+                        ProductName: res.productName,
+                        ProductCode: res.productCode,
+                        AllocatedQuantity: res.quantity,
                         selected: false,
                         isChargesDisabled: true
                     }));

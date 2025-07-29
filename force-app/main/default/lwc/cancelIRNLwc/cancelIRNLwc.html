@@ -11,11 +11,7 @@
         <!-- Form Container -->
         <div class="form-container">
             
-            <lightning-input  type="text"   label="Vehicle IRN No."   value={irnValue}  disabled  class="styled-input"> </lightning-input>
-
-            <lightning-input type="text"  label="Accessories IRN No."   value={accessoriesIrnValue}  disabled  class="styled-input"> </lightning-input>
-
-            <lightning-input type="text"  label="Merchandise IRN No."   value={merchandiseIrnValue}  disabled   class="styled-input"> </lightning-input>
+            <lightning-input  type="text"  label="IRN No."   value={irnValue}  disabled  class="styled-input"> </lightning-input>
 
             <lightning-combobox  label="Select Reason"  value={selectedReason}  options={reasonOptions}  onchange={handleReasonChange}  required class="styled-input"> </lightning-combobox>
 

@@ -8,6 +8,7 @@ export default class CreateDiscrepancyLotForm extends LightningElement {
     @track requesterName = '';
     @track phoneNumber = '';
     @track dispatcheDate ;
+    @track lrnumber;
     @track purpose = '';
     @track lineItems = [];
     @track selectedLineItems = [];
@@ -95,6 +96,7 @@ export default class CreateDiscrepancyLotForm extends LightningElement {
             requesterName: this.requesterName,
             phone: this.phoneNumber,
             dispathcdate : this.dispatcheDate,
+            lrnumber : this.lrnumber,
             purpose: this.purpose,
             addressOfConsignee: this.addressOfConsignee,
             modeOfTransport: this.modeOfTransport,

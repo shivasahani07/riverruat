@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>If_ReSubmit_SPM_Approved_quantity_Mandt</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+ISPICKVAL( Spare_Approval__c, &quot;Re-Submit&quot;),
+OR(
+ISBLANK( SPM_Apporoved_Quantity__c)
+
+)
+)</errorConditionFormula>
+    <errorDisplayField>SPM_Apporoved_Quantity__c</errorDisplayField>
+    <errorMessage>On &apos; Re - Submit &apos;  fill SPM Approved Quantity.</errorMessage>
+</ValidationRule>

@@ -114,53 +114,68 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             Id productId = (Id)parts[1];
             Date firstDate = firstConsumptionMap.get(key);
             
+            Date previousEnd = null;
+
             for (Integer i = 0; i < 6; i++) {
-                /*
-                Date periodStart = firstDate.addMonths(i);
-                Date periodEnd = periodStart.addMonths(1);
                 
-                Date firstHalfEnd = periodStart.addDays(14);
-                Date secondHalfStart = periodStart.addDays(15);
-                Date secondHalfEnd = periodEnd.addDays(-1);
-                */
-                
-                Date periodStart = firstDate.addMonths(i);
-                Date periodEnd = periodStart.toStartOfMonth().addMonths(1).addDays(-1);
-                
-                Date firstHalfStart = periodStart.toStartOfMonth(); // Always 1st
-                Date firstHalfEnd = Date.newInstance(periodStart.year(), periodStart.month(), 15);
-                
-                Date secondHalfStart = Date.newInstance(periodStart.year(), periodStart.month(), 16);
-                Date secondHalfEnd = periodEnd;
-                
-                // Calculation Logic for 15-15 Days Product Consumption
-                Decimal firstHalfQty = 0;
-                Decimal secondHalfQty = 0;
-            
-                for (ConsumptionRecord rec : consumptionByKey.get(key)) {
-                    if (rec.ConsumedDate >= periodStart && rec.ConsumedDate <= firstHalfEnd) {
-                        firstHalfQty += rec.Qty;
-                    } else if (rec.ConsumedDate >= secondHalfStart && rec.ConsumedDate <= secondHalfEnd) {
-                        secondHalfQty += rec.Qty;
-                    }
+                Date periodStart;
+                if (i == 0) {
+                    periodStart = firstDate; // first period starts at first consumption date
+                } else {
+                    periodStart = previousEnd.addDays(1); // start next day after last period end
                 }
                 
+                Date periodEnd = periodStart.addMonths(1).addDays(-1);
+                previousEnd = periodEnd;
+            
+                // Define dynamic halves
+                Date firstHalfEnd = periodStart.addDays(14);
+                if (firstHalfEnd > periodEnd) firstHalfEnd = periodEnd;
+                
+                Date firstHalfStart = periodStart;
+                Date secondHalfStart = firstHalfEnd.addDays(1);
+                Date secondHalfEnd = periodEnd;
+            
+                // Month Name as Date Range
+                String monthName = Datetime.newInstance(periodStart, Time.newInstance(0, 0, 0, 0)).format('dd MMM yyyy') 
+                                 + ' - ' +
+                                   Datetime.newInstance(periodEnd, Time.newInstance(0, 0, 0, 0)).format('dd MMM yyyy');
+            
+                // Calculate qty only for this rolling window
+                Decimal totalQty = 0;
+                Decimal firstHalfQty = 0;
+                Decimal secondHalfQty = 0;
+                
+                for (ConsumptionRecord rec : consumptionByKey.get(key)) {
+                    if (rec.ConsumedDate >= periodStart && rec.ConsumedDate <= periodEnd) {
+                        totalQty += rec.Qty;
+                        if (rec.ConsumedDate <= firstHalfEnd) {
+                            firstHalfQty += rec.Qty;
+                        } else {
+                            secondHalfQty += rec.Qty;
+                        }
+                    }
+                }
+            
+                // Create Product Consumption Tracking Records
                 ProductConsumptionTracking__c pct = new ProductConsumptionTracking__c(
                     Account__c = accountId,
                     Product__c = productId,
+                    Month_Name__c = monthName, 
                     Month_Start_Date__c = periodStart,
                     Month_End_Date__c = periodEnd,
-                    Total_Month_Qty__c = monthlyQtys[i],
+                    Total_Month_Qty__c = totalQty,
                     First_Consumption_Date__c = firstDate,
-                    First_Half_Start_Date__c = periodStart,
+                    First_Half_Start_Date__c = firstHalfStart,
                     First_Half_End_Date__c = firstHalfEnd,
                     Second_Half_Start_Date__c = secondHalfStart,
                     Second_Half_End_Date__c = secondHalfEnd,
                     First_Half_Qty__c = firstHalfQty,
                     Second_Half_Qty__c = secondHalfQty
                 );
+                
                 trackingToInsert.add(pct);
-            }   
+            }
         }
         insert trackingToInsert;
 
@@ -181,7 +196,8 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             List<Decimal> monthlyQtys = monthlyConsumptionMap.get(key);
             Decimal totalQty = totalConsumptionMap.get(key);
             
-            // MSL Logic
+            // ----------------------------MSL Logic------------------------------ //
+            // Condition 1: Last 2 Months should not be 0
             if (monthlyQtys[4] == 0 && monthlyQtys[5] == 0) continue;
             
             Integer validMonths = 0;
@@ -192,13 +208,26 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                     totalValid += qty;
                 }
             }
-            if (validMonths < 4) continue;
+            
+            // Condition 2: Atleast in 4 months consumption should be there
+            if (validMonths <= 4) continue;
             
             Decimal avg = totalValid / validMonths;
             Decimal moq = productMap.containsKey(productId) 
                 ? productMap.get(productId).Minimum_Order_Qty__c : 1;
-            Decimal finalQty = (moq > avg && avg > 0) ? moq : avg;
+                        
+            // Condition 3: If MOQ is more than Average Quantity, then apply MOQ as finalQty & make checkbox TRUE
+            Boolean isMOQApplied = false;
+            Decimal finalQty;
             
+            if (moq > avg && avg > 0) {
+                finalQty = moq;
+                isMOQApplied = true;
+            } else {
+                finalQty = avg;
+            }
+            
+            // If finalQty is less than 0, skip
             if (finalQty <= 0) continue;
             
             forecastToInsert.add(new FortnightlyForecastInventory__c(
@@ -207,7 +236,9 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                 First_Consumed_Date__c = firstConsumptionMap.get(key),
                 Six_Months_Average_Consumption__c = Math.roundToLong(finalQty),
                 Total_Qty__c = totalQty,
-                Batch_Executed_Date__c = System.today()
+                Batch_Executed_Date__c = System.today(),
+                Total_Consumption_Months__c = validMonths,
+                MOQ_Applied__c = isMOQApplied
             ));
         }
         

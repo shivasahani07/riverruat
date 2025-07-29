@@ -17,7 +17,7 @@ public  Without Sharing class bulkreceiveGRNController {
         System.debug('recordId=======> ' + recordId);
         try{
             if(String.isNotBlank(recordId) && recordId != null){
-                return [SELECT Id,Status from Shipment WHERE Id =:recordId LIMIT 1];
+                return [SELECT Id,Is_Discrepancy_Created__c from Shipment WHERE Id =:recordId LIMIT 1];
                 
             }else{
                 return null;
@@ -87,7 +87,7 @@ public  Without Sharing class bulkreceiveGRNController {
         }
     }
 	@AuraEnabled
-    public static string updateShipmentItemQuantities(String updatedItemsJson) {
+    public static string updateShipmentItemQuantities(String updatedItemsJson, String recordId) {
         try {
             System.debug('Received updatedItemsJson: ' + updatedItemsJson);
             
@@ -123,7 +123,12 @@ public  Without Sharing class bulkreceiveGRNController {
             }
             
             if (!shipmentItemsToUpdate.isEmpty()) {
+                system.debug('Inside======');
                 update shipmentItemsToUpdate;
+                Shipment shiprec  = [Select id,Is_Discrepancy_Created__c From Shipment where Id =:recordId];
+                 system.debug('shiprec======'+shiprec);
+                shiprec.Is_Discrepancy_Created__c = True;
+                update shiprec;
                 System.debug('Updated ' + shipmentItemsToUpdate.size() + ' Shipment Items successfully.');
                 updateProductTransferReceivedQuantity(shipmentItemsToUpdate);//added By Aniket on 30/04/2025
                 return 'SUCCESS';

@@ -621,6 +621,7 @@ public static String createOrderRecord(String shipmentType, Integer additonal, S
         public String battery{get;set;}
         public String engineNumber{get;set;}
         public String charger{get;set;}
+        //public String soldFrom{get;set;}
         
     }
     

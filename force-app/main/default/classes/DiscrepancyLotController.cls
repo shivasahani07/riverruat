@@ -20,6 +20,7 @@ public static String createDiscrepancyLot(
     String requesterName,
     String phone,
     Date dispathcdate,
+    Integer lrnumber,
     String purpose,
     String addressOfConsignee,
     String modeOfTransport,
@@ -38,6 +39,7 @@ public static String createDiscrepancyLot(
         newLot.Purpose_of_Sending__c = purpose;
         newLot.Status__c = 'New';
         newlot.Date_of_Dispatch__c= dispathcdate;
+        newlot.LR_Number__c = lrnumber;
         insert newLot;
 
         // 2. Update Line Items

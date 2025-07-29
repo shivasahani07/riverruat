@@ -64,7 +64,7 @@ export default class BulkrecieveGRN extends LightningElement {
         debugger;
         getShipmentDetail({ recordId: this.recordId }).then(result => {
             if (result != null) {
-                if (result.Status == 'Delivered') {
+                if (result.Is_Discrepancy_Created__c === true) {
                     this.ShowGRNDone = true;
                 } else {
                     this.ShowGRNDone = false;
@@ -295,7 +295,7 @@ export default class BulkrecieveGRN extends LightningElement {
         }
 
         if (Object.keys(filteredUpdates).length === 0) {
-            updateShipmentItemQuantities({ updatedItemsJson: JSON.stringify(matchingUpdates) })
+            updateShipmentItemQuantities({ updatedItemsJson: JSON.stringify(matchingUpdates ), recordId: this.recordId })
                 .then(() => {
                     this.dispatchEvent(
                         new ShowToastEvent({

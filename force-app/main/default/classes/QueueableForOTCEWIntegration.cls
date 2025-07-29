@@ -34,8 +34,10 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,OrderController.wrapp
             List<String> datePart = vpDate.split('-');
             String dateForReqBody = datePart[2]+'-'+datePart[1]+'-'+datePart[0];
             System.debug('dateForReqBody==>'+dateForReqBody);
+            
+            String dealerCodeFor = c.get(currentOrderId).dealerCode;
 
-
+            Account a = [SELECT Id,Center_Code__c,Type FROM Account WHERE Center_Code__c=:dealerCodeFor LIMIT 1];
             Map<String,Object> payLoad = new Map<String,Object>();
             payLoad.put('username',c.get(currentOrderId).dealerCode);
             payLoad.put('VehicleSaleDate',dateForReqBody);
@@ -45,7 +47,7 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,OrderController.wrapp
             payLoad.put('Motor',c.get(currentOrderId).engineNumber);
             payLoad.put('Charger',c.get(currentOrderId).charger);
             payLoad.put('WarrantyType','Extended Warranty');
-            payLoad.put('SoldFrom','Workshop');
+            payLoad.put('SoldFrom',a.Type == 'Dealer' ? 'Showroom' : a.Type == 'Service Center' ? 'Workshop' : 'Nothing' );
             String reqBody = JSON.serialize(payLoad);
             System.debug('Request body=>'+JSON.serializePretty(payLoad));
 
@@ -137,6 +139,86 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,OrderController.wrapp
                     System.debug('responseMapForError==>'+responseMapForError);
                     errorMessage = (String) responseMapForError.get('message');
                     System.debug(' '+errorMessage);
+
+                
+                    Map<String,Object> responseMap = (Map<String,Object>) JSON.deserializeUntyped(res.getBody());
+                String msg = responseMap.containsKey('message') ? (String)responseMap.get('message') : 'Not Found';
+                System.debug('Error Message Is ==>'+msg);
+
+                Integration_Log__c logObj = new Integration_Log__c(
+                        Integration_Type__c = 'Extended Warranty',
+                        Request_Payload__c = reqBody,
+                        Response_Payload__c = res.getBody(),
+                        Error_Message__c = msg,
+                        Status__c = 'Failed'
+                    );
+                    insert logObj;
+
+                //added by Aniket on 11/07/2025
+                Group g;
+                List<Group> sapGroup = [SELECT Id,Name,DeveloperName from Group WHERE DeveloperName = 'EW_Group' LIMIT 1];
+                System.debug('sapGroup=>'+sapGroup);
+                if(!sapGroup.isEmpty()){
+                    g=sapGroup[0];
+                    System.debug('G==>'+g);
+                }
+                List<GroupMember> members = [SELECT UserOrGroupId FROM GroupMember WHERE GroupId = :g.Id];
+                System.debug('members==>'+members);
+                Set<Id> userIds = new Set<Id>();
+                for (GroupMember gm : members) {
+                    if (gm.UserOrGroupId.getSObjectType() == User.SObjectType) {
+                        userIds.add(gm.UserOrGroupId);
+                    }
+                }
+                List<User> users = [SELECT Id, Name, Email FROM User WHERE Id IN :userIds];
+                System.debug('users==>'+users);
+                List<String> emailList = new List<String>();
+                for(User u : users){
+                    emailList.add(u.Email);
+                }
+                System.debug('emailList==>'+emailList);
+
+
+                                //upto here
+               List<OrgWideEmailAddress> oweaList = [SELECT Id FROM OrgWideEmailAddress WHERE Address = 'support@rideriver.com' LIMIT 1];
+               System.debug('OrgWideEmailAddress List In Salesforce==>'+oweaList);
+                Messaging.SingleEmailMessage mail2 = new Messaging.SingleEmailMessage();
+                mail2.setToAddresses(emailList);
+                mail2.setSubject('SAP Sync Failure');
+                mail2.setOrgWideEmailAddressId(oweaList[0].Id);
+               
+                                    String htmlBody = 
+                        '<html>' +
+                        '<head>' +
+                        '<style>' +
+                        '  body { font-family: Arial, sans-serif; color: #333; }' +
+                        '  .container { padding: 20px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9; }' +
+                        '  h2 { color: #d9534f; }' +
+                        '  .po-details { margin-top: 20px; padding: 15px; background-color: #fff3cd; border-left: 5px solid #ffeeba; }' +
+                        '  .footer { margin-top: 30px; font-size: 12px; color: #888; }' +
+                        '</style>' +
+                        '</head>' +
+                        '<body>' +
+                        '  <div class="container">' +
+                        '    <h2>🚨 EW Sync Failure</h2>' +
+                        '    <p>Dear EW Group Users,</p>' +
+                        '    <p>The following Vehicle failed to sync with EW Portal. Please review the details below and take appropriate action.</p>' +
+                        '    <div class="po-details">' +
+                        '      <p><strong>VIN No.:</strong> ' + c.get(currentOrderId).chassisNumber + '</p>' +
+                        '      <p><strong>Failure Reason:</strong> ' + errorMessage + '</p>' +
+                        '    </div>' +
+                        '    <p>Kindly address this issue at the earliest.</p>' +
+                        '    <div class="footer">' +
+                        '      <p>--<br/>This is an automated message from Salesforce.</p>' +
+                        '    </div>' +
+                        '  </div>' +
+                        '</body>' +
+                        '</html>';
+
+                    mail2.setHtmlBody(htmlBody);
+                Messaging.SendEmailResult[] results = Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail2 });
+                System.debug('Send Email Result: ' + results[0].isSuccess());
+                
                     
                 }
             }

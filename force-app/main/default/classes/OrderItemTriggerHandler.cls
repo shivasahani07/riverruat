@@ -46,6 +46,7 @@ public class OrderItemTriggerHandler {
             Decimal rollupValue = oi.Product_Total_Amount__c != null ? oi.Product_Total_Amount__c : 0;
             Decimal unitTotal = (oi.UnitPrice != null && oi.Quantity != null) ? oi.UnitPrice * oi.Quantity : 0;
             System.debug('Total_Pre_GST_Discount__c====> ' + oi.Total_Pre_GST_Discount__c);
+            System.debug('oi.Product_Total_Amount__c ==>'+ oi.Product_Total_Amount__c);
             
              TotalPreGSTDis += (oi.Total_Pre_GST_Discount__c != null ? oi.Total_Pre_GST_Discount__c : 0);
             System.debug('Total_Pre_GST_Discount__c====> ' + TotalPreGSTDis);
@@ -64,7 +65,11 @@ public class OrderItemTriggerHandler {
                 merchandiseUnitPriceMap.put(oi.OrderId,
                     merchandiseUnitPriceMap.containsKey(oi.OrderId) ? merchandiseUnitPriceMap.get(oi.OrderId) + unitTotal : unitTotal);
             }
-            //orderItemsToUpdate.add(oi);
+            if(trigger.isAfter && Trigger.isInsert){
+                 orderItemsToUpdate.add(oi);
+                System.debug('orderItemsToUpdate ==>'+orderItemsToUpdate);
+            }
+           
         }
     
         System.debug('Total Vehicle Rollups: ' + totalVehicleRollup);
@@ -101,6 +106,16 @@ public class OrderItemTriggerHandler {
                 update ordersToUpdate;
                 System.debug('ordersToUpdate ==>'+ordersToUpdate);
                 System.debug('Successfully updated Orders with aggregated roll-up values.');
+            } catch (DmlException e) {
+                System.debug('Error updating Orders: ' + e.getMessage());
+            }
+        }
+		
+           if (!orderItemsToUpdate.isEmpty()) {
+            try {
+                update orderItemsToUpdate;
+                System.debug('ordersItemToUpdate ==>'+orderItemsToUpdate);
+                System.debug('Successfully updated OrderItemsForUpdate with aggregated roll-up values.');
             } catch (DmlException e) {
                 System.debug('Error updating Orders: ' + e.getMessage());
             }
