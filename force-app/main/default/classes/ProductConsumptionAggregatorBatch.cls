@@ -20,7 +20,8 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
         }
 
         List<ConsumptionRecord> allConsumption = new List<ConsumptionRecord>();
-
+		
+        
         // Fetch Sales Consumption
         for (Sales_Consumption__c sale : [
             SELECT Id, CreatedDate, Quantity_Consumed__c, Dealer__c, Product__c,
@@ -28,7 +29,8 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                    Product_Inventory__r.Account__c, Order__r.AccountId
             FROM Sales_Consumption__c
             WHERE Product__c IN :productIds
-            AND Manual_Date_Test__c >= :System.today().addMonths(-6)
+            //AND Manual_Date_Test__c >= :System.today().addMonths(-6)
+            AND Manual_Date_Test__c >= :System.today().addDays(15).addMonths(-6)
             AND Order__r.Dealer__r.Type != 'Customer' AND Order__r.Account.Type != 'Customer'
         ]) {
             allConsumption.add(new ConsumptionRecord(
@@ -46,6 +48,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             FROM ProductConsumed
             WHERE Product2Id IN :productIds
             AND Manual_Created_Date__c >= :System.today().addMonths(-6)
+            //AND Manual_Created_Date__c >= :System.today().addDays(15).addMonths(-6)
             AND WorkOrder.Service_Center__r.Type != 'Customer'
         ]) {
             allConsumption.add(new ConsumptionRecord(
@@ -55,7 +58,44 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                 consumed.QuantityConsumed
             ));
         }
+		
+        /*
+        // Fetch Sales Consumption
+        for (Sales_Consumption__c sale : [
+            SELECT Id, CreatedDate, Quantity_Consumed__c, Dealer__c, Product__c,
+                   Product_Inventory__r.Product2Id, Manual_Date_Test__c,
+                   Product_Inventory__r.Account__c, Order__r.AccountId
+            FROM Sales_Consumption__c
+            //WHERE Manual_Date_Test__c >= :System.today().addMonths(-6)
+            WHERE Manual_Date_Test__c >= :System.today().addDays(15).addMonths(-6)
+            AND Order__r.Dealer__r.Type != 'Customer' AND Order__r.Account.Type != 'Customer'
+        ]) {
+            allConsumption.add(new ConsumptionRecord(
+                sale.Order__r.AccountId,
+                sale.Product__c,
+                sale.Manual_Date_Test__c,
+                sale.Quantity_Consumed__c
+            ));
+        }
 
+        // Fetch Product Consumed
+        for (ProductConsumed consumed : [
+            SELECT Id, ProductItemId, Quantity_Consumed__c, QuantityConsumed, Product2Id, WorkOrder.Service_Center__c,
+                   CreatedDate
+            FROM ProductConsumed
+            //WHERE Manual_Created_Date__c >= :System.today().addMonths(-6)
+            WHERE Manual_Created_Date__c >= :System.today().addDays(15).addMonths(-6)
+            AND WorkOrder.Service_Center__r.Type != 'Customer'
+        ]) {
+            allConsumption.add(new ConsumptionRecord(
+                consumed.WorkOrder.Service_Center__c,
+                consumed.Product2Id,
+                consumed.CreatedDate.date(),
+                consumed.QuantityConsumed
+            ));
+        }
+        */
+        
         // ========== NEW DYNAMIC PERIOD LOGIC ==========
         Map<String, Date> firstConsumptionMap = new Map<String, Date>();
         Map<String, List<ConsumptionRecord>> consumptionByKey = new Map<String, List<ConsumptionRecord>>();
@@ -83,7 +123,8 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             
             consumptionByKey.get(key).add(rec);
         }
-
+			
+        /*
         // Calculate consumption for dynamic periods
         for (String key : consumptionByKey.keySet()) {
             Date firstDate = firstConsumptionMap.get(key);
@@ -101,6 +142,39 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                 }
             }
             
+            totalConsumptionMap.put(key, totalQty);
+        }
+		*/
+        
+        // Calculate consumption for dynamic periods
+        for (String key : consumptionByKey.keySet()) {
+            Date firstDate = firstConsumptionMap.get(key);
+            List<Decimal> monthlyQtys = monthlyConsumptionMap.get(key);
+            Decimal totalQty = 0;
+        
+            // Build explicit rolling periods
+            List<Date> periodStarts = new List<Date>();
+            List<Date> periodEnds = new List<Date>();
+            Date start = firstDate;
+        
+            for (Integer i = 0; i < 6; i++) {
+                Date endDate = start.addMonths(1).addDays(-1);
+                periodStarts.add(start);
+                periodEnds.add(endDate);
+                start = endDate.addDays(1);
+            }
+        
+            // Assign consumption to correct bucket based on actual dates
+            for (ConsumptionRecord rec : consumptionByKey.get(key)) {
+                for (Integer i = 0; i < 6; i++) {
+                    if (rec.ConsumedDate >= periodStarts[i] && rec.ConsumedDate <= periodEnds[i]) {
+                        monthlyQtys[i] += rec.Qty;
+                        totalQty += rec.Qty;
+                        break; // once added, stop checking further buckets
+                    }
+                }
+            }
+        
             totalConsumptionMap.put(key, totalQty);
         }
 
@@ -164,7 +238,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                     Month_Name__c = monthName, 
                     Month_Start_Date__c = periodStart,
                     Month_End_Date__c = periodEnd,
-                    Total_Month_Qty__c = totalQty,
+                    Total_Month_Qty__c = Math.roundToLong(totalQty),
                     First_Consumption_Date__c = firstDate,
                     First_Half_Start_Date__c = firstHalfStart,
                     First_Half_End_Date__c = firstHalfEnd,
@@ -210,7 +284,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             }
             
             // Condition 2: Atleast in 4 months consumption should be there
-            if (validMonths <= 4) continue;
+            if (validMonths < 4) continue;
             
             Decimal avg = totalValid / validMonths;
             Decimal moq = productMap.containsKey(productId) 
@@ -235,7 +309,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                 Product__c = productId,
                 First_Consumed_Date__c = firstConsumptionMap.get(key),
                 Six_Months_Average_Consumption__c = Math.roundToLong(finalQty),
-                Total_Qty__c = totalQty,
+                Total_6_Month_Consumption__c = totalQty,
                 Batch_Executed_Date__c = System.today(),
                 Total_Consumption_Months__c = validMonths,
                 MOQ_Applied__c = isMOQApplied

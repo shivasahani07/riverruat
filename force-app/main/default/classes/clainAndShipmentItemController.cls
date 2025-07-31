@@ -2,10 +2,10 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 07-25-2025
+ * @last modified on  : 07-30-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
-public with sharing class clainAndShipmentItemController {
+public without sharing class clainAndShipmentItemController {
     
     @AuraEnabled(cacheable=true)
     public static List<Claim> getBatchClaims(Id batchId) {
@@ -47,8 +47,25 @@ public with sharing class clainAndShipmentItemController {
                 Id accId = pp.Account__c;  
                 //Set<Id> accId = new Set<Id>{pp.Account__c};
                 System.debug('accountids==>'+accId);
+                 Date today = Date.today();
+                Integer dayOfMonth = today.day();
+
+                //Date expectedBatchDate;
+                 Date startDate;
+                Date endDate;
+                if (dayOfMonth <= 15) {
+                
+                   
+                    startDate = Date.newInstance(today.year(), today.month(), 1);
+                   endDate = Date.newInstance(today.year(), today.month(), 15);
+                } else {
+                    
+                    startDate = Date.newInstance(today.year(), today.month(), 16);
+                    endDate = Date.newInstance(today.year(), today.month(), Date.daysInMonth(today.year(), today.month()));
+                }
          
-                List<FortnightlyForecastInventory__c> fortsList = [SELECT Id,Product__c,PO_Status__c,Account__c FROM FortnightlyForecastInventory__c WHERE Product__c IN:productids AND Account__c =:accId];
+                List<FortnightlyForecastInventory__c> fortsList = [SELECT Id,Product__c,PO_Status__c,Account__c,Batch_Executed_Date__c FROM FortnightlyForecastInventory__c WHERE Product__c IN:productids AND Account__c =:accId AND Batch_Executed_Date__c >= :startDate
+                         AND Batch_Executed_Date__c <= :endDate];
                 System.debug('fortsList==>'+fortsList);
                 List<FortnightlyForecastInventory__c> fortsToUpdate = new List<FortnightlyForecastInventory__c>();
                 for(FortnightlyForecastInventory__c f : fortsList){

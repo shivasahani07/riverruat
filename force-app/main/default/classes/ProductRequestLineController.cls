@@ -331,17 +331,41 @@ public Without Sharing class ProductRequestLineController {
                 ProductRequest pp =[SELECT Id,Account__c FROM ProductRequest WHERE Id=:accountids LIMIT 1];
                 Id accId = pp.Account__c;
                 System.debug('accountids==>'+accountids);
-                List<Month_Split__c> fortsList = [SELECT Id,Product__c,Quantity_Orderd__c FROM Month_Split__c WHERE Product__c IN:productids];
+
+                Date today = Date.today();
+                Integer dayOfMonth = today.day();
+
+               // Date expectedBatchDate;
+                Date startDate;
+                Date endDate;
+                if (dayOfMonth <= 15) {
+                
+                    startDate = Date.newInstance(today.year(), today.month(), 1);
+                   endDate = Date.newInstance(today.year(), today.month(), 15);
+                } else {
+                    
+                    startDate = Date.newInstance(today.year(), today.month(), 16);
+                    endDate = Date.newInstance(today.year(), today.month(), Date.daysInMonth(today.year(), today.month()));
+                }
+
+                List<FortnightlyForecastInventory__c> fortsList = [
+                    SELECT Id, Product__c, PO_Status__c, Account__c, Batch_Executed_Date__c
+                    FROM FortnightlyForecastInventory__c
+                    WHERE Product__c IN :productids
+                        AND Account__c = :accId
+                         AND Batch_Executed_Date__c >= :startDate
+                         AND Batch_Executed_Date__c <= :endDate
+                ];
+
                 System.debug('fortsList==>'+fortsList);
-                List<Month_Split__c> fortsToUpdate = new List<Month_Split__c>();
-                for(Month_Split__c f : fortsList){
+                List<FortnightlyForecastInventory__c> fortsToUpdate = new List<FortnightlyForecastInventory__c>();
+                for(FortnightlyForecastInventory__c f : fortsList){
                     Decimal toBeDeducted = totalQuanMap.get(f.Product__c);
                     System.debug('toBeDeducted==>'+toBeDeducted);
-                    Month_Split__c ff = new Month_Split__c();
+                    FortnightlyForecastInventory__c ff = new FortnightlyForecastInventory__c();
                     ff.Id = f.Id;
-                    //ff.PO_Status__c = 'Submitted';
-                    ff.Quantity_Orderd__c = f.Quantity_Orderd__c == null ?  toBeDeducted : f.Quantity_Orderd__c + toBeDeducted;
-                    ff.PO_Submitted__c =  true;
+                    ff.PO_Status__c = 'Submitted';
+                    // ff.PO_Status__c =  true;
                     fortsToUpdate.add(ff);
 
                 }

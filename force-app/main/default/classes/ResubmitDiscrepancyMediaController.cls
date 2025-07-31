@@ -6,7 +6,7 @@
 * @Last Modified On : July 11, 2025
 * @Modification Log :
 *==============================================================================
-* Ver | Date | Author | Modification
+* Ver | Date | Author | ModificationgetDiscrepancyLineItems
 *==============================================================================
 * 1.0 | July 11, 2025 |   | Initial Version
 **/
@@ -22,7 +22,7 @@ public without sharing class ResubmitDiscrepancyMediaController {
         return [
             SELECT Id, Name,Product_Name__c,Quantity__c,Claimed_Amount__c,Supporting_Media__c,Dealer_Recheck__c
             FROM Discrepancy_Line_Item__c
-            WHERE Discrepancy__r.Shipment_Item__r.Parent_Shipment__c = :shipmentId ANd Dealer_Recheck__c = true
+            WHERE Discrepancy__r.Shipment__c = :shipmentId ANd Dealer_Recheck__c = true
         ];
     }
 

@@ -149,18 +149,18 @@
     <enableHistory>true</enableHistory>
     <enableLicensing>false</enableLicensing>
     <enableReports>true</enableReports>
-    <enableSearch>false</enableSearch>
+    <enableSearch>true</enableSearch>
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>Private</externalSharingModel>
-    <label>MSL Batch Summary</label>
+    <label>Product Consumption Date Tracking</label>
     <nameField>
-        <displayFormat>MSL SUM-{0000}</displayFormat>
-        <label>MSL Batch Summary Name</label>
+        <displayFormat>PCDT-{0000}</displayFormat>
+        <label>Product Consumption Date Tracking</label>
         <trackHistory>false</trackHistory>
         <type>AutoNumber</type>
     </nameField>
-    <pluralLabel>MSL Batch Summary</pluralLabel>
+    <pluralLabel>Product Consumption Date Tracking</pluralLabel>
     <searchLayouts></searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>

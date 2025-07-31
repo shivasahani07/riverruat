@@ -2,7 +2,7 @@
 * @description       : 
 * @author            : Aniket Karmakar
 * @group             : 
-* @last modified on  : 07-29-2025
+* @last modified on  : 07-30-2025
 * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 @RestResource(urlMapping='/shipment2')
@@ -137,6 +137,8 @@ global without sharing class OrderAndShipmentController {
                 Map<String, Object> finalResponse = new Map<String, Object>();
                 if (!failedObjects.isEmpty()) {
                    
+                    Database.rollback(sp1);
+
                     String combinedErrors='';
                     for (String objName : objectErrorMessages.keySet()) {
                     combinedErrors += objName + ' => ' + objectErrorMessages.get(objName) + '\n';
@@ -155,7 +157,7 @@ global without sharing class OrderAndShipmentController {
                     );  
                     insert logObj; 
 
-                    Database.rollback(sp1);
+                    
                 } else {
                     finalResponse.put('success', true);
                     finalResponse.put('status code', 200);
@@ -244,7 +246,7 @@ global without sharing class OrderAndShipmentController {
             System.debug('itemCodes==>'+itemCodes);
 
             Map<String, Product2> itemCodeToProductMap = new Map<String, Product2>();
-            for (Product2 prod : [SELECT Id, ProductCode, Name FROM Product2 WHERE ProductCode IN :itemCodes]) {
+            for (Product2 prod : [SELECT Id, ProductCode, Name,IsActive FROM Product2 WHERE ProductCode IN :itemCodes AND IsActive = true]) {
                 itemCodeToProductMap.put(prod.ProductCode, prod);
             }
             System.debug('itemCodeToProductMap==>'+itemCodeToProductMap);
@@ -295,6 +297,12 @@ global without sharing class OrderAndShipmentController {
                 if (!orderItems.isEmpty()) insert orderItems;
                 newOrder.Status='Invoice Generation';
                 update newOrder;//added by Aniket after UAT Feedback from Hiba and Patrick
+                System.debug('lineItems Size=>'+lineItems.size());
+                System.debug('orderItems.size=>'+orderItems.size());
+                if(lineItems.size() != orderItems.size()){
+                    failedObjects.add('OrderItem Partial Failed');
+                    objectErrorMessages.put('Order Items', 'Not all Order Items got Inserted');
+                }
                 System.debug('orderItems==>'+orderItems);
                 successObjects.add('Order Items');
             } catch (Exception e) {
@@ -379,7 +387,7 @@ global without sharing class OrderAndShipmentController {
             Map<String, Object> finalResponse = new Map<String, Object>();
             
             if (!failedObjects.isEmpty()) {
-                
+                Database.rollback(sp1);
                 String combinedErrors = '';
                 for (String objName : objectErrorMessages.keySet()) {
                     combinedErrors += objName + ' => ' + objectErrorMessages.get(objName) + '\n';
@@ -399,7 +407,7 @@ global without sharing class OrderAndShipmentController {
                 Status__c = 'Failed'  
                 );  
                 insert logObj; 
-                Database.rollback(sp1);
+                
             } else {
                 finalResponse.put('success', true);
                 finalResponse.put('status code', 200);
@@ -497,10 +505,12 @@ global without sharing class OrderAndShipmentController {
             String driverPhone = requestMap.containsKey('driver_phone') ? (String)requestMap.get('driver_phone') : 'Not Found';
             
             List<Shipment> shipmentList = [SELECT Id,sap_shipment_id__c,LR_Date__c,LR_Number__c,E_Way_bill__c,Invoice_Date__c,Invoice_Amount__c,Driver_Name__c,Driver_Phone__c,Order__c FROM Shipment WHERE sap_shipment_id__c =:sapShipmentId LIMIT 1];
+            System.debug('shipmentList==>'+shipmentList);
             if(shipmentList.isEmpty()){
-              response.statusCode = 400;
-             response.responseBody = responseUtility('No Shipment Found',false);
-             return;
+                response.statusCode = 400;
+                response.responseBody = responseUtility('Shipment with '+ sapShipmentId + ' does not exist in Salesforce',false);
+                return;
+             
             }
             Order o;
             List<Order> orderList = [SELECT Id,Status FROM Order WHERE Id=:shipmentList[0].Order__c];
@@ -512,11 +522,6 @@ global without sharing class OrderAndShipmentController {
                 return;
             }
             System.debug('shipmentList==>'+shipmentList);
-            if(shipmentList.isEmpty()){
-                response.statusCode = 400;
-                response.responseBody = responseUtility('Shipment with '+ sapShipmentId + ' does not exist in Salesforce',false);
-                return;
-            }
             Shipment s = shipmentList[0];
             s.LR_Date__c=lrDate;
             s.LR_Number__c=lrNumber;
@@ -528,7 +533,8 @@ global without sharing class OrderAndShipmentController {
             s.Driver_Phone__c=driverPhone;
             s.Status='Dispatched';
             
-            update s;
+            try{
+            Database.update(s);
             System.debug('Updated Shipment==>'+s);
             o.Status='Dispatch';//added by Aniket After getting feedback from Hiba and Patrick
             update o;
@@ -538,21 +544,29 @@ global without sharing class OrderAndShipmentController {
             response.statusCode = 200;
             Map<String,Object> successMessage = new Map<String,Object>{'success'=>true,'message'=>'Shipment Details are updated successfully'};
                 response.responseBody = Blob.valueOf(JSON.serializePretty(successMessage));
-            
+
+            }catch(Exception e){
+                Database.rollback(sp);
+                System.debug('Error Occured==>'+e.getMessage());
+                System.debug('Error Line Number Is =='+e.getLineNumber());
+
+                    logIntegrationError('SAP', JSON.serializePretty(reqBody), e.getMessage());
+                    response.statusCode = 500;
+                    Map<String, Object> errorResponse = new Map<String, Object>{
+                        'error' => 'Error Updating Shipment Details',
+                            'line' => e.getLineNumber()
+                            };
+                                response.responseBody = Blob.valueOf(JSON.serializePretty(errorResponse));
+
+                                
+                }
+                
             
         }catch(Exception e){
             System.debug('Error Occured==>'+e.getMessage());
             System.debug('Error Line Number Is =='+e.getLineNumber());
             
-            logIntegrationError('SAP', JSON.serializePretty(reqBody), e.getMessage());
-            response.statusCode = 500;
-            Map<String, Object> errorResponse = new Map<String, Object>{
-                'error' => 'Error Updating Shipment Details',
-                    'line' => e.getLineNumber()
-                    };
-                        response.responseBody = Blob.valueOf(JSON.serializePretty(errorResponse));
         }
-        Database.rollback(sp);
     }
     public static Blob responseUtility(String Message,Boolean Status){
         try{

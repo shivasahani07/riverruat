@@ -9,7 +9,7 @@ public without sharing class DiscrepancyMediaController {
         return [
             SELECT Id, Name,Product_Name__c,Quantity__c,Claimed_Amount__c,Supporting_Media__c,Discrepancy__r.Name	
             FROM Discrepancy_Line_Item__c
-            WHERE Discrepancy__r.Shipment_Item__r.Parent_Shipment__c = :shipmentId
+            WHERE Discrepancy__r.Shipment__c = :shipmentId AND Type__c != 'MIT'
         ];
     }
 

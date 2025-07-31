@@ -18,6 +18,7 @@ export default class BatchList extends LightningElement {
     @track today = new Date().toISOString().split('T')[0];
     wiredBatchesResult;
     wiredClaimsResult;
+    @track searchTerm = '';
 
     @track preSelectedRowIds = [];
 
@@ -54,7 +55,7 @@ export default class BatchList extends LightningElement {
 
     @wire(fetchClaims)
     wiredClaims(result) {
-        debugger;
+        //debugger;
         this.wiredClaimsResult = result;
         if (result.data) {
             this.claims = result.data;
@@ -82,9 +83,9 @@ export default class BatchList extends LightningElement {
     }
 
 
-    handleAddWarrantyClaim() {
-        console.log('Add Warranty Claim button clicked');        
+    handleAddWarrantyClaim() {       
         debugger;
+        console.log('Add Warranty Claim button clicked'); 
         this.preSelectedRowIds = this.selectedClaims.map(claim => claim.Id);
         console.log(JSON.stringify(this.preSelectedRowIds));
         console.log(JSON.stringify(this.claim));
@@ -188,4 +189,5 @@ export default class BatchList extends LightningElement {
         });
         this.dispatchEvent(event);
     }
+    
 }

@@ -14,12 +14,7 @@
     <filters>
         <field>Account__c</field>
         <operation>contains</operation>
-        <value>Divya</value>
-    </filters>
-    <filters>
-        <field>Product__c</field>
-        <operation>equals</operation>
-        <value>Headlights</value>
+        <value>River Mobility</value>
     </filters>
     <label>All</label>
 </ListView>

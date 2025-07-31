@@ -21,6 +21,9 @@ export default class BatchRecord extends LightningElement {
     @track batchAmount = 0;
     @track showModal = false;
 
+    @track searchKey;//added by Aniket on 31/07/2025
+    @track claimsFiltered=[];
+
     //@track batchDispatchDate;
     @track lrNumber = '';
     @track lrAttachment = ''; 
@@ -59,6 +62,7 @@ export default class BatchRecord extends LightningElement {
         this.wiredClaimsResult = result;
         if (result.data) {
             this.claims = result.data;
+            this.claimsFiltered=result.data;
         } else if (result.error) {
             this.showToast('Error', `Error fetching claims: ${result.error.body.message}`, 'error');
         }
@@ -276,7 +280,7 @@ export default class BatchRecord extends LightningElement {
                 lrNumber: this.lrNumber,
                 lrAttachment: this.lrAttachment,
                 TOD: this.TOD, AOC: this.AOC, RN: this.RN, VN: this.VN, HPS: this.HPS, Phone: this.Phone,
-                POS: this.POS, TN: this.TN, TID: this.TID, Eway: this.Eway, MOT: this.MOT, contactId: this.contact
+                POS: this.POS, TN: this.TN, TID: this.TID, Eway: this.Eway, MOT: this.MOT, contactId: this.contact.Id
             });
 
             this.showToast('Success', 'Batch created successfully.', 'success');
@@ -311,5 +315,18 @@ export default class BatchRecord extends LightningElement {
             variant
         });
         this.dispatchEvent(event);
+    }
+    //this was added by Aniket on 31/08/2025 as per Search Key Requirement
+    handleSearchKey(event){
+        debugger;
+        this.searchKey = event.target.value;
+        console.log('this.searchKey=>',this.searchKey.toLowerCase());
+        if(this.searchKey){
+            this.claimsFiltered = this.claims.filter(c=>c.Name.toLowerCase().includes((this.searchKey).toLowerCase()));
+            console.log('this.claims==>',this.claims);
+        }else{
+            this.claimsFiltered = this.claims;
+        }
+        console.log('this.claims==>',this.claims);
     }
 }

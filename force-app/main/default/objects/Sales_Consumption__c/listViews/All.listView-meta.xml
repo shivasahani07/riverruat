@@ -13,13 +13,8 @@
     <filterScope>Everything</filterScope>
     <filters>
         <field>Dealer__c</field>
-        <operation>equals</operation>
-        <value>Divya</value>
-    </filters>
-    <filters>
-        <field>Product__c</field>
-        <operation>equals</operation>
-        <value>Headlights</value>
+        <operation>contains</operation>
+        <value>River Mobility</value>
     </filters>
     <label>All</label>
 </ListView>

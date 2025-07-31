@@ -99,7 +99,7 @@
             <tr>
                 <td>
                     Invoice Date:
-                    <apex:outputText value="{0,date,dd/MM/yyyy}"><apex:param value="{!currentDate}" /></apex:outputText><br />
+                    <apex:outputText value="{0,date,dd/MM/yyyy}"><apex:param value="{!InvoiceDate}" /></apex:outputText><br />
                     <br />
                     Invoice No: <span style="white-space: nowrap;">{!invoiceId}</span><br /><br />
                     Order Id: <span style="white-space: nowrap;">{!order.Website_Order_Id__c}</span><br /><br />

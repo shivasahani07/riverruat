@@ -5,6 +5,8 @@
     <columns>CREATED_DATE</columns>
     <columns>Quantity__c</columns>
     <columns>Approved_Quantity__c</columns>
+    <columns>Re_Submit_Date__c</columns>
+    <columns>SPM_Apporoved_Quantity__c</columns>
     <columns>Discrepancy__c</columns>
     <columns>Shipment__c</columns>
     <columns>Product_Name__c</columns>

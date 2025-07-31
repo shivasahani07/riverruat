@@ -6,6 +6,8 @@ global class RVR_New_MSLBatch implements Database.Batchable<SObject>, Database.S
 
     Map<Id, Map<String, Map<Id, Decimal>>> dealerMonthProductQtyMap = new Map<Id, Map<String, Map<Id, Decimal>>>();
     List<MSL_Batch_Summary__c> summaries = new List<MSL_Batch_Summary__c>();
+    List<Purchase_Order_Recommendation__c> purchaseRecommendations = new List<Purchase_Order_Recommendation__c>();
+    List<Purchase_Order_Recommendation_Line__c> purchaseRecommendationLines = new List<Purchase_Order_Recommendation_Line__c>();
 
     global Database.QueryLocator start(Database.BatchableContext BC) {
         return Database.getQueryLocator([
@@ -121,10 +123,11 @@ global class RVR_New_MSLBatch implements Database.Batchable<SObject>, Database.S
                 }
 
                 // Skip products with more than 3 consecutive months of zero quantity
-                if (maxConsecutiveZeroMonths > 3) continue;
+                //if (maxConsecutiveZeroMonths > 3) continue;
                 if (validMonths == 0) continue;
 
-                Decimal avgQty = totalQty / validMonths;
+                // Use total quantity instead of average
+                Decimal totalQuantity = totalQty;
 
                 // Get latest month of sale
                 String lastMonthKey = productLastMonthKey.get(productId);
@@ -167,7 +170,7 @@ global class RVR_New_MSLBatch implements Database.Batchable<SObject>, Database.S
 
                 Month_Split__c split = new Month_Split__c(
                     Product__c = productId,
-                    Quantity__c = avgQty.setScale(0),
+                    Quantity__c = totalQuantity.setScale(0),
                     MSL_Batch_Summary__c = summaryId,
                     Start_Date__c = startDate,
                     End_Date__c = endDate,
@@ -181,10 +184,133 @@ global class RVR_New_MSLBatch implements Database.Batchable<SObject>, Database.S
         }
 
         insert monthSplits;
+        
+        // Create Purchase Order Recommendations
+        createPurchaseOrderRecommendations();
+    }
+    
+    private void createPurchaseOrderRecommendations() {
+        Map<Id, Id> dealerToRecommendationId = new Map<Id, Id>();
+        
+        // Create Purchase_Order_Recommendation__c records for each dealer
+        for (Id dealerId : dealerMonthProductQtyMap.keySet()) {
+            Purchase_Order_Recommendation__c recommendation = new Purchase_Order_Recommendation__c(
+                Recommendation_Date__c = today,
+                Dealer__c = dealerId
+            );
+            purchaseRecommendations.add(recommendation);
+        }
+        
+        insert purchaseRecommendations;
+        
+        // Create map of dealer to recommendation ID
+        for (Purchase_Order_Recommendation__c rec : purchaseRecommendations) {
+            dealerToRecommendationId.put(rec.Dealer__c, rec.Id);
+        }
+        
+        // Process each dealer's products for recommendations
+        for (Id dealerId : dealerMonthProductQtyMap.keySet()) {
+            Id recommendationId = dealerToRecommendationId.get(dealerId);
+            Map<String, Map<Id, Decimal>> monthMap = dealerMonthProductQtyMap.get(dealerId);
+            
+            // Build product → monthly quantities
+            Map<Id, List<Decimal>> productQtyListMap = new Map<Id, List<Decimal>>();
+            Map<Id, String> productFirstMonthKey = new Map<Id, String>();
+            Map<Id, String> productLastMonthKey = new Map<Id, String>();
+            
+            for (String monthKey : monthMap.keySet()) {
+                Map<Id, Decimal> productQtyMap = monthMap.get(monthKey);
+                for (Id productId : productQtyMap.keySet()) {
+                    Decimal qty = productQtyMap.get(productId);
+                    if (!productQtyListMap.containsKey(productId)) {
+                        productQtyListMap.put(productId, new List<Decimal>());
+                    }
+                    productQtyListMap.get(productId).add(qty);
+                    // track earliest monthKey
+                    if (!productFirstMonthKey.containsKey(productId) || monthKey < productFirstMonthKey.get(productId)) {
+                        productFirstMonthKey.put(productId, monthKey);
+                    }
+                    // track latest monthKey
+                    if (!productLastMonthKey.containsKey(productId) || monthKey > productLastMonthKey.get(productId)) {
+                        productLastMonthKey.put(productId, monthKey);
+                    }
+                }
+            }
+            
+            // Process each product for recommendations
+            for (Id productId : productQtyListMap.keySet()) {
+                List<Decimal> quantities = productQtyListMap.get(productId);
+                
+                // Check if product qualifies for recommendation
+                if (isProductQualifiedForRecommendation(quantities, productFirstMonthKey.get(productId), productLastMonthKey.get(productId))) {
+                    Decimal recommendedQty = calculateRecommendedQuantity(quantities);
+                    
+                    Purchase_Order_Recommendation_Line__c line = new Purchase_Order_Recommendation_Line__c(
+                        Purchase_Order_Recommendation__c = recommendationId,
+                        Product__c = productId,
+                        Recommended_Quantity__c = recommendedQty.setScale(0)
+                    );
+                    purchaseRecommendationLines.add(line);
+                }
+            }
+        }
+        
+        insert purchaseRecommendationLines;
+    }
+    
+    private Boolean isProductQualifiedForRecommendation(List<Decimal> quantities, String firstMonthKey, String lastMonthKey) {
+        // Count non-zero months
+        Integer nonZeroMonths = 0;
+        for (Decimal qty : quantities) {
+            if (qty > 0) {
+                nonZeroMonths++;
+            }
+        }
+        
+        // Must have at least 4 months with sales
+        if (nonZeroMonths < 4) return false;
+        
+        // Check for consecutive zeros at start
+        Integer consecutiveZerosAtStart = 0;
+        for (Decimal qty : quantities) {
+            if (qty == 0) {
+                consecutiveZerosAtStart++;
+            } else {
+                break;
+            }
+        }
+        
+        // Check for consecutive zeros at end
+        Integer consecutiveZerosAtEnd = 0;
+        for (Integer i = quantities.size() - 1; i >= 0; i--) {
+            if (quantities[i] == 0) {
+                consecutiveZerosAtEnd++;
+            } else {
+                break;
+            }
+        }
+        
+        // Reject if more than 2 consecutive zeros at start or end
+        if (consecutiveZerosAtStart > 2 || consecutiveZerosAtEnd > 2) return false;
+        
+        return true;
+    }
+    
+    private Decimal calculateRecommendedQuantity(List<Decimal> quantities) {
+        Decimal totalQty = 0;
+        Integer nonZeroMonths = 0;
+        
+        for (Decimal qty : quantities) {
+            if (qty > 0) {
+                totalQty += qty;
+                nonZeroMonths++;
+            }
+        }
+        
+        // Calculate average: total quantity / number of non-zero months
+        return nonZeroMonths > 0 ? totalQty / nonZeroMonths : 0;
     }
 
-
-    
     private String getMonthName(Integer month) {
         Map<Integer, String> monthNames = new Map<Integer, String>{
             1 => 'January',

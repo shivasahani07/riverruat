@@ -88,7 +88,7 @@
             <tr>
                 <td>
                     Invoice Date:
-                    <apex:outputText value="{0,date,dd/MM/yyyy}"><apex:param value="{!currentDate}" /></apex:outputText><br />
+                    <apex:outputText value="{0,date,dd/MM/yyyy}"><apex:param value="{!InvoiceDate}" /></apex:outputText><br />
                     <br />
                     Invoice No: <span style="white-space: nowrap;">{!invoiceId}</span><br /><br />
                     Order Id: <span style="white-space: nowrap;">{!order.Website_Order_Id__c}</span><br /><br />
@@ -276,17 +276,23 @@
         <div style="margin-top:15px;float:left;width:100%;font-family: Helvetica, sans-serif;">
             <span>Amount In Words: {!inWords}</span>
             <hr style="margin: 5px 0; border: 1px solid black;" />
-            <span>Whether tax is payable on reverse charge basis - No</span>
+            <span>Whether tax is payable on reverse charge basis - No</span><br/>
+            <br/>
+            
+            <apex:outputPanel rendered="{!storeType == 'DODO'}">
+                For {!dodoAccName}
+            </apex:outputPanel>
+            <apex:outputPanel rendered="{!storeType == 'COCO'}">
+                For River Mobility Private Limited
+            </apex:outputPanel>
         </div>
-        
         <div style="width: 100%; text-align: left;font-family: Helvetica, sans-serif;margin-top:5px;float:left;">
             <p style="width:30%;text-align:left;float:left;">
-                For River Mobility Private Limited	 <br/> <br/>
-                Authorized Signature	<br />	
+                Authorized Signature<br/>
             </p>
             <p style="float:right; width:60%;text-align:left; width:25%">
                 Thank You for Choosing River 
-            </p>         
+            </p>
         </div>
         
     </body>

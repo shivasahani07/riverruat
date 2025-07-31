@@ -1,6 +1,6 @@
 public class NewAccessoriesE_InvoicePDFController {
     Public List<OrderItem> orderItemList{get;set;}
-    Public Date currentDate {get;set;}
+    Public Date InvoiceDate {get;set;}
     Public Order order{get;set;}
     Public string inWords{get;set;}
     Public string invoiceId{get;set;}
@@ -156,7 +156,6 @@ public class NewAccessoriesE_InvoicePDFController {
                 System.debug('samestate---'+sameState);
             }
             
-            currentDate = Date.today();
             System.debug('Order Id---' + orderId);
             AccessoriesDiscountAmountOnOrder = order.OTC_Additional_Discount_Amount__c != null ? order.OTC_Additional_Discount_Amount__c : 0;
             
@@ -176,7 +175,7 @@ public class NewAccessoriesE_InvoicePDFController {
             //InvoiceId generation
             // Fetch the related Order_Invoice__c record to get the invoice number
             List<Order_Invoice__c> orderInvoices = [
-                SELECT Id, Name, Invoice_Number__c,Invoice_Type__c 
+                SELECT Id, Name, Invoice_Number__c,Invoice_Type__c, Invoice_Date__c 
                 FROM Order_Invoice__c 
                 WHERE Order__c = :orderId AND Invoice_Type__c = 'Accessories Invoice'
                 ORDER BY CreatedDate DESC 
@@ -186,8 +185,10 @@ public class NewAccessoriesE_InvoicePDFController {
             String invoiceSequenceVH = '';
             if (!orderInvoices.isEmpty()) {
                 invoiceSequenceVH = orderInvoices[0].Invoice_Number__c;
+                InvoiceDate = orderInvoices[0].Invoice_Date__c;
             } else {
-                invoiceSequenceVH = 'RV_INVOICE_VH'; // fallback value
+                 invoiceSequenceVH = 'RV_INVOICE_VH';
+                InvoiceDate = System.today();
             }
 
             PageReference vfPagepdf = Page.NewAccessoriesInvoiceE_Invoice;
@@ -195,13 +196,7 @@ public class NewAccessoriesE_InvoicePDFController {
             vfPagepdf.getParameters().put('sequence', invoiceSequenceVH);
             system.debug('invoicesequence == >'+invoiceSequenceVH);
             
-            String dateString = System.currentPageReference().getParameters().get('date');
             
-            if (dateString != null) {
-                currentDate = Date.parse(dateString);
-            } else {
-                currentDate = Date.today();
-            }
             
             If(invoiceSequenceVH != null && invoiceSequenceVH != ''){
                 invoiceId = invoiceSequenceVH;

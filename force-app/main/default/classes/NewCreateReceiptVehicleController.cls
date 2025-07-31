@@ -1,6 +1,6 @@
 public class NewCreateReceiptVehicleController {
     Public List<OrderItem> orderItemList{get;set;}
-    Public Date currentDate {get;set;}
+    Public Date InvoiceDate {get;set;}
     Public Order order{get;set;}
     Public string inWords{get;set;}
     Public string invoiceId{get;set;}
@@ -135,7 +135,6 @@ public class NewCreateReceiptVehicleController {
                 System.debug('samestate == >'+sameState);
             }
             
-            currentDate = Date.today();
             
             orderItemList = [SELECT Id, HSN_Code__c, Quantity, UnitPrice,Type__c, TotalPrice, Description, Order.Invoice_No__c,Charger_Included__c, Product2.CGST_Percentage__c, Product2.IGST_Percentage__c, Product2.SGST_Percentage__c,  Product2.Merchandise_discount_price__c, Taxable_Amount__c,Product_IGST__c,Product_IGST_Amount__c,Product_CGST__c,Product_CGST_Amount__c,Product_SGST__c,Product_SGST_Amount__c,Product_Total_Amount__c, Merchandise_Disccount_Amount__c FROM OrderItem  WHERE  OrderId = :orderId AND Type__c = 'Vehicle']; 
             
@@ -152,15 +151,23 @@ public class NewCreateReceiptVehicleController {
             }
             
             //InvoiceId generation
+            //InvoiceId generation
+            List<Order_Invoice__c> orderInvoices = [
+                SELECT Id, Name, Invoice_Number__c,Invoice_Type__c, Invoice_Date__c 
+                FROM Order_Invoice__c 
+                WHERE Order__c = :orderId AND Invoice_Type__c = 'Vehicle Invoice'
+                ORDER BY CreatedDate DESC 
+                LIMIT 1
+            ];
             string invoicesequence = System.currentPageReference().getParameters().get('sequence');
             system.debug('invoicesequence == >'+invoicesequence);
-            // String dateString = System.currentPageReference().getParameters().get('date');
-            // system.debug('dateString == >'+dateString);
             
-            If(invoicesequence != null && invoicesequence != ''){
-                invoiceId = invoicesequence;
-            }else{
+            if(!orderInvoices.isEmpty()){
+                 InvoiceDate = orderInvoices[0].Invoice_Date__c;
+                invoiceId = orderInvoices[0].Invoice_Number__c;
+            } else {
                 invoiceId = 'RV_INVOICE_VH';
+                InvoiceDate = System.today();
             }
             
             System.debug('invoiceId>>'+invoiceId);

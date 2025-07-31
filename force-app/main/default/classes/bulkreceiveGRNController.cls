@@ -1,3 +1,10 @@
+/**
+ * @description       : 
+ * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @group             : 
+ * @last modified on  : 07-30-2025
+ * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+**/
 public  Without Sharing class bulkreceiveGRNController {
 
 	  @AuraEnabled //(Cacheable = true)
@@ -125,10 +132,19 @@ public  Without Sharing class bulkreceiveGRNController {
             if (!shipmentItemsToUpdate.isEmpty()) {
                 system.debug('Inside======');
                 update shipmentItemsToUpdate;
-                Shipment shiprec  = [Select id,Is_Discrepancy_Created__c From Shipment where Id =:recordId];
-                 system.debug('shiprec======'+shiprec);
-                shiprec.Is_Discrepancy_Created__c = True;
-                update shiprec;
+                
+                //Added by Aniket on 30/07/2025
+                Set<Id> shipmentId = new Set<Id>();
+                for(ShipmentItem s : shipmentItemsToUpdate){
+                    shipmentId.add(s.ShipmentId);
+                }
+                Shipment s =[SELECT Id,Order__c,Order__r.Status,Status FROM Shipment WHERE Id=:shipmentId LIMIT 1];
+                s.Status='Delivered';
+                update s;
+                Order o = [SELECT Id,Status FROM Order WHERE Id=:s.Order__c LIMIT 1];
+                o.Status='Delivered';
+                update o;
+                //Added by Aniket upto here
                 System.debug('Updated ' + shipmentItemsToUpdate.size() + ' Shipment Items successfully.');
                 updateProductTransferReceivedQuantity(shipmentItemsToUpdate);//added By Aniket on 30/04/2025
                 return 'SUCCESS';
@@ -180,7 +196,7 @@ public  Without Sharing class bulkreceiveGRNController {
     }
 
 	  @AuraEnabled
-    public static string createDiscrepancyAndLineitem(String updatedItems) {
+    public static string createDiscrepancyAndLineitem(String updatedItems,string recordId) {
         System.debug('Received updatedItems: ' + updatedItems);
         
         try {
@@ -195,7 +211,7 @@ public  Without Sharing class bulkreceiveGRNController {
             Set<Id> shipmentItemIds = new Set<Id>();
             Map<Id, Decimal> shipmentItemReceivedQtyMap = new Map<Id, Decimal>();
             
-            for (String key : updatedItemsMap.keySet()) {
+            for (String key : updatedItemsMap.keySet()) { 
                 if (!String.isEmpty(key)) {
                     shipmentItemIds.add(Id.valueOf(key));
                     
@@ -290,6 +306,20 @@ public  Without Sharing class bulkreceiveGRNController {
             
             if (!disLineItemsToInsert.isEmpty()) {
                 insert disLineItemsToInsert;
+                Shipment shiprec  = [Select id,Is_Discrepancy_Created__c,Status,Order__c From Shipment where Id =:recordId];
+                system.debug('shiprec======'+shiprec);
+                shiprec.Is_Discrepancy_Created__c = True;
+                shiprec.Status='Delivered';
+                update shiprec;
+                
+                Order o = [SELECT Id,Status FROM Order WHERE Id=:shiprec.Order__c];
+                o.Status='Delivered';
+                Update o;
+
+
+                
+
+
                 System.debug('Inserted ' + disLineItemsToInsert.size() + ' Discrepancy Line Items');
             }
             

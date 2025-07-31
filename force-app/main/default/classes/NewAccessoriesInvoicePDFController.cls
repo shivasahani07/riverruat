@@ -160,14 +160,13 @@ public class NewAccessoriesInvoicePDFController {
                 ORDER BY CreatedDate DESC 
                 LIMIT 1
             ];
-            string invoicesequence = System.currentPageReference().getParameters().get('sequence');
-            if (invoicesequence != null && invoicesequence != '') {
-                invoiceId = invoicesequence;
-            } else {
-                invoiceId = 'RV_INVOICE_VH';
-            }
+            
             if (!orderInvoices.isEmpty()) {
                 InvoiceDate = orderInvoices[0].Invoice_Date__c;
+                invoiceId = orderInvoices[0].Invoice_Number__c;
+            } else {
+                invoiceId = 'RV_INVOICE_VH';
+                InvoiceDate = System.today();
             }
             
             System.debug('invoiceId>>'+invoiceId);

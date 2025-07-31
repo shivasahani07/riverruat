@@ -1,3 +1,10 @@
+<!--
+  @description       : 
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             : 
+  @last modified on  : 07-31-2025
+  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+-->
 <template>
     
     <lightning-card title="Batch Record" icon-name="standard:account">
@@ -125,13 +132,25 @@
                         <lightning-icon icon-name="utility:close" alternative-text="Close"></lightning-icon>
                         <span class="slds-assistive-text">Close</span>
                     </button>
-                    <h2 class="slds-text-heading_medium">Select Warranty Claims</h2>
+                    <div style="border:2px solid black;padding: 10px;border-radius: 50px 20px;">
+                        <h2 class="slds-text-heading_medium">Select Warranty Claims</h2>
+                    </div>
+                    
+
+                     <div>
+                        <h1 class="slds-text-heading_medium" style="font-size:small;margin-top:10px">Search Warranty Claims</h1>
+                   <lightning-input type="text" placeholder='Type here...' onchange={handleSearchKey}></lightning-input>
+                </div>
                 </header>
+
+                <!--Addded By Aniket-->
+               
+                
 
                 <div class="slds-modal__content slds-p-around_medium">
                     <lightning-datatable
                         key-field="Id"
-                        data={claims}
+                        data={claimsFiltered}
                         columns={columns}
                         onrowselection={handleRowSelection}
                         selected-rows={preSelectedRowIds}

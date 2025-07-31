@@ -189,7 +189,8 @@ export default class BulkrecieveGRN extends LightningElement {
         console.warn(`No matching item found for rowId: ${rowId}`);
         return; // Avoid further execution if no matching item is found
     }
-        //upto here
+        //upto here, recordId: this.recordId
+
         
         if (!this.updatedValues[rowId]) {
             this.updatedValues[rowId] = {
@@ -295,7 +296,7 @@ export default class BulkrecieveGRN extends LightningElement {
         }
 
         if (Object.keys(filteredUpdates).length === 0) {
-            updateShipmentItemQuantities({ updatedItemsJson: JSON.stringify(matchingUpdates ), recordId: this.recordId })
+            updateShipmentItemQuantities({ updatedItemsJson: JSON.stringify(matchingUpdates ) })
                 .then(() => {
                     this.dispatchEvent(
                         new ShowToastEvent({
@@ -320,7 +321,7 @@ export default class BulkrecieveGRN extends LightningElement {
            // return;
         }
 
-        createDiscrepancyAndLineitem({ updatedItems: JSON.stringify(filteredUpdates) })
+        createDiscrepancyAndLineitem({ updatedItems: JSON.stringify(filteredUpdates), recordId: this.recordId })
             .then((result) => {
                 debugger;
                 if (result === 'SUCCESS') {  

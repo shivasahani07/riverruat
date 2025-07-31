@@ -1,6 +1,6 @@
 public class NewMerchandiseE_InvoicePDFController {
     Public List<OrderItem> orderItemList{get;set;}
-    Public Date currentDate {get;set;}
+    Public Date InvoiceDate {get;set;}
     Public Order order{get;set;}
     Public string inWords{get;set;}
     Public string invoiceId{get;set;}
@@ -148,8 +148,6 @@ public class NewMerchandiseE_InvoicePDFController {
                 System.debug('samestate == >'+sameState);
             }
             
-            currentDate = Date.today();
-            
             orderItemList = [SELECT Id, HSN_Code__c, Quantity, UnitPrice, TotalPrice, Description, Order.Invoice_No__c,Charger_Included__c, Product2.CGST_Percentage__c,  Taxable_Amount__c,Product_IGST__c,Product_IGST_Amount__c,Product_CGST__c,Product_CGST_Amount__c,Product_SGST__c,Product_SGST_Amount__c,Product_Total_Amount__c, Product2.IGST_Percentage__c, Product2.SGST_Percentage__c, OrderItemNumber, Product2.Name,Type__c, Product2.Merchandise_discount_price__c, Merchandise_Disccount_Amount__c  FROM OrderItem  WHERE  OrderId = :orderId AND Type__c = 'Merchandise' ]; 
             
             for (OrderItem oi : orderItemList) {
@@ -170,7 +168,7 @@ public class NewMerchandiseE_InvoicePDFController {
             
             //InvoiceId generation
             List<Order_Invoice__c> orderInvoices = [
-                SELECT Id, Name, Invoice_Number__c,Invoice_Type__c 
+                SELECT Id, Name, Invoice_Number__c,Invoice_Type__c, Invoice_Date__c 
                 FROM Order_Invoice__c 
                 WHERE Order__c = :orderId AND Invoice_Type__c = 'Merchandise Invoice'
                 ORDER BY CreatedDate DESC 
@@ -180,8 +178,10 @@ public class NewMerchandiseE_InvoicePDFController {
             String invoiceSequenceVH = '';
             if (!orderInvoices.isEmpty()) {
                 invoiceSequenceVH = orderInvoices[0].Invoice_Number__c;
+                 InvoiceDate = orderInvoices[0].Invoice_Date__c;
             } else {
-                invoiceSequenceVH = 'RV_INVOICE_VH'; 
+                 invoiceSequenceVH = 'RV_INVOICE_VH';
+                InvoiceDate = System.today();
             }
             PageReference vfPagepdf = Page.NewMerchandiseE_Invoice;
             vfPagepdf.getParameters().put('id', Order.Id);
@@ -190,11 +190,6 @@ public class NewMerchandiseE_InvoicePDFController {
             
             String dateString = System.currentPageReference().getParameters().get('date');
             
-            if (dateString != null) {
-                currentDate = Date.parse(dateString);
-            } else {
-                currentDate = Date.today();
-            }
             
             If(invoiceSequenceVH != null && invoiceSequenceVH != ''){
                 invoiceId = invoiceSequenceVH;

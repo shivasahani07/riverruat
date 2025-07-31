@@ -10,7 +10,8 @@ import createProductRequestLineItems from '@salesforce/apex/ProductRequestLineCo
 import createPurchaseorder from '@salesforce/apex/ProductRequestLineController.createPurchaseorder';
 import getLogedInUserRelatedLocationPOLI from '@salesforce/apex/ProductRequestLineController.getLogedInUserRelatedLocationPOLI';
 //import showForeCastedData from '@salesforce/apex/ProductRequestLineController.showForeCastedData';
-import showForeCastedData from '@salesforce/apex/RecordAddProductRequestLineItemNew.getrecomendedProducts';
+//import showForeCastedData from '@salesforce/apex/RecordAddProductRequestLineItemNew.getrecomendedProducts';
+import showForeCastedData from '@salesforce/apex/RecordAddProductRequestLineItemNew.getAllForcastQuantity';
 import userId from '@salesforce/user/Id';
 import { CloseActionScreenEvent } from 'lightning/actions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
@@ -55,7 +56,8 @@ export default class AddProductRequestLiteItem extends LightningElement {
         this.recordId = this.recordId;
         console.log(this.recordId);
         this.callApexMethod();
-        this.callApexMethod2();
+        // this.callApexMethod2();
+        this.callApexMethod3();
     }
 
     closeModal() {
@@ -99,7 +101,46 @@ export default class AddProductRequestLiteItem extends LightningElement {
             });
     }
 
-    callApexMethod2() {
+    // callApexMethod2() {
+    //     debugger;
+    //     this.showSpinner = true;
+    //     const startTime = new Date().getTime();
+    //     const spinnerDelay = 1000;
+        
+    //     showForeCastedData({ loggedInUserId: this.currentUserId, productTypeFilter: this.productType })
+    //         .then((data) => {
+    //             if (data) {
+    //                 this.forecastedLineItems = data.map((res) => ({
+    //                     Id: res.id,
+    //                     ProductName: res.productName,
+    //                     ProductCode: res.productCode,
+    //                     AllocatedQuantity: res.quantity,
+    //                     selected: false,
+    //                     isChargesDisabled: true
+    //                 }));
+
+    //                 this.forecastedLineItems = this.forecastedLineItems.map((item, idx) => ({
+    //                 ...item,
+    //                 index: idx + 1
+    //             }));
+
+
+    //                 this.editableForecastedLineItems = JSON.parse(JSON.stringify(this.forecastedLineItems));
+    //                 this.showForecastedData = true;
+    //             }
+    //         })
+    //         .catch((error) => {
+    //             console.error('Error fetching data:', error);
+    //         })
+    //         .finally(() => {
+    //             const elapsedTime = new Date().getTime() - startTime;
+    //             const remainingTime = Math.max(0, spinnerDelay - elapsedTime);
+    //             setTimeout(() => {
+    //                 this.showSpinner = false;
+    //             }, remainingTime);
+    //         });
+    // }
+    callApexMethod3() {
         debugger;
         this.showSpinner = true;
         const startTime = new Date().getTime();
@@ -109,10 +150,10 @@ export default class AddProductRequestLiteItem extends LightningElement {
             .then((data) => {
                 if (data) {
                     this.forecastedLineItems = data.map((res) => ({
-                        Id: res.id,
+                        Id: res.productId,
                         ProductName: res.productName,
                         ProductCode: res.productCode,
-                        AllocatedQuantity: res.quantity,
+                        AllocatedQuantity: res.adjustedConsumption,
                         selected: false,
                         isChargesDisabled: true
                     }));
@@ -138,6 +179,8 @@ export default class AddProductRequestLiteItem extends LightningElement {
                 }, remainingTime);
             });
     }
+    
+
 
 
     // handleCheckboxChangeForForecast(event) {
