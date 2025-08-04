@@ -149,11 +149,16 @@ export default class AddProductRequestLiteItem extends LightningElement {
         showForeCastedData({ loggedInUserId: this.currentUserId, productTypeFilter: this.productType })
             .then((data) => {
                 if (data) {
+                    console.log('-------------**********--------------');
+                    console.log(JSON.stringify(data));
+
                     this.forecastedLineItems = data.map((res) => ({
                         Id: res.productId,
                         ProductName: res.productName,
                         ProductCode: res.productCode,
-                        AllocatedQuantity: res.adjustedConsumption,
+                        //AllocatedQuantity: res.adjustedConsumption,
+                        AllocatedQuantity: res.pendingQty,
+                        // PendingQuantity: res.Pending_Forecast_Quantity__c,
                         selected: false,
                         isChargesDisabled: true
                     }));

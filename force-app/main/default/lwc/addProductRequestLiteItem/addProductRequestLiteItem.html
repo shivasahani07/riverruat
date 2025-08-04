@@ -17,7 +17,7 @@
                 <h3 class="slds-text-heading_medium" style="font-weight:600; color:#032d60;">
                     Forecast Items
                 </h3>
-            </div>
+                </div>
                 <table class="slds-table slds-table_bordered slds-table_cell-buffer">
                         <thead>
                             <tr>
@@ -42,6 +42,13 @@
                                     </td>
                                     <td>{item.ProductName}</td>
                                     <td>{item.ProductCode}</td>
+                                    <!--
+                                    <td>
+                                        <lightning-input type="number" data-id={item.Id} value={item.AllocatedQuantity}
+                                            disabled={item.isChargesDisabled} style="margin-bottom:14px">
+                                        </lightning-input>
+                                    </td>
+                                    -->
                                     <td>
                                         <lightning-input type="number" data-id={item.Id} value={item.AllocatedQuantity}
                                             disabled={item.isChargesDisabled} style="margin-bottom:14px">
@@ -94,7 +101,6 @@
                                             disabled={item.isChargesDisabled} style="margin-bottom:14px">
                                         </lightning-input>
                                     </td>
-
                                 </tr>
                             </template>
                         </tbody>

@@ -1,0 +1,37 @@
+<template>
+    <lightning-card>
+        <lightning-progress-indicator current-step={selectedStep} type="path" variant="base">
+            <template for:each={displayedSteps} for:item="step">
+                <lightning-progress-step key={step.value} label={step.label} value={step.value} onclick={statusClick}>
+                </lightning-progress-step>
+            </template>
+        </lightning-progress-indicator>
+
+        <!-- Path Footer Button -->
+        <div class="slds-p-around_medium slds-align_absolute-center">
+            <lightning-button label={footerButtonLabel} variant="brand" onclick={openModal}>
+            </lightning-button>
+        </div>
+
+        <!-- Modal -->
+        <template if:true={showModal}>
+            <section role="dialog" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <h2 class="slds-modal__title">Set Final Job Card Status</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium">
+                        <lightning-combobox name="finalStatus" label="Status" value={selectedStep} options={finalSteps}
+                            onchange={handleStatusChange} required>
+                        </lightning-combobox>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button variant="neutral" label="Cancel" onclick={closeModal}></lightning-button>
+                        <lightning-button variant="brand" label="Save" onclick={handleSave}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+    </lightning-card>
+</template>

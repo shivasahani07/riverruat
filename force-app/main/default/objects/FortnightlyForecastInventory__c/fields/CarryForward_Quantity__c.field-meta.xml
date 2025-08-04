@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Quantity_Ordered__c</fullName>
+    <fullName>CarryForward_Quantity__c</fullName>
     <externalId>false</externalId>
-    <inlineHelpText>Quantity_Ordered</inlineHelpText>
-    <label>PO Quantity</label>
+    <label>CarryForward Quantity</label>
     <precision>18</precision>
     <required>false</required>
     <scale>0</scale>

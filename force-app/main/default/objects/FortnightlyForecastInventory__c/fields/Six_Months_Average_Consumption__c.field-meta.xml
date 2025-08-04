@@ -2,8 +2,8 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Six_Months_Average_Consumption__c</fullName>
     <externalId>false</externalId>
-    <inlineHelpText>Forecast Qty</inlineHelpText>
-    <label>Six Months Average Consumption</label>
+    <inlineHelpText>Six_Months_Average_Consumption</inlineHelpText>
+    <label>Forecasted Quantity</label>
     <precision>18</precision>
     <required>false</required>
     <scale>0</scale>

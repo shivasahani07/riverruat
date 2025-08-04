@@ -25,11 +25,6 @@
         <operation>equals</operation>
         <value>Under Warehouse Review</value>
     </filters>
-    <filters>
-        <field>CREATED_DATE</field>
-        <operation>equals</operation>
-        <value>TODAY</value>
-    </filters>
     <label>Warehouse DIT Approval</label>
     <sharedTo>
         <group>Warehouse_Group</group>

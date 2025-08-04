@@ -32,6 +32,10 @@ private class AccountRegistrationAPITest {
         RestContext.request = req;
         RestContext.response = res;
         
+        Website_Creds__c rwd = new Website_Creds__c(Name='Website Creds', BaseURL__c='https://dummywebsite.com',ClientId__c = 'mock-api-key', ClientSecret__c = 'https://example.com/image.jpg');
+        insert rwd;
+
+        
         River_Website_Details__c mockIntegration = new River_Website_Details__c(
             Name = 'River Website',
             BaseURL__c = 'https://api.whatsapp.com/send',
@@ -39,6 +43,8 @@ private class AccountRegistrationAPITest {
             ClientSecret__c	 = 'https://example.com/image.jpg'
         );
         insert mockIntegration;
+        
+        
         
         AccountRegistrationAPI.createAccountContact();
         
@@ -98,6 +104,9 @@ private class AccountRegistrationAPITest {
         RestContext.request = req;
         RestContext.response = res;
         
+        Website_Creds__c rwd = new Website_Creds__c(Name='Website Creds', BaseURL__c='https://dummywebsite.com',ClientId__c = 'mock-api-key', ClientSecret__c = 'https://example.com/image.jpg');
+        insert rwd;
+        
         // Call the REST method
         AccountRegistrationAPI.createAccountContact();
         
@@ -153,6 +162,9 @@ private class AccountRegistrationAPITest {
         RestContext.response = res;
         
         // Call the REST method
+        // 
+        Website_Creds__c rwd = new Website_Creds__c(Name='Website Creds', BaseURL__c='https://dummywebsite.com',ClientId__c = 'mock-api-key', ClientSecret__c = 'https://example.com/image.jpg');
+        insert rwd;
         
         AccountRegistrationAPI.createAccountContact();
         
@@ -210,6 +222,9 @@ private class AccountRegistrationAPITest {
         RestResponse res = new RestResponse();
         RestContext.request = req;
         RestContext.response = res;
+        
+        Website_Creds__c rwd = new Website_Creds__c(Name='Website Creds', BaseURL__c='https://dummywebsite.com',ClientId__c = 'mock-api-key', ClientSecret__c = 'https://example.com/image.jpg');
+        insert rwd;
         
         // Call the REST method
         AccountRegistrationAPI.createAccountContact();

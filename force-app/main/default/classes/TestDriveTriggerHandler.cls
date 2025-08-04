@@ -2,7 +2,7 @@
 * @description       : 
 * @author            : Aniket Karmakar
 * @group             : 
-* @last modified on  : 02-26-2025
+* @last modified on  : 08-04-2025
 * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public class TestDriveTriggerHandler {
@@ -69,12 +69,15 @@ public class TestDriveTriggerHandler {
         Map<Id,String> idToPhoneNumberMapForHome = new Map<Id,String>();
         Map<Id,String> idToFormattedDateTimeMapForHome = new Map<Id,String>();
         Map<Id,String> rideTypeMapForHome = new Map<Id,String>(); 
+        Map<Id,String> idToTimeOnlyForHome = new Map<Id,String>();
         
         //dataSet for Store Ride
         List<Id> testDriveIdsToProcessForStore = new List<Id>();
         Map<Id,String> idToPhoneNumberMapForStore = new Map<Id,String>();
         Map<Id,String> idToFormattedDateTimeMapForStore = new Map<Id,String>();
         Map<Id,String> rideTypeMapForStore = new Map<Id,String>();
+        Map<Id,String> idToTimeOnlyForStrore = new Map<Id,String>();
+
         
         //delaer code custom metadata dataset
         List<String> dealerCodes = new List<String>();
@@ -110,14 +113,17 @@ public class TestDriveTriggerHandler {
                             Datetime dateTimeString = t.Test_Ride_Date__c;
                             String formattedTimeForHome = dateTimeString.format('dd/MM/yyyy');
                             String rideTypeValueForHome = 'the comfort of your home';
+                            String timeOnly = t.Test_Ride_Date__c.format('hh:mm a');//added by Aniket on 04/08/2025
                             
                             testDriveIdsToProcessForHome.add(t.Id);
                             idToPhoneNumberMapForHome.put(t.Id, leadRecord.Phone);
                             idToFormattedDateTimeMapForHome.put(t.Id, formattedTimeForHome);
                             rideTypeMapForHome.put(t.Id, rideTypeValueForHome);
+                            idToTimeOnlyForHome.put(t.Id,timeOnly);//added by Aniket on 04/08/2025
                         } else if (t.Ride_Type__c == 'STR') {
                             Datetime dateTimeString = t.Test_Ride_Date__c;
                             String formattedTimeForStore = dateTimeString.format('dd/MM/yyyy');
+                            String timeOnly = t.Test_Ride_Date__c.format('hh:mm a');//added by Aniket on 04/08/2025
                             //additional condition
                             String rideTypeValueForStore;
                             
@@ -132,6 +138,7 @@ public class TestDriveTriggerHandler {
                             idToPhoneNumberMapForStore.put(t.Id, leadRecord.Phone);
                             idToFormattedDateTimeMapForStore.put(t.Id, formattedTimeForStore);
                             rideTypeMapForStore.put(t.Id, rideTypeValueForStore);
+                            idToTimeOnlyForStrore.put(t.Id,timeOnly);
                         }
                     }
                 }
@@ -143,10 +150,10 @@ public class TestDriveTriggerHandler {
             System.debug('rideTypeMapForStore===>'+rideTypeMapForStore);
             
             if(!testDriveIdsToProcessForHome.isEmpty() && (idToPhoneNumberMapForHome!=null && idToFormattedDateTimeMapForHome!=null &&rideTypeMapForHome!=null)){
-                System.enqueueJob(new QueueableOnTestDriveCreation(testDriveIdsToProcessForHome,idToPhoneNumberMapForHome,idToFormattedDateTimeMapForHome,rideTypeMapForHome));
+                //System.enqueueJob(new TestDriveCreationUpdatedQueueable(testDriveIdsToProcessForHome,idToPhoneNumberMapForHome,idToFormattedDateTimeMapForHome,rideTypeMapForHome,idToTimeOnlyForHome));
             }
             if(!testDriveIdsToProcessForStore.isEmpty()&& (idToPhoneNumberMapForStore!=null && idToFormattedDateTimeMapForStore!=null &&rideTypeMapForStore!=null)){
-                System.enqueueJob(new QueueableOnTestDriveCreation(testDriveIdsToProcessForStore,idToPhoneNumberMapForStore,idToFormattedDateTimeMapForStore,rideTypeMapForStore));
+                //System.enqueueJob(new TestDriveCreationUpdatedQueueable(testDriveIdsToProcessForStore,idToPhoneNumberMapForStore,idToFormattedDateTimeMapForStore,rideTypeMapForStore,idToTimeOnlyForStrore));
             }
             
         }catch(Exception e){

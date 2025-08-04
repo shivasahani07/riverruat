@@ -89,6 +89,7 @@ export default class JobCardActionPlanApproval extends LightningElement {
       .then(() => {
         this.showToast('Success', 'Submitted for approval', 'success');
         this.dispatchEvent(new CloseActionScreenEvent());
+        this.isLoading = false;
       })
       .catch(error => {
         this.isLoading = false;

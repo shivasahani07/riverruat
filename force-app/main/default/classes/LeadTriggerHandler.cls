@@ -2,7 +2,7 @@
 * @description       :
 * @author            : Aniket Karmakar
 * @group             :
-* @last modified on  : 07-18-2025
+* @last modified on  : 08-04-2025
 * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public class LeadTriggerHandler {
@@ -36,7 +36,7 @@ public class LeadTriggerHandler {
             System.debug('leadListToFetch==>'+leadListToFetch);
             //up to here
              //String templateName = 'new_lead_book_a_test_ride_03';
-             String templateName = 'new_lead_book_a_test_ride_03';
+             String templateName = 'lead_to_test_ride_flow';
             if(!leadListToFetch.isEmpty()){
                 for(Lead lead : leadListToFetch){
                     if((lead.LeadSource == 'Bike Dekho' || lead.LeadSource =='Facebook'||lead.LeadSource=='Google'||lead.LeadSource=='91Wheels') && (storeDealerCodes.contains(lead.Dealer_Code__c)||storeDealerCodes.contains(lead.Lead_Dealer_Code__c)) && lead.Phone !=null ){
@@ -44,8 +44,8 @@ public class LeadTriggerHandler {
                         newLeadMap.put(lead.Id,lead.Phone);
                     }
                 }
-                if(newLeadIds!=null && templateName!=null && imageUrl!=null && newLeadMap!=null){
-                    System.enqueueJob(new QueueableForImageTemplateMsg(newLeadIds, templateName, imageUrl, newLeadMap));
+                if(!newLeadIds.isEmpty() && templateName!=null && newLeadMap!=null){
+                    //System.enqueueJob(new QueueableTempWithoutParams(newLeadIds, templateName, newLeadMap));//changed by Aniket on 04/08/2025
                 }
             }
             
@@ -57,8 +57,8 @@ public class LeadTriggerHandler {
     }
     
     public static void callQueableMethodForAfterUpdate(List<Lead> newLeads,Map<Id,Lead> oldLeadMap){
-        //String templateName = 'new_lead_book_a_test_ride_03';
-        String templateName = 'lead_to_test_ride_flow';
+           String templateName = 'new_lead_book_a_test_ride_03';
+        // String templateName = 'lead_to_test_ride_flow';
         
         try{
             List<Store_Details__mdt> dealerCodes = [Select id,Dealer_Code__c,IsActive__c From Store_Details__mdt WHERE IsActive__c = true];

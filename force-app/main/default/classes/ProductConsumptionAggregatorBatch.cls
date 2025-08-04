@@ -19,9 +19,41 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
         for(ProductItem pi : items) {
             productIds.add(pi.Product2Id);    
         }
+        
+        // --------------------------------------------------- STORE THE VERY FIRST CONSUMPTION DATE ----------------------------------------------------- //
 
+        Map<String, Date> trueFirstConsumptionMap = new Map<String, Date>();
+        
+        for (Sales_Consumption__c sale : [
+            SELECT Order__r.AccountId, Product__c, Manual_Date_Test__c
+            FROM Sales_Consumption__c
+            WHERE Order__r.Dealer__r.Type != 'Customer'
+              AND Order__r.Account.Type != 'Customer'
+              AND Manual_Date_Test__c != NULL
+        ]) {
+            String key = sale.Order__r.AccountId + '|' + sale.Product__c;
+            Date dateVal = sale.Manual_Date_Test__c;
+        
+            if (!trueFirstConsumptionMap.containsKey(key) || dateVal < trueFirstConsumptionMap.get(key)) {
+                trueFirstConsumptionMap.put(key, dateVal);
+            }
+        }
+        
+        for (ProductConsumed pc : [
+            SELECT WorkOrder.Service_Center__c, Product2Id, CreatedDate
+            FROM ProductConsumed
+            WHERE WorkOrder.Service_Center__r.Type != 'Customer'
+        ]) {
+            String key = pc.WorkOrder.Service_Center__c + '|' + pc.Product2Id;
+            Date dateVal = pc.CreatedDate.date();
+        
+            if (!trueFirstConsumptionMap.containsKey(key) || dateVal < trueFirstConsumptionMap.get(key)) {
+                trueFirstConsumptionMap.put(key, dateVal);
+            }
+        }
+
+		// ---------------------------------------------- QUERY FOR SIX MONTHS CONSUMPTION ------------------------------------------------------- //
         List<ConsumptionRecord> allConsumption = new List<ConsumptionRecord>();
-		
         
         // Fetch Sales Consumption
         for (Sales_Consumption__c sale : [
@@ -59,7 +91,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                 consumed.QuantityConsumed
             ));
         }
-		
+        
         /*
         // Fetch Sales Consumption
         for (Sales_Consumption__c sale : [
@@ -124,7 +156,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             
             consumptionByKey.get(key).add(rec);
         }
-			
+            
         /*
         // Calculate consumption for dynamic periods
         for (String key : consumptionByKey.keySet()) {
@@ -145,7 +177,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             
             totalConsumptionMap.put(key, totalQty);
         }
-		*/
+        */
         
         // Calculate consumption for dynamic periods
         for (String key : consumptionByKey.keySet()) {
@@ -182,7 +214,10 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
         // Create ProductConsumptionTracking records
         List<ProductConsumptionTracking__c> trackingToInsert = new List<ProductConsumptionTracking__c>();
         
+        
         for (String key : firstConsumptionMap.keySet()) {
+            Date trueFirstDate = trueFirstConsumptionMap.get(key);
+            
             List<Decimal> monthlyQtys = monthlyConsumptionMap.get(key);
             String[] parts = key.split('\\|');
             Id accountId = (Id)parts[0];
@@ -231,7 +266,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                         }
                     }
                 }
-            	
+                
                 // Create Product Consumption Tracking Records
                 ProductConsumptionTracking__c pct = new ProductConsumptionTracking__c(
                     Account__c = accountId,
@@ -240,9 +275,9 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                     Month_Start_Date__c = periodStart,
                     Month_End_Date__c = periodEnd,
                     Total_Month_Qty__c = Math.roundToLong(totalQty),
-                    First_Consumption_Date__c = firstDate,
+                    First_Consumption_Date__c = trueFirstDate,					// This is the date of first ever consumption
                     //First_Consumption_Date__c = mslFirstDateMap.get(key),
-                    //Six_Month_First_Consumption_Date__c = firstDate,
+                    Six_Month_First_Consumption_Date__c = firstDate,			// This is the date of consumption in last six months
                     First_Half_Start_Date__c = firstHalfStart,
                     First_Half_End_Date__c = firstHalfEnd,
                     Second_Half_Start_Date__c = secondHalfStart,
@@ -267,6 +302,8 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
         ]);
         
         for (String key : firstConsumptionMap.keySet()) {
+            Date trueFirstDate = trueFirstConsumptionMap.get(key);
+            
             String[] parts = key.split('\\|');
             Id accountId = (Id)parts[0];
             Id productId = (Id)parts[1];
@@ -307,10 +344,12 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             // If finalQty is less than 0, skip
             if (finalQty <= 0) continue;
             
+            
             forecastToInsert.add(new FortnightlyForecastInventory__c(
                 Account__c = accountId,
                 Product__c = productId,
                 First_Consumed_Date__c = firstConsumptionMap.get(key),
+                Very_First_Consumption_Date__c = trueFirstDate,
                 Six_Months_Average_Consumption__c = Math.roundToLong(finalQty),
                 Total_6_Month_Consumption__c = totalQty,
                 Batch_Executed_Date__c = System.today(),
@@ -326,7 +365,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
     global void finish(Database.BatchableContext bc) {
         // Database.executeBatch(new POGenerationBatchForMSL(), 200);
     }
-	
+    
     
     // Helper Classes
     class ConsumptionRecord {

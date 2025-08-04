@@ -5,6 +5,7 @@
     <!--c:loader loading="true"></c:loader--> 
     <!--c:tfrCreator loading="true"></c:tfrCreator--> 
     <!--c:jobCardActionPlanApproval recordId='0WOBh000003WQQfOAO'></c:jobCardActionPlanApproval-->
+    <!--c:customHighlightPanel recordId="0WOBh000003OxILOA0"></c:customHighlightPanel--> 
     
-    <c:customHighlightPanel recordId="0WOBh000003OxILOA0"></c:customHighlightPanel> 
+    <c:workOrderPathCustom recordId="0WOF4000001hBXSOA2"></c:workOrderPathCustom> 
 </aura:application>

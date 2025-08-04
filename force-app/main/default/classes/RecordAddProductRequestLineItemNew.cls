@@ -171,7 +171,7 @@ public without sharing class RecordAddProductRequestLineItemNew {
                     endDateForQuery = Date.newInstance(todayForQuery.year(), today.month(), Date.daysInMonth(today.year(), today.month()));
                 }     
         //added by Aniket on 01/08/2025
-        List<FortnightlyForecastInventory__c> fortnightList = [SELECT ID,Account__c,Account__r.Name,Product__c,Product__r.ProductCode,Product__r.Name,Six_Months_Average_Consumption__c,Product__r.Type__c,CreatedDate,Batch_Executed_Date__c,PO_Status__c,Quantity_Ordered__c FROM FortnightlyForecastInventory__c
+        List<FortnightlyForecastInventory__c> fortnightList = [SELECT ID,Account__c,Account__r.Name,Product__c,Product__r.ProductCode,Product__r.Name,Six_Months_Average_Consumption__c,Product__r.Type__c,CreatedDate,Batch_Executed_Date__c,PO_Status__c,Quantity_Ordered__c, Pending_Forecast_Quantity__c FROM FortnightlyForecastInventory__c
                                                               WHERE Account__c=:loggedUser.Contact.accountId AND Product__r.Type__c NOT IN :ProductTypeNotToShow AND PO_Status__c IN('','Submitted') AND Batch_Executed_Date__c >= :startDateForQuery AND Batch_Executed_Date__c <= :endDateForQuery /*ORDER BY Batch_Executed_Date__c DESC*/];
       
        System.debug('fortnightList==>'+fortnightList);                                                       
@@ -184,7 +184,7 @@ public without sharing class RecordAddProductRequestLineItemNew {
         Date startDate = baseDate.addDays(-30);
         Date endDate = baseDate.addDays(-15);                                                 
 
-        List<FortnightlyForecastInventory__c> fortnightList2 = [SELECT ID,Account__c,Account__r.Name,Product__c,Product__r.ProductCode,Product__r.Name,Six_Months_Average_Consumption__c,Product__r.Type__c,CreatedDate,Batch_Executed_Date__c,PO_Status__c,Quantity_Ordered__c FROM FortnightlyForecastInventory__c
+        List<FortnightlyForecastInventory__c> fortnightList2 = [SELECT ID,Account__c,Account__r.Name,Product__c,Product__r.ProductCode,Product__r.Name,Six_Months_Average_Consumption__c,Product__r.Type__c,CreatedDate,Batch_Executed_Date__c,PO_Status__c,Quantity_Ordered__c, Pending_Forecast_Quantity__c FROM FortnightlyForecastInventory__c
                                                               WHERE Account__c=:loggedUser.Contact.accountId AND Product__r.Type__c NOT IN :ProductTypeNotToShow AND Batch_Executed_Date__c >= :startDate
           AND Batch_Executed_Date__c <= :endDate
           AND PO_Status__c IN ('Submitted','')
@@ -231,6 +231,7 @@ for (FortnightlyForecastInventory__c rec : fortnightList) {
     wrapper.accountName = rec.Account__r.Name;
     wrapper.batchDate = rec.Batch_Executed_Date__c;
     wrapper.adjustedConsumption = adjustedConsumption;
+    wrapper.pendingQty = rec.Pending_Forecast_Quantity__c;
 
     result.add(wrapper);
     processedProductIds.add(rec.Product__c);
@@ -300,5 +301,6 @@ return result;
     @AuraEnabled public String accountName;
     @AuraEnabled public Date batchDate;
     @AuraEnabled public Decimal adjustedConsumption;
+    @AuraEnabled public Decimal pendingQty;
     }
 }

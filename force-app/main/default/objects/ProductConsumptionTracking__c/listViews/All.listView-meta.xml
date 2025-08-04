@@ -11,5 +11,15 @@
     <columns>Processed_For_PO__c</columns>
     <columns>CREATED_DATE</columns>
     <filterScope>Everything</filterScope>
+    <filters>
+        <field>Account__c</field>
+        <operation>contains</operation>
+        <value>Aniket</value>
+    </filters>
+    <filters>
+        <field>Product__c</field>
+        <operation>equals</operation>
+        <value>Side Step</value>
+    </filters>
     <label>All</label>
 </ListView>
