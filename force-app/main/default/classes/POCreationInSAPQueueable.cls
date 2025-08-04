@@ -1,8 +1,8 @@
 /**
- * @description       : 
+ * @description       : For Creation of Sales Order In SAP
  * @author            : Aniket Karmakar
  * @group             : 
- * @last modified on  : 07-23-2025
+ * @last modified on  : 08-01-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public without sharing class POCreationInSAPQueueable implements Queueable,Database.allowsCallouts{
@@ -55,7 +55,7 @@ public without sharing class POCreationInSAPQueueable implements Queueable,Datab
             payload.put('RequestedDeliveryDate',formattedDate);//Hardcoded for Now 
             payload.put('CustomerPurchaseOrderDate',formattedDate);
             payload.put('PurchaseOrderByCustomer',String.valueof(p.ProductRequestNumber));
-            payload.put('OrganizationDivision',p.Product_Type__c == 'Vehicle' ? '01' : p.Product_Type__c == 'Service' ? '02' : p.Product_Type__c == 'Accessories' ? '03' : p.Product_Type__c == 'Merchandise' ? '04' : '02');//HardCoded For Now 
+            payload.put('OrganizationDivision',p.Product_Type__c == 'Vehicle' ? '01' : p.Product_Type__c == 'Service' ? '02' : p.Product_Type__c == 'Accessories' ? '03' : p.Product_Type__c == 'Merchandise' ? '04' : '02');
             payload.put('PartyCode',String.valueof(p.Contact__r.Dealer_Code__c));
 
             String serializedBody = JSON.serializePretty(payload);

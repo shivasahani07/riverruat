@@ -1,3 +1,10 @@
+<!--
+  @description       : 
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             : 
+  @last modified on  : 07-31-2025
+  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+-->
 <template>
     <div class="Section" style="font-size:20px;"><Center><strong>JOB CARD  {formattedLocation} </strong></Center></div>
 
@@ -244,6 +251,11 @@
                             required>
                         </lightning-input>
                     </td>
+                </tr>
+                <tr class="row">
+                     <td class="row">Extended Warranty</td>
+                    <td class="row"><lightning-input type=checkbox checked={ewSubmitted} disabled="true"></lightning-input></td>
+                   
                 </tr>
                 <tr >
                     <td class="row">Motor No.</td>

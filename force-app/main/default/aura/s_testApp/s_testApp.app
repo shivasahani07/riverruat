@@ -1,3 +1,3 @@
 <aura:application extends="force:slds">
-	 <c:bulkInsert_JCProductsCustom recordId='0WOBh000003WQQfOAO'></c:bulkInsert_JCProductsCustom>
+	 <c:jobCardActionPlanApproval recordId='0WOF4000001hBh1OAE'></c:jobCardActionPlanApproval>
 </aura:application>

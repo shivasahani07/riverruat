@@ -36,7 +36,7 @@ public with sharing class WarrantyTagPDFController {
                     claimItem = [ SELECT Id, Name,  Claim.Warranty_Prior__c, Claim.AccountId, Claim.Account.Name, Claim.Account.AccountNumber, Claim.Account.ShippingCountry,Claim.Job_Card__r.Service_Center__r.ShippingCity,
                         Claim.Account.ShippingStreet, Claim.Account.ShippingCity, Claim.Account.ShippingState, Claim.Account.ShippingPostalCode,Part__r.Quantity,Part_Description_Formula__c,
                         Claim.Warranty_Prior__r.Name,  Claim.Warranty_Prior__r.Warranty_Prior_Date__c,  Claim.Warranty_Prior__r.Odometer_Reading__c,claimItem.Part__r.Part_Description__c,
-                        Claim.Job_Card__r.CreatedDate, Claim.Job_Card__r.Dealer_Observation__c, Quantity__c, Claim.Vehicle__r.Dealer__r.Name,
+                        Claim.Job_Card__r.CreatedDate, Claim.Job_Card__r.Dealer_Observation__c, Quantity__c, Claim.Vehicle__r.Dealer__r.Name, Claim.Job_Card__r.Service_Center__r.Name, Claim.Job_Card__r.Odometer_Reading__c,
                         Claim.Vehicle__r.ModelName, Claim.Vehicle__r.LastOdometerReading, Claim.Vehicle__r.Purchased_Date__c, Claim.Vehicle__r.VehicleIdentificationNumber,Part__r.Product2.Name,
                         Claim.Vehicle__r.EngineNumber, Claim.Vehicle__r.VehicleRegistrationNumber, Part__r.Product_Code__c, Part__r.Consequential_Parts__c, Part__r.Electrical_Value__c, Part__r.LineItemNumber,  Part__r.Description,  Part__r.Replacement_Type__c, Electrical_Value_Formula__c FROM ClaimItem WHERE Id = :claimItemId LIMIT 1];
                      
@@ -57,12 +57,20 @@ public with sharing class WarrantyTagPDFController {
                     registrationNumber = claimItem.Claim.Vehicle__r.VehicleRegistrationNumber != null ? claimItem.Claim.Vehicle__r.VehicleRegistrationNumber : '';
                     System.debug('Registration Number: ==>' + registrationNumber);
                     
+                    /*
                     vehicleKilometer = claimItem.Claim.Vehicle__r.LastOdometerReading != null ? claimItem.Claim.Vehicle__r.LastOdometerReading : 0;
                     System.debug('Vehicle Kilometer: ==>' + vehicleKilometer);
+                    */
+                    vehicleKilometer = claimItem.Claim.Job_Card__r.Odometer_Reading__c != null ? claimItem.Claim.Job_Card__r.Odometer_Reading__c : 0;
+                    System.debug('Vehicle Kilometer: ==>' + vehicleKilometer);
                     
+                    /*
                     dealerName = claimItem.Claim.Vehicle__r.Dealer__r.Name !=null ? claimItem.Claim.Vehicle__r.Dealer__r.Name : '';
                     System.debug('Dealer Name: ==>' + dealerName);
-                    
+                    */
+                    dealerName = claimItem.Claim.Job_Card__r.Service_Center__r.Name !=null ? claimItem.Claim.Job_Card__r.Service_Center__r.Name : '';
+                    System.debug('Dealer Name: ==>' + dealerName);
+
                     modelName = claimItem.Claim.Vehicle__r.ModelName != null ? claimItem.Claim.Vehicle__r.ModelName : '';
                     System.debug('Model Name: ==>' + modelName);
                     

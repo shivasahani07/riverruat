@@ -1,3 +1,10 @@
+/**
+ * @description       : 
+ * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @group             : 
+ * @last modified on  : 07-31-2025
+ * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+**/
 public class JobCardComponentHelper {  
     
     @AuraEnabled(cacheable=true)
@@ -11,7 +18,7 @@ public class JobCardComponentHelper {
         try {
             if (inputType == 'VIN') {
                 
-                vh = [SELECT Id, VehicleIdentificationNumber, VehicleRegistrationNumber, EngineNumber, ModelName, Purchased_Date__c, LastOdometerReading, RR_Battery_Number__c, IgnitionKeyCode, CurrentOwnerId,
+                vh = [SELECT Id, VehicleIdentificationNumber, VehicleRegistrationNumber, EngineNumber, ModelName, Purchased_Date__c, LastOdometerReading, RR_Battery_Number__c, IgnitionKeyCode, CurrentOwnerId,EW_Submitted__c,
                       (SELECT Id, MilestoneType FROM AssetMilestones WHERE MilestoneType='Sold')
                       FROM Vehicle 
                       WHERE Id IN (SELECT VehicleId FROM AssetMilestone WHERE MilestoneType='Sold') 
@@ -20,7 +27,7 @@ public class JobCardComponentHelper {
                       LIMIT 1]; 
                 
             } else if (inputType == 'RegistrationNumber') {
-                vh = [SELECT Id, VehicleIdentificationNumber, VehicleRegistrationNumber, EngineNumber, ModelName, Purchased_Date__c, LastOdometerReading, RR_Battery_Number__c, IgnitionKeyCode, CurrentOwnerId,
+                vh = [SELECT Id, VehicleIdentificationNumber, VehicleRegistrationNumber, EngineNumber, ModelName, Purchased_Date__c, LastOdometerReading, RR_Battery_Number__c, IgnitionKeyCode, CurrentOwnerId,EW_Submitted__c,
                       (SELECT Id, MilestoneType FROM AssetMilestones WHERE MilestoneType='Sold')
                       FROM Vehicle 
                       WHERE Id IN (SELECT VehicleId FROM AssetMilestone WHERE MilestoneType='Sold') 

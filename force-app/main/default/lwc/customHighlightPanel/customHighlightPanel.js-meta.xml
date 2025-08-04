@@ -17,6 +17,10 @@
 			<property name="recordId" type="String" label="Record ID" description="The value should be {!recordId}."/>
 		</targetConfig>
     </targetConfigs>
+
+    <capabilities>
+    	<capability>lightning__dynamicComponent</capability>
+  	</capabilities>
     <!-- <targetConfigs>
 		<targetConfig targets="lightningCommunity__Default">
 			<property name="recordId" type="String" label="Record ID" description="The value should be {!recordId}."/>

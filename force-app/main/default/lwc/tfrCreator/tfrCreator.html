@@ -1,109 +1,14 @@
+<!-- simpleAccounts.html -->
 <template>
-    <lightning-card title="Create Technical Failure Reports" icon-name="standard:service_report">
-        <div class="slds-p-around_medium">
-            <c-loader loading={isLoading}></c-loader>
-            <template for:each={tfrList} for:item="tfr" for:index="tfrIndex">
-                <div key={tfrIndex.Id} class="slds-box slds-theme_default slds-m-bottom_large impactedClass">
-                    
-                    <!-- Header -->
-                    <div class="slds-grid slds-grid_align-spread slds-m-bottom_small">
-                        <div class="slds-text-heading_small">TFR #{Number}</div>
-                        <lightning-button-icon icon-name="utility:close" variant="bare" title="Remove TFR"
-                            alternative-text="Remove TFR" onclick={removeTFR} data-index={tfrIndex}>
-                        </lightning-button-icon>
-                    </div>
-
-                    <!-- TFR Fields -->
-                    <div class="slds-grid slds-wrap slds-gutters">
-                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
-                            <lightning-input label="VIN" value={tfr.vin} onchange={handleTFRChange}
-                                data-index={tfrIndex} data-field="vin" required></lightning-input>
-                        </div>
-                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
-                            <lightning-input label="Error Code" value={tfr.errorCode} onchange={handleTFRChange}
-                                data-index={tfrIndex} data-field="errorCode" required></lightning-input>
-                        </div>
-
-                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
-                            <lightning-input label="Required Sampe No" value={tfr.Required_Sampe_No} onchange={handleTFRChange} type="number"
-                                data-index={tfrIndex} data-field="Required_Sampe_No" required></lightning-input>
-                        </div>
-                        <div class="slds-col slds-size_1-of-1">
-                            <lightning-textarea label="Description" value={tfr.description} onchange={handleTFRChange}
-                                data-index={tfrIndex} data-field="description"></lightning-textarea>
-                        </div>
-                    </div>
-
-                    <!-- Divider -->
-                    <div class="slds-border_top slds-m-top_medium slds-m-bottom_medium"></div>
-
-                    <!-- Impacted Parts Section -->
-                    <div class="slds-m-bottom_small">
-                        <h3 class="slds-text-title_bold slds-m-bottom_x-small">
-                            <lightning-icon icon-name="standard:product" size="xx-small" class="slds-m-right_x-small"></lightning-icon>
-                            Impacted Parts
-                        </h3>
-
-                        <template for:each={tfr.impactedParts} for:item="part" for:index="partIndex">
-                            <div key={partIndex.Id} class={part.rowClass} style="margin-bottom: 1rem;">
-
-                                <div class="slds-grid slds-grid_align-spread slds-m-bottom_x-small">
-                                    <p class="slds-text-title_caps">Part #{partIndex}</p>
-                                    <lightning-button-icon icon-name="utility:delete" variant="bare" title="Remove Part"
-                                        alternative-text="Remove Part" onclick={removePart}
-                                        data-tfr-index={tfrIndex} data-part-index={partIndex}>
-                                    </lightning-button-icon>
-                                </div>
-
-                                <template if:true={part.hasError}>
-                                    <div class="slds-text-color_error slds-m-bottom_small">
-                                        ⚠ Please complete all required fields.
-                                    </div>
-                                </template>
-
-                                <div class="slds-grid slds-wrap slds-gutters">
-                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                                        <lightning-input label="Part Name" value={part.partName} onchange={handlePartChange}
-                                            data-tfr-index={tfrIndex} data-part-index={partIndex} data-field="partName" required>
-                                        </lightning-input>
-                                    </div>
-
-                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                                        <lightning-record-picker label="Product" placeholder="Search Product..."
-                                            object-api-name="Product2" value={part.partCode}
-                                            data-tfr-index={tfrIndex} data-part-index={partIndex}
-                                            onchange={handleProductChange} required>
-                                        </lightning-record-picker>
-                                    </div>
-
-                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                                        <lightning-input label="Consequence" value={part.consequence} onchange={handlePartChange}
-                                            data-tfr-index={tfrIndex} data-part-index={partIndex} data-field="consequence" required>
-                                        </lightning-input>
-                                    </div>
-
-                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                                        <lightning-input label="Root Cause" value={part.rootCause} onchange={handlePartChange}
-                                            data-tfr-index={tfrIndex} data-part-index={partIndex} data-field="rootCause" required>
-                                        </lightning-input>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-
-                        <!-- Add Part Button -->
-                        <lightning-button label="Add Part" icon-name="utility:add" variant="neutral" onclick={addPart}
-                            data-index={tfrIndex} class="slds-m-top_small">
-                        </lightning-button>
-                    </div>
-                </div>
-            </template>
-
-            <!-- Add TFR & Submit Buttons -->
-            <div class="slds-align_absolute-center slds-m-top_large">
-                <lightning-button label="Add New TFR" icon-name="utility:add" onclick={addTFR} class="slds-m-right_medium"></lightning-button>
-                <lightning-button label="Submit All TFRs" variant="brand" onclick={handleSubmit}></lightning-button>
-            </div>
+  <div class="slds-var-m-horizontal_medium">
+    <template lwc:if={results}>
+      <template for:each={results} for:item="account">
+        <div key={account.Id}>
+          <lightning-card icon-name="standard:account">
+            <h1 slot="title">{account.Name.value}</h1>
+          </lightning-card>
         </div>
-    </lightning-card>
+      </template>
+    </template>
+  </div>
 </template>

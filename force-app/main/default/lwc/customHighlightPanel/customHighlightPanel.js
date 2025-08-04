@@ -1,57 +1,66 @@
-/**
- * Descriptio   : This is a custom hightlight Panel of Job card for DMS.
- * Author       : Jitendra Solanki
- * Created Date : 20 June 2024
- */
-
-import { LightningElement, api, wire, track } from 'lwc';
+import { LightningElement, api, track, wire } from 'lwc';
 import { getRecord, deleteRecord } from 'lightning/uiRecordApi';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { NavigationMixin } from 'lightning/navigation';
-import getWeblinks from'@salesforce/apex/CustomHighlightPanelController.getWeblinks';
-import {refreshApex} from '@salesforce/apex';
-import OwnerId_FIELD from '@salesforce/schema/WorkOrder.OwnerId';
-import CaseId_FIELD from '@salesforce/schema/WorkOrder.CaseId';
-import Status_FIELD from '@salesforce/schema/WorkOrder.Status';
-import StartDate_FIELD from '@salesforce/schema/WorkOrder.StartDate';
-import EndDate_FIELD from '@salesforce/schema/WorkOrder.EndDate';
+import getWeblinks from '@salesforce/apex/CustomHighlightPanelController.getWeblinks';
+import { refreshApex } from '@salesforce/apex';
 
-// Add fields you want to display
+// Import schema fields
+import WORK_ORDER_NUMBER_FIELD from '@salesforce/schema/WorkOrder.WorkOrderNumber';
+import STATUS_FIELD from '@salesforce/schema/WorkOrder.Status';
+import JOB_TYPE_FIELD from '@salesforce/schema/WorkOrder.RR_Job_Type__c';
+import OWNER_ID_FIELD from '@salesforce/schema/WorkOrder.OwnerId';
+import CASE_ID_FIELD from '@salesforce/schema/WorkOrder.CaseId';
+import START_DATE_FIELD from '@salesforce/schema/WorkOrder.StartDate';
+import END_DATE_FIELD from '@salesforce/schema/WorkOrder.EndDate';
+
 const FIELDS = [
-    'WorkOrder.WorkOrderNumber',
-    'WorkOrder.Status',
-    'WorkOrder.RR_Job_Type__c'
-    // Add more fields as needed
+    WORK_ORDER_NUMBER_FIELD,
+    STATUS_FIELD,
+    JOB_TYPE_FIELD
 ];
 
 export default class CustomHighlightPanel extends NavigationMixin(LightningElement) {
     @api recordId;
-    record;
-    error;
-
-    headerFields = [OwnerId_FIELD, CaseId_FIELD, Status_FIELD, StartDate_FIELD, EndDate_FIELD];
-
+    @track record = {};
+    @track error;
     @track buttons = [];
     @track dropdownButtons = [];
+    @track showCancelJobCard = false;
+    @track isFlowAction = false;
+    @track isLwcAction = false;
+    @track componentConstructor;
+    childProps = {};
+    wiredRecordResult;
+    @track headerSubject= 'Cancel Job Card'
 
-    showCanelJobCard = false;
+    headerFields = [
+        OWNER_ID_FIELD, 
+        CASE_ID_FIELD, 
+        STATUS_FIELD, 
+        START_DATE_FIELD, 
+        END_DATE_FIELD
+    ];
 
     get inputFlowVariables() {
-        console.log('recordId :',this.recordId);
-        return [
-            {
-                name: 'recordId',
-                type: 'String',
-                value: this.recordId
-            }
-        ];
+        return [{
+            name: 'recordId',
+            type: 'String',
+            value: this.recordId
+        }];
     }
 
     @wire(getRecord, { recordId: '$recordId', fields: FIELDS })
-    wiredRecord({ error, data }) {
+    wiredRecord(result) {
+        this.wiredRecordResult = result;
+        const { data, error } = result;
         if (data) {
+            this.record = {
+                WorkOrderNumber: data.fields.WorkOrderNumber.value,
+                Status: data.fields.Status.value,
+                RR_Job_Type__c: data.fields.RR_Job_Type__c?.value
+            };
             this.fetchAllData();
-            // this.record = data.fields;
             this.error = undefined;
         } else if (error) {
             this.record = undefined;
@@ -60,158 +69,134 @@ export default class CustomHighlightPanel extends NavigationMixin(LightningEleme
     }
 
     fetchAllData() {
-        this.dropdownButtons = [];
-        console.log('connectedCallback called');
-        getWeblinks({sobjectName : 'WorkOrder', recordId : this.recordId})
+        getWeblinks({ 
+            sobjectName: 'WorkOrder', 
+            recordId: this.recordId 
+        })
         .then(response => {
-            console.log('response fetched',response);
             if (response) {
-                this.record = response.record;
-                let butttonData = response.buttons;
-                let apexPages = response.apexPages;
-                let apexPageURL = response.apexPageURL;
-                console.log('this.record : ',this.record);
-                if(this.record.Status != 'Completed'){
-                    this.dropdownButtons.push({
-                        id: 'RR_Cancel_Job_Card',
-                        label: 'Cancel Job Card',
-                        value: 'RR_Cancel_Job_Card',
-                    });
-                }
-
-                this.dropdownButtons = [
-                    ... this.dropdownButtons,{
-                        id: 'Edit',
-                        label: 'Edit',
-                        value: 'Edit',
-                    },
-                    {
-                        id: 'Delete',
-                        label: 'Delete',
-                        value: 'Delete',
-                    },
-                ]
-
-                this.buttons = butttonData.map(item => {
-                    let isVisible;
-                    if(this.record.Status == 'Ready for Delivery'){
-                        isVisible = true;
-                        if(item.Name == 'Generate_Invoice' || item.Name == 'Generate_Insurance_Invoice'){
-                            isVisible = false;
-                        }
-                        if(item.Name == 'Generate_Pre_Insurance_Invoice'){
-                            if(this.record.RR_Job_Type__c != 'Accidental'){
-                                isVisible = false;
-                            }
-                        }
-                    }
-                    else if(this.record.Status == 'Completed'){
-                        isVisible = true;
-                        if(item.Name == 'Generate_Pre_Invoice' || item.Name == 'Generate_Pre_Insurance_Invoice'){
-                            isVisible = false;
-                        }
-                        if(item.Name == 'Generate_Insurance_Invoice'){
-                            if(this.record.RR_Job_Type__c != 'Accidental'){
-                                isVisible = false;
-                            }
-                        }
-                    }
-                    else{
-                        if(item.Name == 'Generate_Invoice' || item.Name == 'Generate_Insurance_Invoice' || item.Name == 'Generate_Pre_Invoice' || item.Name == 'Generate_Pre_Insurance_Invoice'){
-                            isVisible = false;
-                        }
-                        else{
-                            isVisible = true;
-                        }
-                    }
-                    return {... item, isVisible : isVisible, apexPageURL : apexPageURL[item.ScontrolId]}
-                });
-                console.log('buttons',this.buttons);
+                this.processButtons(response);
+                this.processDropdownButtons();
             }
         })
         .catch(error => {
-            this.buttons = undefined;
             this.error = error.body.message;
-            console.log('error',error);
-        })
+            console.error('Error in fetchAllData:', error);
+        });
     }
 
-    // @wire(getWeblinks, {sobjectName : 'WorkOrder'})
-    // buttonsRes(response) {
-    //     let {error, data} = response;
-    //     if(!this.record){
-    //         console.log('Need to refresh');
-    //         refreshApex(response);
-    //     }
-    //     else if (data) {
-    //         console.log('this.record : ',this.record);
-    //         let butttonData = data.buttons;
-    //         let apexPages = data.apexPages;
-    //         this.buttons = butttonData.map(item => {
-    //             let isVisible;
-    //             if(this.record.Status.value == 'Ready for Delivery'){
-    //                 if(item.Name == 'Generate_Invoice' || item.Name == 'Generate_Insurance_Invoice'){
-    //                     isVisible = false;
-    //                 }
-    //                 else {
-    //                     isVisible = true;
-    //                 }
-    //             }
-    //             else if(this.record.Status.value == 'Completed'){
-    //                 if(item.Name == 'Generate_Pre_Invoice' || item.Name == 'Generate_Pre_Insurance_Invoice'){
-    //                     isVisible = false;
-    //                 }
-    //                 else {
-    //                     isVisible = true;
-    //                 }
-    //             }
-    //             else{
-    //                 isVisible = true;
-    //             }
-    //             let apexPageName = apexPages.find(page => page.Id == item.ScontrolId)?.Name;
-    //             return {... item, isVisible : isVisible, apexPageName : apexPageName}
-    //         });
-    //         console.log('buttons',this.buttons);
-    //     } else if (error) {
-    //         this.buttons = undefined;
-    //         this.error = error.body.message;
-    //         console.log('error',error);
-    //     }
-    // }
+    processButtons(response) {
+        const buttonData = response.buttons || [];
+        const apexPageURL = response.apexPageURL || {};
 
-    handleMenuSelect(event){
+        this.buttons = buttonData.map(item => ({
+            ...item,
+            apexPageURL: apexPageURL[item.ScontrolId],
+            isVisible: this.shouldShowButton(item)
+        }));
 
-        const value = event.detail.value;
-        console.log('value',value);
+        // Add LWC actions with status filtering
+        this.addLwcActions();
+    }
 
-        switch (value) {
-            case 'Edit':
-                this.handleEdit();
-                break;
-            case 'Delete':
-                this.handleDelete();
-                break;
-            case 'RR_Cancel_Job_Card':
-                this.openCancelJobCard();
-                break;
-            default:
-                break;
+    shouldShowButton(button) {
+        const { Status, RR_Job_Type__c } = this.record;
+        const buttonName = button.Name;
+
+        if (Status === 'Ready for Delivery') {
+            if (['Generate_Invoice', 'Generate_Insurance_Invoice'].includes(buttonName)) return false;
+            if (buttonName === 'Generate_Pre_Insurance_Invoice' && RR_Job_Type__c !== 'Accidental') return false;
+        } 
+        else if (Status === 'Completed') {
+            if (['Generate_Pre_Invoice', 'Generate_Pre_Insurance_Invoice'].includes(buttonName)) return false;
+            if (buttonName === 'Generate_Insurance_Invoice' && RR_Job_Type__c !== 'Accidental') return false;
+        } 
+        else {
+            if ([
+                'Generate_Invoice', 
+                'Generate_Insurance_Invoice', 
+                'Generate_Pre_Invoice', 
+                'Generate_Pre_Insurance_Invoice'
+            ].includes(buttonName)) return false;
         }
-       
+        return true;
     }
 
-    handleButtonClick(event){
-        event.preventDefault();
-        const value = event.target.value;
-        const actionName = event.target.dataset.type;
-        const pageURL = event.target.dataset.page;
-        console.log('actionName',actionName);
-        console.log('pageURL',pageURL);
-        window.open(pageURL,'_blank');   
+    // NEW: Status-based LWC action definitions
+    addLwcActions() {
+        const lwcActions = [
+            {
+                seq: 1,
+                Name: 'JobCardActionPlanApproval',
+                MasterLabel: 'Submit For Approval',
+                type: 'lwc',
+                status: ['Ready for Delivery'] // Only show for this status
+            },
+            // {
+            //     seq: 2,
+            //     Name: 'TestLwcComponent',
+            //     MasterLabel: 'Test LWC',
+            //     type: 'lwc',
+            //     // status: ['Ready for Delivery', 'Completed'] // Show for these statuses
+            // }
+        ];
+
+        // Filter actions based on current status
+        const visibleLwcActions = lwcActions.map(action => {
+            return {
+                ...action,
+                isVisible: action.status.includes(this.record.Status)
+            };
+        });
+
+        this.buttons = [...this.buttons, ...visibleLwcActions];
+    }
+
+    processDropdownButtons() {
+        this.dropdownButtons = [
+            { id: 'Edit', label: 'Edit', value: 'Edit' },
+            { id: 'Delete', label: 'Delete', value: 'Delete' }
+        ];
+
+        if (this.record.Status !== 'Completed') {
+            this.dropdownButtons.unshift({
+                id: 'RR_Cancel_Job_Card',
+                label: 'Cancel Job Card',
+                value: 'RR_Cancel_Job_Card',
+            });
+        }
+    }
+
+    handleMenuSelect(event) {
+        const action = event.detail.value;
+        const actions = {
+            'Edit': () => this.handleEdit(),
+            'Delete': () => this.handleDelete(),
+            'RR_Cancel_Job_Card': () => this.openCancelJobCard()
+        };
+        
+        if (actions[action]) actions[action]();
+    }
+
+    handleButtonClick(event) {
+        const dataset = event.currentTarget.dataset;
+        const type = dataset.type;
+        const name = dataset.name;
+        const pageURL = dataset.page;
+
+        if (type === 'flow') {
+            this.openCancelJobCard();
+        } 
+        else if (type === 'lwc') {
+            this.headerSubject='Submit For Action Plan Approval'
+            this.openLwcComponent(name);
+        } 
+        else if (pageURL) {
+            window.open(pageURL, '_blank');
+        }
     }
 
     handleEdit() {
-        // Navigate to the record edit page
         this[NavigationMixin.Navigate]({
             type: 'standard__recordPage',
             attributes: {
@@ -222,43 +207,63 @@ export default class CustomHighlightPanel extends NavigationMixin(LightningEleme
     }
 
     handleDelete() {
-        // Delete the record
-        console.log('Delete');
-        return
         deleteRecord(this.recordId)
-        .then(() => {
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Success',
-                    message: 'Record deleted',
-                    variant: 'success'
-                })
-            );
-            // Navigate to the object home page after delete
-            this[NavigationMixin.Navigate]({
-                type: 'standard__objectPage',
-                attributes: {
-                    objectApiName: 'Account',
-                    actionName: 'home'
-                }
+            .then(() => {
+                this.showToast('Success', 'Record deleted', 'success');
+                this.navigateToWorkOrderHome();
+            })
+            .catch(error => {
+                this.showToast('Error deleting record', error.body.message, 'error');
             });
-        })
-        .catch(error => {
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Error deleting record',
-                    message: error.body.message,
-                    variant: 'error'
-                })
-            );
+    }
+
+    navigateToWorkOrderHome() {
+        this[NavigationMixin.Navigate]({
+            type: 'standard__objectPage',
+            attributes: {
+                objectApiName: 'WorkOrder',
+                actionName: 'home'
+            }
         });
     }
 
-    openCancelJobCard(){
-        this.showCanelJobCard = true;
+    openCancelJobCard() {
+        this.showCancelJobCard = true;
+        this.isFlowAction = true;
+        this.isLwcAction = false;
     }
 
-    closeCancelJobCard(){
-        this.showCanelJobCard = false;
+    openLwcComponent(componentName) {
+        this.childProps = { 
+            recordId: this.recordId,
+            customRecId: this.recordId
+        };
+        this.showCancelJobCard = true;
+        this.isLwcAction = true;
+        this.isFlowAction = false;
+        this.loadComponent(componentName);
+    }
+
+    closeCancelJobCard() {
+        this.showCancelJobCard = false;
+        this.isFlowAction = false;
+        this.isLwcAction = false;
+        this.componentConstructor = undefined;
+        refreshApex(this.wiredRecordResult);
+        this.headerSubject='Cancel Job Card';
+    }
+
+    async loadComponent(componentName) {
+        try {
+            const module = await import(`c/${componentName}`);
+            this.componentConstructor = module.default;
+        } catch (error) {
+            console.error('Error loading component:', error);
+            this.showToast('Error', `Component ${componentName} not found`, 'error');
+        }
+    }
+
+    showToast(title, message, variant) {
+        this.dispatchEvent(new ShowToastEvent({ title, message, variant }));
     }
 }

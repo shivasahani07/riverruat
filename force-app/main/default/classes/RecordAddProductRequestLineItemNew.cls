@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 07-30-2025
+ * @last modified on  : 08-01-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public without sharing class RecordAddProductRequestLineItemNew {
@@ -153,9 +153,28 @@ public without sharing class RecordAddProductRequestLineItemNew {
                 }
            
              user loggedUser = [SELECT Id, Contact.Name, ContactId,Contact.accountId FROM User WHERE Id = :loggedInUserId LIMIT 1];
+         //added by Aniket on 01/08/2025
+         Date todayForQuery = Date.today();
+                Integer dayOfMonth = today.day();
 
-        List<FortnightlyForecastInventory__c> fortnightList = [SELECT ID,Account__c,Account__r.Name,Product__c,Product__r.ProductCode,Product__r.Name,Six_Months_Average_Consumption__c,Product__r.Type__c,CreatedDate,Batch_Executed_Date__c,PO_Status__c FROM FortnightlyForecastInventory__c
-                                                              WHERE Account__c=:loggedUser.Contact.accountId AND Product__r.Type__c NOT IN :ProductTypeNotToShow AND PO_Status__c IN('') ORDER BY Batch_Executed_Date__c DESC];
+                //Date expectedBatchDate;
+                 Date startDateForQuery;
+                Date endDateForQuery;
+                if (dayOfMonth <= 15) {
+                
+                   
+                    startDateForQuery = Date.newInstance(todayForQuery.year(), today.month(), 1);
+                   endDateForQuery = Date.newInstance(todayForQuery.year(), today.month(), 15);
+                } else {
+                    
+                    startDateForQuery = Date.newInstance(todayForQuery.year(), today.month(), 16);
+                    endDateForQuery = Date.newInstance(todayForQuery.year(), today.month(), Date.daysInMonth(today.year(), today.month()));
+                }     
+        //added by Aniket on 01/08/2025
+        List<FortnightlyForecastInventory__c> fortnightList = [SELECT ID,Account__c,Account__r.Name,Product__c,Product__r.ProductCode,Product__r.Name,Six_Months_Average_Consumption__c,Product__r.Type__c,CreatedDate,Batch_Executed_Date__c,PO_Status__c,Quantity_Ordered__c FROM FortnightlyForecastInventory__c
+                                                              WHERE Account__c=:loggedUser.Contact.accountId AND Product__r.Type__c NOT IN :ProductTypeNotToShow AND PO_Status__c IN('','Submitted') AND Batch_Executed_Date__c >= :startDateForQuery AND Batch_Executed_Date__c <= :endDateForQuery /*ORDER BY Batch_Executed_Date__c DESC*/];
+      
+       System.debug('fortnightList==>'+fortnightList);                                                       
 
        if (fortnightList.isEmpty()) return new List<RecordAddProductRequestLineItemNew.ForecastWrapper>();                                                              
         
@@ -165,40 +184,110 @@ public without sharing class RecordAddProductRequestLineItemNew {
         Date startDate = baseDate.addDays(-30);
         Date endDate = baseDate.addDays(-15);                                                 
 
-        List<FortnightlyForecastInventory__c> fortnightList2 = [SELECT ID,Account__c,Account__r.Name,Product__c,Product__r.ProductCode,Product__r.Name,Six_Months_Average_Consumption__c,Product__r.Type__c,CreatedDate,Batch_Executed_Date__c,PO_Status__c FROM FortnightlyForecastInventory__c
+        List<FortnightlyForecastInventory__c> fortnightList2 = [SELECT ID,Account__c,Account__r.Name,Product__c,Product__r.ProductCode,Product__r.Name,Six_Months_Average_Consumption__c,Product__r.Type__c,CreatedDate,Batch_Executed_Date__c,PO_Status__c,Quantity_Ordered__c FROM FortnightlyForecastInventory__c
                                                               WHERE Account__c=:loggedUser.Contact.accountId AND Product__r.Type__c NOT IN :ProductTypeNotToShow AND Batch_Executed_Date__c >= :startDate
           AND Batch_Executed_Date__c <= :endDate
-          AND PO_Status__c IN ('')
+          AND PO_Status__c IN ('Submitted','')
     ORDER BY Batch_Executed_Date__c DESC];  
                                                               
-                                                              
-
-       Map<Id, FortnightlyForecastInventory__c> previousDataMap = new Map<Id, FortnightlyForecastInventory__c>();
-    for (FortnightlyForecastInventory__c rec : fortnightList2) {
+       System.debug('fortnightList2==>'+fortnightList2);                                                         
+Map<Id, FortnightlyForecastInventory__c> previousDataMap = new Map<Id, FortnightlyForecastInventory__c>();
+for (FortnightlyForecastInventory__c rec : fortnightList2) {
+    if (!previousDataMap.containsKey(rec.Product__c)) {
         previousDataMap.put(rec.Product__c, rec);
     }
+}
 
-    List<RecordAddProductRequestLineItemNew.ForecastWrapper> result = new List<RecordAddProductRequestLineItemNew.ForecastWrapper>();
-    for (FortnightlyForecastInventory__c rec : fortnightList) {
-        Decimal adjustedConsumption = rec.Six_Months_Average_Consumption__c;
-        if (previousDataMap.containsKey(rec.Product__c)) {
-            Decimal oldConsumption = previousDataMap.get(rec.Product__c).Six_Months_Average_Consumption__c;
-            adjustedConsumption = rec.Six_Months_Average_Consumption__c - oldConsumption;
-        }
-        RecordAddProductRequestLineItemNew.ForecastWrapper wrapper = new RecordAddProductRequestLineItemNew.ForecastWrapper();
-        wrapper.productId = rec.Product__c;
-        wrapper.productName = rec.Product__r.Name;
-        wrapper.productCode = rec.Product__r.ProductCode;
-        wrapper.productType = rec.Product__r.Type__c;
-        wrapper.accountId = rec.Account__c;
-        wrapper.accountName = rec.Account__r.Name;
-        wrapper.batchDate = rec.Batch_Executed_Date__c;
-        wrapper.adjustedConsumption = adjustedConsumption;
-        result.add(wrapper);
+Set<Id> processedProductIds = new Set<Id>();
+List<RecordAddProductRequestLineItemNew.ForecastWrapper> result = new List<RecordAddProductRequestLineItemNew.ForecastWrapper>();
+
+for (FortnightlyForecastInventory__c rec : fortnightList) {
+    if (processedProductIds.contains(rec.Product__c)) {
+        continue;
     }
 
-    return result;                                                       
-                                                              
+    Decimal adjustedConsumption = rec.Six_Months_Average_Consumption__c != null 
+                                  ? rec.Six_Months_Average_Consumption__c : 0;
+
+    // Check historical data only to adjust value
+    if (previousDataMap.containsKey(rec.Product__c)) {
+        FortnightlyForecastInventory__c previousRec = previousDataMap.get(rec.Product__c);
+
+        if (previousRec.Quantity_Ordered__c != null && previousRec.Six_Months_Average_Consumption__c != null &&
+            previousRec.Quantity_Ordered__c < previousRec.Six_Months_Average_Consumption__c) {
+            
+            Decimal oldOrdered = previousRec.Quantity_Ordered__c;
+            adjustedConsumption = adjustedConsumption - oldOrdered;
+        }
+        // else: skip subtraction, but still include in result
+    }
+
+    RecordAddProductRequestLineItemNew.ForecastWrapper wrapper = new RecordAddProductRequestLineItemNew.ForecastWrapper();
+    wrapper.productId = rec.Product__c;
+    wrapper.productName = rec.Product__r.Name;
+    wrapper.productCode = rec.Product__r.ProductCode;
+    wrapper.productType = rec.Product__r.Type__c;
+    wrapper.accountId = rec.Account__c;
+    wrapper.accountName = rec.Account__r.Name;
+    wrapper.batchDate = rec.Batch_Executed_Date__c;
+    wrapper.adjustedConsumption = adjustedConsumption;
+
+    result.add(wrapper);
+    processedProductIds.add(rec.Product__c);
+}
+
+System.debug('result==>' + result);
+return result;
+
+
+                                                     
+                         
+    
+//     Map<Id, FortnightlyForecastInventory__c> previousDataMap = new Map<Id, FortnightlyForecastInventory__c>();
+// for (FortnightlyForecastInventory__c rec : fortnightList2) {
+//     if (!previousDataMap.containsKey(rec.Product__c)) {
+//         previousDataMap.put(rec.Product__c, rec);
+//     }
+// }
+
+// Set<Id> processedProductIds = new Set<Id>();
+// List<RecordAddProductRequestLineItemNew.ForecastWrapper> result = new List<RecordAddProductRequestLineItemNew.ForecastWrapper>();
+
+// for (FortnightlyForecastInventory__c rec : fortnightList) {
+//     if (processedProductIds.contains(rec.Product__c)) {
+//         continue; 
+//     }
+
+//     Decimal adjustedConsumption;
+//     Decimal currentConsumption = rec.Six_Months_Average_Consumption__c != null ? rec.Six_Months_Average_Consumption__c : 0;
+
+//     System.debug('currentConsumption==>'+currentConsumption);
+
+//     if (previousDataMap.containsKey(rec.Product__c) && rec.Quantity_Ordered__c != null) {
+//         Decimal oldOrdered = previousDataMap.get(rec.Product__c).Quantity_Ordered__c != null
+//                              ? previousDataMap.get(rec.Product__c).Quantity_Ordered__c : 0;
+//         adjustedConsumption = currentConsumption - oldOrdered;
+//     } else {
+//         adjustedConsumption = currentConsumption;
+//     }
+//     System.debug('adjustedConsumption==>'+adjustedConsumption);
+
+//     RecordAddProductRequestLineItemNew.ForecastWrapper wrapper = new RecordAddProductRequestLineItemNew.ForecastWrapper();
+//     wrapper.productId = rec.Product__c;
+//     wrapper.productName = rec.Product__r.Name;
+//     wrapper.productCode = rec.Product__r.ProductCode;
+//     wrapper.productType = rec.Product__r.Type__c;
+//     wrapper.accountId = rec.Account__c;
+//     wrapper.accountName = rec.Account__r.Name;
+//     wrapper.batchDate = rec.Batch_Executed_Date__c;
+//     wrapper.adjustedConsumption = adjustedConsumption;
+
+//     result.add(wrapper);
+//     processedProductIds.add(rec.Product__c); // Mark product as processed
+// }
+
+// System.debug('result==>'+result);
+// return result;
                                                               
         // return  fortnightList;                                    
      }

@@ -1,0 +1,31 @@
+<template>
+    <template if:true={isLoading}>
+        <div class="slds-align_absolute-center">
+            <lightning-spinner alternative-text="Loading"></lightning-spinner>
+        </div>
+    </template>
+
+    <template if:false={isLoading}>
+        <div class="slds-align_absolute-center slds-m-vertical_medium">
+            <lightning-button
+                variant="brand"
+                label="Submit for approval"
+                title="Submit for approval"
+                onclick={handleSubmit}
+                disabled={hasPendingStatus}>
+            </lightning-button>
+        </div>
+
+        <template if:true={hasPendingStatus}>
+            <div class="slds-align_absolute-center slds-text-color_error slds-p-bottom_small">
+                ⚠️ Cannot submit: Pending action plans exist
+            </div>
+        </template>
+
+        <template if:true={hasError}>
+            <div class="slds-align_absolute-center slds-text-color_error">
+                ❌ Error loading data. Please try again.
+            </div>
+        </template>
+    </template>
+</template>

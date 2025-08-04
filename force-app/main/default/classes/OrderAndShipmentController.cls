@@ -2,7 +2,7 @@
 * @description       : 
 * @author            : Aniket Karmakar
 * @group             : 
-* @last modified on  : 07-30-2025
+* @last modified on  : 08-01-2025
 * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 @RestResource(urlMapping='/shipment2')
@@ -133,7 +133,7 @@ global without sharing class OrderAndShipmentController {
                     
                 }
                 
-                // Prepare response
+                
                 Map<String, Object> finalResponse = new Map<String, Object>();
                 if (!failedObjects.isEmpty()) {
                    
@@ -171,7 +171,7 @@ global without sharing class OrderAndShipmentController {
                         }));
                 return;
             }
-            //If Order does not exist only then create the Order and Order Products
+            //If Order does not exist only then create the Order and Order Products(Ref. By Aniket)
             
             List<SObject> recordToInsert = new List<SObject>();
             

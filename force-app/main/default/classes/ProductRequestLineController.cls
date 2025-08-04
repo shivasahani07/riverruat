@@ -328,6 +328,7 @@ public Without Sharing class ProductRequestLineController {
                     accountids.add(pp.ParentId);
                     totalQuanMap.put(pp.Product2Id,pp.QuantityRequested);
                 }
+                System.debug('totalQuanMap==>'+totalQuanMap);
                 ProductRequest pp =[SELECT Id,Account__c FROM ProductRequest WHERE Id=:accountids LIMIT 1];
                 Id accId = pp.Account__c;
                 System.debug('accountids==>'+accountids);
@@ -365,6 +366,7 @@ public Without Sharing class ProductRequestLineController {
                     FortnightlyForecastInventory__c ff = new FortnightlyForecastInventory__c();
                     ff.Id = f.Id;
                     ff.PO_Status__c = 'Submitted';
+                    ff.Quantity_Ordered__c = totalQuanMap.get(f.Product__c);
                     // ff.PO_Status__c =  true;
                     fortsToUpdate.add(ff);
 

@@ -3,6 +3,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
     global Database.QueryLocator start(Database.BatchableContext bc) {
         for(ProductItem itm : [SELECT Id, Product2Id, Product2.Name
             FROM ProductItem WHERE Manual_Created_Date__c >= :System.today().addMonths(-6)]){
+            //FROM ProductItem WHERE Manual_Created_Date__c >= :System.today().addDays(15).addMonths(-6)]){
             System.debug(Product2.Name);
         }
         
@@ -29,8 +30,8 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                    Product_Inventory__r.Account__c, Order__r.AccountId
             FROM Sales_Consumption__c
             WHERE Product__c IN :productIds
-            //AND Manual_Date_Test__c >= :System.today().addMonths(-6)
-            AND Manual_Date_Test__c >= :System.today().addDays(15).addMonths(-6)
+            AND Manual_Date_Test__c >= :System.today().addMonths(-6)
+            //AND Manual_Date_Test__c >= :System.today().addDays(15).addMonths(-6)
             AND Order__r.Dealer__r.Type != 'Customer' AND Order__r.Account.Type != 'Customer'
         ]) {
             allConsumption.add(new ConsumptionRecord(
@@ -230,7 +231,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                         }
                     }
                 }
-            
+            	
                 // Create Product Consumption Tracking Records
                 ProductConsumptionTracking__c pct = new ProductConsumptionTracking__c(
                     Account__c = accountId,
@@ -240,6 +241,8 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                     Month_End_Date__c = periodEnd,
                     Total_Month_Qty__c = Math.roundToLong(totalQty),
                     First_Consumption_Date__c = firstDate,
+                    //First_Consumption_Date__c = mslFirstDateMap.get(key),
+                    //Six_Month_First_Consumption_Date__c = firstDate,
                     First_Half_Start_Date__c = firstHalfStart,
                     First_Half_End_Date__c = firstHalfEnd,
                     Second_Half_Start_Date__c = secondHalfStart,
@@ -311,6 +314,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                 Six_Months_Average_Consumption__c = Math.roundToLong(finalQty),
                 Total_6_Month_Consumption__c = totalQty,
                 Batch_Executed_Date__c = System.today(),
+                //Batch_Executed_Date__c = System.today().addDays(-19),
                 Total_Consumption_Months__c = validMonths,
                 MOQ_Applied__c = isMOQApplied
             ));
@@ -322,7 +326,8 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
     global void finish(Database.BatchableContext bc) {
         // Database.executeBatch(new POGenerationBatchForMSL(), 200);
     }
-
+	
+    
     // Helper Classes
     class ConsumptionRecord {
         public Id DealerId;
@@ -337,4 +342,6 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             this.Qty = qty != null ? qty : 0;
         }
     }
+    
+    
 }

@@ -14,8 +14,10 @@ public with sharing class BatchRecordController {
                 System.debug('No associated contact found for the current user.');
                 throw new AuraHandledException('No associated contact found for the current user.');
             }
-            Contact userContact = [SELECT Id, FirstName, LastName, Email, Phone FROM Contact WHERE Id = :currentUser.ContactId LIMIT 1];
- 
+            //Contact userContact = [SELECT Id, FirstName, LastName, Email, Phone FROM Contact WHERE Id = :currentUser.ContactId LIMIT 1];
+            Contact userContact = [SELECT Id, FirstName, LastName, Email, Phone, AccountId, Account.Service_Center__c, Account.City__c
+                FROM Contact WHERE Id = :currentUser.ContactId LIMIT 1];
+
             System.debug('Contact Retrieved: ' + userContact);
             return userContact;
             } catch (QueryException e) {
@@ -42,7 +44,7 @@ public with sharing class BatchRecordController {
     public static Id createBatchAndTagClaims(
         List<Id> claimIds, Date batchDispatchDate, String lrNumber, String lrAttachment, String TOD,
         String AOC, String RN, String VN, String HPS, String Phone,
-        String POS, String TN, String TID, String Eway, String MOT, String purpose, Id contactId) {
+        String POS, String TN, String TID, String Eway, String MOT, String purpose, Id contactId, Id city, Id serviceCenter) {
         System.debug('Entering createBatchAndTagClaims method.');
  
         if (claimIds == null || claimIds.isEmpty()) {
@@ -101,7 +103,9 @@ public with sharing class BatchRecordController {
                 E_Way_Bill_No__c = Eway,
                 Mode_of_Transport__c = MOT,
                 Purpose__c = purpose, 
-                Contact__c = contactId
+                Contact__c = contactId,
+                City__c = city,
+                Service_Center__c = serviceCenter
             );
             insert newBatch;
             System.debug('Inserted new batch record with ID: ' + newBatch.Id);

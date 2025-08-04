@@ -28,6 +28,7 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
     @track label = 'VIN';
     @track vehicleIdentifier = '';
     @track phoneNumber = '';
+    @track ewSubmitted=false;
     @track vehicleDetails = {
         VehicleIdentificationNumber: '',
         VehicleRegistrationNumber: '',
@@ -448,6 +449,7 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
                         .then(result => {
                             console.log('vehicle =>', result.vehicle);
                             this.vehicleDetails = result.vehicle;
+                            this.ewSubmitted = result.vehicle.EW_Submitted__c;//added by Aniket on 31/07/2025
                             this.phoneNumber = result.primaryContactPhone || '';
                             this.showToastMessage('Success', 'Vehicle details fetched successfully', 'success');
                             this.showPhoneInput = !this.showPhoneInput;

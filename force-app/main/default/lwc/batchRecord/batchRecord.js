@@ -35,6 +35,8 @@ export default class BatchRecord extends LightningElement {
     valueMOT = '';
     contact;
     contactName;
+    city;
+    serviceCenter;
     wiredClaimsResult; // Store the result of the wired service to refresh later
 
     columns = [
@@ -74,6 +76,8 @@ export default class BatchRecord extends LightningElement {
         if (data) {
             this.contact = data;
             this.contactName = data.FirstName + ' ' + data.LastName;
+            this.city = data.Account.City__c;
+            this.serviceCenter = data.Account.Service_Center__c;
             this.error = undefined;
         } else if (error) {
             this.error = error.body.message;
@@ -280,7 +284,9 @@ export default class BatchRecord extends LightningElement {
                 lrNumber: this.lrNumber,
                 lrAttachment: this.lrAttachment,
                 TOD: this.TOD, AOC: this.AOC, RN: this.RN, VN: this.VN, HPS: this.HPS, Phone: this.Phone,
-                POS: this.POS, TN: this.TN, TID: this.TID, Eway: this.Eway, MOT: this.MOT, contactId: this.contact.Id
+                POS: this.POS, TN: this.TN, TID: this.TID, Eway: this.Eway, MOT: this.MOT, contactId: this.contact.Id,
+                city: this.city, 
+                serviceCenter: this.serviceCenter
             });
 
             this.showToast('Success', 'Batch created successfully.', 'success');

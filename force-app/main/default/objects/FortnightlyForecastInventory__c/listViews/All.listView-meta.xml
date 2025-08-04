@@ -8,6 +8,7 @@
     <columns>Total_6_Month_Consumption__c</columns>
     <columns>Total_Consumption_Months__c</columns>
     <columns>Six_Months_Average_Consumption__c</columns>
+    <columns>Quantity_Ordered__c</columns>
     <columns>MOQ_Applied__c</columns>
     <columns>PO_Status__c</columns>
     <columns>Batch_Executed_Date__c</columns>
