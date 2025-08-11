@@ -9,6 +9,7 @@ public wiThout SHARING class CustomProfileHandler {
             for (Batch_Processing__c rec : insertsMap.values()){
                 recordToOwnerMap.put(rec.Id, rec.OwnerId);
                 recordIds.add(rec.Id);
+                System.debug('recordIds ==>'+rec.id);
             }
             
             
@@ -17,12 +18,14 @@ public wiThout SHARING class CustomProfileHandler {
             for (Id ownerId : recordToOwnerMap.values()) {
                 if (ownerId.getSObjectType() == User.SObjectType) {
                     ownerUserIds.add(ownerId);
+                    System.debug('ownerUserIds ==>'+ ownerId);
                 }
             }
             
             Map<Id, User> usersMap = new Map<Id, User>(
                 [SELECT Id, ContactId FROM User WHERE Id IN :ownerUserIds]
             );
+            System.debug('usersMap ==>'+usersMap);
             
             // 3. Fetch Contacts related to those users
             Set<Id> contactIds = new Set<Id>();
@@ -30,11 +33,13 @@ public wiThout SHARING class CustomProfileHandler {
                 if (u.ContactId != null) {
                     contactIds.add(u.ContactId);
                 }
+                System.debug('contactIds ==>'+contactIds);
             }
             
             Map<Id, Contact> contactMap = new Map<Id, Contact>(
                 [SELECT Id, Designation__c, AccountId FROM Contact WHERE Id IN :contactIds]
             );
+            System.debug('contactMap ==>'+contactMap);
             
             // 4. Fetch all related contacts under each account
             Set<Id> accountIds = new Set<Id>();
@@ -54,6 +59,8 @@ public wiThout SHARING class CustomProfileHandler {
                     accountToContacts.put(related.AccountId, new List<Contact>());
                 }
                 accountToContacts.get(related.AccountId).add(related);
+                
+                System.debug('accountToContacts ==>'+accountToContacts);
             }
             
             // 5. Prepare shares
@@ -80,6 +87,7 @@ public wiThout SHARING class CustomProfileHandler {
                         share.AccessLevel = 'Read';
                         share.RowCause = Schema.Batch_Processing__Share.RowCause.Manual;
                         shares.add(share);
+                        System.debug('share ===>'+share);
                     }
                 }
             }
@@ -105,7 +113,7 @@ public wiThout SHARING class CustomProfileHandler {
         }
     }
     
-    private static Set<String> getHierarchy(String designation) {
+  /*  private static Set<String> getHierarchy(String designation) {
         
         // Ideally pull from Custom Metadata or define statically
         // Ideally pull from Custom Metadata or define statically
@@ -117,7 +125,27 @@ public wiThout SHARING class CustomProfileHandler {
                             'CRE' => new Set<String>{'PS', 'SM', 'WM','SA','ASM' ,'Service Centre'}
         };
             return hierarchyMap.containsKey(designation) ? hierarchyMap.get(designation) : new Set<String>();
+    } */
+    
+    private static Set<String> getHierarchy(String designation) {
+        Set<String> hierarchySet = new Set<String>();
+        Map<String, Service_Roles_Hirarchy__mdt> metadataMap = 
+            new Map<String, Service_Roles_Hirarchy__mdt>([SELECT DeveloperName, Eg_Value__c FROM Service_Roles_Hirarchy__mdt]);
+    
+        if (metadataMap.containsKey(designation)) {
+            String rawValues = metadataMap.get(designation).Eg_Value__c;
+            if (String.isNotBlank(rawValues)) {
+                List<String> values = rawValues.split(';');
+                for (String val : values) {
+                    hierarchySet.add(val.trim());
+                    System.debug('Added to hierarchy set: ' + hierarchySet);
+                }
+            }
+        }
+       System.debug('Final hierarchy set: ' + hierarchySet);
+        return hierarchySet;
     }
+
     
     
     

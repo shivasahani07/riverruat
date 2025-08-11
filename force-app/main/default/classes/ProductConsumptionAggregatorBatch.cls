@@ -1,17 +1,34 @@
 global class ProductConsumptionAggregatorBatch implements Database.Batchable<SObject> {
 
     global Database.QueryLocator start(Database.BatchableContext bc) {
-        for(ProductItem itm : [SELECT Id, Product2Id, Product2.Name
-            FROM ProductItem WHERE Manual_Created_Date__c >= :System.today().addMonths(-6)]){
+        
+        // Fetch the control record
+        MSL_Batch_Control__mdt control = [
+            SELECT Enable_Batch__c 
+            FROM MSL_Batch_Control__mdt 
+            WHERE DeveloperName = 'ProductConsumptionAggregator_Control'
+            LIMIT 1
+        ];
+        
+        for(ProductItem itm : [SELECT Id, Product2Id, Product2.Name, Product2.Type__c, Product_Type__c
             //FROM ProductItem WHERE Manual_Created_Date__c >= :System.today().addDays(15).addMonths(-6)]){
-            System.debug(Product2.Name);
+            FROM ProductItem WHERE Manual_Created_Date__c >= :System.today().addMonths(-6)
+			AND (Product_Type__c = 'Accessories' OR Product_Type__c = 'Parts')
+         ]) {
+            System.debug(itm.Product2.Name);
+        }
+        
+        if (!control.Enable_Batch__c) {
+            System.debug('Batch execution disabled via Custom Metadata.');
+            return Database.getQueryLocator([SELECT Id FROM ProductItem WHERE Id = null]);
         }
         
         return Database.getQueryLocator([
-            SELECT Id, Product2Id
-            FROM ProductItem 
-            WHERE Manual_Created_Date__c >= :System.today().addMonths(-6)
-        ]);
+            SELECT Id, Product2Id, Product2.Name, Product2.Type__c, Product_Type__c
+            //FROM ProductItem WHERE Manual_Created_Date__c >= :System.today().addDays(15).addMonths(-6)]){
+            FROM ProductItem WHERE Manual_Created_Date__c >= :System.today().addMonths(-6)
+            AND (Product_Type__c = 'Accessories' OR Product_Type__c = 'Parts')
+        ]);        
     }
 
     global void execute(Database.BatchableContext bc, List<ProductItem> items) {
@@ -21,7 +38,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
         }
         
         // --------------------------------------------------- STORE THE VERY FIRST CONSUMPTION DATE ----------------------------------------------------- //
-
+		/*
         Map<String, Date> trueFirstConsumptionMap = new Map<String, Date>();
         
         for (Sales_Consumption__c sale : [
@@ -51,13 +68,13 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                 trueFirstConsumptionMap.put(key, dateVal);
             }
         }
-
+		*/
 		// ---------------------------------------------- QUERY FOR SIX MONTHS CONSUMPTION ------------------------------------------------------- //
         List<ConsumptionRecord> allConsumption = new List<ConsumptionRecord>();
         
         // Fetch Sales Consumption
         for (Sales_Consumption__c sale : [
-            SELECT Id, CreatedDate, Quantity_Consumed__c, Dealer__c, Product__c,
+            SELECT Id, CreatedDate, Quantity_Consumed__c, Dealer__c, Product__c, Product__r.Type__c,
                    Product_Inventory__r.Product2Id, Manual_Date_Test__c,
                    Product_Inventory__r.Account__c, Order__r.AccountId
             FROM Sales_Consumption__c
@@ -65,6 +82,11 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             AND Manual_Date_Test__c >= :System.today().addMonths(-6)
             //AND Manual_Date_Test__c >= :System.today().addDays(15).addMonths(-6)
             AND Order__r.Dealer__r.Type != 'Customer' AND Order__r.Account.Type != 'Customer'
+            //AND Order__r.Dealer__r.Type != NULL AND Order__r.Dealer__r.Type != 'Customer'  
+            //AND Order__r.Account.Type !=  NULL AND Order__r.Account.Type != 'Customer'
+            //AND Order__r.Dealer__r.Type != NULL AND Order__r.Dealer__r.Type = 'Service Center'
+            //AND Order__r.Account.Type !=  NULL AND Order__r.Account.Type = 'Service Center'
+            AND (Product__r.Type__c = 'Parts' OR Product__r.Type__c = 'Accessories')
         ]) {
             allConsumption.add(new ConsumptionRecord(
                 sale.Order__r.AccountId,
@@ -76,13 +98,15 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
 
         // Fetch Product Consumed
         for (ProductConsumed consumed : [
-            SELECT Id, ProductItemId, Quantity_Consumed__c, QuantityConsumed, Product2Id, WorkOrder.Service_Center__c,
+            SELECT Id, ProductItemId, Quantity_Consumed__c, QuantityConsumed, Product2Id, Product2.Type__c, WorkOrder.Service_Center__c,
                    CreatedDate
             FROM ProductConsumed
             WHERE Product2Id IN :productIds
             AND Manual_Created_Date__c >= :System.today().addMonths(-6)
             //AND Manual_Created_Date__c >= :System.today().addDays(15).addMonths(-6)
             AND WorkOrder.Service_Center__r.Type != 'Customer'
+            //AND WorkOrder.Service_Center__r.Type != NULL AND WorkOrder.Service_Center__r.Type = 'Service Center'
+            AND (Product2.Type__c = 'Parts' OR Product2.Type__c = 'Accessories')
         ]) {
             allConsumption.add(new ConsumptionRecord(
                 consumed.WorkOrder.Service_Center__c,
@@ -191,7 +215,8 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             Date start = firstDate;
         
             for (Integer i = 0; i < 6; i++) {
-                Date endDate = start.addMonths(1).addDays(-1);
+                //Date endDate = start.addMonths(1).addDays(-1);
+                Date endDate = start.addMonths(1);
                 periodStarts.add(start);
                 periodEnds.add(endDate);
                 start = endDate.addDays(1);
@@ -213,10 +238,9 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
 
         // Create ProductConsumptionTracking records
         List<ProductConsumptionTracking__c> trackingToInsert = new List<ProductConsumptionTracking__c>();
-        
-        
+
         for (String key : firstConsumptionMap.keySet()) {
-            Date trueFirstDate = trueFirstConsumptionMap.get(key);
+            //Date trueFirstDate = trueFirstConsumptionMap.get(key);
             
             List<Decimal> monthlyQtys = monthlyConsumptionMap.get(key);
             String[] parts = key.split('\\|');
@@ -235,7 +259,8 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                     periodStart = previousEnd.addDays(1); // start next day after last period end
                 }
                 
-                Date periodEnd = periodStart.addMonths(1).addDays(-1);
+                //Date periodEnd = periodStart.addMonths(1).addDays(-1);
+                Date periodEnd = periodStart.addMonths(1);
                 previousEnd = periodEnd;
             
                 // Define dynamic halves
@@ -275,25 +300,63 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                     Month_Start_Date__c = periodStart,
                     Month_End_Date__c = periodEnd,
                     Total_Month_Qty__c = Math.roundToLong(totalQty),
-                    First_Consumption_Date__c = trueFirstDate,					// This is the date of first ever consumption
+                    //First_Consumption_Date__c = trueFirstDate,					// This is the date of first ever consumption
                     //First_Consumption_Date__c = mslFirstDateMap.get(key),
-                    Six_Month_First_Consumption_Date__c = firstDate,			// This is the date of consumption in last six months
+                    Six_Month_First_Consumption_Date__c = firstDate,			// This is the first date of consumption in last six months
                     First_Half_Start_Date__c = firstHalfStart,
                     First_Half_End_Date__c = firstHalfEnd,
                     Second_Half_Start_Date__c = secondHalfStart,
                     Second_Half_End_Date__c = secondHalfEnd,
                     First_Half_Qty__c = firstHalfQty,
-                    Second_Half_Qty__c = secondHalfQty
+                    Second_Half_Qty__c = secondHalfQty,
+                    Batch_Executed_Date__c = System.today()
                 );
                 
                 trackingToInsert.add(pct);
             }
         }
         insert trackingToInsert;
+		
+        // ----------------------------------------------------- CAPTURE DEALER EXISTING INVENTORY ------------------------------------------------------------ //
+        Set<Id> accountIds = new Set<Id>();
+        for(String key : firstConsumptionMap.keySet()) {
+            accountIds.add((Id) key.split('\\|')[0]);
+        }
+		
+        Map<Id, Id> accountToLocation = new Map<Id, Id>();
+        for(Account acc : [SELECT Id, Location__c FROM Account WHERE Id IN :accountIds]) {
+            if(acc.Location__c != null) {
+                accountToLocation.put(acc.Id, acc.Location__c);
+            }
+        }
+        
+        Set<Id> locationIds = new Set<Id>(accountToLocation.values());
+        Set<Id> productIdsForQuery = new Set<Id>();
+        
+        for(String key : firstConsumptionMap.keySet()) {
+            productIdsForQuery.add((Id) key.split('\\|')[1]);
+        }
+        
+        Map<String, Decimal> inventoryMap = new Map<String, Decimal>();
 
-        // Create FortnightlyForecastInventory records
+        for(ProductItem pi : [
+            SELECT Id, LocationId, Product2Id, Quantity_In_Hand__c
+            FROM ProductItem
+            WHERE LocationId IN :locationIds
+            AND Product2Id IN :productIdsForQuery
+        ]) {
+            String mapKey = pi.LocationId + '|' + pi.Product2Id;
+            
+            if(!inventoryMap.containsKey(mapKey)) {
+                inventoryMap.put(mapKey, 0);
+            }
+            inventoryMap.put(mapKey, inventoryMap.get(mapKey) + (pi.Quantity_In_Hand__c != null ? pi.Quantity_In_Hand__c : 0));
+        }
+                
+        // ----------------------------------------------------- Create FortnightlyForecastInventory records ----------------------------------------------------- //
         List<FortnightlyForecastInventory__c> forecastToInsert = new List<FortnightlyForecastInventory__c>();
         Set<Id> productIdSet = new Set<Id>();
+        
         for (String key : firstConsumptionMap.keySet()) {
             productIdSet.add((Id) key.split('\\|')[1]);
         }
@@ -302,7 +365,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
         ]);
         
         for (String key : firstConsumptionMap.keySet()) {
-            Date trueFirstDate = trueFirstConsumptionMap.get(key);
+            //Date trueFirstDate = trueFirstConsumptionMap.get(key);
             
             String[] parts = key.split('\\|');
             Id accountId = (Id)parts[0];
@@ -310,6 +373,15 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             List<Decimal> monthlyQtys = monthlyConsumptionMap.get(key);
             Decimal totalQty = totalConsumptionMap.get(key);
             
+            Id locId = accountToLocation.get(accountId);
+            Decimal availableQty = 0;
+            
+            if(locId != null) {
+                String invKey = locId + '|' + productId;
+                if(inventoryMap.containsKey(invKey)) {
+                    availableQty = inventoryMap.get(invKey);
+                }
+            }
             // ----------------------------MSL Logic------------------------------ //
             // Condition 1: Last 2 Months should not be 0
             if (monthlyQtys[4] == 0 && monthlyQtys[5] == 0) continue;
@@ -349,13 +421,14 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
                 Account__c = accountId,
                 Product__c = productId,
                 First_Consumed_Date__c = firstConsumptionMap.get(key),
-                Very_First_Consumption_Date__c = trueFirstDate,
+                //Very_First_Consumption_Date__c = trueFirstDate,
                 Six_Months_Average_Consumption__c = Math.roundToLong(finalQty),
                 Total_6_Month_Consumption__c = totalQty,
                 Batch_Executed_Date__c = System.today(),
-                //Batch_Executed_Date__c = System.today().addDays(-19),
+                //Batch_Executed_Date__c = System.today().addDays(-10),
                 Total_Consumption_Months__c = validMonths,
-                MOQ_Applied__c = isMOQApplied
+                MOQ_Applied__c = isMOQApplied,
+                Available_Inventory_Qty__c = availableQty
             ));
         }
         
@@ -381,6 +454,4 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             this.Qty = qty != null ? qty : 0;
         }
     }
-    
-    
 }

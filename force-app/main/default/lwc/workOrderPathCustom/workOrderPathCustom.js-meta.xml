@@ -12,4 +12,18 @@
 		<target>lightningCommunity__Page_Layout</target>
 		<target>lightningCommunity__Theme_Layout</target>
 	</targets>
+	<targetConfigs>
+        <targetConfig targets="lightning__RecordPage">
+            <objects>
+                <object>WorkOrder</object>
+            </objects>
+        </targetConfig>
+        <targetConfig targets="lightningCommunity__Default">
+			<property name="recordId" type="String" label="Record ID" description="The value should be {!recordId}."/>
+		</targetConfig>
+    </targetConfigs>
+
+    <capabilities>
+    	<capability>lightning__dynamicComponent</capability>
+  	</capabilities>
 </LightningComponentBundle>

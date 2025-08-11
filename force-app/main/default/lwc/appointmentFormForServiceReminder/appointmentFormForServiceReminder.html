@@ -27,6 +27,15 @@
                 disabled>
             </lightning-input>
 
+           <lightning-combobox
+        name="picklist"
+        label="Type Of Requested Services"
+        value=""
+        placeholder="Select an option"
+        options={options}
+         onchange={handleSelectServices}>
+    </lightning-combobox>
+
             <!-- Appointment Date -->
             <lightning-input
                 name="appointmentDate"

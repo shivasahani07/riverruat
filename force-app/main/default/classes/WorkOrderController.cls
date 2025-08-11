@@ -4,4 +4,5 @@ public with sharing class WorkOrderController {
         WorkOrder wo = [SELECT Status FROM WorkOrder WHERE Id = :workOrderId LIMIT 1];
         return wo.Status;
     }
+    
 }

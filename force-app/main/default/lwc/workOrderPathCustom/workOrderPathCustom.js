@@ -7,7 +7,6 @@ import ID_FIELD from '@salesforce/schema/WorkOrder.Id';
 
 const FIELDS = [STATUS_FIELD];
 
-
 const ACTION_PLAN_WITH_STATUS = gql`
   query GetActionPlans($jobCardId: ID!) {
     uiapi {
@@ -19,12 +18,6 @@ const ACTION_PLAN_WITH_STATUS = gql`
               Field_Fix__r {
                 Status__c {
                   value
-                }
-                Total_Job_Card_Completed__c {
-                  value
-                }
-                Status__c {
-                    value
                 }
               }
               To_be_Completed_in_JC__c {
@@ -40,103 +33,109 @@ const ACTION_PLAN_WITH_STATUS = gql`
 
 export default class WorkOrderStatusPath extends LightningElement {
     @api recordId;
-    actionPlans = [];
-    hasPendingStatus = false;
+    @track actionPlans = [];
+    @track hasPendingStatus = false;
     @track currentStatus;
     @track selectedStep;
-    showModal = false;
+    @track showModal = false;
+    @track isCanceledPath = false;
+    @track computedSteps = [];
 
-    steps = [
-        { label: 'New', value: 'New' },
-        { label: 'In Progress', value: 'In Progress' },
-        { label: 'Re-Work', value: 'Re-Work' },
-        { label: 'On Hold', value: 'On Hold' },
-        // { label: 'Submit For Approval', value: 'Submit For Approval' },
-        { label: 'Ready for Delivery', value: 'Ready for Delivery' },
-        { label: 'Final Status', value: 'Final Status' }
-    ];
+    // Define all status options
+    statusOptions = {
+        base: [
+            { label: 'New', value: 'New' },
+            { label: 'In Progress', value: 'In Progress' },
+            { label: 'Re-Work', value: 'Re-Work' },
+            { label: 'On Hold', value: 'On Hold' },
+            { label: 'Ready for Delivery', value: 'Ready for Delivery' },
+            { label: 'Final Status', value: 'Final Status' }
+        ],
+        withPending: [
+            { label: 'New', value: 'New' },
+            { label: 'In Progress', value: 'In Progress' },
+            { label: 'Re-Work', value: 'Re-Work' },
+            { label: 'On Hold', value: 'On Hold' },
+            { label: 'Submit For Approval', value: 'Submit For Approval' },
+            { label: 'Ready for Delivery', value: 'Ready for Delivery' },
+            { label: 'Final Status', value: 'Final Status' }
+        ],
+        completed: [
+            { label: 'New', value: 'New' },
+            { label: 'In Progress', value: 'In Progress' },
+            { label: 'Re-Work', value: 'Re-Work' },
+            { label: 'On Hold', value: 'On Hold' },
+            { label: 'Submit For Approval', value: 'Submit For Approval' },
+            { label: 'Completed', value: 'Completed' }
+        ],
+        canceled: [
+            { label: 'New', value: 'New' },
+            { label: 'In Progress', value: 'In Progress' },
+            { label: 'Re-Work', value: 'Re-Work' },
+            { label: 'On Hold', value: 'On Hold' },
+            { label: 'Submit For Approval', value: 'Submit For Approval' },
+            { label: 'Cancellation Requested', value: 'Cancellation Requested' },
+            { label: 'Canceled', value: 'Canceled' }
+        ],
+        final: [
+            { label: 'Completed', value: 'Completed' },
+            { label: 'Cancellation Requested', value: 'Cancellation Requested' },
+            { label: 'Canceled', value: 'Canceled' }
+        ]
+    };
 
-    finalSteps = [
-        { label: 'Completed', value: 'Completed' },
-        { label: 'Cancellation Requested', value: 'Cancellation Requested' },
-        { label: 'Canceled', value: 'Canceled' }
-    ];
-
-    completedStatus = [
-        { label: 'New', value: 'New' },
-        { label: 'In Progress', value: 'In Progress' },
-        { label: 'Re-Work', value: 'Re-Work' },
-        { label: 'On Hold', value: 'On Hold' },
-        { label: 'Submit For Approval', value: 'Submit For Approval' },
-        { label: 'Completed', value: 'Completed' }
-    ];
-
-    cancelStatus = [
-        { label: 'New', value: 'New' },
-        { label: 'In Progress', value: 'In Progress' },
-        { label: 'Re-Work', value: 'Re-Work' },
-        { label: 'On Hold', value: 'On Hold' },
-        { label: 'Submit For Approval', value: 'Submit For Approval' },
-        { label: 'Cancellation Requested', value: 'Cancellation Requested' },
-        { label: 'Canceled', value: 'Canceled' }
-
-    ];
-
-    pendingActionPlans = [
-        { label: 'New', value: 'New' },
-        { label: 'In Progress', value: 'In Progress' },
-        { label: 'Re-Work', value: 'Re-Work' },
-        { label: 'On Hold', value: 'On Hold' },
-        { label: 'Submit For Approval', value: 'Submit For Approval' },
-        { label: 'Ready for Delivery', value: 'Ready for Delivery' },
-        { label: 'Final Status', value: 'Final Status' }
-    ]
-
-
-
-    get displayedSteps() {
-        debugger;
+    // Compute steps with classes
+    computeSteps() {
+        let steps = [];
         if (this.currentStatus === 'Completed') {
-            return this.completedStatus;
-        } else if (this.currentStatus === 'Canceled' || this.currentStatus === 'Cancellation Requested') {
-            return this.cancelStatus;
+            steps = [...this.statusOptions.completed];
         }
-        return this.steps;
+        else if (this.currentStatus === 'Canceled' || this.currentStatus === 'Cancellation Requested') {
+            this.isCanceledPath = true;
+            steps = [...this.statusOptions.canceled];
+        }
+        else {
+            steps = this.hasPendingStatus ?
+                [...this.statusOptions.withPending] :
+                [...this.statusOptions.base];
+        }
+
+        // Add classes to each step
+        this.computedSteps = steps.map(step => {
+            let stepClass = '';
+
+            // Add active class if step is selected
+            if (step.value === this.selectedStep) {
+                stepClass += 'slds-is-active ';
+            }
+
+            // Add completed/canceled classes
+            if (step.value === 'Completed') {
+                stepClass += 'slds-is-completed ';
+            }
+            else if (step.value === 'Cancellation Requested' || step.value === 'Canceled') {
+                stepClass += 'slds-has-error ';
+            }
+
+            return {
+                ...step,
+                stepClass: stepClass.trim()
+            };
+        });
     }
 
     get isFinalStatus() {
-        debugger;
-        return (
-            this.currentStatus === 'Completed' ||
-            this.currentStatus === 'Canceled' ||
-            this.currentStatus === 'Cancellation Requested'
-        );
+        // return [
+        //     'Completed',
+        //     'Canceled',
+        //     'Cancellation Requested'
+        // ].includes(this.currentStatus);
     }
 
     get footerButtonLabel() {
-        debugger;
-        return this.isFinalStatus ? 'Change Final Status' : 'Select Final Status';
-    }
-
-    get statusOptions() {
-        debugger;
-        return this.finalSteps;
-    }
-
-    @wire(getRecord, { recordId: '$recordId', fields: FIELDS })
-    wiredWorkOrder({ data, error }) {
-        if (data) {
-            debugger;
-            this.currentStatus = data.fields.Status.value;
-            if (this.currentStatus == 'Completed') {
-                this.completedStatus;
-            } else if (this.currentStatus == 'Canceled') {
-
-            }
-            this.selectedStep = this.currentStatus;
-        } else if (error) {
-            this.showToast('Error', 'Failed to fetch status', 'error');
-        }
+        return this.selectedStep === 'Final Status' ?
+            'Select Final Status' :
+            'Mark Stage as Complete';
     }
 
     @wire(graphql, {
@@ -144,8 +143,6 @@ export default class WorkOrderStatusPath extends LightningElement {
         variables: "$variables"
     })
     wiredActionPlans({ data, errors }) {
-        this.isLoading = false;
-        debugger;
         if (data) {
             this.actionPlans = data.uiapi.query.ActionPlan?.edges.map(edge => ({
                 Id: edge.node.Id,
@@ -153,24 +150,31 @@ export default class WorkOrderStatusPath extends LightningElement {
                 IsCompleted: edge.node.To_be_Completed_in_JC__c?.value
             })) || [];
 
-            // this.hasPendingStatus = this.actionPlans.some(
-            //     plan => plan.FieldFixStatus === 'Pending'
-            // );
-
+            // Check for incomplete action plans
             this.hasPendingStatus = this.actionPlans.some(
-                plan => plan.IsCompleted == false
+                plan => plan.IsCompleted === false
             );
 
-            if (this.hasPendingStatus) {
-
-            }
+            this.computeSteps();
         }
-        console.log(` data, ${JSON.stringify(data)}`);
-        console.log(`ap data, ${JSON.stringify(this.actionPlans)}`);
         if (errors) {
-            this.hasError = true;
             console.error('GraphQL errors:', errors);
             this.showToast('Error', 'Failed to load action plans', 'error');
+        }
+    }
+
+    @wire(getRecord, { recordId: '$recordId', fields: FIELDS })
+    wiredWorkOrder({ data, error }) {
+        if (data) {
+            this.currentStatus = data.fields.Status.value;
+            this.selectedStep = this.currentStatus;
+
+            // Set canceled path flag
+            this.isCanceledPath = ['Canceled', 'Cancellation Requested'].includes(this.currentStatus);
+            this.computeSteps();
+        }
+        else if (error) {
+            this.showToast('Error', 'Failed to fetch status', 'error');
         }
     }
 
@@ -178,23 +182,30 @@ export default class WorkOrderStatusPath extends LightningElement {
         return { jobCardId: this.recordId };
     }
 
-    statusClick(event) {
-        debugger;
-        this.selectedStep = event.target.value;
+    handleStepClick(event) {
+        const stepValue = event.currentTarget.dataset.value;
+        if (!this.isFinalStatus) {
+            this.selectedStep = stepValue;
+            this.computeSteps();
+        }
     }
 
-    openModal() {
+    openModal(event) {
         debugger;
-        this.showModal = true;
+        const lable = event.currentTarget.label;
+        if (lable == 'Mark Stage as Complete') {
+            this.handleSave();
+        } else {
+            this.showModal = true;
+        }
+
     }
 
     closeModal() {
-        debugger;
         this.showModal = false;
     }
 
     handleStatusChange(event) {
-        debugger;
         this.selectedStep = event.detail.value;
     }
 
@@ -209,12 +220,33 @@ export default class WorkOrderStatusPath extends LightningElement {
                 this.currentStatus = this.selectedStep;
                 this.showModal = false;
                 this.showToast('Success', 'Status updated successfully', 'success');
+
+                // Update canceled path flag
+                this.isCanceledPath = ['Canceled', 'Cancellation Requested'].includes(this.selectedStep);
+                this.computeSteps();
             })
             .catch(error => {
-                this.showToast('Error', 'Error updating status', 'error');
-                console.error(error);
+                let errorMessage = 'Unknown error';
+                // Try to parse structured error from GraphQL or Apex
+                if (error && error.body && error.body.output) {
+                    const { errors, fieldErrors } = error.body.output;
+                    let messages = [];
+                    // Collect general errors
+                    if (errors && errors.length > 0) {
+                        messages = messages.concat(errors.map(e => e.message));
+                    }
+                    // Collect field-specific errors
+                    if (fieldErrors) {
+                        for (let field in fieldErrors) {
+                            messages = messages.concat(fieldErrors[field].map(e => e.message));
+                        }
+                    }
+                    errorMessage = messages.join('; ');
+                }
+                this.showToast('Error', errorMessage, 'error');
+                console.error(errorMessage);
+                
             });
-
     }
 
     showToast(title, message, variant) {

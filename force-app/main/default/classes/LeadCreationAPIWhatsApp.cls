@@ -21,11 +21,11 @@ global class LeadCreationAPIWhatsApp{
         // Retrieve date/time values from the request body  
         String startDateTimeStr = (String) requestBodyMap.get('startDateTimeStr');  
         String endDateTimeStr = (String) requestBodyMap.get('endDateTimeStr');  
-
+        
         // Initialize Datetime variables  
         Datetime startDateTime;  
         Datetime endDateTime;  
-
+        
         // Convert to Datetime if values are provided  
         if (startDateTimeStr != null) {  
             startDateTime = Datetime.valueOf(startDateTimeStr);  
@@ -33,33 +33,46 @@ global class LeadCreationAPIWhatsApp{
             // Handle null case for startDateTime (e.g., set to a default value or log an error)  
             startDateTime = null; // or some default value  
         }  
-
+        
         if (endDateTimeStr != null) {  
             endDateTime = Datetime.valueOf(endDateTimeStr);  
         } else {  
             // Handle null case for endDateTime (e.g., set to a default value or log an error)  
             endDateTime = null; // or some default value  
         }  
-
+        
         String dealerCode = (String) requestBodyMap.get('DealerCode');  
-
+        
         try {
             List<Lead> leads = [  
                 SELECT Id, LastName, Company, Email, Phone, City,  
-                       Test_ride_Start_date__c, Test_ride_end_date__c,  
-                       Dealer_Code__c, Home_Test_Ride__c, Instore_Test_drive__c  
+                Test_ride_Start_date__c, Test_ride_end_date__c,  
+                Dealer_Code__c, Home_Test_Ride__c, Instore_Test_drive__c  
                 FROM Lead WHERE Phone = :phone LIMIT 1  
             ];  
-
+            
             Lead leadToUpdate;  
-
+            
             if (!leads.isEmpty()) {  
                 leadToUpdate = leads[0];  
+                // Duplicate found — log and return with 409
+                Integration_Log__c logObj = new Integration_Log__c(
+                    Integration_Type__c = 'Lead Creation - WhatsApp',
+					Duplicate_Lead_Phone__c = leads[0].Phone,
+                    Request_Payload__c = JSON.serializePretty(requestBodyMap),
+                    Response_Payload__c = 'Duplicate Lead Found: ' + leads[0].Id,
+                    Lead__c = leads[0].Id
+                    //Status__c = 'Duplicate'
+                );
+                insert logObj;
+                
+                res.statusCode = 409; // Conflict
+                return 'Duplicate Lead Found: ' + leadToUpdate.Id;
             } else {  
                 leadToUpdate = new Lead();  
                 leadToUpdate.LeadSource = 'WhatsApp';  
             }  
-
+            
             leadToUpdate.LastName = fullName;  
             leadToUpdate.Company = fullName;  
             leadToUpdate.Email = email;  
@@ -70,7 +83,7 @@ global class LeadCreationAPIWhatsApp{
             leadToUpdate.Test_ride_end_date__c = endDateTime;  
             leadToUpdate.Home_Test_Ride__c = homeTestRide != null ? homeTestRide : false;  
             leadToUpdate.Instore_Test_drive__c = instoreTestdrive != null ? instoreTestdrive : false;  
-
+            
             Account dealerCodeAccount;  
             if (String.isNotBlank(postalCode)) {  
                 String resolvedDealerCode = LeadTriggerHandler.getPreferredStoreByPincode(postalCode);  
@@ -86,16 +99,16 @@ global class LeadCreationAPIWhatsApp{
                     }  
                 }  
             }  
-
+            
             leadToUpdate.Stores_Name__c = dealerCodeAccount != null ? dealerCodeAccount.Name : '';  
             leadToUpdate.Dealer_Code__c = dealerCodeAccount != null ? dealerCodeAccount.Center_Code__c : dealerCode;  
-
+            
             if (leadToUpdate.Id != null) {  
                 update leadToUpdate;  
             } else {  
                 insert leadToUpdate;  
             }  
-
+            
             Integration_Log__c logObj = new Integration_Log__c(  
                 Integration_Type__c = 'Lead Creation - WhatsApp',  
                 Request_Payload__c = JSON.serializePretty(requestBodyMap),  
@@ -103,9 +116,9 @@ global class LeadCreationAPIWhatsApp{
                 Status__c = 'Success'  
             );  
             insert logObj;  
-
+            
             return 'Lead processed successfully: ' + leadToUpdate.Id;  
-
+            
         } catch (Exception e) {  
             Integration_Log__c logObj = new Integration_Log__c(  
                 Integration_Type__c = 'Lead Creation - WhatsApp',  
@@ -115,7 +128,7 @@ global class LeadCreationAPIWhatsApp{
                 Status__c = 'Failed'  
             );  
             insert logObj;  
-
+            
             return 'Error: ' + e.getMessage();  
         } 
     }  

@@ -28,6 +28,7 @@
                                 </th>
                                 <th scope="col">Product Name</th>
                                 <th scope="col">Product Code</th>
+                                <th scope="col">Available Inventory</th>
                                 <th scope="col">Forecast Quantity</th>
 
                             </tr>
@@ -42,19 +43,12 @@
                                     </td>
                                     <td>{item.ProductName}</td>
                                     <td>{item.ProductCode}</td>
-                                    <!--
+                                    <td>{item.AvailableInventory}</td>
                                     <td>
                                         <lightning-input type="number" data-id={item.Id} value={item.AllocatedQuantity}
                                             disabled={item.isChargesDisabled} style="margin-bottom:14px">
                                         </lightning-input>
                                     </td>
-                                    -->
-                                    <td>
-                                        <lightning-input type="number" data-id={item.Id} value={item.AllocatedQuantity}
-                                            disabled={item.isChargesDisabled} style="margin-bottom:14px">
-                                        </lightning-input>
-                                    </td>
-
                                 </tr>
                             </template>
                         </tbody>
@@ -152,7 +146,7 @@
                                         <td>{item.ProductCode}</td>
                                         <td>
                                             <lightning-input type="number" data-id={item.Id}
-                                                value={item.AllocatedQuantity} onchange={handleQuantityChange}
+                                                value={item.AllocatedQuantity} onblur={handleQuantityChange}
                                                 style="margin-bottom:14px">
                                             </lightning-input>
                                         </td>

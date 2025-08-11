@@ -150,10 +150,10 @@ public class TestDriveTriggerHandler {
             System.debug('rideTypeMapForStore===>'+rideTypeMapForStore);
             
             if(!testDriveIdsToProcessForHome.isEmpty() && (idToPhoneNumberMapForHome!=null && idToFormattedDateTimeMapForHome!=null &&rideTypeMapForHome!=null)){
-                //System.enqueueJob(new TestDriveCreationUpdatedQueueable(testDriveIdsToProcessForHome,idToPhoneNumberMapForHome,idToFormattedDateTimeMapForHome,rideTypeMapForHome,idToTimeOnlyForHome));
+                System.enqueueJob(new TestDriveCreationUpdatedQueueable(testDriveIdsToProcessForHome,idToPhoneNumberMapForHome,idToFormattedDateTimeMapForHome,rideTypeMapForHome,idToTimeOnlyForHome));
             }
             if(!testDriveIdsToProcessForStore.isEmpty()&& (idToPhoneNumberMapForStore!=null && idToFormattedDateTimeMapForStore!=null &&rideTypeMapForStore!=null)){
-                //System.enqueueJob(new TestDriveCreationUpdatedQueueable(testDriveIdsToProcessForStore,idToPhoneNumberMapForStore,idToFormattedDateTimeMapForStore,rideTypeMapForStore,idToTimeOnlyForStrore));
+                System.enqueueJob(new TestDriveCreationUpdatedQueueable(testDriveIdsToProcessForStore,idToPhoneNumberMapForStore,idToFormattedDateTimeMapForStore,rideTypeMapForStore,idToTimeOnlyForStrore));
             }
             
         }catch(Exception e){

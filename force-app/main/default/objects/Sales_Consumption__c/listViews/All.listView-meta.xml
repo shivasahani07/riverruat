@@ -12,14 +12,14 @@
     <columns>Manual_Date_Test__c</columns>
     <filterScope>Everything</filterScope>
     <filters>
-        <field>Dealer__c</field>
+        <field>Product__c</field>
         <operation>contains</operation>
-        <value>River Mobility</value>
+        <value>River Extended</value>
     </filters>
     <filters>
-        <field>Product__c</field>
-        <operation>equals</operation>
-        <value>Side Step</value>
+        <field>Dealer__c</field>
+        <operation>contains</operation>
+        <value>Aniket</value>
     </filters>
     <label>All</label>
 </ListView>

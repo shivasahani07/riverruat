@@ -3,7 +3,7 @@
 * @email dinesh.butilitarianlab@gmail.com
 * @create date 2024-12-10 12:57:07
 * @modify date 2024-12-10 12:57:07
-* @desc [Add Product Request Line Items, Intialize Allotement and Receive GRN ];
+* @desc [Add Product Request Line Items, Intialize Allotement and Receive GRN];
 */
 
 public Without Sharing class ProductRequestLineController {
@@ -328,20 +328,47 @@ public Without Sharing class ProductRequestLineController {
                     accountids.add(pp.ParentId);
                     totalQuanMap.put(pp.Product2Id,pp.QuantityRequested);
                 }
+                System.debug('totalQuanMap==>'+totalQuanMap);
                 ProductRequest pp =[SELECT Id,Account__c FROM ProductRequest WHERE Id=:accountids LIMIT 1];
                 Id accId = pp.Account__c;
                 System.debug('accountids==>'+accountids);
-                List<Month_Split__c> fortsList = [SELECT Id,Product__c,Quantity_Orderd__c FROM Month_Split__c WHERE Product__c IN:productids];
+
+                Date today = Date.today();
+                Integer dayOfMonth = today.day();
+
+               // Date expectedBatchDate;
+                Date startDate;
+                Date endDate;
+                if (dayOfMonth <= 15) {
+                
+                    startDate = Date.newInstance(today.year(), today.month(), 1);
+                   endDate = Date.newInstance(today.year(), today.month(), 15);
+                } else {
+                    
+                    startDate = Date.newInstance(today.year(), today.month(), 16);
+                    endDate = Date.newInstance(today.year(), today.month(), Date.daysInMonth(today.year(), today.month()));
+                }
+
+                List<FortnightlyForecastInventory__c> fortsList = [
+                    SELECT Id, Product__c, PO_Status__c, Account__c, Batch_Executed_Date__c,Quantity_Ordered__c,PO_Created__c
+                    FROM FortnightlyForecastInventory__c
+                    WHERE Product__c IN :productids
+                        AND Account__c = :accId
+                         AND Batch_Executed_Date__c >= :startDate
+                         AND Batch_Executed_Date__c <= :endDate
+                ];
+
                 System.debug('fortsList==>'+fortsList);
-                List<Month_Split__c> fortsToUpdate = new List<Month_Split__c>();
-                for(Month_Split__c f : fortsList){
+                List<FortnightlyForecastInventory__c> fortsToUpdate = new List<FortnightlyForecastInventory__c>();
+                for(FortnightlyForecastInventory__c f : fortsList){
                     Decimal toBeDeducted = totalQuanMap.get(f.Product__c);
                     System.debug('toBeDeducted==>'+toBeDeducted);
-                    Month_Split__c ff = new Month_Split__c();
+                    FortnightlyForecastInventory__c ff = new FortnightlyForecastInventory__c();
                     ff.Id = f.Id;
-                    //ff.PO_Status__c = 'Submitted';
-                    ff.Quantity_Orderd__c = f.Quantity_Orderd__c == null ?  toBeDeducted : f.Quantity_Orderd__c + toBeDeducted;
-                    ff.PO_Submitted__c =  true;
+                    ff.PO_Status__c = 'Submitted';
+                    ff.Quantity_Ordered__c = f.Quantity_Ordered__c!=null ?  (f.Quantity_Ordered__c + totalQuanMap.get(f.Product__c)) : totalQuanMap.get(f.Product__c);
+                    ff.PO_Created__c = true;
+                    // ff.PO_Status__c =  true;
                     fortsToUpdate.add(ff);
 
                 }
@@ -972,7 +999,7 @@ sendEmail();
             Id orderIdToUpdate = newOrderItems[0].OrderId;
             if (orderIdToUpdate != null) {
                 Order ordToUpdate = [SELECT Id, Status FROM Order WHERE Id = :orderIdToUpdate LIMIT 1];
-                ordToUpdate.Status = 'Submitted to Finance	'; // Or any status/field you want to update
+                ordToUpdate.Status = 'Submitted to Finance  '; // Or any status/field you want to update
                 update ordToUpdate;
                 System.debug('Updated Order: ' + ordToUpdate);
             }
@@ -1091,7 +1118,7 @@ System.debug('Error sending email: ' + e.getMessage());
 System.debug('=== End sendEmail ===');
 } */
     
-    
+
     @AuraEnabled
     public static List<FortnightlyForecastInventory__c> showForeCastedData(String loggedInUserId, String productTypeFilter) {
         System.debug('loggedInUserId == >' + loggedInUserId);
@@ -1142,8 +1169,7 @@ System.debug('=== End sendEmail ===');
 
                     if (!Product2IdSet.isEmpty()) {
                         listOfForeCastedData = [
-                            SELECT Id, Name, Product__c,Product__r.Name,Product__r.ProductCode,Product__r.Type__c, Account__c, Six_Months_Average_Consumption__c,PO_Status__c,
-                            Pending_Forecast_Quantity__c
+                            SELECT Id, Name, Product__c,Product__r.Name,Product__r.ProductCode,Product__r.Type__c, Product__r.Minimum_Order_Qty__c, Account__c, Six_Months_Average_Consumption__c,PO_Status__c
                             FROM FortnightlyForecastInventory__c
                             WHERE Product__c IN :Product2IdSet AND PO_Status__c IN ('Not Submitted','')
                             AND Product__r.Type__c NOT IN :ProductTypeNotToShow AND Account__c =: loggedInUserContactRecord.AccountId

@@ -7,6 +7,7 @@ import getvehicleRecord from '@salesforce/apex/AppointmentFormController.getvehi
 import getCurrentServiceCenter from '@salesforce/apex/AppointmentFormController.getCurrentServiceCenter';
 import getSlotItems from '@salesforce/apex/AppointmentFormController.getSlotItems';
 import createAppointmentforServiceAppointment from '@salesforce/apex/AppointmentFormController.createAppointmentforServiceAppointment';
+import getPicklistValues from '@salesforce/apex/AppointmentFormController.getPicklistValues';
 
 export default class AppointmentForm extends NavigationMixin(LightningElement) {
     @api recordId;
@@ -39,7 +40,9 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
     }
 
     connectedCallback() {
+        this.loadPicklistValues();
         if (!this.recordId) {
+            
             const url = window.location.href;
             const match = url.match(/\/case\/([^/]+)/);
             if (match) {
@@ -52,6 +55,20 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
         }
 
         this.setMinDate();
+    }
+
+
+     loadPicklistValues() {
+        getPicklistValues({ objectApiName: 'ServiceAppointment', fieldApiName: 'Type_Of_Requested_Services__c' }) // Example: Account.Industry
+            .then(result => {
+                this.options = result.map(value => ({
+                    label: value,
+                    value: value
+                }));
+            })
+            .catch(error => {
+                console.error('Error loading picklist values', error);
+            });
     }
 
     setMinDate() {
@@ -98,6 +115,11 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
 
     handleAppointmentDesc(e) {
         this.appointmentDecription = e.detail.value;
+    }
+
+    handleSelectServices(event) {
+        this.selectedValue = event.detail.value;
+        console.log('Selected Service:', this.selectedValue);
     }
 
     loadSlotItems() {
@@ -160,6 +182,7 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
             vrn: this.vrn,
             appointmentDate: this.appointmentDate,
             contactNumber: this.contactNumber,
+            serviceType :this.selectedValue,
             slotId: this.appointmentSlotId,
             slotItemId: this.selectedSlotItem,
             appointmentDecription: this.appointmentDecription

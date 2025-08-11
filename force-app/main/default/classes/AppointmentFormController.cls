@@ -179,6 +179,7 @@ AppointmentFormController.cls  •  Updated create‑method
         String vrn,
         Date appointmentDate,
         String contactNumber,
+        String serviceType,
         Id   slotId,
         Id   slotItemId,
         String appointmentDecription
@@ -221,6 +222,7 @@ AppointmentFormController.cls  •  Updated create‑method
         newApp.Contact_Number__c   = contactNumber;
         newApp.Mode_of_Reception__c = 'Appointment';
         newApp.Additional_Information__c = appointmentDecription;
+        newApp.Type_Of_Requested_Services__c = serviceType;
         
         if (isServiceAppt) {
             newApp.Service_Appointment__c = parentId;
@@ -424,7 +426,24 @@ return  AppSlotItemList;
             this.slotItems = slotItems;
         }
     }
-    
+     @AuraEnabled(cacheable=true)
+    public static List<String> getPicklistValues(String objectApiName, String fieldApiName) {
+        List<String> picklistValues = new List<String>();
+
+        Schema.SObjectType targetType = Schema.getGlobalDescribe().get(objectApiName);
+        if (targetType == null) return picklistValues;
+
+        Schema.DescribeSObjectResult describeResult = targetType.getDescribe();
+        Schema.DescribeFieldResult fieldResult = describeResult.fields.getMap().get(fieldApiName).getDescribe();
+
+        if (fieldResult != null && fieldResult.getType() == Schema.DisplayType.Picklist) {
+            for (Schema.PicklistEntry entry : fieldResult.getPicklistValues()) {
+                picklistValues.add(entry.getLabel());
+            }
+        }
+
+        return picklistValues;
+    }
     
     
 }

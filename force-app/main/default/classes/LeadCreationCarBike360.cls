@@ -22,28 +22,41 @@ global class LeadCreationCarBike360{
         String phone = (String) requestBodyMap.get('Phone');  
         String city = (String) requestBodyMap.get('City');  
         String postalCode = String.valueOf(requestBodyMap.get('PostalCode'));  
-       String dealerCode = (String) requestBodyMap.get('DealerCode');  
-
+        String dealerCode = (String) requestBodyMap.get('DealerCode');  
+        
         try {
             List<Lead> leads = [SELECT Id, LastName, Company, Email, Phone, City, Dealer_Code__c  
                                 FROM Lead WHERE Phone = :phone LIMIT 1];  
-
+            
             Lead leadToUpdate;  
-
+            
             if (!leads.isEmpty()) {  
                 leadToUpdate = leads[0];  
+                // Duplicate found — log and return with 409
+                Integration_Log__c logObj = new Integration_Log__c(
+                    Integration_Type__c = ' Lead Creation',
+                    Duplicate_Lead_Phone__c = leads[0].Phone,
+                    Request_Payload__c = JSON.serializePretty(requestBodyMap),
+                    Response_Payload__c = 'Duplicate Lead Found: ' + leads[0].Id,
+                    Lead__c = leads[0].Id
+                    //Status__c = 'Duplicate'
+                );
+                insert logObj;
+                
+                res.statusCode = 409; // Conflict
+                return 'Duplicate Lead Found: ' + leadToUpdate.Id;
             } else {  
                 leadToUpdate = new Lead();  
                 leadToUpdate.LeadSource = 'CarBike360';  
             }  
-
+            
             leadToUpdate.LastName = fullName;  
             leadToUpdate.Company = fullName;  
             leadToUpdate.Email = email;  
             leadToUpdate.Phone = phone;  
             leadToUpdate.City = city;  
             leadToUpdate.PostalCode = postalCode;  
-
+            
             Account dealerCodeAccount;  
             if (String.isNotBlank(postalCode)) {  
                 String resolvedDealerCode = LeadTriggerHandler.getPreferredStoreByPincode(postalCode);  
@@ -59,36 +72,36 @@ global class LeadCreationCarBike360{
                     }  
                 }  
             }  
-
+            
             leadToUpdate.Stores_Name__c = dealerCodeAccount != null ? dealerCodeAccount.Name : '';  
             leadToUpdate.Dealer_Code__c = dealerCodeAccount != null ? dealerCodeAccount.Center_Code__c : dealerCode;  
-
+            
             if (leadToUpdate.Id != null) {  
                 update leadToUpdate;  
             } else {  
                 insert leadToUpdate;  
             }  
-
+            
             Integration_Log__c logObj = new Integration_Log__c(  
-                Integration_Type__c = 'Lead Creation - CarBike360',  
+                Integration_Type__c = ' Lead Creation',
                 Request_Payload__c = JSON.serializePretty(requestBodyMap),  
                 Response_Payload__c = 'Lead processed successfully: ' + leadToUpdate.Id,  
                 Status__c = 'Success'  
             );  
             insert logObj;  
-
+            
             return 'Lead processed successfully: ' + leadToUpdate.Id;  
-
+            
         } catch (Exception e) {  
             Integration_Log__c logObj = new Integration_Log__c(  
-                Integration_Type__c = 'Lead Creation - CarBike360',  
+                Integration_Type__c = ' Lead Creation',
                 Request_Payload__c = JSON.serializePretty(requestBodyMap),  
                 Response_Payload__c = 'Error: ' + e.getMessage(),  
                 Error_Message__c = e.getMessage(),  
                 Status__c = 'Failed'  
             );  
             insert logObj;  
-
+            
             return 'Error: ' + e.getMessage();  
         } 
     }  

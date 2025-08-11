@@ -4,6 +4,21 @@
     <active>true</active>
     <label>Technical Ticket</label>
     <picklistValues>
+        <picklist>Mode_of_Driving__c</picklist>
+        <values>
+            <fullName>Eco</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Ride</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rush</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>Query_Type__c</picklist>
         <values>
             <fullName>Complaint</fullName>

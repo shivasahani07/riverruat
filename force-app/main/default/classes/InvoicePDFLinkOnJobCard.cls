@@ -2,10 +2,10 @@
  * @description       : 
  * @author            : Aniket Karmakar
  * @group             : 
- * @last modified on  : 07-10-2025
+ * @last modified on  : 08-06-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
-public with sharing class InvoicePDFLinkOnJobCard {
+public without sharing class InvoicePDFLinkOnJobCard {
 
      public static void afterUpdate(List<WorkOrder> newList, Map<Id, WorkOrder> oldMap) {
         List<Id> eligibleIds = new List<Id>();

@@ -1,4 +1,33 @@
-.slds-box {
-    padding: 0px !important;
-    border: none !important;
+/* Add this CSS in your component's CSS file */
+.progress-container {
+    padding: 0;
+    /* display: flex; */
 }
+
+.path {
+    margin: 0 10px 0 10px;
+}
+
+
+/* .button-container {
+    display: flex;
+    justify-content: center;
+    padding: 0 1rem 1rem;
+}
+
+/* Red color for canceled status steps */
+/* .slds-has-error .slds-progress__marker {
+    background-color: #c23934;
+    border-color: #c23934;
+} */
+
+/* .slds-has-error .slds-progress__marker:hover {
+    background-color: #a61a14;
+    border-color: #a61a14;
+} */
+
+/* Completed status color */
+/* .slds-is-completed .slds-progress__marker {
+    background-color: #04844b;
+    border-color: #04844b;
+}  */

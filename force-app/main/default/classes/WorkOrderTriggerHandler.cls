@@ -637,4 +637,55 @@ public class WorkOrderTriggerHandler {
             }
         }
     }
+    
+public static void onJobcardOpenUdpateAssetMilestone(List<WorkOrder> orderList) {
+    try {
+        System.debug('orderList === ' + orderList);
+
+        if (orderList.isEmpty()) {
+            return;
+        }
+
+        // Map of Vehicle Id -> WorkOrder Created Date
+        Map<Id, Date> vehicleIdToWODate = new Map<Id, Date>();
+        for (WorkOrder wo : orderList) {
+            if (wo.AssetId != null) { // Assuming AssetId refers to the Vehicle
+                vehicleIdToWODate.put(wo.AssetId, wo.CreatedDate.date()); 
+            }
+        }
+
+        if (vehicleIdToWODate.isEmpty()) {
+            return;
+        }
+
+        // Fetch Asset Milestones for those vehicles
+        List<AssetMilestone> milestonesToUpdate = [
+            SELECT Id, VehicleId, MilestoneDate	, Stage
+            FROM AssetMilestone
+            WHERE VehicleId IN :vehicleIdToWODate.keySet()
+        ];
+
+        List<AssetMilestone> updateList = new List<AssetMilestone>();
+
+        for (AssetMilestone milestone : milestonesToUpdate) {
+            Date woCreatedDate = vehicleIdToWODate.get(milestone.VehicleId);
+
+            // Check if Milestone Date is greater than WO Created Date + 30 days
+            if (milestone.MilestoneDate != null && 
+                milestone.MilestoneDate > woCreatedDate.addDays(30)) {
+
+                milestone.Stage = 'Active';
+                updateList.add(milestone);
+            }
+        }
+
+        if (!updateList.isEmpty()) {
+            update updateList;
+            System.debug('Updated ' + updateList.size() + ' Asset Milestones to Active.');
+        }
+
+    } catch (Exception e) {
+        System.debug('getError Message: ' + e.getMessage() + ' Get LineError: ' + e.getLineNumber());
+    }
+}
 }

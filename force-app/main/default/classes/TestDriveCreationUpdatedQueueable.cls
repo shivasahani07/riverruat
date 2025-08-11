@@ -7,11 +7,11 @@
 **/
 public without sharing class TestDriveCreationUpdatedQueueable implements Queueable,Database.allowsCallouts{
 
-    private List<Id> testDriveIds;
-    private Map<Id,String> idToPhoneMap;
-    private Map<Id,String> idToTimeMap;
-    private Map<Id,String> idToRideTypeMap;
-    private Map<Id,String> idToTimeOnly;
+    private List<Id> testDriveIds{get;set;}
+    private Map<Id,String> idToPhoneMap{get;set;}
+    private Map<Id,String> idToTimeMap{get;set;} 
+    private Map<Id,String> idToRideTypeMap{get;set;}
+    private Map<Id,String> idToTimeOnly{get;set;}
 
     public TestDriveCreationUpdatedQueueable(List<Id> testDriveIds,Map<Id,String> idToPhoneMap,Map<Id,String> idToTimeMap,Map<Id,String> idToRideTypeMap,Map<Id,String> idToTimeOnly) {
         this.testDriveIds = testDriveIds;
@@ -42,6 +42,16 @@ public without sharing class TestDriveCreationUpdatedQueueable implements Queuea
 
     }
     public static void sendWhatsAppMessage(String phoneNumber,String timeFormat,String rideType,String timeOnly){
+        List<WhatsappIntegration__c> ws = WhatsappIntegration__c.getAll().values();
+        WhatsappIntegration__c w = WhatsappIntegration__c.getInstance('WhatsApp API');
+        String endPoint = w.Meta_EndPoint_Version_18__c != null ? w.Meta_EndPoint_Version_18__c : 'Not Found';
+        System.debug('endPoint==>'+endPoint);
+        String token = w.Service_Bearer_Token__c != null ? w.Service_Bearer_Token__c : 'Not Found';
+        System.debug('token==>'+token);
+        String apiKey = w.API_Key__c != null ? w.API_Key__c : 'Not Found';
+        System.debug('apiKey==>'+apiKey);
+        String cookie = w.Cookie__c != null ? w.Cookie__c : 'Not Found';
+        System.debug('cookie==>'+cookie);
         try{
             String fullPhone = '+91'+ phoneNumber;
             Map<String,Object> payLoad = new Map<String,Object>();
@@ -125,12 +135,12 @@ public without sharing class TestDriveCreationUpdatedQueueable implements Queuea
 
           Http http = new Http();
           HttpRequest req = new HttpRequest();
-          req.setHeader('apikey','KK47b958dee3505cf2e2c6391c27bbaba4');
+          req.setHeader('apikey',apiKey);
           req.setHeader('Content-Type','application/json');
-          req.setHeader('Cookie','PHPSESSID=b1b5beb88ec80de98066dad0b5c9349d');
-          req.setHeader('Authorization','Bearer EAAXxARj4rG4BAGn1hROuTWTC8OdZAoHslZBZBSoHMKoW6efGAZAfdpklXYFSJLeSjfnQBvWjjGH2GFulHP0FkGY440TZBn2ox405jamyBhLIdSBJvUw0c1Ii71ZBYAtJUJ3AaavdgDcy1DyFZA93gWtKdRDPc458caPQHzhjfVHXgqsZCf1FJMXU');
+          req.setHeader('Cookie',cookie);
+          req.setHeader('Authorization','Bearer '+token);
           req.setBody(serializedBody);
-          req.setEndpoint('https://graph.facebook.com/v18.0/449353421601049/messages');
+          req.setEndpoint(endPoint);
           req.setMethod('POST');
 
           HttpResponse res = http.send(req);
@@ -140,21 +150,6 @@ public without sharing class TestDriveCreationUpdatedQueueable implements Queuea
             System.debug('Error Sending WhatsApp Messsage');
             System.debug('Error Body==>'+res.getBody());
           }
-
-
-
-          
-
-
-
-
-
-
-
-
-
-
-
 
         }catch(Exception e){
             System.debug('Error Occured==>'+e.getMessage());

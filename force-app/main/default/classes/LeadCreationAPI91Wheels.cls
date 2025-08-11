@@ -31,9 +31,11 @@ global class LeadCreationAPI91Wheels {
             if (!leads.isEmpty()) {
                 // Duplicate found — log and return with 409
                 Integration_Log__c logObj = new Integration_Log__c(
-                    Integration_Type__c = 'Lead Creation - 91Wheels',
+                    Integration_Type__c = ' Lead Creation',
+                    Duplicate_Lead_Phone__c = leads[0].Phone,
                     Request_Payload__c = JSON.serializePretty(requestBodyMap),
-                    Response_Payload__c = 'Duplicate Lead Found: ' + leads[0].Id
+                    Response_Payload__c = 'Duplicate Lead Found: ' + leads[0].Id,
+                    Lead__c = leads[0].Id
                     //Status__c = 'Duplicate'
                 );
                 insert logObj;
@@ -57,7 +59,7 @@ global class LeadCreationAPI91Wheels {
             
             // Success log
             Integration_Log__c logObj = new Integration_Log__c(
-                Integration_Type__c = 'Lead Creation - 91Wheels',
+                Integration_Type__c = ' Lead Creation',
                 Request_Payload__c = JSON.serializePretty(requestBodyMap),
                 Response_Payload__c = 'Lead created successfully: ' + newLead.Id,
                 Status__c = 'Success'
@@ -70,7 +72,7 @@ global class LeadCreationAPI91Wheels {
         } catch (Exception e) {
             // Error log
             Integration_Log__c logObj = new Integration_Log__c(
-                Integration_Type__c = 'Lead Creation - 91Wheels',
+                Integration_Type__c = ' Lead Creation',
                 Request_Payload__c = JSON.serializePretty(requestBodyMap),
                 Response_Payload__c = 'Error: ' + e.getMessage(),
                 Error_Messages__c = 'Exception: ' + e.getMessage(),

@@ -11,7 +11,9 @@ import createPurchaseorder from '@salesforce/apex/ProductRequestLineController.c
 import getLogedInUserRelatedLocationPOLI from '@salesforce/apex/ProductRequestLineController.getLogedInUserRelatedLocationPOLI';
 //import showForeCastedData from '@salesforce/apex/ProductRequestLineController.showForeCastedData';
 //import showForeCastedData from '@salesforce/apex/RecordAddProductRequestLineItemNew.getrecomendedProducts';
-import showForeCastedData from '@salesforce/apex/RecordAddProductRequestLineItemNew.getAllForcastQuantity';
+//import showForeCastedData from '@salesforce/apex/RecordAddProductRequestLineItemNew.getAllForcastQuantity';
+import showForeCastedData from '@salesforce/apex/RecordAddProductRequestLineItemNew.getAllForcastQuantityUpdated';
+import notifyAndSendApprovalForUnselectedItems from '@salesforce/apex/RecordAddProductRequestLineItemNew.notifyAndSendApprovalForUnselectedItems';
 import userId from '@salesforce/user/Id';
 import { CloseActionScreenEvent } from 'lightning/actions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
@@ -43,6 +45,9 @@ export default class AddProductRequestLiteItem extends LightningElement {
     @track showRemainingComponent=false;//added by Aniket on 25/07/2025
     @track hidebutton=true;//added by Aniket on 25/07/2025
     @track goBackToForecast=false;//added by Aniket on 25/07/2025
+    // @track productsNotSelected=[];//added by Aniket on 06/08/2025
+    @track productsNotSelected=[];//added by Aniket on 06/08/2025
+
 
     connectedCallback() {
         debugger;
@@ -149,19 +154,18 @@ export default class AddProductRequestLiteItem extends LightningElement {
         showForeCastedData({ loggedInUserId: this.currentUserId, productTypeFilter: this.productType })
             .then((data) => {
                 if (data) {
-                    console.log('-------------**********--------------');
-                    console.log(JSON.stringify(data));
-
                     this.forecastedLineItems = data.map((res) => ({
                         Id: res.productId,
                         ProductName: res.productName,
                         ProductCode: res.productCode,
-                        //AllocatedQuantity: res.adjustedConsumption,
-                        AllocatedQuantity: res.pendingQty,
-                        // PendingQuantity: res.Pending_Forecast_Quantity__c,
+                        AllocatedQuantity: res.adjustedConsumption,
+                        PendingQuantity: res.Pending_Forecast_Quantity__c,
+                        MOQ: res.productMOQ,
+                        AvailableInventory: res.availableInventory,
                         selected: false,
                         isChargesDisabled: true
                     }));
+                    console.log('this.forecastedLineItems==>',this.forecastedLineItems);//just for debugging
 
                     this.forecastedLineItems = this.forecastedLineItems.map((item, idx) => ({
                     ...item,
@@ -219,7 +223,7 @@ export default class AddProductRequestLiteItem extends LightningElement {
 
             }
 
-            const updatedItem = { ...item, selected: true, index: this.selectedItems.length + 1 };
+            const updatedItem = { ...item, selected: true, index: this.selectedItems.length + 1, MOQ: item.MOQ }; ///////Changes
             this.selectedItems = [...this.selectedItems, updatedItem];
 
 
@@ -432,7 +436,7 @@ handleDeleteSelectedItem(event) {
 
 
 
-
+    /*
     handleQuantityChange(event) {
         debugger;
         const itemId = event.target.dataset.id;
@@ -453,6 +457,42 @@ handleDeleteSelectedItem(event) {
             return item;
         });
     }
+    */
+    handleQuantityChange(event) {
+        debugger;
+        const itemId = event.target.dataset.id;
+        const updatedQuantity = parseFloat(event.target.value);
+
+        const item = this.selectedItems.find(i => i.Id === itemId);
+        if (!item) return;
+
+        const moq = item.MOQ || 0;
+
+        // Validate MOQ
+        if (moq > 0 && updatedQuantity < moq) {
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'MOQ Validation',
+                    message: `Minimum Order Quantity for ${item.ProductName} is ${moq}. Entered: ${updatedQuantity}`,
+                    variant: 'warning'
+                })
+            );
+
+            event.target.value = moq;
+            item.AllocatedQuantity = moq;
+            return;
+        }
+
+        item.AllocatedQuantity = updatedQuantity;
+
+        this.filteredRequestLineItems = this.selectedItems.map(selected => {
+            if (selected.Id === itemId) {
+                return { ...selected, AllocatedQuantity: updatedQuantity };
+            }
+            return selected;
+        });
+    }
+
 
     closeQuickAction() {
         this.dispatchEvent(new CloseActionScreenEvent());
@@ -561,6 +601,7 @@ handleDeleteSelectedItem(event) {
         }));
         console.log('updatedItems === >' + updatedItems);
         var jsondatatopass = JSON.stringify(updatedItems);
+        console.log('jsondatatopass==>',jsondatatopass);
         debugger;
         createProductRequestLineItems({ jsonData: jsondatatopass })
             .then(result => {
@@ -572,6 +613,12 @@ handleDeleteSelectedItem(event) {
                             variant: 'success'
                         })
                     );
+                    const productsNotSelected = this.forecastedLineItems.filter(f=>!updatedItems.some(s=>s.Id===f.Id));
+                    console.log('productsNotSelected==>',this.productsNotSelected);
+                    const pNotSelecetedJson = JSON.stringify(productsNotSelected);
+                    console.log('pNotSelecetedJson==>',pNotSelecetedJson);
+                    console.log('this.PoCreatedRecordId==>',this.PoCreatedRecordId);
+                    this.handleUnselectedProductAndApproval(pNotSelecetedJson,this.PoCreatedRecordId);
                     this.updatedValues.clear();
                     this.closeModal();
                 } else {
@@ -606,10 +653,16 @@ handleDeleteSelectedItem(event) {
         }
         this.showProductSpinner = true;
         setTimeout(() => {
+            console.log('this.selectedItems==>',this.selectedItems);//just for debugging
+            // const productsNotSelected = this.forecastedLineItems.filter(f=>!this.selectedItems.some(s=>s.Id===f.Id));
+            // console.log('productsNotSelected==>',productsNotSelected);
+            //just for debugging
             createPurchaseorder({ shipmentType: this.recordId.shipmentType, loggedInUserId: this.recordId.loggedInUserId, ProductType: this.productType }).then(result => {
                 if (result && result != null) {
                     this.PoCreatedRecordId = result;
                     this.handleUpdateProcess();
+
+                    
                 } else {
                     alert('something went wrong !');
                 }
@@ -721,6 +774,24 @@ handleGoBack(){
    this.showRemainingComponent = false;
    this.hidebutton=true;
    this.goBackToForecast=false;
+}
+handleUnselectedProductAndApproval(productsNotSelectedJSON,PoCreatedRecordId) {
+    var jsonDATA = productsNotSelectedJSON;
+
+    console.log('productsNotSelected==>', jsonDATA);
+    console.log('PoCreatedRecordId==>',PoCreatedRecordId);
+
+    var poId = PoCreatedRecordId;
+    console.log('poId==>',poId);
+
+    notifyAndSendApprovalForUnselectedItems({ productsnotSelected: jsonDATA,poRec: poId })
+    .then(result => {
+        console.log('Apex Method Was Executed');
+        console.log('result==>', result);
+    })
+    .catch(error => {
+        console.log('Error==>', error.body.message);
+    });
 }
 
 }

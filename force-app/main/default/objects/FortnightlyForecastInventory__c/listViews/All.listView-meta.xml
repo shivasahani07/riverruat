@@ -6,8 +6,10 @@
     <columns>Product__c</columns>
     <columns>First_Consumed_Date__c</columns>
     <columns>Total_6_Month_Consumption__c</columns>
+    <columns>Available_Inventory_Qty__c</columns>
     <columns>Total_Consumption_Months__c</columns>
     <columns>Six_Months_Average_Consumption__c</columns>
+    <columns>Pending_Forecast_Quantity__c</columns>
     <columns>Quantity_Ordered__c</columns>
     <columns>MOQ_Applied__c</columns>
     <columns>PO_Status__c</columns>

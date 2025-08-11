@@ -21,56 +21,70 @@ global class LeadCreationFromRiverWebsite {
         Boolean instoreTestdrive = (Boolean) requestBodyMap.get('InstoreTestdrive');
         String utm_source = (String) requestBodyMap.get('utm_source'); 
         Boolean verified = (Boolean) requestBodyMap.get('verified');  
- 
+        
         // Retrieve date/time values from the request body  
         String startDateTimeStr = (String) requestBodyMap.get('startDateTimeStr');  
         String endDateTimeStr = (String) requestBodyMap.get('endDateTimeStr');  
-
+        
         // Initialize Datetime variables  
         Datetime startDateTime;  
         Datetime endDateTime;  
-
+        
         // Convert to Datetime if values are provided  
         if (startDateTimeStr != null) {  
             startDateTime = Datetime.valueOf(startDateTimeStr);  
         } else {  
             startDateTime = null; 
         }  
-
+        
         if (endDateTimeStr != null) {  
             endDateTime = Datetime.valueOf(endDateTimeStr);  
         } else {  
             endDateTime = null; 
         }  
-
+        
         String dealerCode = (String) requestBodyMap.get('DealerCode');  
         
         
-
+        
         // Query for existing lead based on phone number  
         List<Lead> leads = [SELECT Id, LastName, Company, Email, Phone, City,   
                             Test_ride_Start_date__c, Test_ride_end_date__c,   
                             Dealer_Code__c, Home_Test_Ride__c, Instore_Test_drive__c,Utm_Source__c,Verified__c,Status
                             FROM Lead WHERE Phone = :phone LIMIT 1];  
-
+        
         Lead leadToUpdate;  
         // Map<String, Id> queueMap = new Map<String, Id>();
         // for (Group grp : [SELECT Id, DeveloperName FROM Group WHERE Type = 'Queue']) {
         //         queueMap.put(grp.DeveloperName, grp.Id);
         //     }
         //     System.debug('queueMap populated =========>' + queueMap);
-
+        
         try {
             if (!leads.isEmpty()) {  
                 // If a lead is found, update it  
                 leadToUpdate = leads[0];  
+                
+                // Duplicate found — log and return with 409
+                Integration_Log__c logObj = new Integration_Log__c(
+                    Integration_Type__c = 'Lead Creation',
+                    Duplicate_Lead_Phone__c = leads[0].Phone,
+                    Request_Payload__c = JSON.serializePretty(requestBodyMap),
+                    Response_Payload__c = 'Duplicate Lead Found: ' + leads[0].Id,
+                    Lead__c = leads[0].Id
+                    //Status__c = 'Duplicate'
+                );
+                insert logObj;
+                
+                res.statusCode = 409; // Conflict
+                return 'Duplicate Lead Found: ' + leadToUpdate.Id;
             } else {  
                 // If no lead is found, create a new one  
                 leadToUpdate = new Lead();  
-               // leadToUpdate.Status = 'Test Ride';
+                // leadToUpdate.Status = 'Test Ride';
                 leadToUpdate.LeadSource = 'River Website';
             }  
-
+            
             // Update the lead fields  
             leadToUpdate.LastName = fullName;  
             leadToUpdate.Company = fullName;  
@@ -83,7 +97,7 @@ global class LeadCreationFromRiverWebsite {
             Account dealerCodeAccount;
             if (String.isNotBlank(dealerCode)) {
                 List<Account> dealerAccounts = [SELECT Id, Name FROM Account WHERE Type = 'Dealer' AND Center_Code__c = :dealerCode LIMIT 1
-                ];
+                                               ];
                 if (!dealerAccounts.isEmpty()) {
                     dealerCodeAccount = dealerAccounts[0];
                 }
@@ -104,11 +118,11 @@ global class LeadCreationFromRiverWebsite {
             //leadToUpdate.ownerId = queueMap.get('Head_Quarter'); 
             leadToUpdate.Utm_Source__c = utm_source;
             Boolean isValue;
-           
+            
             leadToUpdate.Verified__c = verified;
             leadToUpdate.Home_Test_Ride__c = homeTestRide != null ? homeTestRide : false;  
             leadToUpdate.Instore_Test_drive__c = instoreTestdrive != null ? instoreTestdrive : false;  
-
+            
             if (leadToUpdate.Id != null) {  
                 // Update existing lead  
                 update leadToUpdate;  
@@ -117,25 +131,23 @@ global class LeadCreationFromRiverWebsite {
                 insert leadToUpdate;  
             }
             System.debug('leadToUpdate ===> ' + leadToUpdate);
-			
+            
             // Log success
             Integration_Log__c logObj = new Integration_Log__c(
-               Integration_Type__c = ' Lead Creation',
+                Integration_Type__c = ' Lead Creation',
                 //Integration_Type__c = 'Lead Creation from River Website',
                 Request_Payload__c = JSON.serializePretty(requestBodyMap),
                 Response_Payload__c = 'Lead processed successfully: ' + leadToUpdate.Id,
                 Status__c = 'Success'
             );
             Insert logObj;
-
-
+            
+            
             return 'Lead processed successfully: ' + leadToUpdate.Id;
-
+            
         } catch(Exception e) {
             // Log failure
             Integration_Log__c logObj = new Integration_Log__c(
-                
-               
                 Integration_Type__c = ' Lead Creation',
                 //Integration_Type__c = 'Lead Creation from River Website',
                 Request_Payload__c = JSON.serializePretty(requestBodyMap),
@@ -145,7 +157,7 @@ global class LeadCreationFromRiverWebsite {
             );
             Insert logObj;
             System.debug('Log created for failed lead creation: ' + logObj);
-
+            
             return 'Error: ' + e.getMessage();
         }
     }
