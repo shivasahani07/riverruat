@@ -441,18 +441,22 @@ public without sharing class RecordAddProductRequestLineItemNew {
             System.debug('poRec==>'+poRec);
             ProductRequest p;
             String poNumber;
-            List<ProductRequest> purchaseOrderList = [SELECT Id,ProductRequestNumber, ProductRequest.AccountId FROM ProductRequest WHERE Id=:poRec LIMIT 1];
+            String poAccId;
+            List<ProductRequest> purchaseOrderList = [SELECT Id,ProductRequestNumber, ProductRequest.AccountId, ProductRequest.Account__c FROM ProductRequest WHERE Id=:poRec LIMIT 1];
             if(!purchaseOrderList.isEmpty()){
                 p=purchaseOrderList[0];
                 System.debug('P==>'+p);
                 poNumber=p.ProductRequestNumber;
+                poAccId = p.Account__c;
             }
 
             List<Object> productList = (List<Object>) JSON.deserializeUntyped(productsnotSelected);
             System.debug('productList : ' + productList);
+            System.debug('poAccId : ' + poAccId);
 
             // Null Check
-            if (p == null || p.AccountId == null) {
+            if (p == null || p.Account__c == null) {
+                System.debug('No Account linked to this Product RequestNo Account linked to this Product Request');
                 return 'No Account linked to this Product RequestNo Account linked to this Product Request';
             }
 
@@ -460,10 +464,11 @@ public without sharing class RecordAddProductRequestLineItemNew {
             List<Contact> relatedContacts = [
                 SELECT Id, Email, Designation__c
                 FROM Contact
-                WHERE AccountId = :p.AccountId
+                WHERE AccountId = :  poAccId
                 AND Designation__c IN ('WM', 'Parts', 'Dealer')
                 AND Email != null
             ];
+            System.debug('relatedContacts : ' + relatedContacts);
 
             // Collect emails
             List<String> emails = new List<String>();

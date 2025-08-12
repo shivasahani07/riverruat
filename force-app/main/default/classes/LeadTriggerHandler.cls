@@ -2,7 +2,7 @@
 * @description       :
 * @author            : Aniket Karmakar
 * @group             :
-* @last modified on  : 08-04-2025
+* @last modified on  : 08-11-2025
 * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public class LeadTriggerHandler {
@@ -45,7 +45,7 @@ public class LeadTriggerHandler {
                     }
                 }
                 if(!newLeadIds.isEmpty() && templateName!=null && newLeadMap!=null){
-                    //System.enqueueJob(new QueueableTempWithoutParams(newLeadIds, templateName, newLeadMap));//changed by Aniket on 04/08/2025
+                    System.enqueueJob(new LeadToTestRideQueueable(newLeadIds, templateName, newLeadMap));//changed by Aniket on 04/08/2025
                 }
             }
             

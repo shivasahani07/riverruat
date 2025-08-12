@@ -1,3 +1,10 @@
+/**
+ * @description       : 
+ * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @group             : 
+ * @last modified on  : 08-11-2025
+ * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+**/
 public class Customer_Invoice_PDF_Controller {
     public Double offset{get{
         TimeZone tz = UserInfo.getTimeZone();
@@ -61,16 +68,19 @@ public class Customer_Invoice_PDF_Controller {
         String workOrderId = Apexpages.currentPage().getParameters().get('id');
         
         List<WorkOrder> workOrderList = [Select Id,CreatedDate,EndDate,Service_Center__r.Name,Service_Center__r.Company_GSTIN_name__c ,Service_Center__r.GSTIN_Number__c,Service_Center__r.ShippingStreet,Service_Center__r.ShippingCity,Service_Center__r.ShippingState,Service_Center__r.ShippingCountry,Service_Center__r.ShippingPostalCode,Company__c, Invoice_No__c, WorkOrderNumber, Invoice_Date__c, Account.ShippingState,Account.Name,Status,Service_Center__r.Center_Code__c, Same_State__c,
-                                         Vehicle__r.Insurance__r.Name,Vehicle__r.Policy_Number__c, Vehicle__r.EngineNumber,Invoice_Type__c,Vehicle__r.isCustomerStateSame__c,City__r.State__c,
+                                         Vehicle__r.Insurance__r.Name,Vehicle__r.Policy_Number__c, Vehicle__r.EngineNumber,Invoice_Type__c,Vehicle__r.isCustomerStateSame__c,City__r.State__c,Vehicle_Registration_Number__c,
+
                                          Vehicle__r.VehicleIdentificationNumber,Vehicle__r.Name,Vehicle__r.VehicleRegistrationNumber,Vehicle__r.LastOdometerReading,toLabel(RR_Job_Type__c),
                                          Vehicle__r.Dealer__r.Name,Vehicle__r.Dealer__r.ShippingStreet,Vehicle__r.Dealer__r.GSTIN_Number__c,Vehicle__r.Insurance__r.Address__c,
-                                         Vehicle__r.Insurance__r.GSTIN_Number__c,Vehicle__r.CurrentOwner.Name,Vehicle__r.CurrentOwner.GSTIN_Number__c,Vehicle__r.CurrentOwner.ShippingStreet,
+                                         Vehicle__r.Insurance__r.GSTIN_Number__c,Vehicle__r.CurrentOwner.Name,Vehicle__r.CurrentOwner.GSTIN_Number__c,Vehicle__r.CurrentOwner.ShippingStreet,Service_Center__r.BillingCity,Service_Center__r.BillingCountry,Service_Center__r.BillingState,Service_Center__r.BillingStreet,
+                                         Service_Center__r.BillingPostalCode,Account.BillingStreet,Account.BillingCity,Account.BillingState,Account.BillingPostalCode,Account.Email__c,Account.Phone,Account.Secondary_Phone_Number__c,Account.GSTIN_Number__c,
                                          Vehicle__r.CurrentOwner.ShippingCity,Vehicle__r.CurrentOwner.ShippingState,Vehicle__r.CurrentOwner.ShippingCountry,Vehicle__r.CurrentOwner.ShippingPostalCode,
                                          RR_Service_Advisor__r.Name,Odometer_Reading__c,toLabel(RR_Service_Advisor__r.ResourceType)
                                          From WorkOrder Where Id = :workOrderId Limit 1];
         
         if(workOrderList != null && workOrderList.size() > 0) {
             workOrderRecord = workOrderList[0];
+
             workOrderLineItemList = [Select Id, CreatedDate,WorkOrderId, ParentWorkOrderLineItemId, Product2Id, AssetId, OrderId, RootWorkOrderLineItemId, Description, 
                                      StartDate, EndDate, Status, PricebookEntryId, Quantity, UnitPrice, Discount, ListPrice, Subtotal, TotalPrice, Duration, 
                                      DurationType, DurationInMinutes, WorkTypeId, Street, City, State, PostalCode, Country, Latitude, Longitude, GeocodeAccuracy, 
@@ -136,5 +146,8 @@ public class Customer_Invoice_PDF_Controller {
             invoiceTotal    = partsTotal + laboursTotal;
             invoiceTotalInWords = NumberToWords.convertNumberToText(invoiceTotal);
         }
+    }
+    public String getFormattedBillingStreet() {
+        return workOrderRecord.Service_Center__r.BillingStreet != null ? workOrderRecord.Service_Center__r.BillingStreet.replace('\n', '<br/>') : '';
     }
 }

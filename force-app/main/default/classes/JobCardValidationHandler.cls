@@ -1,3 +1,10 @@
+/**
+ * @description       : 
+ * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @group             : 
+ * @last modified on  : 08-11-2025
+ * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+**/
 public class JobCardValidationHandler {
 
     public static void validateJobCardStatus(List<WorkOrder> newList, Map<Id, WorkOrder> oldMap) {
@@ -16,7 +23,7 @@ public class JobCardValidationHandler {
 
                 if (oldJob.Status == 'Completed') {
                     System.debug('Job Card ' + newJob.Id + ' is already completed. Preventing update.');
-                    newJob.addError('You cannot update Completed Job card');
+                    //newJob.addError('You cannot update Completed Job card');
                 }
             }
         } catch (Exception ex) {

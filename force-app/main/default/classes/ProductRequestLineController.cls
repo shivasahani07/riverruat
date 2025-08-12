@@ -3,7 +3,7 @@
 * @email dinesh.butilitarianlab@gmail.com
 * @create date 2024-12-10 12:57:07
 * @modify date 2024-12-10 12:57:07
-* @desc [Add Product Request Line Items, Intialize Allotement and Receive GRN];
+* @desc [Add Product Request Line Items, Intialize Allotement and Receive GRN ];
 */
 
 public Without Sharing class ProductRequestLineController {
@@ -46,7 +46,7 @@ public Without Sharing class ProductRequestLineController {
                         wrapper.ProductCode = item.Product_Code__c;
                         wrapper.QuantityRequested = item.QuantityRequested;
                         wrapper.AllocatedQuantity = item.Alloted_Quantity__c;
-                        wrapper.PendingQuantity = item.Pending_Quantity__c;
+                         wrapper.PendingQuantity = item.Pending_Quantity__c;
                         wrapper.QuantityOnHand = productInventoryMap.get(item.Product2Id) != null ? productInventoryMap.get(item.Product2Id) : 0;
                         wrapperList.add(wrapper);
                     }
@@ -108,26 +108,26 @@ public Without Sharing class ProductRequestLineController {
                         Decimal totalAllotment = currentAllotment + newAllotment;
                         if (totalAllotment > item.QuantityRequested) {
                             errorMessages.add('❌ Product "' + item.Product2.Name + 
-                                              '" exceeds requested quantity. Requested: ' + item.QuantityRequested +
-                                              ', Attempted: ' + totalAllotment);
+                                '" exceeds requested quantity. Requested: ' + item.QuantityRequested +
+                                ', Attempted: ' + totalAllotment);
                         } else {
                             // Only update if valid
-                            // item.Alloted_Quantity__c = idToAllocatedQuantity.get(item.Id);
-                            item.Alloted_Quantity__c = totalAllotment;
-                            if (newAllotment > 0) {
-                                itemsForOrderCreation.add(item);
+                           // item.Alloted_Quantity__c = idToAllocatedQuantity.get(item.Id);
+                           item.Alloted_Quantity__c = totalAllotment;
+                           if (newAllotment > 0) {
+                            itemsForOrderCreation.add(item);
                             }
                         }
-                        
-                        
+
+
                         // item.Alloted_Quantity__c = idToAllocatedQuantity.get(item.Id);
                     }
                 }
-                
+
                 if (!errorMessages.isEmpty()) {
                     throw new AuraHandledException(String.join(errorMessages, ' | '));
                 }
-                
+
                 try {
                     // Perform a single DML operation
                     update itemsToUpdate;
@@ -145,9 +145,9 @@ public Without Sharing class ProductRequestLineController {
         }
         catch (AuraHandledException ahe) {
             throw ahe;
-            // System.debug('Exception: ' + e.getMessage() + ' at Line ' + e.getLineNumber());
+           // System.debug('Exception: ' + e.getMessage() + ' at Line ' + e.getLineNumber());
         }
-        catch (Exception e) {
+         catch (Exception e) {
             throw new AuraHandledException('Unexpected error: ' + e.getMessage());
             //System.debug('Exception: ' + e.getMessage() + ' at Line ' + e.getLineNumber());
         }
@@ -159,7 +159,7 @@ public Without Sharing class ProductRequestLineController {
         if (orderId == null) {
             return;
         }
-        
+
         if (proReqList == null || proReqList.isEmpty()) {
             return;
         } 
@@ -175,8 +175,8 @@ public Without Sharing class ProductRequestLineController {
             parentIds.add(prli.ParentId);
         }
         System.debug('parentIds # 4 == >' + prliRecords);
-        // Perform a single SOQL query
-        Map<Id, ProductRequest> productRequestMap = new Map<Id, ProductRequest>( [SELECT Id, Destination_Location__c FROM ProductRequest WHERE Id IN :parentIds]);
+         // Perform a single SOQL query
+         Map<Id, ProductRequest> productRequestMap = new Map<Id, ProductRequest>( [SELECT Id, Destination_Location__c FROM ProductRequest WHERE Id IN :parentIds]);
         // Build a map for ProductItem lookup
         Map<Id, Id> productToLocationMap = new Map<Id, Id>();
         for (ProductRequestLineItem prli : prliRecords) {
@@ -224,7 +224,7 @@ public Without Sharing class ProductRequestLineController {
             System.debug('Error Message ==>'+e.getMessage()+' && Error Line == >'+e.getLineNumber());
         }   
     }
-    
+
     // ==================================================================================================================================================================================================
     
     // LWC CreatePurchaseOrderForm and AddProductRequestLiteItem
@@ -245,7 +245,7 @@ public Without Sharing class ProductRequestLineController {
                 logedUser = [SELECT Id, Contact.Name, ContactId FROM User WHERE Id = :loggedInUserId LIMIT 1];
                 System.debug('logedUser==>'+logedUser);
                 if (logedUser.ContactId != null) {
-                    loggedInUserContactRecord = [SELECT Id, Name, Role_Type__c, Location__r.Price_Book__c, Account.Store_Type__c FROM Contact WHERE Id = :logedUser.ContactId LIMIT 1];
+                    loggedInUserContactRecord = [SELECT Id, Name, Role_Type__c, Location__r.Price_Book__c FROM Contact WHERE Id = :logedUser.ContactId LIMIT 1];
                     System.debug('loggedInUserContactRecord==>'+loggedInUserContactRecord);
                 }
                 
@@ -301,7 +301,6 @@ public Without Sharing class ProductRequestLineController {
         return null;
     }
     
-    
     // Method for Creation Bulk RLI Records
     @AuraEnabled
     public static String createProductRequestLineItems(String jsonData) {
@@ -320,73 +319,10 @@ public Without Sharing class ProductRequestLineController {
             }
             if (!recordsToInsert.isEmpty()) {
                 insert recordsToInsert;
-                 Set<Id> productids = new Set<Id>();
-                 Set<Id> accountids = new Set<Id>();
-                 Map<Id,Decimal> totalQuanMap = new Map<Id,Decimal>();
-                for(ProductRequestLineItem pp : recordsToInsert){
-                    productids.add(pp.Product2Id);
-                    accountids.add(pp.ParentId);
-                    totalQuanMap.put(pp.Product2Id,pp.QuantityRequested);
-                }
-                System.debug('totalQuanMap==>'+totalQuanMap);
-                ProductRequest pp =[SELECT Id,Account__c FROM ProductRequest WHERE Id=:accountids LIMIT 1];
-                Id accId = pp.Account__c;
-                System.debug('accountids==>'+accountids);
-
-                Date today = Date.today();
-                Integer dayOfMonth = today.day();
-
-               // Date expectedBatchDate;
-                Date startDate;
-                Date endDate;
-                if (dayOfMonth <= 15) {
-                
-                    startDate = Date.newInstance(today.year(), today.month(), 1);
-                   endDate = Date.newInstance(today.year(), today.month(), 15);
-                } else {
-                    
-                    startDate = Date.newInstance(today.year(), today.month(), 16);
-                    endDate = Date.newInstance(today.year(), today.month(), Date.daysInMonth(today.year(), today.month()));
-                }
-
-                List<FortnightlyForecastInventory__c> fortsList = [
-                    SELECT Id, Product__c, PO_Status__c, Account__c, Batch_Executed_Date__c,Quantity_Ordered__c,PO_Created__c
-                    FROM FortnightlyForecastInventory__c
-                    WHERE Product__c IN :productids
-                        AND Account__c = :accId
-                         AND Batch_Executed_Date__c >= :startDate
-                         AND Batch_Executed_Date__c <= :endDate
-                ];
-
-                System.debug('fortsList==>'+fortsList);
-                List<FortnightlyForecastInventory__c> fortsToUpdate = new List<FortnightlyForecastInventory__c>();
-                for(FortnightlyForecastInventory__c f : fortsList){
-                    Decimal toBeDeducted = totalQuanMap.get(f.Product__c);
-                    System.debug('toBeDeducted==>'+toBeDeducted);
-                    FortnightlyForecastInventory__c ff = new FortnightlyForecastInventory__c();
-                    ff.Id = f.Id;
-                    ff.PO_Status__c = 'Submitted';
-                    ff.Quantity_Ordered__c = f.Quantity_Ordered__c!=null ?  (f.Quantity_Ordered__c + totalQuanMap.get(f.Product__c)) : totalQuanMap.get(f.Product__c);
-                    ff.PO_Created__c = true;
-                    // ff.PO_Status__c =  true;
-                    fortsToUpdate.add(ff);
-
-                }
-                if(!fortsToUpdate.isEmpty()){
-                    update fortsToUpdate;
-                }
                 System.debug('recordsToInsert === >'+recordsToInsert);
-                System.debug('recordsToInsert === >'+recordsToInsert);
-                Set<Id> uniquePoIds = new Set<Id>();
-                for(ProductRequestLineItem p : recordsToInsert){
-                    uniquePoIds.add(p.ParentId);
-                }
-                if (!uniquePoIds.isEmpty()) {
-                    System.enqueueJob(new POCreationInSAPQueueable(new List<Id>(uniquePoIds)));
-                }
                 if(recordsToInsert.size()>0){
                     return 'SUCCESS';
-                } 
+                }
             }
         } catch (Exception e) {
             System.debug('Error Message ==>'+e.getMessage()+' && Error Line == >'+e.getLineNumber());
@@ -402,23 +338,11 @@ public Without Sharing class ProductRequestLineController {
     }
     
     // Method for get Loggedin User Location,Contact and Account
-    @AuraEnabled
-public static Map<String, Object> getCurrentLogedUserAccountRecord(String loggedInUserId){
-    User userRecord = [
-        SELECT Contact.Name, Contact.Account.Name, Contact.Account.Store_Type__c
-        FROM User WHERE Id = :loggedInUserId LIMIT 1
-    ];
-    Map<String, Object> ret = new Map<String, Object>();
-    if (userRecord.Contact != null && userRecord.Contact.Account != null) {
-        ret.put('accountName', userRecord.Contact.Account.Name);
-        ret.put('storeType', userRecord.Contact.Account.Store_Type__c);
-    } else {
-        ret.put('accountName', 'No Account Found');
-        ret.put('storeType', null);
+    @AuraEnabled 
+    public static String getCurrentLogedUserAccountRecord(String loggedInUserId){
+        User userRecord = [ SELECT Contact.Name, Contact.Account.Name FROM User WHERE Id = :loggedInUserId LIMIT 1 ];
+        return userRecord.Contact != null && userRecord.Contact.Account != null  ? userRecord.Contact.Account.Name : 'No Account Found';
     }
-    return ret;
-}
-
     
     // Method to get to CREATE PO Based On User Location
     @AuraEnabled
@@ -486,12 +410,12 @@ public static Map<String, Object> getCurrentLogedUserAccountRecord(String logged
                     String emailBody = 'New Purchase Order has been created with ID: ' ;
                     
                     /* if (useRec.Contact.Role_Type__c == 'Sales') {
-emailSubject = 'New Sales Purchase Order Created';
-sendEmail();
-} else if (useRec.Contact.Role_Type__c == 'Service') {
-emailSubject = 'New Service Purchase Order Created';
-sendEmail();
-} */
+                    emailSubject = 'New Sales Purchase Order Created';
+                    sendEmail();
+                    } else if (useRec.Contact.Role_Type__c == 'Service') {
+                    emailSubject = 'New Service Purchase Order Created';
+                    sendEmail();
+                    } */
                     
                     System.debug('Email sent successfully.');
                     return newProductRequest[0].Id;
@@ -509,19 +433,19 @@ sendEmail();
     // ==================================================================================================================================================================================================
     
     // Method to Show Shippment Related ShipmentItem
-    @AuraEnabled //(Cacheable = true)
+   @AuraEnabled //(Cacheable = true)
     public static List<ShipmentItem> getPOrelatedPLI(String recordId) {
         try {
             if (String.isNotBlank(recordId) && recordId != null) {
-                return [ SELECT Id, Quantity, Product2.Name, ShipmentId,Shipment.DestinationLocationId,Shipment.SourceLocationId, Product2.ProductCode,Product2Id FROM ShipmentItem  WHERE ShipmentId  =:recordId];
+                return [ SELECT Id, Quantity, Product2.Name, ShipmentId,Shipment.DestinationLocationId,Shipment.SourceLocationId, Product2.ProductCode FROM ShipmentItem  WHERE ShipmentId  =:recordId];
             }
         } catch (Exception e) {
             System.debug('Error in getPOrelatedPLI == > ' + e.getMessage() + ' && at Line == > ' + e.getLineNumber());
         }
         return new List<ShipmentItem>(); 
     } 
-    
-    
+
+
     
     @AuraEnabled 
     public static Shipment getShipmentDetail(String recordId){
@@ -529,7 +453,7 @@ sendEmail();
         try{
             if(String.isNotBlank(recordId) && recordId != null){
                 return [SELECT Id,Status from Shipment WHERE Id =:recordId LIMIT 1];
-                
+    
             }else{
                 return null;
             }
@@ -537,7 +461,7 @@ sendEmail();
             System.debug('Error in getPOrelatedPLI == > ' + e.getMessage() + ' && at Line == > ' + e.getLineNumber());
             return null;
         }
-        
+       
         // return [SELECT Id,Status from Shipment WHERE Id =:recordId LIMIT 1];
     }
     
@@ -565,451 +489,390 @@ sendEmail();
         }
         return null;
     }
+
     
-    
-    @AuraEnabled
-    public static string createDiscrepancyAndLineitem(String updatedItems) {
-        System.debug('Received updatedItems: ' + updatedItems);
+    // @AuraEnabled
+    // public static string createDiscrepancyAndLineitem(String updatedItems) {
+    //     System.debug('Received updatedItems: ' + updatedItems);
         
-        try {
-            Map<String, Object> updatedItemsMap = (Map<String, Object>) JSON.deserializeUntyped(updatedItems);
-            System.debug('Parsed JSON Data: ' + updatedItemsMap);
-            
-            if (updatedItemsMap == null || updatedItemsMap.isEmpty()) {
-                System.debug('No data received!');
-                return 'Error: No data received!';
-            }
-            
-            Set<Id> shipmentItemIds = new Set<Id>();
-            Map<Id, Decimal> shipmentItemReceivedQtyMap = new Map<Id, Decimal>();
-            
-            for (String key : updatedItemsMap.keySet()) {
-                if (!String.isEmpty(key)) {
-                    shipmentItemIds.add(Id.valueOf(key));
-                    
-                    Object itemDetails = updatedItemsMap.get(key);
-                    if (itemDetails instanceof Map<String, Object>) {
-                        Map<String, Object> itemData = (Map<String, Object>) itemDetails;
-                        if (itemData.containsKey('receivedQuantity')) {
-                            shipmentItemReceivedQtyMap.put(Id.valueOf(key), Decimal.valueOf(String.valueOf(itemData.get('receivedQuantity'))));
-                            System.debug('Shipment Item ID: ' + key + ', Received Quantity: ' + itemData.get('receivedQuantity'));
-                        }
-                    }
-                }
-            }
-            
-            Map<Id, Id> shipmentItemToShipmentMap = new Map<Id, Id>();
-            
-            if (!shipmentItemIds.isEmpty()) {
-                for (ShipmentItem item : [SELECT Id, ShipmentId FROM ShipmentItem WHERE Id IN :shipmentItemIds]) {
-                    shipmentItemToShipmentMap.put(item.Id, item.ShipmentId);
-                    System.debug('Mapped Shipment Item ID: ' + item.Id + ' to Shipment ID: ' + item.ShipmentId);
-                }
-            }
-            
-            List<Discrepancy__c> discrepanciesToInsert = new List<Discrepancy__c>();
-            Map<String, Id> discrepancyIdMap = new Map<String, Id>();
-            Map<Id, Decimal> discrepancyReceivedQuantityMap = new Map<Id, Decimal>();
-            
-            for (String shipmentItemId : updatedItemsMap.keySet()) {
-                if (String.isEmpty(shipmentItemId)) {
-                    continue;
-                }
-                
-                Discrepancy__c disRec = new Discrepancy__c();
-                disRec.Shipment_Item__c = shipmentItemId;
-                
-                if (shipmentItemToShipmentMap.containsKey(Id.valueOf(shipmentItemId))) {
-                    disRec.Shipment__c = shipmentItemToShipmentMap.get(Id.valueOf(shipmentItemId));
-                }
-                
-                Object itemDetails = updatedItemsMap.get(shipmentItemId);
-                if (itemDetails instanceof Map<String, Object>) {
-                    Map<String, Object> itemData = (Map<String, Object>) itemDetails;
-                    if (itemData.containsKey('receivedQuantity')) {
-                        Integer receivedQty = Integer.valueOf(String.valueOf(itemData.get('receivedQuantity')));
-                        disRec.Received_Quantity__c = receivedQty;
-                        System.debug('Discrepancy for Shipment Item ID: ' + shipmentItemId + ', Received Quantity: ' + receivedQty);
-                    }
-                }
-                discrepanciesToInsert.add(disRec);
-            }
-            
-            if (!discrepanciesToInsert.isEmpty()) {
-                insert discrepanciesToInsert;
-                for (Discrepancy__c disRec : discrepanciesToInsert) {
-                    discrepancyIdMap.put(disRec.Shipment_Item__c, disRec.Id);
-                    discrepancyReceivedQuantityMap.put(disRec.Id, disRec.Received_Quantity__c);
-                    System.debug('Inserted Discrepancy ID: ' + disRec.Id + ' for Shipment Item ID: ' + disRec.Shipment_Item__c);
-                }
-            } else {
-                System.debug('No Discrepancy records created!');
-                return 'Error: No Discrepancy records created!';
-            }
-            
-            Map<Id, List<Discrepancy_Line_Item__c>> existingLineItemsMap = new Map<Id, List<Discrepancy_Line_Item__c>>();
-            List<Discrepancy_Line_Item__c> existingLineItems = [
-                SELECT Id, Discrepancy__c, Quantity__c FROM Discrepancy_Line_Item__c 
-                WHERE Discrepancy__c IN :discrepancyIdMap.values()
-            ];
-            
-            for (Discrepancy_Line_Item__c lineItem : existingLineItems) {
-                if (!existingLineItemsMap.containsKey(lineItem.Discrepancy__c)) {
-                    existingLineItemsMap.put(lineItem.Discrepancy__c, new List<Discrepancy_Line_Item__c>());
-                }
-                existingLineItemsMap.get(lineItem.Discrepancy__c).add(lineItem);
-            }
-            
-            List<Discrepancy_Line_Item__c> disLineItemsToInsert = new List<Discrepancy_Line_Item__c>();
-            
-            for (String shipmentItemId : updatedItemsMap.keySet()) {
-                Object recValue = updatedItemsMap.get(shipmentItemId);
-                
-                if (recValue instanceof Map<String, Object>) {
-                    Map<String, Object> data = (Map<String, Object>) recValue;
-                    
-                    // ✅ Process line items and ensure null/empty values are skipped
-                    processLineItem(data, 'DIT', shipmentItemId, discrepancyIdMap, existingLineItemsMap, disLineItemsToInsert);
-                    processLineItem(data, 'MIT', shipmentItemId, discrepancyIdMap, existingLineItemsMap, disLineItemsToInsert);
-                    processLineItem(data, 'WP', shipmentItemId, discrepancyIdMap, existingLineItemsMap, disLineItemsToInsert);
-                    processLineItem(data, 'Extra', shipmentItemId, discrepancyIdMap, existingLineItemsMap, disLineItemsToInsert); // ✅ New "Extra" field added
-                }
-            }
-            
-            if (!disLineItemsToInsert.isEmpty()) {
-                insert disLineItemsToInsert;
-                System.debug('Inserted ' + disLineItemsToInsert.size() + ' Discrepancy Line Items');
-            }
-            
-            List<Discrepancy__c> discrepanciesToUpdate = new List<Discrepancy__c>();
-            for (Id disId : discrepancyReceivedQuantityMap.keySet()) {
-                Discrepancy__c dis = new Discrepancy__c(Id = disId, Received_Quantity__c = discrepancyReceivedQuantityMap.get(disId));
-                discrepanciesToUpdate.add(dis);
-            }
-            
-            if (!discrepanciesToUpdate.isEmpty()) {
-                update discrepanciesToUpdate;
-                System.debug('Updated ' + discrepanciesToUpdate.size() + ' Discrepancies with received quantity');
-            }
-            
-            if (!shipmentItemReceivedQtyMap.isEmpty()) {
-                List<ShipmentItem> shipmentItemsToUpdate = new List<ShipmentItem>();
-                for (Id shipmentItemId : shipmentItemReceivedQtyMap.keySet()) {
-                    ShipmentItem shipmentItemToUpdate = new ShipmentItem(Id = shipmentItemId, Quantity_Received__c = shipmentItemReceivedQtyMap.get(shipmentItemId));
-                    
-                    Object itemDetails = updatedItemsMap.get(String.valueOf(shipmentItemId));
-                    if (itemDetails instanceof Map<String, Object>) {
-                        Map<String, Object> itemData = (Map<String, Object>) itemDetails;
-                        if (itemData.containsKey('remarks')) {
-                            String remarksValue = String.valueOf(itemData.get('remarks'));
-                            if (String.isNotEmpty(remarksValue)) {
-                                shipmentItemToUpdate.Remarks__c = remarksValue;
-                                System.debug('Updating Shipment Item ID: ' + shipmentItemId + ' with Remarks: ' + remarksValue);
-                            }
-                        }
-                    }
-                    
-                    shipmentItemsToUpdate.add(shipmentItemToUpdate);
-                }
-                
-                if (!shipmentItemsToUpdate.isEmpty()) {
-                    update shipmentItemsToUpdate;
-                    System.debug('Updated ' + shipmentItemsToUpdate.size() + ' Shipment Items');
-                }
-            }
-            
-            return 'SUCCESS';
-        } catch (Exception e) {
-            System.debug('Error: ' + e.getMessage());
-            return 'Error: ' + e.getMessage();
-        }
-    }
+    //     try {
+    //         Map<String, Object> updatedItemsMap = (Map<String, Object>) JSON.deserializeUntyped(updatedItems);
+    //         System.debug('Parsed JSON Data: ' + updatedItemsMap);
     
+    //         if (updatedItemsMap == null || updatedItemsMap.isEmpty()) {
+    //             System.debug('No data received!');
+    //             return 'Error: No data received!';
+    //         }
     
-    @AuraEnabled
-    public static string updateShipmentItemQuantities(String updatedItemsJson) {
-        try {
-            System.debug('Received updatedItemsJson: ' + updatedItemsJson);
+    //         Set<Id> shipmentItemIds = new Set<Id>();
+    //         Map<Id, Decimal> shipmentItemReceivedQtyMap = new Map<Id, Decimal>();
+    
+    //         for (String key : updatedItemsMap.keySet()) {
+    //             if (!String.isEmpty(key)) {
+    //                 shipmentItemIds.add(Id.valueOf(key));
+    
+    //                 Object itemDetails = updatedItemsMap.get(key);
+    //                 if (itemDetails instanceof Map<String, Object>) {
+    //                     Map<String, Object> itemData = (Map<String, Object>) itemDetails;
+    //                     if (itemData.containsKey('receivedQuantity')) {
+    //                         shipmentItemReceivedQtyMap.put(Id.valueOf(key), Decimal.valueOf(String.valueOf(itemData.get('receivedQuantity'))));
+    //                         System.debug('Shipment Item ID: ' + key + ', Received Quantity: ' + itemData.get('receivedQuantity'));
+    //                     }
+    //                 }
+    //             }
+    //         }
+    
+    //         Map<Id, Id> shipmentItemToShipmentMap = new Map<Id, Id>();
+    
+    //         if (!shipmentItemIds.isEmpty()) {
+    //             for (ShipmentItem item : [SELECT Id, ShipmentId FROM ShipmentItem WHERE Id IN :shipmentItemIds]) {
+    //                 shipmentItemToShipmentMap.put(item.Id, item.ShipmentId);
+    //                 System.debug('Mapped Shipment Item ID: ' + item.Id + ' to Shipment ID: ' + item.ShipmentId);
+    //             }
+    //         }
+    
+    //         List<Discrepancy__c> discrepanciesToInsert = new List<Discrepancy__c>();
+    //         Map<String, Id> discrepancyIdMap = new Map<String, Id>();
+    //         Map<Id, Decimal> discrepancyReceivedQuantityMap = new Map<Id, Decimal>();
+    
+    //         for (String shipmentItemId : updatedItemsMap.keySet()) {
+    //             if (String.isEmpty(shipmentItemId)) {
+    //                 continue;
+    //             }
+    
+    //             Discrepancy__c disRec = new Discrepancy__c();
+    //             disRec.Shipment_Item__c = shipmentItemId;
+    
+    //             if (shipmentItemToShipmentMap.containsKey(Id.valueOf(shipmentItemId))) {
+    //                 disRec.Shipment__c = shipmentItemToShipmentMap.get(Id.valueOf(shipmentItemId));
+    //             }
+    
+    //             Object itemDetails = updatedItemsMap.get(shipmentItemId);
+    //             if (itemDetails instanceof Map<String, Object>) {
+    //                 Map<String, Object> itemData = (Map<String, Object>) itemDetails;
+    //                 if (itemData.containsKey('receivedQuantity')) {
+    //                     Integer receivedQty = Integer.valueOf(String.valueOf(itemData.get('receivedQuantity')));
+    //                     disRec.Received_Quantity__c = receivedQty;
+    //                     System.debug('Discrepancy for Shipment Item ID: ' + shipmentItemId + ', Received Quantity: ' + receivedQty);
+    //                 }
+    //             }
+    //             discrepanciesToInsert.add(disRec);
+    //         }
+    
+    //         if (!discrepanciesToInsert.isEmpty()) {
+    //             insert discrepanciesToInsert;
+    //             for (Discrepancy__c disRec : discrepanciesToInsert) {
+    //                 discrepancyIdMap.put(disRec.Shipment_Item__c, disRec.Id);
+    //                 discrepancyReceivedQuantityMap.put(disRec.Id, disRec.Received_Quantity__c);
+    //                 System.debug('Inserted Discrepancy ID: ' + disRec.Id + ' for Shipment Item ID: ' + disRec.Shipment_Item__c);
+    //             }
+    //         } else {
+    //             System.debug('No Discrepancy records created!');
+    //             return 'Error: No Discrepancy records created!';
+    //         }
+    
+    //         Map<Id, List<Discrepancy_Line_Item__c>> existingLineItemsMap = new Map<Id, List<Discrepancy_Line_Item__c>>();
+    //         List<Discrepancy_Line_Item__c> existingLineItems = [
+    //             SELECT Id, Discrepancy__c, Quantity__c FROM Discrepancy_Line_Item__c 
+    //             WHERE Discrepancy__c IN :discrepancyIdMap.values()
+    //         ];
+    
+    //         for (Discrepancy_Line_Item__c lineItem : existingLineItems) {
+    //             if (!existingLineItemsMap.containsKey(lineItem.Discrepancy__c)) {
+    //                 existingLineItemsMap.put(lineItem.Discrepancy__c, new List<Discrepancy_Line_Item__c>());
+    //             }
+    //             existingLineItemsMap.get(lineItem.Discrepancy__c).add(lineItem);
+    //         }
+    
+    //         List<Discrepancy_Line_Item__c> disLineItemsToInsert = new List<Discrepancy_Line_Item__c>();
+    
+    //         for (String shipmentItemId : updatedItemsMap.keySet()) {
+    //             Object recValue = updatedItemsMap.get(shipmentItemId);
+    
+    //             if (recValue instanceof Map<String, Object>) {
+    //                 Map<String, Object> data = (Map<String, Object>) recValue;
+    
+    //                 // ✅ Process line items and ensure null/empty values are skipped
+    //                 processLineItem(data, 'DIT', shipmentItemId, discrepancyIdMap, existingLineItemsMap, disLineItemsToInsert);
+    //                 processLineItem(data, 'MIT', shipmentItemId, discrepancyIdMap, existingLineItemsMap, disLineItemsToInsert);
+    //                 processLineItem(data, 'WP', shipmentItemId, discrepancyIdMap, existingLineItemsMap, disLineItemsToInsert);
+    //                 processLineItem(data, 'Extra', shipmentItemId, discrepancyIdMap, existingLineItemsMap, disLineItemsToInsert); // ✅ New "Extra" field added
+    //             }
+    //         }
+    
+    //         if (!disLineItemsToInsert.isEmpty()) {
+    //             insert disLineItemsToInsert;
+    //             System.debug('Inserted ' + disLineItemsToInsert.size() + ' Discrepancy Line Items');
+    //         }
+    
+    //         List<Discrepancy__c> discrepanciesToUpdate = new List<Discrepancy__c>();
+    //         for (Id disId : discrepancyReceivedQuantityMap.keySet()) {
+    //             Discrepancy__c dis = new Discrepancy__c(Id = disId, Received_Quantity__c = discrepancyReceivedQuantityMap.get(disId));
+    //             discrepanciesToUpdate.add(dis);
+    //         }
+    
+    //         if (!discrepanciesToUpdate.isEmpty()) {
+    //             update discrepanciesToUpdate;
+    //             System.debug('Updated ' + discrepanciesToUpdate.size() + ' Discrepancies with received quantity');
+    //         }
+    
+    //         if (!shipmentItemReceivedQtyMap.isEmpty()) {
+    //             List<ShipmentItem> shipmentItemsToUpdate = new List<ShipmentItem>();
+    //             for (Id shipmentItemId : shipmentItemReceivedQtyMap.keySet()) {
+    //                 ShipmentItem shipmentItemToUpdate = new ShipmentItem(Id = shipmentItemId, Quantity_Received__c = shipmentItemReceivedQtyMap.get(shipmentItemId));
+    
+    //                 Object itemDetails = updatedItemsMap.get(String.valueOf(shipmentItemId));
+    //                 if (itemDetails instanceof Map<String, Object>) {
+    //                     Map<String, Object> itemData = (Map<String, Object>) itemDetails;
+    //                     if (itemData.containsKey('remarks')) {
+    //                         String remarksValue = String.valueOf(itemData.get('remarks'));
+    //                         if (String.isNotEmpty(remarksValue)) {
+    //                             shipmentItemToUpdate.Remarks__c = remarksValue;
+    //                             System.debug('Updating Shipment Item ID: ' + shipmentItemId + ' with Remarks: ' + remarksValue);
+    //                         }
+    //                     }
+    //                 }
+    
+    //                 shipmentItemsToUpdate.add(shipmentItemToUpdate);
+    //             }
+    
+    //             if (!shipmentItemsToUpdate.isEmpty()) {
+    //                 update shipmentItemsToUpdate;
+    //                 System.debug('Updated ' + shipmentItemsToUpdate.size() + ' Shipment Items');
+    //             }
+    //         }
+    
+    //         return 'SUCCESS';
+    //     } catch (Exception e) {
+    //         System.debug('Error: ' + e.getMessage());
+    //         return 'Error: ' + e.getMessage();
+    //     }
+    // }
+    
+
+    // @AuraEnabled
+    // public static string updateShipmentItemQuantities(String updatedItemsJson) {
+    //     try {
+    //         System.debug('Received updatedItemsJson: ' + updatedItemsJson);
             
-            Map<String, Object> updatedItems = (Map<String, Object>) JSON.deserializeUntyped(updatedItemsJson);
-            if (updatedItems == null || updatedItems.isEmpty()) {
-                System.debug('No valid shipment items to update!');
-                return 'Error: No valid shipment items to update!';
-            }
-            
-            List<ShipmentItem> shipmentItemsToUpdate = new List<ShipmentItem>();
-            
-            for (String shipmentItemId : updatedItems.keySet()) {
-                if (!String.isEmpty(shipmentItemId)) {
-                    Object itemDetails = updatedItems.get(shipmentItemId);
-                    if (itemDetails instanceof Map<String, Object>) {
-                        Map<String, Object> itemData = (Map<String, Object>) itemDetails;
+    //         Map<String, Object> updatedItems = (Map<String, Object>) JSON.deserializeUntyped(updatedItemsJson);
+    //         if (updatedItems == null || updatedItems.isEmpty()) {
+    //             System.debug('No valid shipment items to update!');
+    //             return 'Error: No valid shipment items to update!';
+    //         }
+    
+    //         List<ShipmentItem> shipmentItemsToUpdate = new List<ShipmentItem>();
+    
+    //         for (String shipmentItemId : updatedItems.keySet()) {
+    //             if (!String.isEmpty(shipmentItemId)) {
+    //                 Object itemDetails = updatedItems.get(shipmentItemId);
+    //                 if (itemDetails instanceof Map<String, Object>) {
+    //                     Map<String, Object> itemData = (Map<String, Object>) itemDetails;
                         
-                        if (itemData.containsKey('receivedQuantity')) {
-                            ShipmentItem item = new ShipmentItem(
-                                Id = Id.valueOf(shipmentItemId),
-                                Quantity_Received__c = Decimal.valueOf(String.valueOf(itemData.get('receivedQuantity')))
-                            );
+    //                     if (itemData.containsKey('receivedQuantity')) {
+    //                         ShipmentItem item = new ShipmentItem(
+    //                             Id = Id.valueOf(shipmentItemId),
+    //                             Quantity_Received__c = Decimal.valueOf(String.valueOf(itemData.get('receivedQuantity')))
+    //                         );
                             
-                            if (itemData.containsKey('remarks')) {
-                                item.Remarks__c = String.valueOf(itemData.get('remarks'));
-                            }
-                            
-                            shipmentItemsToUpdate.add(item);
-                            System.debug('Preparing to update Shipment Item ID: ' + shipmentItemId + ' with Received Quantity: ' + itemData.get('receivedQuantity'));
-                        }
-                    }
-                }
-            }
-            
-            if (!shipmentItemsToUpdate.isEmpty()) {
-                update shipmentItemsToUpdate;
-                System.debug('Updated ' + shipmentItemsToUpdate.size() + ' Shipment Items successfully.');
-                updateProductTransferReceivedQuantity(shipmentItemsToUpdate);//added By Aniket on 30/04/2025
-                return 'SUCCESS';
-            } else {
-                System.debug('No shipment items were updated!');
-                return 'Error: No shipment items were updated!';
-            }
-            
-        } catch (Exception e) {
-            System.debug('Error updating shipment items: ' + e.getMessage());
-            return 'Error: ' + e.getMessage();
-        }
-    }
-    //method added by Aniket on 30/04/2025
-    @AuraEnabled
-    public static void updateProductTransferReceivedQuantity(List<ShipmentItem> shipmenItemList){
-        System.debug('shipmenItemList==>'+shipmenItemList);
-        try{
-            Set<Id> shipmentItemIds = new Set<Id>();
-            if(!shipmenItemList.isEmpty()){
-                for(ShipmentItem shipment : shipmenItemList){
-                    shipmentItemIds.add(shipment.Id);
-                }
-            }
-            
-            Set<Id> orderIds = new Set<Id>();
-            Map<Id,Decimal> quantityMap = new Map<Id,Decimal>();
-            List<ShipmentItem> finalShipmentItemList = [Select Id,Product2Id,Quantity_Received__c,ShipmentId,Shipment.Order__c from ShipmentItem WHERE Id IN:shipmentItemIds];
-            System.debug('finalShipmentItemList==>'+finalShipmentItemList);
-            if(!finalShipmentItemList.isEmpty()){
-                for(ShipmentItem s : finalShipmentItemList){
-                    if(s.Shipment.Order__c != null){
-                        orderIds.add(s.Shipment.Order__c);
-                        quantityMap.put(s.Shipment.Order__c,s.Quantity_Received__c);
-                    }
-                }
-            }
-            System.debug('quantityMap==>'+quantityMap);
-            List<ProductTransfer> productTransferList = [Select id,Product2Id,IsReceived,QuantityReceived,Order__c from ProductTransfer WHERE Order__c IN:orderIds];
-            System.debug('productTransferList==>'+productTransferList);
-            List<ProductTransfer> productTransferToUpdate = new List<ProductTransfer>();
-            if(!productTransferList.isEmpty()){
-                for(ProductTransfer p : productTransferList){
-                    System.debug('p==>'+p);
-                    ProductTransfer ppp = new ProductTransfer();
-                    ppp.Id=p.Id;
-                    ppp.QuantityReceived = p.QuantityReceived + quantityMap.get(p.Order__c);
-                    ppp.IsReceived = true;
-                    productTransferToUpdate.add(ppp);
-                    System.debug('productTransferToUpdate==>'+productTransferToUpdate);
-                    System.debug('ppp==>'+ppp);
-                    
-                }
-                if(!productTransferToUpdate.isEmpty()){
-                    try {
-                        update productTransferToUpdate;
-                        System.debug(' Updated ProductTransfers: ' + productTransferToUpdate);
-                    } catch (Exception e) {
-                        System.debug(' DML Exception: ' + e.getMessage());
-                        System.debug('Error Occured In Line Number Siva ==>'+e.getLineNumber());
-                    }
-                }
-            }
-            
-            
-            
-        }catch(Exception e){
-            System.debug('Error Occured ==>'+e.getMessage());
-            System.debug('Error Occured In Line Number ==>'+e.getLineNumber());
-        }
-    }
+    //                         if (itemData.containsKey('remarks')) {
+    //                             item.Remarks__c = String.valueOf(itemData.get('remarks'));
+    //                         }
     
+    //                         shipmentItemsToUpdate.add(item);
+    //                         System.debug('Preparing to update Shipment Item ID: ' + shipmentItemId + ' with Received Quantity: ' + itemData.get('receivedQuantity'));
+    //                     }
+    //                 }
+    //             }
+    //         }
     
+    //         if (!shipmentItemsToUpdate.isEmpty()) {
+    //             update shipmentItemsToUpdate;
+    //             System.debug('Updated ' + shipmentItemsToUpdate.size() + ' Shipment Items successfully.');
+    //             return 'SUCCESS';
+    //         } else {
+    //             System.debug('No shipment items were updated!');
+    //             return 'Error: No shipment items were updated!';
+    //         }
     
+    //     } catch (Exception e) {
+    //         System.debug('Error updating shipment items: ' + e.getMessage());
+    //         return 'Error: ' + e.getMessage();
+    //     }
+    // }
     
-    
-    private static void processLineItem(Map<String, Object> data, String fieldName, String shipmentItemId, Map<String, Id> discrepancyIdMap, Map<Id, List<Discrepancy_Line_Item__c>> existingLineItemsMap, List<Discrepancy_Line_Item__c> disLineItemsToInsert) {
-        System.debug('Data For Creating DLIs==>'+data);
-        if (data.containsKey(fieldName) && discrepancyIdMap.containsKey(shipmentItemId)) {
-            String quantityStr = String.valueOf(data.get(fieldName));
-            if (!String.isEmpty(quantityStr)) {
-                try {
-                    Integer quantity = Integer.valueOf(quantityStr);
-                    Id discrepancyId = discrepancyIdMap.get(shipmentItemId);
-                    
-                    Boolean exists = false;
-                    if (existingLineItemsMap.containsKey(discrepancyId)) {
-                        for (Discrepancy_Line_Item__c existingItem : existingLineItemsMap.get(discrepancyId)) {
-                            if (existingItem.Quantity__c == quantity) {
-                                exists = true;
-                                System.debug('⚠️ Existing line item found for Discrepancy: ' + discrepancyId);
-                                break;
-                            }
-                        }
-                    }
-                    
-                    if (!exists) {
-                        Discrepancy_Line_Item__c lineItem = new Discrepancy_Line_Item__c();
-                        //   lineItem.Name = fieldName;
-                        lineItem.Discrepancy__c = discrepancyId;
-                        lineItem.Quantity__c = quantity;
-                        lineItem.Type__c = fieldName;
-                        lineItem.status__c = 'New';
-                        disLineItemsToInsert.add(lineItem);
-                    }
-                } catch (Exception e) {
-                    System.debug('Error parsing quantity for ' + shipmentItemId + ': ' + e.getMessage());
-                }
-            }
-        }
-    }
-    
-    
+
+
+
+    // private static void processLineItem(Map<String, Object> data, String fieldName, String shipmentItemId, Map<String, Id> discrepancyIdMap, Map<Id, List<Discrepancy_Line_Item__c>> existingLineItemsMap, List<Discrepancy_Line_Item__c> disLineItemsToInsert) {
+    //     if (data.containsKey(fieldName) && discrepancyIdMap.containsKey(shipmentItemId)) {
+    //         String quantityStr = String.valueOf(data.get(fieldName));
+    //         if (!String.isEmpty(quantityStr)) {
+    //             try {
+    //                 Integer quantity = Integer.valueOf(quantityStr);
+    //                 Id discrepancyId = discrepancyIdMap.get(shipmentItemId);
+
+    //                 Boolean exists = false;
+    //                 if (existingLineItemsMap.containsKey(discrepancyId)) {
+    //                     for (Discrepancy_Line_Item__c existingItem : existingLineItemsMap.get(discrepancyId)) {
+    //                         if (existingItem.Quantity__c == quantity) {
+    //                             exists = true;
+    //                             System.debug('⚠️ Existing line item found for Discrepancy: ' + discrepancyId);
+    //                             break;
+    //                         }
+    //                     }
+    //                 }
+
+    //                 if (!exists) {
+    //                     Discrepancy_Line_Item__c lineItem = new Discrepancy_Line_Item__c();
+    //                     lineItem.Name = fieldName;
+    //                     lineItem.Discrepancy__c = discrepancyId;
+    //                     lineItem.Quantity__c = quantity;
+    //                     lineItem.Type__c = fieldName;
+    //                     lineItem.status__c = 'New';
+    //                     disLineItemsToInsert.add(lineItem);
+    //                 }
+    //             } catch (Exception e) {
+    //                 System.debug('Error parsing quantity for ' + shipmentItemId + ': ' + e.getMessage());
+    //             }
+    //         }
+    //     }
+    // }
+
+ 
     
     // ===============================================================================================================================================================================================================     
     // // Method for Creating Order and OrderLineItem Based on Alloted Quantity # Dinesh
     public static String createOrderOrderLineItemList(List<ProductRequestLineItem> ProdRLIList, Map<Id, Decimal> idToAllocatedQuantity) {
-        // try {
-        String AccountIdPRLI = null;
-        String POId = null;
-        ProductRequest PORecToUpdate= new ProductRequest();
-        List<OrderItem> newOrderItems = new List<OrderItem>();
-        List<OrderItem> backOrderItems = new List<OrderItem>();
-        Map<String, PricebookEntry> pricebookEntryMap = new Map<String, PricebookEntry>();
-        Set<Id> ProdRLIListIdSet = new Map<Id, ProductRequestLineItem>(ProdRLIList).keySet();
-        ProductRequest PORec = new ProductRequest();
-        String LocationPBId;
-        ProdRLIList = [SELECT Id, Product2Id, Product2.Name, ParentId, Parent.Destination_Location__c, Parent.Destination_Location__r.Name,  Parent.Account__c, QuantityRequested, Alloted_Quantity__c,Price_Book__c,CGST__c,SGST__c,IGST__c   FROM ProductRequestLineItem  WHERE Id IN :ProdRLIListIdSet];
-        System.debug('Fetched ProdRLIList === >' + ProdRLIList);
-        PORec = [SELECT Id,Destination_Location__c,Destination_Location__r.Price_Book__c  FROM ProductRequest WHERE Id=:ProdRLIList[0].ParentId LIMIT 1];
-        if(PORec != null && PORec.Destination_Location__c != null && PORec.Destination_Location__r.Price_Book__c != null){
-            LocationPBId = PORec.Destination_Location__r.Price_Book__c;
-        }else{
-            System.debug('No PriceBook / Location Record Found !');
-            return null;
-        }
-        if (LocationPBId == null) {
-            System.debug('LocationPBId Not Found!');
-            return null;
-        }
-        List<PricebookEntry> pricebookEntries = [SELECT Id, Product2Id, Pricebook2Id, Dealer_List_Price__c FROM PricebookEntry WHERE Pricebook2Id = :LocationPBId];
-        for (PricebookEntry entry : pricebookEntries) {
-            if (!pricebookEntryMap.containsKey(entry.Product2Id)) {
-                pricebookEntryMap.put(entry.Product2Id, entry);
-            }
-            //  pricebookEntryMap.get(entry.Product2Id).put(entry.Pricebook2Id, entry.Id);
-        }
-        if (!ProdRLIList.isEmpty() && ProdRLIList[0].ParentId != null) {
-            POId = ProdRLIList[0].ParentId;
-            AccountIdPRLI = ProdRLIList[0].Parent.Account__c;
-        }
-        Order newOrder = createOrder(AccountIdPRLI, POId, 'Activated', LocationPBId);
-        System.debug('newOrder == >'+newOrder);
-        System.debug('newOrderId == >'+newOrder.Id);
-        if (newOrder != null) {
-            System.debug('Inserted Order Id: ' + newOrder.Id);
-            createProductTransferFromInitiateAllotment(ProdRLIList, newOrder.Id);                
-        }
-        Order backOrder = null;
-        for (ProductRequestLineItem prli : ProdRLIList) {
-            System.debug('Processing PRLI: ' + prli);
-            String pricebookEntryId = null;
-            if (!pricebookEntryMap.containsKey(prli.Product2Id)) {
-                System.debug('PricebookEntryId not found for Product2Id: ' + prli.Product2Id);
-                //throw new AuraHandledException('Error: PricebookEntryId not found for Product2Id: ' + prli.Product2Id);
-                throw new PricebookEntryNotFoundException('PricebookEntryId not found for Product2Id: ' + prli.Product2Id);
-                // return 'Error: PricebookEntryId not found for Product2Id: ' + prli.Product2Id;
-                
+       // try {
+            String AccountIdPRLI = null;
+            String POId = null;
+            ProductRequest PORecToUpdate= new ProductRequest();
+            List<OrderItem> newOrderItems = new List<OrderItem>();
+            List<OrderItem> backOrderItems = new List<OrderItem>();
+            Map<String, PricebookEntry> pricebookEntryMap = new Map<String, PricebookEntry>();
+            Set<Id> ProdRLIListIdSet = new Map<Id, ProductRequestLineItem>(ProdRLIList).keySet();
+            ProductRequest PORec = new ProductRequest();
+            String LocationPBId;
+            ProdRLIList = [SELECT Id, Product2Id, Product2.Name, ParentId, Parent.Destination_Location__c, Parent.Destination_Location__r.Name,  Parent.Account__c, QuantityRequested, Alloted_Quantity__c,Price_Book__c,CGST__c,SGST__c,IGST__c   FROM ProductRequestLineItem  WHERE Id IN :ProdRLIListIdSet];
+            System.debug('Fetched ProdRLIList === >' + ProdRLIList);
+            PORec = [SELECT Id,Destination_Location__c,Destination_Location__r.Price_Book__c  FROM ProductRequest WHERE Id=:ProdRLIList[0].ParentId LIMIT 1];
+            if(PORec != null && PORec.Destination_Location__c != null && PORec.Destination_Location__r.Price_Book__c != null){
+                LocationPBId = PORec.Destination_Location__r.Price_Book__c;
             }else{
-                pricebookEntryId = pricebookEntryMap.get(prli.Product2Id).Id;
+                System.debug('No PriceBook / Location Record Found !');
+                return null;
             }
-            Decimal userEnteredQuantity = idToAllocatedQuantity.containsKey(prli.Id) ? idToAllocatedQuantity.get(prli.Id) : 0;
-            if (userEnteredQuantity == 0) {
-                continue;
+            if (LocationPBId == null) {
+                System.debug('LocationPBId Not Found!');
+                return null;
             }
-            Decimal requestedQuantity = prli.QuantityRequested;
-            Decimal allocatedQuantity = prli.Alloted_Quantity__c;
-            Decimal remainingQuantity = (requestedQuantity - allocatedQuantity).setScale(0, RoundingMode.HALF_UP);
-            System.debug('Requested: ' + requestedQuantity + ', Allocated: ' + allocatedQuantity + ', Remaining: ' + remainingQuantity);                
-            // Only create Activated Order Line Item
-            
-            System.debug('backOrder::::::::00'+backOrder);
-            try{
-                System.debug('newOrder === >'+newOrder);
-                System.debug('prli === >'+prli);
-                System.debug('pricebookEntryId === >'+pricebookEntryId);
-                System.debug('LocationPBId === >'+LocationPBId);
-            }catch(Exception e){
-                System.debug('Error #2 ' + e.getMessage() + ' && Line: ' + e.getLineNumber());
-            }
-            
-            if (allocatedQuantity == 0) {
-                System.debug('Condition: Allocated == 0');
-                
-                if (backOrder == null) { 
-                    //  backOrder = createOrder(AccountIdPRLI, POId, 'Back Order', LocationPBId);
+            List<PricebookEntry> pricebookEntries = [SELECT Id, Product2Id, Pricebook2Id, Dealer_List_Price__c FROM PricebookEntry WHERE Pricebook2Id = :LocationPBId];
+            for (PricebookEntry entry : pricebookEntries) {
+                if (!pricebookEntryMap.containsKey(entry.Product2Id)) {
+                    pricebookEntryMap.put(entry.Product2Id, entry);
                 }
-                else {
-                    System.debug('data is not going here');
+               //  pricebookEntryMap.get(entry.Product2Id).put(entry.Pricebook2Id, entry.Id);
+            }
+            if (!ProdRLIList.isEmpty() && ProdRLIList[0].ParentId != null) {
+                POId = ProdRLIList[0].ParentId;
+                AccountIdPRLI = ProdRLIList[0].Parent.Account__c;
+            }
+            Order newOrder = createOrder(AccountIdPRLI, POId, 'Activated', LocationPBId);
+            System.debug('newOrder == >'+newOrder);
+            System.debug('newOrderId == >'+newOrder.Id);
+            if (newOrder != null) {
+                System.debug('Inserted Order Id: ' + newOrder.Id);
+                createProductTransferFromInitiateAllotment(ProdRLIList, newOrder.Id);                
+            }
+            Order backOrder = null;
+            for (ProductRequestLineItem prli : ProdRLIList) {
+                System.debug('Processing PRLI: ' + prli);
+                String pricebookEntryId = null;
+                if (!pricebookEntryMap.containsKey(prli.Product2Id)) {
+                    System.debug('PricebookEntryId not found for Product2Id: ' + prli.Product2Id);
+                    //throw new AuraHandledException('Error: PricebookEntryId not found for Product2Id: ' + prli.Product2Id);
+                  throw new PricebookEntryNotFoundException('PricebookEntryId not found for Product2Id: ' + prli.Product2Id);
+                 // return 'Error: PricebookEntryId not found for Product2Id: ' + prli.Product2Id;
+
+                }else{
+                    pricebookEntryId = pricebookEntryMap.get(prli.Product2Id).Id;
                 }
-                
+                Decimal userEnteredQuantity = idToAllocatedQuantity.containsKey(prli.Id) ? idToAllocatedQuantity.get(prli.Id) : 0;
+                if (userEnteredQuantity == 0) {
+                    continue;
+                }
+                Decimal requestedQuantity = prli.QuantityRequested;
+                Decimal allocatedQuantity = prli.Alloted_Quantity__c;
+                Decimal remainingQuantity = (requestedQuantity - allocatedQuantity).setScale(0, RoundingMode.HALF_UP);
+                System.debug('Requested: ' + requestedQuantity + ', Allocated: ' + allocatedQuantity + ', Remaining: ' + remainingQuantity);                
+                // Only create Activated Order Line Item
+
+                System.debug('backOrder::::::::00'+backOrder);
+                try{
+                    System.debug('newOrder === >'+newOrder);
+                    System.debug('prli === >'+prli);
+                    System.debug('pricebookEntryId === >'+pricebookEntryId);
+                    System.debug('LocationPBId === >'+LocationPBId);
+                }catch(Exception e){
+                    System.debug('Error #2 ' + e.getMessage() + ' && Line: ' + e.getLineNumber());
+                }
+
+                if (allocatedQuantity == 0) {
+                    System.debug('Condition: Allocated == 0');
+                    
+                    if (backOrder == null) { 
+                      //  backOrder = createOrder(AccountIdPRLI, POId, 'Back Order', LocationPBId);
+                        }
+                        else {
+                            System.debug('data is not going here');
+                        }
+                        
                 System.debug('afterOrderbackOrder::::::::00'+backOrder);
-                // backOrderItems.add(createOrderItem(backOrder, prli, pricebookEntryMap.get(prli.Product2Id), requestedQuantity, LocationPBId));
-            }
-            
-            else if (allocatedQuantity > 0 && remainingQuantity > 0) {
-                System.debug('Condition: Allocated < Requested');
-                newOrderItems.add(createOrderItem(newOrder, prli, pricebookEntryMap.get(prli.Product2Id), userEnteredQuantity, LocationPBId));
-                if (backOrder == null) {
-                    //backOrder = createOrder(AccountIdPRLI, POId, 'Back Order', LocationPBId);
+                       // backOrderItems.add(createOrderItem(backOrder, prli, pricebookEntryMap.get(prli.Product2Id), requestedQuantity, LocationPBId));
                 }
-                else {
-                    System.debug('data is not going here123');
+                
+                else if (allocatedQuantity > 0 && remainingQuantity > 0) {
+                    System.debug('Condition: Allocated < Requested');
+                    newOrderItems.add(createOrderItem(newOrder, prli, pricebookEntryMap.get(prli.Product2Id), userEnteredQuantity, LocationPBId));
+                    if (backOrder == null) {
+                        //backOrder = createOrder(AccountIdPRLI, POId, 'Back Order', LocationPBId);
+                    }
+                    else {
+                            System.debug('data is not going here123');
+                        }
+                   // backOrderItems.add(createOrderItem(backOrder, prli, pricebookEntryMap.get(prli.Product2Id), remainingQuantity, LocationPBId));
                 }
-                // backOrderItems.add(createOrderItem(backOrder, prli, pricebookEntryMap.get(prli.Product2Id), remainingQuantity, LocationPBId));
+
+                else if (remainingQuantity == 0) {
+                    System.debug('Condition: Requested == Allocated');
+                    newOrderItems.add(createOrderItem(newOrder, prli, pricebookEntryMap.get(prli.Product2Id), userEnteredQuantity, LocationPBId));
+                } 
             }
+
+            PORecToUpdate = [SELECT Id,Status FROM ProductRequest WHERE Id=:POId];
+            if (!newOrderItems.isEmpty()) {
+                insert newOrderItems;
+                if(PORecToUpdate !=null){
+                    PORecToUpdate.Status = 'Processing';
+                    update PORecToUpdate;
+                    System.debug('PORecToUpdate == >'+PORecToUpdate);
+                }
+
+                Id orderIdToUpdate = newOrderItems[0].OrderId;
+                if (orderIdToUpdate != null) {
+                    Order ordToUpdate = [SELECT Id, Status FROM Order WHERE Id = :orderIdToUpdate LIMIT 1];
+                    ordToUpdate.Status = 'Submitted to Finance	'; // Or any status/field you want to update
+                    update ordToUpdate;
+                    System.debug('Updated Order: ' + ordToUpdate);
+                }
             
-            else if (remainingQuantity == 0) {
-                System.debug('Condition: Requested == Allocated');
-                newOrderItems.add(createOrderItem(newOrder, prli, pricebookEntryMap.get(prli.Product2Id), userEnteredQuantity, LocationPBId));
-            } 
-        }
-        
-        PORecToUpdate = [SELECT Id,Status FROM ProductRequest WHERE Id=:POId];
-        if (!newOrderItems.isEmpty()) {
-            insert newOrderItems;
-            if(PORecToUpdate !=null){
-                PORecToUpdate.Status = 'Processing';
-                update PORecToUpdate;
-                System.debug('PORecToUpdate == >'+PORecToUpdate);
+                System.debug('Inserted Activated Order Items: ' + newOrderItems);
             }
-            
-            Id orderIdToUpdate = newOrderItems[0].OrderId;
-            if (orderIdToUpdate != null) {
-                Order ordToUpdate = [SELECT Id, Status FROM Order WHERE Id = :orderIdToUpdate LIMIT 1];
-                ordToUpdate.Status = 'Submitted to Finance  '; // Or any status/field you want to update
-                update ordToUpdate;
-                System.debug('Updated Order: ' + ordToUpdate);
+            if (!backOrderItems.isEmpty()) {
+               // insert backOrderItems;
+                System.debug('Inserted Back Order Items: ' + backOrderItems);
             }
-            
-            System.debug('Inserted Activated Order Items: ' + newOrderItems);
-        }
-        if (!backOrderItems.isEmpty()) {
-            // insert backOrderItems;
-            System.debug('Inserted Back Order Items: ' + backOrderItems);
-        }
         // } catch (Exception e) {
         //     System.debug('Error Creating Orders: ' + e.getMessage() + ' && Line: ' + e.getLineNumber());
         //     throw new AuraHandledException(e.getMessage());
@@ -1045,14 +908,14 @@ sendEmail();
             }
             insert ord;
             
-            
+
             Order OrderRec = [Select Id ,PO_Grand_Total__c from Order where Id =:ord.Id];
             System.debug('OrderRec == >'+OrderRec);
             PO_Payments__c poPaymentRec = new PO_Payments__c();
             poPaymentRec.Order__c = ord.Id;
             poPaymentRec.Purchase_Order__c = poId;
             // poPaymentRec.Amount_Paid__c   = OrderRec.PO_Grand_Total__c;
-            
+
             insert poPaymentRec;
             System.debug('Created Order ==> ! ' + ord);
             return ord;
@@ -1067,10 +930,10 @@ sendEmail();
         System.debug('ord == >'+ord+' && prli == >'+prli+' && pricebookEntry == >'+pricebookEntry+' && quantity == >'+quantity+' && priceBookId == >'+priceBookId);
         try{
             Map<String,PricebookEntry> mapOfProductNamePBIId = new Map<String,PricebookEntry>();
-            /* List<PricebookEntry> PBEntryList = [SELECT id,Name,Product2Id,Product2.Name,Pricebook2.Name,Pricebook2Id, UnitPrice,Dealer_List_Price__c from PricebookEntry  WHERE PriceBook2Id =: priceBookId AND Product2Id =: prli.Product2Id];
-for(PricebookEntry PE : PBEntryList){
-mapOfProductNamePBIId.put(PE.Product2.Name,PE);
-} */
+           /* List<PricebookEntry> PBEntryList = [SELECT id,Name,Product2Id,Product2.Name,Pricebook2.Name,Pricebook2Id, UnitPrice,Dealer_List_Price__c from PricebookEntry  WHERE PriceBook2Id =: priceBookId AND Product2Id =: prli.Product2Id];
+            for(PricebookEntry PE : PBEntryList){
+                mapOfProductNamePBIId.put(PE.Product2.Name,PE);
+            } */
             System.debug('mapOfProductNamePBIId == > ' + mapOfProductNamePBIId);
             //Order ord= [SELECT Id,IsVOR__c FROM Order WHERE Id=:orderId];
             OrderItem ordItem = new OrderItem();
@@ -1079,7 +942,7 @@ mapOfProductNamePBIId.put(PE.Product2.Name,PE);
             ordItem.Product2Id = prli.Product2Id;
             ordItem.Quantity = quantity;
             if(pricebookEntry.Dealer_List_Price__c == null){
-                System.debug('Product without Unit Price == > ' + prli.Product2);
+              System.debug('Product without Unit Price == > ' + prli.Product2);
             }
             ordItem.UnitPrice = pricebookEntry.Dealer_List_Price__c != null ? pricebookEntry.Dealer_List_Price__c : 0.00;
             ordItem.PricebookEntryId = pricebookEntry.Id;//mapOfProductNamePBIId.get(prli.Product2.Name).Id; //pricebookEntryId;
@@ -1093,105 +956,37 @@ mapOfProductNamePBIId.put(PE.Product2.Name,PE);
         }
         return null;
     }
-    
-    /* @future
-public static void sendEmail() {
-System.debug('=== Start sendEmail ===');
 
-String recipientEmail = 'ram.k@utilitarianlabs.com';
-String subject = 'Test Email from Apex';
-String body = '<h1>Hello,</h1><p>This is a test email sent from Apex.</p>';
-
-try {
-Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-email.setToAddresses(new List<String>{ recipientEmail });
-email.setSubject(subject);
-email.setHtmlBody(body); 
-email.setSenderDisplayName('Purchase Order System');
-
-Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ email });
-System.debug('Email successfully sent to: ' + recipientEmail);
-} catch (Exception e) {
-System.debug('Error sending email: ' + e.getMessage());
-}
-
-System.debug('=== End sendEmail ===');
-} */
-    
-
-    @AuraEnabled
-    public static List<FortnightlyForecastInventory__c> showForeCastedData(String loggedInUserId, String productTypeFilter) {
-        System.debug('loggedInUserId == >' + loggedInUserId);
-        System.debug('productTypeFilter == >' + productTypeFilter);
-
-        List<FortnightlyForecastInventory__c> listOfForeCastedData = new List<FortnightlyForecastInventory__c>();
-        Set<Id> Product2IdSet = new Set<Id>();
-        Set<String> ProductTypeNotToShow = new Set<String>();
+   /* @future
+    public static void sendEmail() {
+        System.debug('=== Start sendEmail ===');
+        
+        String recipientEmail = 'ram.k@utilitarianlabs.com';
+        String subject = 'Test Email from Apex';
+        String body = '<h1>Hello,</h1><p>This is a test email sent from Apex.</p>';
         
         try {
-            if (loggedInUserId != null) {
-                User logedUser = [SELECT Id, ContactId FROM User WHERE Id = :loggedInUserId LIMIT 1];
-                if (logedUser.ContactId != null) {
-                    Contact loggedInUserContactRecord = [
-                        SELECT Id, Role_Type__c, Location__r.Price_Book__c,AccountId
-                        FROM Contact 
-                        WHERE Id = :logedUser.ContactId 
-                        LIMIT 1
-                    ];
-
-                    if (productTypeFilter == null) {
-                        productTypeFilter = loggedInUserContactRecord.Role_Type__c;
-                    }
-
-                    if (productTypeFilter == 'Service') {
-                        ProductTypeNotToShow = new Set<String>{'Vehicle', 'Merchandise'};
-                    } else if (productTypeFilter == 'Sales') {
-                        ProductTypeNotToShow = new Set<String>{'Parts'};
-                    } else if (productTypeFilter == 'Merchandise') {
-                        ProductTypeNotToShow = new Set<String>{'Vehicle', 'Parts', 'Accessories', 'Extended Warranty', 'Add-ons', 'Road Side Assistance'};
-                    } else if (productTypeFilter == 'Accessories') {
-                        ProductTypeNotToShow = new Set<String>{'Vehicle', 'Parts', 'Merchandise', 'Extended Warranty', 'Add-ons', 'Road Side Assistance'};
-                    } else if (productTypeFilter == 'Vehicle') {
-                        ProductTypeNotToShow = new Set<String>{'Parts', 'Accessories', 'Extended Warranty', 'Add-ons', 'Road Side Assistance'};
-                    }
-
-                    List<PricebookEntry> getProdItemList = [
-                        SELECT Product2Id 
-                        FROM PricebookEntry 
-                        WHERE Pricebook2Id = :loggedInUserContactRecord.Location__r.Price_Book__c
-                    ];
-
-                    for (PricebookEntry pbe : getProdItemList) {
-                        if (pbe.Product2Id != null) {
-                            Product2IdSet.add(pbe.Product2Id);
-                        }
-                    }
-
-                    if (!Product2IdSet.isEmpty()) {
-                        listOfForeCastedData = [
-                            SELECT Id, Name, Product__c,Product__r.Name,Product__r.ProductCode,Product__r.Type__c, Product__r.Minimum_Order_Qty__c, Account__c, Six_Months_Average_Consumption__c,PO_Status__c
-                            FROM FortnightlyForecastInventory__c
-                            WHERE Product__c IN :Product2IdSet AND PO_Status__c IN ('Not Submitted','')
-                            AND Product__r.Type__c NOT IN :ProductTypeNotToShow AND Account__c =: loggedInUserContactRecord.AccountId
-                        ];
-                        
-                        
-                        System.debug('Filtered forecasted data size ==>' + listOfForeCastedData.size());
-                    }
-                }
-            }
-        } catch(Exception e) {
-            System.debug('Error message ====>' + e.getMessage() + ' at line number ======>' + e.getLineNumber());
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            email.setToAddresses(new List<String>{ recipientEmail });
+            email.setSubject(subject);
+            email.setHtmlBody(body); 
+            email.setSenderDisplayName('Purchase Order System');
+    
+            Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ email });
+            System.debug('Email successfully sent to: ' + recipientEmail);
+        } catch (Exception e) {
+            System.debug('Error sending email: ' + e.getMessage());
         }
-
-        return listOfForeCastedData;
-    }
-
-
+    
+        System.debug('=== End sendEmail ===');
+    } */
+    
+    
+    
     public class PricebookEntryNotFoundException extends Exception {}
-    
-    
-    
+
+
+
     
     Public static void testData(){
         Integer i=0;
@@ -1259,7 +1054,7 @@ System.debug('=== End sendEmail ===');
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
     }
     
-    Public static void testData3(){
+     Public static void testData3(){
         Integer i=0;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
@@ -1297,7 +1092,7 @@ System.debug('=== End sendEmail ===');
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+                i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
@@ -1354,7 +1149,463 @@ System.debug('=== End sendEmail ===');
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+                i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+    }
+    public static void testData5(){
+        Integer i=0;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+                i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+    }
+    public static void testData6(){
+        Integer i=0;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+                i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+    }
+    public static void testData7(){
+        Integer i=0;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+                i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+    }
+    public static void testData8(){
+        Integer i=0;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+                i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+    }
+    public static void testData9(){
+        Integer i=0;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+                i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+    }
+    public static void testData10(){
+        Integer i=0;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+                i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+    }
+    public static void testData11(){
+        Integer i=0;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+                i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+    }
+    public static void testData12(){
+        Integer i=0;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+                i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;

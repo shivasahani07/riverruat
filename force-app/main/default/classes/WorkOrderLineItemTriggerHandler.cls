@@ -145,6 +145,7 @@ public class WorkOrderLineItemTriggerHandler {
             updateWarrantyTotalClaimedAmount(warrantyPriorIds);
         }
     }
+    
     public static void handleDelete(List<WorkOrderLineItem> deletedWorkOrderLineItems) {
         try {
             // Step 1: Collect Warranty Prior IDs from deleted items
@@ -190,32 +191,6 @@ public class WorkOrderLineItemTriggerHandler {
     }
     
     private static void updateWarrantyTotalClaimedAmount(Set<Id> warrantyPriorIds) {
-        // added on for that no duplicate warranties were create
-        if (!warrantyPriorIds.isEmpty()) {
-            // Step 0.1: Get IDs of warranties that DO have parts
-            /* Set<Id> warrantiesWithParts = new Set<Id>();
-List<AggregateResult> aggregateResultsWithParts = [
-SELECT Warranty_Prior__c 
-FROM WorkOrderLineItem 
-WHERE Warranty_Prior__c IN :warrantyPriorIds 
-GROUP BY Warranty_Prior__c
-];
-
-for (AggregateResult ar : aggregateResultsWithParts) {
-warrantiesWithParts.add((Id)ar.get('Warranty_Prior__c'));
-}
-
-// Step 0.2: Find warranties that have NO parts
-Set<Id> warrantiesWithNoParts = new Set<Id>(warrantyPriorIds);
-warrantiesWithNoParts.removeAll(warrantiesWithParts);
-
-if (!warrantiesWithNoParts.isEmpty()) {
-System.debug('Deleting warranties with no parts: ' + warrantiesWithNoParts);
-delete [SELECT Id FROM Warranty_Prior__c WHERE Id IN :warrantiesWithNoParts];
-// Remove from original set so we don't update them
-warrantyPriorIds.removeAll(warrantiesWithNoParts);
-}*/
-        }
         try {
             System.debug('Warranty Prior IDs for Total Claimed Amount Update: ' + warrantyPriorIds);
             
@@ -266,12 +241,11 @@ warrantyPriorIds.removeAll(warrantiesWithNoParts);
             throw e;
         }
     }
-    
+    // Updated Trigger Handler Method
+   
     public static void CheckTFrisRequired(List<WorkOrderLineItem> workOrderLineItems){
         
     }
-    
-    
     
     // public static void handleUpdate(List<WorkOrderLineItem> workOrderLineItems, Map<Id, WorkOrderLineItem> oldMap) {
     //     // Step 1: Identify WorkOrderLineItems where WorkOrderId has changed

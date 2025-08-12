@@ -30,7 +30,6 @@ export default class CreatePurchaseOrderForm extends LightningModal {
     currentUserId;
     userLocationName = '';
     accountName;
-     @track storeType;
 
     connectedCallback() {
         this.currentUserId = userId;
@@ -38,18 +37,16 @@ export default class CreatePurchaseOrderForm extends LightningModal {
     }
 
     apexMethod() {
-    getCurrentLogedUserAccountRecord({ loggedInUserId: this.currentUserId })
-        .then(result => {
-            if (result) {
-                this.accountName = result.accountName;
-                this.storeType = result.storeType;
-            }
-        })
-        .catch(error => {
-            console.log('Error = ' + JSON.stringify(error));
-        });
-}
-
+        getCurrentLogedUserAccountRecord({ loggedInUserId: this.currentUserId })
+            .then(result => {
+                if (result && result !== null) {
+                    this.accountName = result;
+                }
+            })
+            .catch(error => {
+                console.log('Error = ' + error);
+            });
+    }
 
     get statusOptions() {
         return [

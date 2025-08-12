@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Aniket Karmakar
  * @group             : 
- * @last modified on  : 06-13-2025
+ * @last modified on  : 08-11-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public with sharing class QueueableForPostServiceWhatsApp implements Queueable, Database.AllowsCallouts{
@@ -31,36 +31,38 @@ public with sharing class QueueableForPostServiceWhatsApp implements Queueable, 
     }
     public static void sendWhatsAppMessage(Id jobcardId,String serviceCentreName,String phoneNumber){
         WhatsappIntegration__c w = WhatsappIntegration__c.getInstance('WhatsApp API');
-        String endPoint = w.Service_Endpoint__c;
+        String endPoint = w.API_Endpoint_Updated__c;//updated by Aniket on 11/08/2025
         String token = w.Service_Bearer_Token__c;
         String fullPhone = '+91'+phoneNumber;
+        String cookie = w.Cookie_For_Service_Msg__c;//added by Aniket on 11/08/2025
+        String apiKey = w.API_Key__c;//added by Aniket on 11/08/2025
         String templateName = 'service_message_right_after_service';
         try{
         Map<String, Object> payload = new Map<String, Object>();
-        payload.put('messaging_product', 'whatsapp');
-        payload.put('recipient_type', 'individual');
-        payload.put('to', fullPhone);
-        payload.put('type', 'template');
+        // payload.put('messaging_product', 'whatsapp');
+        // payload.put('recipient_type', 'individual');
+        // payload.put('to', fullPhone);
+        // payload.put('type', 'template');
 
         
-        Map<String, Object> template = new Map<String, Object>();
-        template.put('name', templateName);
-        template.put('language', new Map<String, Object>{ 'code' => 'en_US' });
+        // Map<String, Object> template = new Map<String, Object>();
+        // template.put('name', templateName);
+        // template.put('language', new Map<String, Object>{ 'code' => 'en_US' });
 
        
-        List<Object> components = new List<Object>();
+        // List<Object> components = new List<Object>();
 
         
-        Map<String, Object> bodyComponent = new Map<String, Object>();
-        bodyComponent.put('type', 'body');
-        bodyComponent.put('parameters', new List<Object>{
-            new Map<String, Object>{
-                'type' => 'text',
-                'text' => serviceCentreName
-            }
-        });
+        // Map<String, Object> bodyComponent = new Map<String, Object>();
+        // bodyComponent.put('type', 'body');
+        // bodyComponent.put('parameters', new List<Object>{
+        //     new Map<String, Object>{
+        //         'type' => 'text',
+        //         'text' => serviceCentreName
+        //     }
+        // });
 
-        
+        List<Map<String,Object>> buttonParameters = new List<Map<String,Object>>();
         Map<String, Object> buttonComponent = new Map<String, Object>();
         buttonComponent.put('type', 'button');
         buttonComponent.put('sub_type', 'url');
@@ -72,24 +74,45 @@ public with sharing class QueueableForPostServiceWhatsApp implements Queueable, 
             }
         });
 
-        
-        components.add(bodyComponent);
-        components.add(buttonComponent);
+        buttonParameters.add(buttonComponent);
+
+        List<String> parameters = new List<String>();
+        parameters.add(String.valueOf(serviceCentreName));
+
+        Map<String,Object> template = new Map<String,Object>();
+        template.put('buttonParameters',buttonParameters);
+        template.put('parameters',parameters);
+        template.put('language','en_US');
+        template.put('name',templateName);
+
+        Map<String,Object> recipient = new Map<String,Object>();
+        recipient.put('id', fullPhone);
+
+        payload.put('template',template);
+        payload.put('type','template');
+        payload.put('recipient',recipient);
+        payload.put('kookoo_id','OZNTLWA:918197205802');
+
+
+
+        // components.add(bodyComponent);
+        // components.add(buttonComponent);
 
         
-        template.put('components', components);
+        // template.put('components', components);
 
         
-        payload.put('template', template);
+        // payload.put('template', template);
 
         String serializedPayload = JSON.serialize(payload);
         System.debug('serializedPayload==>'+JSON.serializePretty(payload));
 
         Http http = new Http();
         HttpRequest req = new HttpRequest();
-        req.setHeader('Authorization','Bearer '+token);
-        req.setHeader('Cookie','ps_l=1; ps_n=1; ps_l=1; ps_n=1');
+        //req.setHeader('Authorization','Bearer '+token);
+        req.setHeader('Cookie',cookie);
         req.setHeader('Content-Type','application/json');
+        req.setHeader('apikey',apiKey);
         req.setMethod('POST');
         req.setBody(serializedPayload);
         req.setEndpoint(endPoint);

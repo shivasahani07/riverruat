@@ -8,6 +8,7 @@
     <columns>LR_Number__c</columns>
     <columns>LR_Attachment__c</columns>
     <columns>Status__c</columns>
+    <columns>CREATED_DATE</columns>
     <filterScope>Everything</filterScope>
     <label>All Batches</label>
 </ListView>

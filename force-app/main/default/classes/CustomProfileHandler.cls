@@ -74,7 +74,9 @@ public wiThout SHARING class CustomProfileHandler {
                 if (ownerUser.ContactId == null || !contactMap.containsKey(ownerUser.ContactId)) continue;
                 
                 Contact ownerContact = contactMap.get(ownerUser.ContactId);
+                System.debug('ownerContact ==>'+ownerContact);
                 Set<String> hierarchyRoles = getHierarchy(ownerContact.Designation__c);
+                System.debug('hierarchyRoles ==>'+ hierarchyRoles);
                 
                 List<Contact> relatedContacts = accountToContacts.get(ownerContact.AccountId);
                 if (relatedContacts == null) continue;
@@ -113,53 +115,53 @@ public wiThout SHARING class CustomProfileHandler {
         }
     }
     
-  /*  private static Set<String> getHierarchy(String designation) {
-        
-        // Ideally pull from Custom Metadata or define statically
-        // Ideally pull from Custom Metadata or define statically
-        Map<String, Set<String>> hierarchyMap = new Map<String, Set<String>>{
-            'WM' => new Set<String>{'Service Centre'},
-                'SM' => new Set<String>{'WM', 'Service Centre'},
-                    'PS' => new Set<String>{'SM', 'WM', 'Service Centre'},
-                        'SA' => new Set<String>{'PS', 'SM', 'WM', 'Service Centre'},
-                            'CRE' => new Set<String>{'PS', 'SM', 'WM','SA','ASM' ,'Service Centre'}
-        };
-            return hierarchyMap.containsKey(designation) ? hierarchyMap.get(designation) : new Set<String>();
-    } */
+    /*  private static Set<String> getHierarchy(String designation) {
+
+// Ideally pull from Custom Metadata or define statically
+// Ideally pull from Custom Metadata or define statically
+Map<String, Set<String>> hierarchyMap = new Map<String, Set<String>>{
+'WM' => new Set<String>{'Service Centre'},
+'SM' => new Set<String>{'WM', 'Service Centre'},
+'PS' => new Set<String>{'SM', 'WM', 'Service Centre'},
+'SA' => new Set<String>{'PS', 'SM', 'WM', 'Service Centre'},
+'CRE' => new Set<String>{'PS', 'SM', 'WM','SA','ASM' ,'Service Centre'}
+};
+return hierarchyMap.containsKey(designation) ? hierarchyMap.get(designation) : new Set<String>();
+} */
     
     private static Set<String> getHierarchy(String designation) {
+        System.debug('==> Input Designation: ' + designation);
+        
         Set<String> hierarchySet = new Set<String>();
-        Map<String, Service_Roles_Hirarchy__mdt> metadataMap = 
-            new Map<String, Service_Roles_Hirarchy__mdt>([SELECT DeveloperName, Eg_Value__c FROM Service_Roles_Hirarchy__mdt]);
-    
+        
+        Map<String, Service_Roles_Hirarchy__mdt> metadataMap = new Map<String, Service_Roles_Hirarchy__mdt>();
+        
+        for (Service_Roles_Hirarchy__mdt mdt : [SELECT DeveloperName, Eg_Value__c FROM Service_Roles_Hirarchy__mdt]) {
+            metadataMap.put(mdt.DeveloperName, mdt);
+        }
+        
+        System.debug('==> Metadata Records Fetched: ' + metadataMap.keySet());
+        
         if (metadataMap.containsKey(designation)) {
             String rawValues = metadataMap.get(designation).Eg_Value__c;
+            System.debug('==> Raw Eg_Value__c for "' + designation + '": ' + rawValues);
+            
             if (String.isNotBlank(rawValues)) {
-                List<String> values = rawValues.split(';');
+                List<String> values = rawValues.split(',');
                 for (String val : values) {
-                    hierarchySet.add(val.trim());
-                    System.debug('Added to hierarchy set: ' + hierarchySet);
+                    String trimmedVal = val.trim();
+                    hierarchySet.add(trimmedVal);
+                    System.debug('==> Added Role: ' + trimmedVal);
                 }
+            } else {
+                System.debug('==> Eg_Value__c is blank for designation: ' + designation);
             }
+        } else {
+            System.debug('==> No metadata found for designation: ' + designation);
         }
-       System.debug('Final hierarchy set: ' + hierarchySet);
+        
+        System.debug('==> Final Hierarchy Set: ' + hierarchySet);
         return hierarchySet;
     }
-
-    
-    
-    
-    Public Static  void createAccountWithGrop(List<Account> PartnerAcc){
-        Account SignleAccount=PartnerAcc[0];
-        
-        //'store-001F400002SOh0yIAD'
-        
-    }
-    
-    //Service Centre ->WM,
-    //WM ->PS,PS
-    
-    
-    
     
 }

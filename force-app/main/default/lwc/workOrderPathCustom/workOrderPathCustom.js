@@ -65,7 +65,8 @@ export default class WorkOrderStatusPath extends LightningElement {
             { label: 'In Progress', value: 'In Progress' },
             { label: 'Re-Work', value: 'Re-Work' },
             { label: 'On Hold', value: 'On Hold' },
-            { label: 'Submit For Approval', value: 'Submit For Approval' },
+            { label: 'Ready for Delivery', value: 'Ready for Delivery' },
+            // { label: 'Submit For Approval', value: 'Submit For Approval' },
             { label: 'Completed', value: 'Completed' }
         ],
         canceled: [

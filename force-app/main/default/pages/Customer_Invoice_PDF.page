@@ -1,3 +1,10 @@
+<!--
+  @description       : 
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             : 
+  @last modified on  : 08-11-2025
+  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+-->
 <apex:page renderAs="pdf" standardcontroller="WorkOrder" extensions="Customer_Invoice_PDF_Controller" standardStylesheets="false"  applyBodyTag="false" applyHtmlTag="false" showHeader="false">
     <head>
           <style type="text/css">
@@ -34,67 +41,92 @@
             #l2> li:first-child>*:first-child:before {counter-increment: d1 0;  }
             table, tbody {vertical-align: top; overflow: visible; }
             td {padding: 2px;}
+            
+            .invoice-details-table {
+                width: 100% !important;
+                float: none !important;
+                clear: both !important;
+                table-layout: fixed;
+            }
+            .invoice-details-table td {
+                vertical-align: top;
+            }
+
           </style>
        </head>
 
        <body>
-            <table border="0" cellpadding ="2" cellspacing ="0" width="100%">
-                <tr>
-                    <td width="40%"></td>
-                    <td width="15%" style="padding-top: 2pt;text-indent: 0pt;text-align: left;"><p>(Customer Copy)</p></td>
-                    <td width="35%" style="text-indent: 0pt;text-align: right;"><p>Print Date : <apex:outputText value="{0,date,dd/MM/yyyy}"><apex:param value="{!NOW()+offset}"/></apex:outputText></p></td>
-                </tr>
-                <tr>
-                    <td width="40%"></td>
-                    <td width="15%"></td>
-                    <td width="35%" style="padding-top: 1pt;padding-bottom: 1pt;text-indent: 0pt;text-align: right;"><p>Print Time : <apex:outputText value="{0,date,HH:mm:ss z}"><apex:param value="{!NOW()+offset}"/></apex:outputText></p></td>
-                </tr>
-            </table>         
-          
-            <table style="border-collapse:collapse;" cellspacing="0" width="100%">
-                <tr style="height:64pt">
-                    <td align="center" style="width:33%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;">
-                        <img src="{!$Resource.RideRiverLogo}" style="" width="75%" height="60px"/>
-                    </td>
-                    <td style="width:66%;border-style:solid;border-width:1pt;border-left:none;" colspan="2">
-                        <p class="s1" style="padding-top: 5pt;text-indent: 0pt;line-height: 18pt;text-align: left;">{!workOrderRecord.Service_Center__r.Company_GSTIN_name__c }</p>
-                        <p class="s2" style="text-indent: 0pt;line-height: 11pt;text-align: left;">{!workOrderRecord.Service_Center__r.ShippingStreet}</p>
-                        <p class="s3" style="padding-top: 1pt;text-indent: 0pt;text-align: left;">GSTIN : <span class="s2">{!workOrderRecord.Service_Center__r.GSTIN_Number__c}</span></p>
-                    </td>
-                </tr>
-                <tr style="height:74pt">
-                    <td style="vertical-align: top;width: 33%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <apex:outputpanel rendered="{!workOrderRecord.Status == 'Completed'}">
-                            <!--<p class="s3" style="padding-top: 5pt;padding-left: 4pt;padding-right: 21pt;text-indent: 0pt;line-height: 114%;text-align: left;">Invoice Number : <span class="s2">RV{!workOrderRecord.Service_Center__r.Center_Code__c}<apex:outputText value="{0,date,yyMM}"><apex:param value="{!workOrderRecord.Invoice_Date__c+offset}"/></apex:outputText>CP{!workOrderRecord.Invoice_No__c}</span></p>-->
-                            <p class="s3" style="padding-top: 5pt;padding-left: 4pt;padding-right: 21pt;text-indent: 0pt;line-height: 114%;text-align: left;">Invoice Number : <span class="s2">RC{!workOrderRecord.Service_Center__r.Center_Code__c}25{!workOrderRecord.Invoice_No__c}</span></p> 
-                            <!--<p class="s3" style="padding-top: 5pt;padding-left: 4pt;padding-right: 21pt;text-indent: 0pt;line-height: 114%;text-align: left;">Invoice Number : <span class="s2">RV{!workOrderRecord.Service_Center__r.Center_Code__c}<apex:outputText value="{0,date,yyMM}"><apex:param value="{!NOW()+offset}"/></apex:outputText>{!workOrderRecord.Invoice_No__c}</span></p>-->   
-                            <p class="s3" style="padding-top: 5pt;padding-left: 4pt;padding-right: 21pt;text-indent: 0pt;line-height: 114%;text-align: left;">Invoice Date   : <span class="s2"><apex:outputText value="{0,date,dd/MM/yyy}"><apex:param value="{!workOrderRecord.EndDate+offset}"/></apex:outputText> </span></p>
-                        </apex:outputpanel>
-                        <p class="s3" style="padding-top: 5pt;padding-left: 4pt;padding-right: 21pt;text-indent: 0pt;line-height: 114%;text-align: left;">Place of Supply (State) : <span class="s2">{!workOrderRecord.Account.ShippingState} </span></p>
-                    </td>
-                    <td style="vertical-align: top;width: 33%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s3" style="padding-top: 5pt;padding-left: 5pt;padding-right: 68pt;text-indent: 0pt;line-height: 114%;text-align: left;">Job Card No : <span class="s2">{!workOrderRecord.WorkOrderNumber} </span></p>
-                        <p class="s3" style="padding-top: 5pt;padding-left: 5pt;padding-right: 68pt;text-indent: 0pt;line-height: 114%;text-align: left;">VIN : <span class="s2">{!workOrderRecord.Vehicle__r.VehicleIdentificationNumber } </span></p>
-                        <p class="s3" style="padding-top: 5pt;padding-left: 5pt;padding-right: 68pt;text-indent: 0pt;line-height: 114%;text-align: left;">Motor No : <span class="s2">{!workOrderRecord.Vehicle__r.EngineNumber} </span></p>
-                        <p class="s3" style="padding-top: 5pt;padding-left: 5pt;padding-right: 68pt;text-indent: 0pt;line-height: 114%;text-align: left;">Model Name : <span class="s2">{!workOrderRecord.Vehicle__r.Name} </span></p>
-                        <p class="s3" style="padding-top: 5pt;padding-left: 5pt;padding-right: 68pt;text-indent: 0pt;line-height: 114%;text-align: left;">Job Type : <span class="s2">{!workOrderRecord.RR_Job_Type__c} </span></p>
-                    </td>
-                    <td style="vertical-align: top;width: 33%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s3" style="padding-top: 5pt;padding-left: 4pt;padding-right: 21pt;text-indent: 0pt;line-height: 114%;text-align: left;">Customer Name :<span class="s2">{!workOrderRecord.Vehicle__r.CurrentOwner.Name} </span></p>
-                        <p class="s3" style="padding-top: 5pt;padding-left: 4pt;padding-right: 21pt;text-indent: 0pt;line-height: 114%;text-align: left;">Reg. No : <span class="s2">{!workOrderRecord.Vehicle__r.VehicleRegistrationNumber} </span></p>
-                        <p class="s3" style="padding-top: 5pt;padding-left: 4pt;padding-right: 21pt;text-indent: 0pt;line-height: 114%;text-align: left;">KMS Cov : <span class="s2">{!workOrderRecord.Odometer_Reading__c} </span></p>
-                        <p class="s3" style="padding-top: 5pt;padding-left: 4pt;padding-right: 21pt;text-indent: 0pt;line-height: 114%;text-align: left;">Ser. Adv Name : <span class="s2">{!workOrderRecord.RR_Service_Advisor__r.Name} </span></p>
-                        <p class="s3" style="padding-top: 5pt;padding-left: 4pt;padding-right: 21pt;text-indent: 0pt;line-height: 114%;text-align: left;">Invoice Type : <span class="s2">{!workOrderRecord.Invoice_Type__c} </span></p>
-                    </td>
-                </tr>
-                <tr style="height:76pt">
-                    <td style="vertical-align: justify;width:100%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="3">
-                        <p class="s3" style="padding-top: 5pt;padding-left: 4pt;text-indent: 0pt;text-align: left;">Details of Receiver (Billed to ): <br/><br/> <span class="s2">{!workOrderRecord.Vehicle__r.CurrentOwner.Name} <br/> {!workOrderRecord.Vehicle__r.CurrentOwner.ShippingStreet}, {!workOrderRecord.Vehicle__r.CurrentOwner.ShippingCity},  {!workOrderRecord.Vehicle__r.CurrentOwner.ShippingState},  {!workOrderRecord.Vehicle__r.CurrentOwner.ShippingCountry},  {!workOrderRecord.Vehicle__r.CurrentOwner.ShippingPostalCode}</span></p>
-                        <p style="text-indent: 0pt;text-align: left;height:30pt"><br/></p>
-                        <p class="s3" style="padding-left: 4pt;text-indent: 0pt;text-align: left;">GSTIN Number : <span class="s2">{!workOrderRecord.Vehicle__r.CurrentOwner.GSTIN_Number__c}</span></p>
-                    </td>
-                </tr>
-            </table>
+           <div>
+    <table style="border-collapse: collapse; text-align: left; font-family: Arial, Helvetica, sans-serif; vertical-align: top;" width="100%">
+        <tr>
+            <td style="padding: 8px; font-size: 12px; width: 40%; vertical-align: top;">
+                <apex:image value="{!URLFOR($Resource.RideRiverLogo)}" height="100px" width="230px" style="display: block; margin-bottom: 0; padding-bottom: 0;" />
+                
+                     <p style="margin-top: 2px;">
+                        <b><span style="font-size: 15px;"> {!workOrderRecord.Service_Center__r.Name} </span></b> <br/>
+                        <apex:outputText value="{!formattedBillingStreet}" escape="false"/>,
+                        {!workOrderRecord.Service_Center__r.BillingCity}<br/>
+                        {!workOrderRecord.Service_Center__r.BillingState}-{!workOrderRecord.Service_Center__r.BillingPostalCode}
+                        <br /> <span style="font-size: 14px;"> GSTIN: {!workOrderRecord.Service_Center__r.GSTIN_Number__c} </span>
+                    </p>
+
+                
+            </td>
+            
+            <td style="padding: 8px; width: 15%; vertical-align: top; text-align: left;">
+                <div style="font-size: 13pt; font-weight: bold;">
+                    TAX INVOICE
+                </div>
+                <div style="font-size: 10pt; font-weight: bold;">
+                    Customer Copy
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<hr />
+
+<table style="vertical-align: top; border-collapse:true; float:left; text-align:left; font-family: Arial, Helvetica, sans-serif;margin-top:4px;font-size:12px;" width="100%" class="invoice-details-table">
+    <tr>
+        <td>
+            <b>Invoice Date</b>: &nbsp;
+            <apex:outputText value="{0,date,dd/MM/yyyy}">
+                        <apex:param value="{!workOrderRecord.Invoice_Date__c}" />
+                    </apex:outputText>
+            <br /><br />
+            <b>Invoice No</b>: <span style="white-space: nowrap;">{!workOrderRecord.Invoice_No__c}</span><br /><br />
+            <b>Job Card No.</b>: <span style="white-space: nowrap;">{!workOrderRecord.WorkOrderNumber}</span><br /><br />
+            <b>VIN</b> : {!workOrderRecord.Vehicle__r.VehicleIdentificationNumber} <br /><br/>
+            <b>Place of Supply</b>: Karnataka<br/><br/>
+            <b>Job Type</b> : {!workOrderRecord.RR_Job_Type__c}
+        </td>
+        <!-- Customer Details -->
+        <td>
+            <b>Customer Name</b> : {!workOrderRecord.Account.Name}<br/><br/>
+            <b>Reg. No.</b>: <span style="white-space: nowrap;">{!workOrderRecord.Vehicle_Registration_Number__c}</span><br /><br />
+            <b>KMS Cov</b>: <span style="white-space: nowrap;">{!workOrderRecord.Odometer_Reading__c}</span><br /><br />
+            <b>Ser. Adv Name</b> : {!workOrderRecord.RR_Service_Advisor__r.Name} <br /><br/>
+            <b>Invoice Type</b> : {!workOrderRecord.Invoice_Type__c}<br/><br/>
+            <b>Model Name</b> : {!workOrderRecord.Vehicle__r.Name}
+        </td>
+        
+        <td width="30%" style="vertical-align: top;padding:5px; padding-left: 20px;">
+            <b>Billed To:</b><br/><br/>
+            <b>{!workOrderRecord.Account.Name}</b><br/>
+            {!workOrderRecord.Account.BillingStreet}<br/>
+            {!workOrderRecord.Account.BillingCity}<br/>
+            {!workOrderRecord.Account.BillingState} - {!workOrderRecord.Account.BillingPostalCode}<br/><br/>             
+            <b>Email</b>: {!workOrderRecord.Account.Email__c}<br/>
+            <b>Phone No</b>: {!workOrderRecord.Account.Phone}<br/>
+            <b>Secondary Ph No</b>: {!workOrderRecord.Account.Secondary_Phone_Number__c}<br/>
+            <div style="padding-top:5px;">
+                <b>GSTIN</b>: {!workOrderRecord.Account.GSTIN_Number__c}<br/>
+            </div>
+        </td>
+    </tr>
+</table>
+
             <p style="text-indent: 0pt;text-align: left;"><br/></p>
             <table style="border-collapse:collapse;" cellspacing="0" width="100%">
                 <tr style="height:21pt">

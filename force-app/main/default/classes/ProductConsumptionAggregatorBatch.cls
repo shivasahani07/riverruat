@@ -442,10 +442,10 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
     
     // Helper Classes
     class ConsumptionRecord {
-        public Id DealerId;
-        public Id ProductId;
-        public Date ConsumedDate;
-        public Decimal Qty;
+        @AuraEnabled public Id DealerId;
+        @AuraEnabled public Id ProductId;
+        @AuraEnabled public Date ConsumedDate;
+        @AuraEnabled public Decimal Qty;
 
         public ConsumptionRecord(Id dealerId, Id productId, Date consumedDate, Decimal qty) {
             this.DealerId = dealerId;

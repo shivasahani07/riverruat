@@ -1,6 +1,6 @@
 public class WorkOrderTriggerHandler {
     
- 	
+    
     public static void PreventClosingifActionPlanIncomplete(List<WorkOrder> newWorkOrders, Map<Id, WorkOrder> oldWorkOrders) {
         Set<Id> completedJobCardIds = new Set<Id>();
         
@@ -53,6 +53,89 @@ public class WorkOrderTriggerHandler {
             }
         }
     }
+    
+    
+    
+    public static void validateWorkOrders(List<WorkOrder> newList, Map<Id, WorkOrder> oldMap) {
+        try {
+            Set<Id> vehicleSet = new Set<Id>();
+            Map<Id, Set<Id>> mapVehicleIdToWoIds = new Map<Id, Set<Id>>();
+            Set<Id> newVehicleSet = new Set<Id>();
+            
+            for (WorkOrder wo : newList) {
+                if (wo.Vehicle__c != null) {
+                    vehicleSet.add(wo.Vehicle__c);
+                }
+            }
+            
+            // Query existing work orders (excluding completed/canceled)
+            List<WorkOrder> existingWorkOrders = [
+                SELECT Id, Vehicle__c, Vehicle_Identification_number__c, Vehicle_registration_number__c 
+                FROM WorkOrder 
+                WHERE Vehicle__c IN :vehicleSet 
+                AND Status NOT IN ('Completed', 'Canceled')
+            ];
+            
+            for (WorkOrder wo : existingWorkOrders) {
+                if (!mapVehicleIdToWoIds.containsKey(wo.Vehicle__c)) {
+                    mapVehicleIdToWoIds.put(wo.Vehicle__c, new Set<Id>());
+                }
+                mapVehicleIdToWoIds.get(wo.Vehicle__c).add(wo.Id);
+            }
+            
+            // Fetch last odometer reading
+            Map<Id, Decimal> mapVehicleIdToMaxOdometer = new Map<Id, Decimal>();
+            List<AggregateResult> lastOdometerReadings = [
+                SELECT Vehicle__c vehicleId, MAX(Odometer_Reading__c) maxOdo
+                FROM WorkOrder
+                WHERE Vehicle__c IN :vehicleSet
+                AND Id NOT IN :new Map<Id, WorkOrder>(newList).keySet()
+                GROUP BY Vehicle__c
+            ];
+            
+            for (AggregateResult ar : lastOdometerReadings) {
+                mapVehicleIdToMaxOdometer.put((Id)ar.get('vehicleId'), (Decimal)ar.get('maxOdo'));
+            }
+            
+            for (WorkOrder wo : newList) {
+                // Duplicate VIN/VRN validation
+                if (Trigger.isInsert) {
+                    if ((mapVehicleIdToWoIds.containsKey(wo.Vehicle__c) && mapVehicleIdToWoIds.get(wo.Vehicle__c).size() > 0) ||
+                        newVehicleSet.contains(wo.Vehicle__c)) {
+                            wo.Vehicle__c.addError('A job card already exists for this vehicle with the same VIN or VRN.');
+                        }
+                    newVehicleSet.add(wo.Vehicle__c);
+                } else {
+                    if (mapVehicleIdToWoIds.containsKey(wo.Vehicle__c) && 
+                        mapVehicleIdToWoIds.get(wo.Vehicle__c).size() > 0 &&
+                        oldMap.get(wo.Id).Vehicle__c != wo.Vehicle__c) {
+                            
+                            if (!(mapVehicleIdToWoIds.get(wo.Vehicle__c).size() == 1 &&
+                                  mapVehicleIdToWoIds.get(wo.Vehicle__c).contains(wo.Id))) {
+                                      wo.Vehicle__c.addError('A job card already exists for this vehicle with the same VIN or VRN.');
+                                  }
+                        }
+                    
+                    if (!mapVehicleIdToWoIds.containsKey(wo.Vehicle__c)) {
+                        mapVehicleIdToWoIds.put(wo.Vehicle__c, new Set<Id>());
+                    }
+                    mapVehicleIdToWoIds.get(wo.Vehicle__c).add(wo.Id);
+                }
+                
+                // Odometer reading validation
+                if (wo.Odometer_Reading__c != null && mapVehicleIdToMaxOdometer.containsKey(wo.Vehicle__c)) {
+                    Decimal previousOdo = mapVehicleIdToMaxOdometer.get(wo.Vehicle__c);
+                    if (wo.Odometer_Reading__c <= previousOdo) {
+                        wo.Odometer_Reading__c.addError('Odometer reading must be greater than the previous recorded value: ' + previousOdo);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.debug('Error Message: ' + e.getMessage() + ' at Line Number: ' + e.getLineNumber());
+        }
+    }
+    
+    
     
     public static void handleTrigger(List<WorkPlan> newobjWorkPlan) {
         
@@ -260,7 +343,6 @@ public class WorkOrderTriggerHandler {
             System.debug('Updated WorkPlans: ' + workPlansToUpdate);
         }
     }
-    
     
     
     public static void ResetPDICheckAfterJobCardClosed(List<WorkOrder> newWorkOrders, Map<Id, WorkOrder> oldWorkOrders) {
@@ -638,54 +720,95 @@ public class WorkOrderTriggerHandler {
         }
     }
     
-public static void onJobcardOpenUdpateAssetMilestone(List<WorkOrder> orderList) {
-    try {
-        System.debug('orderList === ' + orderList);
-
-        if (orderList.isEmpty()) {
-            return;
-        }
-
-        // Map of Vehicle Id -> WorkOrder Created Date
-        Map<Id, Date> vehicleIdToWODate = new Map<Id, Date>();
-        for (WorkOrder wo : orderList) {
-            if (wo.AssetId != null) { // Assuming AssetId refers to the Vehicle
-                vehicleIdToWODate.put(wo.AssetId, wo.CreatedDate.date()); 
+    public static void onJobcardOpenUdpateAssetMilestone(List<WorkOrder> orderList) {
+        try {
+            System.debug('orderList === ' + orderList);
+            
+            if (orderList.isEmpty()) {
+                return;
             }
-        }
-
-        if (vehicleIdToWODate.isEmpty()) {
-            return;
-        }
-
-        // Fetch Asset Milestones for those vehicles
-        List<AssetMilestone> milestonesToUpdate = [
-            SELECT Id, VehicleId, MilestoneDate	, Stage
-            FROM AssetMilestone
-            WHERE VehicleId IN :vehicleIdToWODate.keySet()
-        ];
-
-        List<AssetMilestone> updateList = new List<AssetMilestone>();
-
-        for (AssetMilestone milestone : milestonesToUpdate) {
-            Date woCreatedDate = vehicleIdToWODate.get(milestone.VehicleId);
-
-            // Check if Milestone Date is greater than WO Created Date + 30 days
-            if (milestone.MilestoneDate != null && 
-                milestone.MilestoneDate > woCreatedDate.addDays(30)) {
-
-                milestone.Stage = 'Active';
-                updateList.add(milestone);
+            
+            // Map of Vehicle Id -> WorkOrder Created Date
+            Map<Id, Date> vehicleIdToWODate = new Map<Id, Date>();
+            Map<Id, String> vehicleIdToMaintenanceType = new Map<Id, String>();
+            
+            for (WorkOrder wo : orderList) {
+                System.debug('Inside1 === ' );
+                if (wo.AssetId != null && wo.RR_Periodic_Maintenance_Type__c != null) {
+                    vehicleIdToWODate.put(wo.AssetId, wo.CreatedDate.date());
+                    vehicleIdToMaintenanceType.put(wo.AssetId, wo.RR_Periodic_Maintenance_Type__c);
+                }
             }
+            
+            if (vehicleIdToWODate.isEmpty()) {
+                return;
+            }
+            
+            // Build filter values for WHERE clause
+            Set<Id> vehicleIds = new Set<Id>();
+            Set<String> maintenanceTypes = new Set<String>();
+            
+            for (Id vehId : vehicleIdToMaintenanceType.keySet()) {
+                System.debug('Inside2 === ' );
+                vehicleIds.add(vehId);
+                maintenanceTypes.add(vehicleIdToMaintenanceType.get(vehId));
+            }
+            
+            List<AssetMilestone> milestonesToUpdate = [
+                SELECT Id, VehicleId, MilestoneDate, Stage, MilestoneType
+                FROM AssetMilestone
+                WHERE VehicleId IN :vehicleIds
+                AND MilestoneType IN :maintenanceTypes
+            ];
+            
+            
+            List<AssetMilestone> updateList = new List<AssetMilestone>();
+            set<Id> assetid = new Set<Id>();
+            for (AssetMilestone milestone : milestonesToUpdate) {
+                System.debug('Inside3 === ' );
+                Date woCreatedDate = vehicleIdToWODate.get(milestone.VehicleId);
+                assetid.add(milestone.id);
+                // Check if Milestone Date is greater than WO Created Date + 30 days
+                if (milestone.MilestoneDate != null && 
+                    milestone.MilestoneDate > woCreatedDate.addDays(30)) {
+                        
+                        milestone.Stage = 'Active';
+                        updateList.add(milestone);
+                    }
+            }
+            
+            if (!updateList.isEmpty()) {
+                System.debug('Inside4 === ' );
+                update updateList;
+                System.debug('Updated ' + updateList.size() + ' Asset Milestones to Active.');
+            }
+            
+            List<ServiceAppointment> serviceAppointMentlist = [Select id From ServiceAppointment where Asset_Milestone__c IN:assetid];
+            Set<Id> servAppointId = new set<Id>();
+            If(!serviceAppointMentlist.IsEmpty()){
+                System.debug('Inside5 === ' );
+                For(ServiceAppointment SARec :serviceAppointMentlist){
+                    servAppointId.add(SARec.Id);
+                }
+            }
+            
+            List<Task> tasklist = [Select id,Status from Task Where WhatId IN:servAppointId AND Status != 'Completed'];
+            List<Task> updateTasklist = new List<Task>();
+            If(!tasklist.IsEmpty()){
+                System.debug('Inside6 === ' );
+                For(Task taskRec : tasklist){
+                    taskRec.Status = 'Completed';
+                    updateTasklist.add(taskRec);               
+                }
+            }
+            
+            If(!updateTasklist.IsEmpty()){
+                System.debug('Inside7 === ' );
+                Update updateTasklist;
+                System.debug('Updated ' + updateTasklist.size() + ' All task is updated Completed .');
+            }
+        } catch (Exception e) {
+            System.debug('getError Message: ' + e.getMessage() + ' Get LineError: ' + e.getLineNumber());
         }
-
-        if (!updateList.isEmpty()) {
-            update updateList;
-            System.debug('Updated ' + updateList.size() + ' Asset Milestones to Active.');
-        }
-
-    } catch (Exception e) {
-        System.debug('getError Message: ' + e.getMessage() + ' Get LineError: ' + e.getLineNumber());
     }
-}
 }

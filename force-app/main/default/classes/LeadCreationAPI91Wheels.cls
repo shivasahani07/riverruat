@@ -22,6 +22,7 @@ global class LeadCreationAPI91Wheels {
         String dealerCode = (String) requestBodyMap.get('DealerCode');  
         
         try {
+            Lead leadToUpdate;  
             // Query existing lead
             List<Lead> leads = [
                 SELECT Id, LastName, Company, Email, Phone, City, Dealer_Code__c  
@@ -29,45 +30,50 @@ global class LeadCreationAPI91Wheels {
             ];  
             
             if (!leads.isEmpty()) {
+                leadToUpdate = leads[0];  
                 // Duplicate found — log and return with 409
                 Integration_Log__c logObj = new Integration_Log__c(
                     Integration_Type__c = ' Lead Creation',
                     Duplicate_Lead_Phone__c = leads[0].Phone,
+                    Source__c = '91Wheels',
                     Request_Payload__c = JSON.serializePretty(requestBodyMap),
                     Response_Payload__c = 'Duplicate Lead Found: ' + leads[0].Id,
                     Lead__c = leads[0].Id
                     //Status__c = 'Duplicate'
                 );
                 insert logObj;
-                
-                res.statusCode = 409; // Conflict
-                return 'Duplicate Lead Found: ' + leads[0].Id;
+            }else{
+                leadToUpdate = new Lead();  
+                leadToUpdate.LeadSource = '91Wheels';
             }
+
+            leadToUpdate.LastName = fullName;
+            leadToUpdate.Company = fullName;
+            //leadToUpdate.Email = email;
+            leadToUpdate.Phone = phone;  
+            //leadToUpdate.City = city;
+            leadToUpdate.PostalCode = postalCode;
+            leadToUpdate.Dealer_Code__c = dealerCode;
             
-            // Create new lead
-            Lead newLead = new Lead();
-            newLead.LastName = fullName;  
-            newLead.Company = fullName;  
-            //newLead.Email = email;  
-            newLead.Phone = phone;  
-            //newLead.City = city;  
-            newLead.PostalCode = postalCode;  
-            newLead.LeadSource = '91Wheels';  
-            newLead.Dealer_Code__c = dealerCode;
-            
-            insert newLead;
+            if (leadToUpdate.Id != null) {  
+                update leadToUpdate;  
+            } else {  
+                insert leadToUpdate;  
+            }
+            System.debug('leadToUpdate ===> ' + leadToUpdate);
             
             // Success log
             Integration_Log__c logObj = new Integration_Log__c(
                 Integration_Type__c = ' Lead Creation',
+                Source__c = '91Wheels',
                 Request_Payload__c = JSON.serializePretty(requestBodyMap),
-                Response_Payload__c = 'Lead created successfully: ' + newLead.Id,
+                Response_Payload__c = 'Lead created successfully: ' + leadToUpdate.Id,
                 Status__c = 'Success'
             );
             insert logObj;
             
             res.statusCode = 200;
-            return 'Lead created successfully: ' + newLead.Id;
+            return 'Lead created successfully: ' + leadToUpdate.Id;
             
         } catch (Exception e) {
             // Error log

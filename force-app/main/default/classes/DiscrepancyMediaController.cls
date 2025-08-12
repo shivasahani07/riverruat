@@ -23,16 +23,29 @@ public static void updateMediaUrls(List<Discrepancy_Line_Item__c> items) {
     List<Discrepancy_Line_Item__c> updatelist = new List<Discrepancy_Line_Item__c>();
     for (Discrepancy_Line_Item__c item : items) {
 
+       
+
         if (item.Discrepancy__c != null) {
+
+
             Discrepancy_Line_Item__c dliRec = new Discrepancy_Line_Item__c();
             discrepancyIds.add(item.Discrepancy__c);
-            dliRec.id = item.id;
-            dliRec.Status__c = 'Under SPM Review';
-            updatelist.add(dliRec);
+            
         }
     }
-    update updatelist;
+    
+   List<Discrepancy_Line_Item__c> DLIList = [Select id,Status__c From Discrepancy_Line_Item__c Where Discrepancy__c IN:discrepancyIds ];
+    If(!DLIList.IsEmpty()){
+         For(Discrepancy_Line_Item__c dliRec : DLIList){
+            dliRec.Status__c =  'Under SPM Review';
+            updatelist.add(dliRec);
+         }
+    }
+    If(!updatelist.IsEmpty()){
+      update updatelist;
 
+    }
+   
     if (!discrepancyIds.isEmpty()) {
         
         List<Discrepancy__c> discrepancyList = [

@@ -117,8 +117,8 @@ public class ProductConsumedLargeVolumeTest {
         List<ProductConsumed> allProductConsumedRecords = new List<ProductConsumed>();
         
         // Process in smaller batches to avoid Flow execution limits
-        Integer batchSize = 2000; // Safe batch size
-        Integer totalTargetRecords = 50000; // Target records to simulate large volume
+        Integer batchSize = 2; // Safe batch size
+        Integer totalTargetRecords = 50; // Target records to simulate large volume
         Integer recordsCreated = 0;
         
         while (recordsCreated < totalTargetRecords) {

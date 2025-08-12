@@ -51,7 +51,7 @@ export default class DiscrepancyMedia extends LightningElement {
                     message: error.body.message,
                     variant: 'error'
                 }));
-                this.showapinner = False;
+               // this.showapinner = False;
             });
     }
 }
