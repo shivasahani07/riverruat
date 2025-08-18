@@ -13,7 +13,7 @@
             <tr style="background-color: #ffffff;">
                 <td style="border: 1px solid #ddd; padding: 10px;">Warranty Claim</td>
                 <td style="border: 1px solid #ddd; padding: 10px;">{!warrantyClaim}</td>
-                
+
                 <td style="border: 1px solid #ddd; padding: 10px;">Dealer Name</td>
                 <td style="border: 1px solid #ddd; padding: 10px;">{!dealerName}</td>
             </tr>
@@ -30,7 +30,7 @@
             <tr style="background-color: #ffffff;">
                 <td style="border: 1px solid #ddd; padding: 10px;">Model</td>
                 <td style="border: 1px solid #ddd; padding: 10px;">{!modelName}</td>
-                
+
                 <td style="border: 1px solid #ddd; padding: 10px;">Vehicle Number</td>
                 <td style="border: 1px solid #ddd; padding: 10px;">{!registrationNumber}</td>
             </tr>
@@ -56,31 +56,47 @@
             <tr style="background-color: #f9f9f9;">
                 <td style="border: 1px solid #ddd; padding: 10px;">Vehicle Kms</td>
                 <td style="border: 1px solid #ddd; padding: 10px;">{!vehicleKilometer}</td>
-                
+
                 <td style="border: 1px solid #ddd; padding: 10px;">Standard Value</td>
                 <td style="border: 1px solid #ddd; padding: 10px;">{!ElectricalValue}</td>
             </tr>
             <tr style="background-color: #ffffff;">
                 <td style="border: 1px solid #ddd; padding: 10px;">Part Number</td>
                 <td style="border: 1px solid #ddd; padding: 10px;">{!partNumber}</td>
-                
+
                 <td style="border: 1px solid #ddd; padding: 10px;">Dealer Observation</td>
                 <td style="border: 1px solid #ddd; padding: 10px;">{!dealerObs}</td>
             </tr>
             <tr style="background-color: #f9f9f9;">
                 <td style="border: 1px solid #ddd; padding: 10px;">Part Description</td>
                 <td style="border: 1px solid #ddd; padding: 10px;">{!partDescription}</td>
-                
+
                 <td style="border: 1px solid #ddd; padding: 10px;">Replacement Type</td>
                 <td style="border: 1px solid #ddd; padding: 10px;">{!ReplacementType}</td>
             </tr>
             <tr style="background-color: #ffffff;">
                 <td style="border: 1px solid #ddd; padding: 10px;">Quantity</td>
                 <td style="border: 1px solid #ddd; padding: 10px;">{!Quantity}</td>
-                
+
                 <td style="border: 1px solid #ddd; padding: 10px;">Dealer WM Sign</td>
                 <td style="border: 1px solid #ddd; padding: 10px;"></td>
             </tr>
         </table>
     </div>
+
+    <!-- Functionality to get the QR Code -->
+    <div style="margin-top: 15px; margin-bottom: 5px;">
+        <!--
+        <img src="http://api.qrserver.com/v1/create-qr-code/?data=" + {qrCodeData} + "&size=120x120&format=png" alt="Scan For Details"
+            title="Details" />  
+        -->
+        <img src="{!qrCodeURL}" alt="Scan For Details" title="Details" />
+    </div>
+
+    <div style="font-family: Arial, sans-serif; font-size: 12px; color: #333;">
+        Scan QR code for Details.
+    </div>
+
+
+
 </apex:page>

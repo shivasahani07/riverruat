@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Aniket Karmakar
  * @group             : 
- * @last modified on  : 06-19-2025
+ * @last modified on  : 08-13-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 global class PostService7DaysScheduler implements Schedulable{
@@ -15,14 +15,14 @@ global class PostService7DaysScheduler implements Schedulable{
             return;
         }
 
-        Map<Id, WorkOrder> oldMap = new Map<Id, WorkOrder>();
-        for (WorkOrder o : orders) {
-            WorkOrder oldOrder = new WorkOrder(Id = o.Id, Status = 'Ready for Delivery');
-            oldMap.put(o.Id, oldOrder);
-        }
+        // Map<Id, WorkOrder> oldMap = new Map<Id, WorkOrder>();
+        // for (WorkOrder o : orders) {
+        //     WorkOrder oldOrder = new WorkOrder(Id = o.Id, Status = 'Ready for Delivery');
+        //     oldMap.put(o.Id, oldOrder);
+        // }
 
-        PSFController.generateFeedbackUrl(orders, oldMap);
-        PSFController.sendWhatsAppMessageWithFeedbackUrl(orders, oldMap);
+        PSFController.generateFeedbackUrl(orders, null);
+        PSFController.sendWhatsAppMessageWithFeedbackUrl(orders, null);
 
 
    }

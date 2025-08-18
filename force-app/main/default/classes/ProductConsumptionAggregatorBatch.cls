@@ -1,14 +1,16 @@
 global class ProductConsumptionAggregatorBatch implements Database.Batchable<SObject> {
+	
+    private Boolean isTest = false;
+    private Id testProductItemId;
 
+    public ProductConsumptionAggregatorBatch() {} 
+
+    public ProductConsumptionAggregatorBatch(Boolean isTest, Id testProductItemId) {
+        this.isTest = isTest;
+        this.testProductItemId = testProductItemId;
+    }
+    
     global Database.QueryLocator start(Database.BatchableContext bc) {
-        
-        // Fetch the control record
-        MSL_Batch_Control__mdt control = [
-            SELECT Enable_Batch__c 
-            FROM MSL_Batch_Control__mdt 
-            WHERE DeveloperName = 'ProductConsumptionAggregator_Control'
-            LIMIT 1
-        ];
         
         for(ProductItem itm : [SELECT Id, Product2Id, Product2.Name, Product2.Type__c, Product_Type__c
             //FROM ProductItem WHERE Manual_Created_Date__c >= :System.today().addDays(15).addMonths(-6)]){
@@ -18,17 +20,40 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             System.debug(itm.Product2.Name);
         }
         
-        if (!control.Enable_Batch__c) {
+        // Fetch the Custom Settings record
+        MSL_Batch_Control__mdt control = [
+            SELECT Enable_Batch__c 
+            FROM MSL_Batch_Control__mdt 
+            WHERE DeveloperName = 'ProductConsumptionAggregator_Control'
+            LIMIT 1
+        ];
+        
+        // IF Enable_Batch__c = False
+        if (!control.Enable_Batch__c) {	
             System.debug('Batch execution disabled via Custom Metadata.');
             return Database.getQueryLocator([SELECT Id FROM ProductItem WHERE Id = null]);
         }
-        
-        return Database.getQueryLocator([
-            SELECT Id, Product2Id, Product2.Name, Product2.Type__c, Product_Type__c
-            //FROM ProductItem WHERE Manual_Created_Date__c >= :System.today().addDays(15).addMonths(-6)]){
-            FROM ProductItem WHERE Manual_Created_Date__c >= :System.today().addMonths(-6)
-            AND (Product_Type__c = 'Accessories' OR Product_Type__c = 'Parts')
-        ]);        
+        else{
+            List<String> mslList = System.label.IsMSLTesting.split(',');
+            String mslFlag = mslList[0];
+            String testRecordId = mslList[1];
+            
+            if(mslFlag == 'True' && isTest && testProductItemId != null){
+                return Database.getQueryLocator([
+                    SELECT Id, Product2Id, Product2.Name, Product2.Type__c, Product_Type__c
+                    FROM ProductItem WHERE Id = :testRecordId
+                    //Manual_Created_Date__c >= :System.today().addMonths(-6)
+                    AND (Product_Type__c = 'Accessories' OR Product_Type__c = 'Parts')
+                ]);  
+            }
+            
+            return Database.getQueryLocator([
+                SELECT Id, Product2Id, Product2.Name, Product2.Type__c, Product_Type__c
+                //FROM ProductItem WHERE Manual_Created_Date__c >= :System.today().addDays(15).addMonths(-6)]){
+                FROM ProductItem WHERE Manual_Created_Date__c >= :System.today().addMonths(-6)
+                AND (Product_Type__c = 'Accessories' OR Product_Type__c = 'Parts')
+        	]);
+        }
     }
 
     global void execute(Database.BatchableContext bc, List<ProductItem> items) {
@@ -81,7 +106,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             WHERE Product__c IN :productIds
             AND Manual_Date_Test__c >= :System.today().addMonths(-6)
             //AND Manual_Date_Test__c >= :System.today().addDays(15).addMonths(-6)
-            AND Order__r.Dealer__r.Type != 'Customer' AND Order__r.Account.Type != 'Customer'
+            AND Order__r.Dealer__r.Type = 'Service Center' AND Order__r.Account.Type = 'Service Center'
             //AND Order__r.Dealer__r.Type != NULL AND Order__r.Dealer__r.Type != 'Customer'  
             //AND Order__r.Account.Type !=  NULL AND Order__r.Account.Type != 'Customer'
             //AND Order__r.Dealer__r.Type != NULL AND Order__r.Dealer__r.Type = 'Service Center'
@@ -104,7 +129,7 @@ global class ProductConsumptionAggregatorBatch implements Database.Batchable<SOb
             WHERE Product2Id IN :productIds
             AND Manual_Created_Date__c >= :System.today().addMonths(-6)
             //AND Manual_Created_Date__c >= :System.today().addDays(15).addMonths(-6)
-            AND WorkOrder.Service_Center__r.Type != 'Customer'
+            AND WorkOrder.Service_Center__r.Type = 'Service Center'
             //AND WorkOrder.Service_Center__r.Type != NULL AND WorkOrder.Service_Center__r.Type = 'Service Center'
             AND (Product2.Type__c = 'Parts' OR Product2.Type__c = 'Accessories')
         ]) {

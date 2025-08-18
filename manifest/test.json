@@ -1,0 +1,112 @@
+[
+  {
+    "WorkOrderId": "0WOBh000003cg1JOAQ",
+    "Id": "1WLBh0000000LpFOAU",
+    "LineItemNumber": "00000021",
+    "PricebookEntryId": "01uF40000088DUWIA2",
+    "Quantity": 1,
+    "RR_Parts_Category__c": "River Warranty",
+    "Status": "New",
+    "Replacement_Type__c": "Causal",
+    "CreatedDate": "2025-08-14T09:51:17.000Z",
+    "Product2Id": "01tF4000008zqWmIAI",
+    "PricebookEntry": {
+      "Product2Id": "01tF4000008zqWmIAI",
+      "Id": "01uF40000088DUWIA2",
+      "Product2": {
+        "Name": "DISPLAY",
+        "ProductCode": "R106080369",
+        "Id": "01tF4000008zqWmIAI"
+      }
+    },
+    "WorkOrder": {
+      "Status": "In Progress",
+      "Vehicle_Identification_Number__c": "ME9AACXX1AR195130",
+      "WorkOrderNumber": "00000811",
+      "Id": "0WOBh000003cg1JOAQ"
+    },
+    "Product2": {
+      "ProductCode": "R106080369",
+      "Id": "01tF4000008zqWmIAI"
+    },
+    "displayName": "DISPLAY",
+    "ProductCode": "R106080369",
+    "rowClass": "",
+    "partUrl": "/1WLBh0000000LpFOAU",
+    "productUrl": "/01tF4000008zqWmIAI",
+    "productId": "01tF4000008zqWmIAI"
+  },
+  {
+    "WorkOrderId": "0WOBh000003cg1JOAQ",
+    "Id": "1WLBh0000000LqrOAE",
+    "LineItemNumber": "00000022",
+    "PricebookEntryId": "01uF4000007hc8OIAQ",
+    "Quantity": 1,
+    "RR_Parts_Category__c": "River Warranty",
+    "Status": "New",
+    "Replacement_Type__c": "Causal",
+    "CreatedDate": "2025-08-18T08:58:10.000Z",
+    "Product2Id": "01t5j00000FnlasAAB",
+    "PricebookEntry": {
+      "Product2Id": "01t5j00000FnlasAAB",
+      "Id": "01uF4000007hc8OIAQ",
+      "Product2": {
+        "Name": "ACTUATOR PIN",
+        "ProductCode": "LTIPK - 001",
+        "Id": "01t5j00000FnlasAAB"
+      }
+    },
+    "WorkOrder": {
+      "Status": "In Progress",
+      "Vehicle_Identification_Number__c": "ME9AACXX1AR195130",
+      "WorkOrderNumber": "00000811",
+      "Id": "0WOBh000003cg1JOAQ"
+    },
+    "Product2": {
+      "ProductCode": "LTIPK - 001",
+      "Id": "01t5j00000FnlasAAB"
+    },
+    "displayName": "ACTUATOR PIN",
+    "ProductCode": "LTIPK - 001",
+    "rowClass": "",
+    "partUrl": "/1WLBh0000000LqrOAE",
+    "productUrl": "/01t5j00000FnlasAAB",
+    "productId": "01t5j00000FnlasAAB"
+  },
+  {
+    "id": 1,
+    "productId": "01tF4000008zqWmIAI",
+    "quantity": 1,
+    "partsCategory": "River Warranty",
+    "replacementType": null,
+    "electricalValue": "",
+    "partDescription": "",
+    "showAdditionalFields": true,
+    "hasError": false,
+    "errorMessage": "",
+    "isChild": false,
+    "parentId": null,
+    "hasChildren": false,
+    "cssClass": "slds-box slds-m-bottom_medium slds-p-around_medium",
+    "sequence": 1,
+    "pricebookEntryId": null,
+    "price": 0,
+    "availableQuantity": 0,
+    "productCode": "",
+    "TFR_Required__c": false,
+    "RR_Parts_Category__c": "River Warranty",
+    "Replacement_Type__c": null,
+    "filter": {
+      "criteria": [
+        {},
+        {}
+      ]
+    },
+    "isFailureCodeVisible": false,
+    "isElectricalValueRequired": false,
+    "isDisableaddChildProduct": true,
+    "Post_Vin_cutt_off__c": false,
+    "isDisbaledProduct": false,
+    "isDisbaledProductQuantity": true
+  }
+]

@@ -330,7 +330,7 @@ export default class AddProductRequestLiteItem extends LightningElement {
         }
         this.showProductSpinner= true;
         setTimeout(()=>{
-            createPurchaseorder({ shipmentType: this.recordId.shipmentType, loggedInUserId: this.recordId.loggedInUserId, ProductType : this.productType }).then(result => {
+            createPurchaseorder({ shipmentType: this.recordId.shipmentType, loggedInUserId: this.recordId.loggedInUserId, ProductType : this.productType}).then(result => {
                 if (result && result != null) {
                     this.PoCreatedRecordId = result;
                     this.handleUpdateProcess();

@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Aniket Karmakar
  * @group             : 
- * @last modified on  : 07-03-2025
+ * @last modified on  : 08-12-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public without sharing class AverageCalculationOnFeedbackPSF {
@@ -123,4 +123,84 @@ public without sharing class AverageCalculationOnFeedbackPSF {
             System.debug('Error Line Number Is==>'+e.getLineNumber());
         }
     }
+    //added by Aniket on 12/08/2025 for Report Issue
+    public static void createAnswerChildObject(List<Feedback_Response__c> newList, Map<Id, Feedback_Response__c> oldMapList) {
+    try {
+        Map<Id, List<String>> responseToAnswersMap = new Map<Id, List<String>>();
+
+        
+        for (Feedback_Response__c f : newList) {
+            Feedback_Response__c oldOne = oldMapList.get(f.Id);
+
+            if (f.Answer__c != oldOne.Answer__c && String.isNotBlank(f.Answer__c)) {
+                responseToAnswersMap.put(f.Id, f.Answer__c.split(',')); 
+            }
+        }
+        System.debug('responseToAnswersMap==>'+responseToAnswersMap);
+
+        if (responseToAnswersMap.isEmpty()) {
+            System.debug('No Answers To Process');
+            return;
+        }
+
+        
+        List<Feedback_Response_Answers__c> answersToInsert = new List<Feedback_Response_Answers__c>();
+        for (Id respId : responseToAnswersMap.keySet()) {
+            List<String> ansList = responseToAnswersMap.get(respId);
+            for (Integer i = 0, size = ansList.size(); i < size; i++) {
+                answersToInsert.add(new Feedback_Response_Answers__c(
+                    Answer__c = ansList[i],
+                    Feedback_Response__c = respId
+                ));
+            }
+        }
+
+       
+        if (!answersToInsert.isEmpty()) {
+            insert answersToInsert;
+            System.debug('Inserted Answer Records ==> ' + answersToInsert);
+        }
+
+    } catch (Exception e) {
+        System.debug('Error Occurred ==> ' + e.getMessage());
+        System.debug('Error Line Number ==> ' + e.getLineNumber());
+    }
+}
+  //this method is for the 5th Form Logic 
+  public static void createAnswerForPost7Days(List<Feedback_Response__c> newList,Map<Id,Feedback_Response__c> oldMapRes){
+    try{
+        Map<Id,List<String>> feedbackMap = new Map<Id,List<String>>();
+      for(Feedback_Response__c f : newList){
+           Feedback_Response__c oldRecord = oldMapRes.get(f.Id);
+           if(f.Answers_For_Post_7_Day_Service__c != oldRecord.Answers_For_Post_7_Day_Service__c && String.isNotBlank(f.Answers_For_Post_7_Day_Service__c)){
+              feedbackMap.put(f.Id,f.Answers_For_Post_7_Day_Service__c.split(','));
+           }
+      }
+      System.debug('feedbackMap==>'+feedbackMap);
+      List<Feedback_Response_Answers__c> answersToInsert = new List<Feedback_Response_Answers__c>();
+
+      for(Id resId : feedbackMap.keySet()){
+         List<String> ansList = feedbackMap.get(resId);
+         for(String s : ansList){
+             List<String> partedAns = s.split('=');
+             String answer = partedAns[1];
+             String question = partedAns[0].replaceFirst('^\\d+\\)', '').trim();
+
+            Feedback_Response_Answers__c f = new Feedback_Response_Answers__c();
+            f.Answer__c = answer;
+            f.Question__c = question;
+            f.Feedback_Response__c = resId;
+            answersToInsert.add(f); 
+
+         }
+         
+      }
+      if(!answersToInsert.isEmpty()){
+        insert answersToInsert;
+      }
+    }catch(Exception e){
+        System.debug('Error Occured==>'+e.getMessage());
+        System.debug('Error Line Number Is ==>'+e.getLineNumber());
+    }
+  }
 }

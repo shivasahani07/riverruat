@@ -164,7 +164,7 @@ public class CaseTriggerHandler {
         emailSubject = 'River Mobility Case Number :' + cse.CaseNumber;
     }
 
-    emailBody = replacePlaceholders(emailBody, cse, accountMap, accountMaps);
+    emailBody = replacePlaceholders(emailBody, cse, accountMap, accountMaps);         
     Messaging.SingleEmailMessage mailTemp = new Messaging.SingleEmailMessage();
     List<String> toAddresses = new List<String>();
 
@@ -177,7 +177,7 @@ public class CaseTriggerHandler {
               AND Designation__c = 'WM' 
               AND Email != null
         ];
-
+        system.debug('wmContacts===='+wmContacts);
         Set<Id> wmContactIds = new Set<Id>();
         for (Contact con : wmContacts) {
             toAddresses.add(con.Email);
@@ -186,14 +186,19 @@ public class CaseTriggerHandler {
 
         if (!wmContactIds.isEmpty()) {
             List<User> users = [
-                SELECT Id, ContactId, Manager.Email 
+                SELECT Id, ContactId, Manager.Email,Manager.Name 
                 FROM User
                 WHERE ContactId IN :wmContactIds 
                   AND Email != null
             ];
+            
+            system.debug('users===='+users);
+            //system.debug('users===='+users.Manager.Email);
+            list<string> mangerEmailList = new list<string>();
             for (User u : users) {
                 if (u.Manager != null && u.Manager.Email != null) {
                     toAddresses.add(u.Manager.Email);
+                    mangerEmailList.add(u.Manager.Email);
                 }
             }
         }
@@ -208,6 +213,8 @@ public class CaseTriggerHandler {
               AND Email != null 
             LIMIT 1
         ];
+        
+        system.debug('caseOwner==='+caseOwner);
         if (caseOwner.Email != null) {
             toAddresses.add(caseOwner.Email);
         }
@@ -293,6 +300,7 @@ public class CaseTriggerHandler {
 
     // Final: Setup and return internal email if recipients found
     if (!toAddresses.isEmpty()) {
+        system.debug('toAddresses===='+toAddresses);
         mailTemp.setToAddresses(toAddresses);
         mailTemp.setSubject(emailSubject);
         mailTemp.setOrgWideEmailAddressId(owea.Id);

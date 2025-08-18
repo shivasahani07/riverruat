@@ -1,0 +1,195 @@
+<template>
+    <lightning-card title="Salesforce Support Tickets" icon-name="standard:case">
+
+        <!-- List View -->
+        <template if:true={ssRecords}>
+            <template if:false={selectedRecord}>
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th>Ticket Name</th>
+                            <th>Status</th>
+                            <th>Subject</th>
+                            <th>Location</th>
+                            <th>Created Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={ssRecords} for:item="rec">
+                            <tr key={rec.Id}>
+                                <td>{rec.Name}</td>
+                                <td>{rec.Status__c}</td>
+                                <td>{rec.Subject__c}</td>
+                                <td>{rec.location__c}</td>
+                                <td>
+                                    <lightning-formatted-date-time value={rec.CreatedDate} year="numeric"
+                                        month="2-digit" day="2-digit">
+                                    </lightning-formatted-date-time>
+                                </td>
+                                <td>
+                                    <lightning-button variant="brand-outline" label="View Details" data-id={rec.Id}
+                                        onclick={handleViewDetails}>
+                                    </lightning-button>
+                                    <lightning-button variant="brand" label="Assign" data-id={rec.Id}
+                                        class="slds-m-left_small" onclick={handleAssign}>
+                                    </lightning-button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </template>
+        </template>
+
+        <!-- Detail View -->
+        <template if:true={selectedRecord}>
+
+            <!-- Header Buttons -->
+            <div style="text-align: right; margin-right: 30px;" class="slds-m-bottom_small">
+                <lightning-button label=" Back" onclick={handleBack} class="slds-m-bottom_small" variant="neutral">
+                </lightning-button>
+                <lightning-button variant="brand" label="Assign" data-id={selectedRecord.Id} class="slds-m-left_small"
+                    onclick={handleAssign}>
+                </lightning-button>
+            </div>
+
+            <!-- Ticket Details Table -->
+            <div class="slds-box slds-theme_default slds-p-around_medium slds-m-around_medium">
+                <h2 class="slds-text-heading_medium slds-m-bottom_medium">Ticket Details</h2>
+
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                    <tbody>
+                        <tr>
+                            <th scope="row">Name</th>
+                            <td>{selectedRecord.Name}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Status</th>
+                            <td>{selectedRecord.Status__c}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Subject</th>
+                            <td>{selectedRecord.Subject__c}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Description</th>
+                            <!-- <td>{selectedRecord.Description__c}</td> -->
+                            <td>
+                                <lightning-formatted-rich-text value={selectedRecord.Description__c}>
+                                </lightning-formatted-rich-text>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <th scope="row">Internal Team Remarks</th>
+                            <td>{selectedRecord.Internal_Team_Remarks__c}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Team Analysis</th>
+                            <td>{selectedRecord.Team_Analysis__c}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Additional Details</th>
+                            <td>{selectedRecord.Additional_Details__c}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Ticket Age</th>
+                            <td>{selectedRecord.Ticket_Age__c}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Closing Date</th>
+                            <td>{selectedRecord.Closing_Date__c}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Location</th>
+                            <td>{selectedRecord.location__c}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Created Date</th>
+                            <td>
+                                <lightning-formatted-date-time value={selectedRecord.CreatedDate} year="numeric"
+                                    month="2-digit" day="2-digit">
+                                </lightning-formatted-date-time>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </template>
+
+        <!-- Assignment Modal -->
+        <template if:true={showModal}>
+            <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+
+                    <!-- Modal Header -->
+                    <header class="slds-modal__header slds-theme_shade slds-p-around_medium">
+                        <h2 class="slds-text-heading_medium">Assign Ticket</h2>
+                    </header>
+
+                    <!-- Modal Body -->
+                    <div class="slds-modal__content slds-p-around_medium">
+
+                        <!-- Searchable Dropdown -->
+                        <div class="slds-form-element slds-m-bottom_medium">
+                            <label class="slds-form-element__label">Select Contact/User</label>
+                            <div class="custom-lookup-container">
+                                <lightning-input type="search" value={searchKey} placeholder="Search Contact or User..."
+                                    onchange={handleSearchChange} onclick={toggleDropdown} disabled={selectedOptionn}
+                                    style="margin-top: -18px;">
+                                </lightning-input>
+
+                                <!-- Dropdown -->
+                                <template if:true={isDropdownOpen}>
+                                    <ul
+                                        class="slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid custom-dropdown">
+                                        <template if:true={filteredOptions.length}>
+                                            <template for:each={filteredOptions} for:item="opt">
+                                                <li key={opt.value} class="slds-dropdown__item" data-id={opt.value}
+                                                    data-type={opt.type} onclick={handleSelect}>
+                                                    <a>
+                                                        <span class="slds-truncate">{opt.label}</span>
+                                                    </a>
+                                                </li>
+                                            </template>
+                                        </template>
+                                        <template if:false={filteredOptions.length}>
+                                            <li class="slds-dropdown__item slds-text-color_weak">
+                                                <a><span class="slds-truncate">No matches found</span></a>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Remarks -->
+                        <lightning-input name="remarks" label="Remarks" value={remarks} placeholder="Mention Remarks"
+                            onchange={handleRemarks} style="margin-bottom: 12px;">
+                        </lightning-input>
+
+                        <!--Priority -->
+                        <lightning-combobox name="priority" label="Priority" value={value} placeholder="Select Priority"
+                            options={priorityOptions} onchange={handlePriorityChange}>
+                        </lightning-combobox>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <footer class="slds-modal__footer slds-grid slds-grid_align-end">
+                        <lightning-button variant="neutral" label="Cancel" onclick={closeModal}>
+                        </lightning-button>
+                        <lightning-button variant="brand" label="Save" onclick={saveAssignment}
+                            class="slds-m-left_small">
+                        </lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+
+
+    </lightning-card>
+
+</template>

@@ -1,7 +1,6 @@
 import { LightningElement, api, wire, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import verifyExistingTFR from '@salesforce/apex/TFRController.verifyExistingTFR';
-
 const BLOCKED_STATUSES = new Set([
     'Cancelled',
     'Rejected',
@@ -19,7 +18,7 @@ export default class TfrSampleForm extends LightningElement {
     @track partId;
     @track isTFRRecordDisabled = false;
     @track isLoading = true;
-    
+
     connectedCallback() {
         this.partId = this.inputObject.Id
         console.log(JSON.stringify(this.inputObject))
@@ -35,9 +34,9 @@ export default class TfrSampleForm extends LightningElement {
             this.recordId = wireData?.tfrSampleRecord?.Id;
             if (this.relatedPart.WorkOrder.Status == 'Completed') {
                 this.isTFRRecordDisabled = true;
-            }else if (this.relatedPart?.Warranty_Prior__r?.Status__c){
-                let status=this.relatedPart?.Warranty_Prior__r?.Status__c
-                this.isTFRRecordDisabled =!(EDITABLE_STATUSES.has(status) && !BLOCKED_STATUSES.has(status));
+            } else if (this.relatedPart?.Warranty_Prior__r?.Status__c) {
+                let status = this.relatedPart?.Warranty_Prior__r?.Status__c
+                this.isTFRRecordDisabled = !(EDITABLE_STATUSES.has(status) && !BLOCKED_STATUSES.has(status));
             }
             this.isLoading = false;
             console.log('wireData', wireData);
@@ -53,6 +52,7 @@ export default class TfrSampleForm extends LightningElement {
         this.isLoading = true;
         this.recordId = event.detail.id;
         this.showToast('Success', 'TFR Sample record created/updated', 'success');
+        this.sendEevntToParent('Success',true,event.detail.id,inputObject.Id);
         this.isLoading = false;
     }
 
@@ -71,13 +71,14 @@ export default class TfrSampleForm extends LightningElement {
         this.dispatchEvent(event);
     }
 
-    sendEevntToParent(message,isSuccess){
+    sendEevntToParent(message, isSuccess,recordid,parentId) {
         debugger;
         this.dispatchEvent(new CustomEvent('tfrsubmitsucess', {
             detail: {
-                message:message,
-                isSuccess:isSuccess,
-                Object:isSuccess
+                message: message,
+                isSuccess: isSuccess,
+                recordId:recordid,
+                parentId:parentId
             }
         }));
 

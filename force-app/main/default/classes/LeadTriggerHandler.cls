@@ -2,7 +2,7 @@
 * @description       :
 * @author            : Aniket Karmakar
 * @group             :
-* @last modified on  : 08-11-2025
+* @last modified on  : 08-12-2025
 * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public class LeadTriggerHandler {
@@ -57,8 +57,8 @@ public class LeadTriggerHandler {
     }
     
     public static void callQueableMethodForAfterUpdate(List<Lead> newLeads,Map<Id,Lead> oldLeadMap){
-           String templateName = 'new_lead_book_a_test_ride_03';
-        // String templateName = 'lead_to_test_ride_flow';
+        //    String templateName = 'new_lead_book_a_test_ride_03';
+        String templateName = 'lead_to_test_ride_flow';
         
         try{
             List<Store_Details__mdt> dealerCodes = [Select id,Dealer_Code__c,IsActive__c From Store_Details__mdt WHERE IsActive__c = true];
@@ -99,7 +99,7 @@ public class LeadTriggerHandler {
                     System.debug('templateName======>' + templateName);
                     System.debug('imageUrl======>' + imageUrl);
                     System.debug('newLeadMap======>' + newLeadMap);
-                    System.enqueueJob(new QueueableForImageTemplateMsg(newLeadIds, templateName, imageUrl, newLeadMap));
+                    System.enqueueJob(new LeadToTestRideQueueable(newLeadIds, templateName, newLeadMap));
                 }
                 
             }

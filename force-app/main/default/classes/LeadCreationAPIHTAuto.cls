@@ -21,24 +21,20 @@ global class LeadCreationAPIHTAuto {
                                 FROM Lead WHERE Phone = :phone LIMIT 1];  
             
             Lead leadToUpdate;  
-            
+            Boolean isNewLead = false;
             if (!leads.isEmpty()) {  
                 leadToUpdate = leads[0]; 
-                // Duplicate found — log and return with 409
                 Integration_Log__c logObj = new Integration_Log__c(
                     Integration_Type__c = ' Lead Creation',
                     Duplicate_Lead_Phone__c = leads[0].Phone,
                     Request_Payload__c = JSON.serializePretty(requestBodyMap),
                     Response_Payload__c = 'Duplicate Lead Found: ' + leads[0].Id,
                     Lead__c = leads[0].Id
-                    //Status__c = 'Duplicate'
                 );
                 insert logObj;
-                
-                res.statusCode = 409; // Conflict
-                return 'Duplicate Lead Found: ' + leadToUpdate.Id;
             } else {  
                 leadToUpdate = new Lead();  
+                isNewLead = true;
                 leadToUpdate.LeadSource = 'HT Auto';  
             }  
             
@@ -65,22 +61,22 @@ global class LeadCreationAPIHTAuto {
             
             leadToUpdate.Stores_Name__c = dealerCodeAccount != null ? dealerCodeAccount.Name : '';  
             leadToUpdate.Dealer_Code__c = dealerCodeAccount != null ? dealerCodeAccount.Center_Code__c : dealerCode;  
-            // leadToUpdate.Dealer_Code__c = dealerCode;  
             
-            if (leadToUpdate.Id != null) {  
-                update leadToUpdate;  
-            } else {  
-                insert leadToUpdate;  
-            }  
-            
-            Integration_Log__c logObj = new Integration_Log__c(  
-                Integration_Type__c = ' Lead Creation',
-                Request_Payload__c = JSON.serializePretty(requestBodyMap),  
-                Response_Payload__c = 'Lead processed successfully: ' + leadToUpdate.Id,  
-                Status__c = 'Success'  
-            );  
-            insert logObj;  
-            
+            if (isNewLead) {
+                insert leadToUpdate;
+                Integration_Log__c successLog = new Integration_Log__c(  
+                    Integration_Type__c = 'Lead Creation',  
+                    Request_Payload__c = JSON.serializePretty(requestBodyMap),  
+                    Response_Payload__c = 'Lead processed successfully: ' + leadToUpdate.Id,  
+                    Status__c = 'Success',
+                    Lead__c = leadToUpdate.Id
+                );  
+                insert successLog;  
+            } else {
+                if (leadToUpdate != null && leadToUpdate.Id != null) {
+                    update leadToUpdate;
+                }
+            }
             return 'Lead processed successfully: ' + leadToUpdate.Id;  
             
         } catch (Exception e) {  
@@ -88,11 +84,11 @@ global class LeadCreationAPIHTAuto {
                 Integration_Type__c = ' Lead Creation',
                 Request_Payload__c = JSON.serializePretty(requestBodyMap),  
                 Response_Payload__c = 'Error: ' + e.getMessage(),  
-                Error_Message__c = 'Exception: ' + e.getMessage(),  
+                Error_Messages__c = 'Exception: ' + e.getMessage() + ' at line number ====>' + e.getLineNumber() + ' /LeadCreationAPIHTAuto',
                 Status__c = 'Failed'  
             );  
             insert logObj;  
-            
+            System.debug('Error =====>' +  + e.getMessage() + ' at line number ====>' + e.getLineNumber());
             return 'Error: ' + e.getMessage();  
         }  
     }  

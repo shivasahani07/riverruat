@@ -111,6 +111,7 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
             item.partUrl = `/${item.Id}`;
             item.productUrl = item.PricebookEntry?.Product2Id ? `/${item.PricebookEntry.Product2Id}` : '';
             item.Replacement_Type__c = item.Replacement_Type__c;
+            item.productId = item.Product2Id;
             itemMap.set(item.Id, item);
         });
 
@@ -132,7 +133,7 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
             }
         });
 
-
+        console.log(`existing parts--${JSON.stringify(rootItems)}`);
         this.existingWorkOrderLineItems = rootItems;
         this.expandedRows = rootItems.map(item => item.Id);
     }
@@ -203,7 +204,7 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
             isElectricalValueRequired: false,
             isDisableaddChildProduct: true,
             Post_Vin_cutt_off__c: false,
-            isDisbaledProduct:isChild ? false:true,
+            isDisbaledProduct: isChild ? false : true,
             isDisbaledProductQuantity: true,
         };
     }
@@ -293,6 +294,9 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
         debugger;
         const index = event.target.dataset.id;
         const productId = event.detail.recordId;
+        const indexed = this.itemList[index];
+
+
         if (this.itemList[index].RR_Parts_Category__c == '' || this.itemList[index].RR_Parts_Category__c == null) {
             setTimeout(() => {
                 const inputEl = this.template.querySelector(`lightning-record-picker[data-id="${index}"]`);
@@ -328,7 +332,23 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
         }
 
         this.itemList[index].productId = productId;
+        const rules = [
+            { fields: ["productId", "RR_Parts_Category__c"] }           // rule 2: same name + phone
+        ];
+        let tempMergedList = []
+        tempMergedList = [...this.existingWorkOrderLineItems, ...this.itemList];
+        let foundDuplucatesRecords = this.applyDuplicateRules(tempMergedList, rules);
+        if (foundDuplucatesRecords.productId_RR_Parts_Category__c.length > 0) {
+            console.log(JSON.stringify('foundDuplucatesRecords', foundDuplucatesRecords));
+            this.showError(index, 'you can not repeat same product with same categories')
+            return;
+        }
+
         productId ? this.fetchProductDetails(index, productId) : this.clearProductDetails(index);
+    }
+
+    findParentduplicateparts() {
+        debugger;
     }
 
     async fetchProductDetails(index, productId) {
@@ -352,7 +372,7 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
             });
 
             this.itemList[index].availableQuantity = availableQuantity;
-            
+
             this.setFailureCodeFilter(index, EffectedParts?.Id);
             this.validateQuantity(index);
         }
@@ -362,6 +382,7 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
     }
 
     setFailureCodeFilter(index, vinCutoff) {
+        debugger;
         this.itemList[index].filter = {
             criteria: [
                 { fieldPath: 'Is_Active__c', operator: 'eq', value: true },
@@ -433,7 +454,8 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
             this.itemList[index].showAdditionalFields = value !== 'Paid';
             this.itemList[index].isElectricalValueRequired = false;
             this.itemList[index]['partsCategory'] = this.itemList[index]['RR_Parts_Category__c']
-            this.itemList[index].isDisbaledProduct=false;
+            this.itemList[index].isDisbaledProduct = false;
+
         }
 
         if (fieldName === 'Replacement_Type__c') {
@@ -486,13 +508,28 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
             return;
         }
 
+        let tempMergedList = []
+         const rules = [
+            { fields: ["productId", "RR_Parts_Category__c"] }           // rule 2: same name + phone
+        ];
+        tempMergedList = [...this.existingWorkOrderLineItems, ...this.itemList];
+        let foundDuplucatesRecords = this.applyDuplicateRules(tempMergedList, rules);
+        if (foundDuplucatesRecords.productId_RR_Parts_Category__c.length > 0) {
+            console.log(JSON.stringify('foundDuplucatesRecords', foundDuplucatesRecords));
+            // this.showError(index, 'you can not repeat same product with same categories')
+            this.isLoading = false;
+            this.showToast('Error', 'you can not repeat same product with same categories', 'error');
+            return;
+        }
+
         try {
-            const lineItems = this.prepareLineItems();
-            console.log('After Processing', JSON.stringify(lineItems))
-            await createWorkOrderLineItems({ lineItems });
-            this.showToast('Success', 'Products added successfully', 'success');
-            await refreshApex(this.refreshResultData);
-            this.resetForm();
+            // const lineItems = this.prepareLineItems();
+            // console.log('After Processing', JSON.stringify(lineItems))
+            // await createWorkOrderLineItems({ lineItems });
+            // this.showToast('Success', 'Products added successfully', 'success');
+            // await refreshApex(this.refreshResultData);
+            // this.resetForm();
+             this.isLoading = false;
         }
         catch (error) {
             this.handleError('Failed to add products', error);
@@ -606,9 +643,6 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
         });
     }
 
-
-
-
     handleError(message, error) {
         console.error(message, error);
         this.showToast('Error', `${message}: ${error.body?.message || error.message}`, 'error');
@@ -645,4 +679,33 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
     toggleTemplates() {
         this.showAll = !this.showAll;
     }
+
+    applyDuplicateRules(list, rules) {
+        debugger;
+        const results = {};
+        for (const rule of rules) {
+            const keyName = rule.fields.join("_");
+            results[keyName] = this.findDuplicatesByFields(list, rule.fields);
+        }
+
+        return results;
+    }
+
+    findDuplicatesByFields(list, fields) {
+        debugger;
+        const seen = new Set();
+        const duplicates = [];
+
+        for (const item of list) {
+            const key = fields.map(f => item[f]).join("|"); // unique key
+            if (seen.has(key)) {
+                duplicates.push(item);
+            } else {
+                seen.add(key);
+            }
+        }
+        return duplicates;
+    }
+
+    // console.log(applyDuplicateRules(records, rules));
 }

@@ -7,5 +7,5 @@
     <!--c:jobCardActionPlanApproval recordId='0WOBh000003WQQfOAO'></c:jobCardActionPlanApproval-->
     <!--c:customHighlightPanel recordId="0WOBh000003OxILOA0"></c:customHighlightPanel--> 
     
-    <c:workOrderPathCustom recordId="0WOF4000001hBh1OAE"></c:workOrderPathCustom> 
+    <c:bulkInsert_JCProductsCustom recordId="0WOBh000003cg1JOAQ"></c:bulkInsert_JCProductsCustom> 
 </aura:application>

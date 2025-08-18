@@ -19,8 +19,8 @@ public class TestDriveCreationUpdatedQueueableTest {
         Test_Drive__c testDrive2 = new Test_Drive__c(Name='Drive 1', Lead__c = testLead1.Id,Test_Drive_Date__c=System.Now());
         insert testDrive2;
         
-        WhatsappIntegration__c w = new WhatsappIntegration__c(Name='WhatsApp API',Meta_EndPoint_Version_18__c='www.example.com',Service_Bearer_Token__c='98vgku',
-                                                             API_Key__c='87guth7',Cookie__c='96vrtu7');
+        WhatsappIntegration__c w = new WhatsappIntegration__c(Name='WhatsApp API',API_Endpoint_Updated__c='https://www.example.com',Service_Bearer_Token__c='98vgku',
+                                                             API_Key__c='87guth7');
         insert w;
         
        

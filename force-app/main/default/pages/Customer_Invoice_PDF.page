@@ -2,7 +2,7 @@
   @description       : 
   @author            : ChangeMeIn@UserSettingsUnder.SFDoc
   @group             : 
-  @last modified on  : 08-11-2025
+  @last modified on  : 08-14-2025
   @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 -->
 <apex:page renderAs="pdf" standardcontroller="WorkOrder" extensions="Customer_Invoice_PDF_Controller" standardStylesheets="false"  applyBodyTag="false" applyHtmlTag="false" showHeader="false">
@@ -62,13 +62,26 @@
             <td style="padding: 8px; font-size: 12px; width: 40%; vertical-align: top;">
                 <apex:image value="{!URLFOR($Resource.RideRiverLogo)}" height="100px" width="230px" style="display: block; margin-bottom: 0; padding-bottom: 0;" />
                 
-                     <p style="margin-top: 2px;">
-                        <b><span style="font-size: 15px;"> {!workOrderRecord.Service_Center__r.Name} </span></b> <br/>
-                        <apex:outputText value="{!formattedBillingStreet}" escape="false"/>,
-                        {!workOrderRecord.Service_Center__r.BillingCity}<br/>
-                        {!workOrderRecord.Service_Center__r.BillingState}-{!workOrderRecord.Service_Center__r.BillingPostalCode}
-                        <br /> <span style="font-size: 14px;"> GSTIN: {!workOrderRecord.Service_Center__r.GSTIN_Number__c} </span>
-                    </p>
+                      <p style="margin-top: 2px;">
+                            
+                            <apex:outputPanel rendered="{!storeType = 'DODO'}">
+                                <b><span style="font-size: 15px;"> {!dodoAccName} </span></b> <br/>
+                                <apex:outputText value="{!formattedBillingStreet}" escape="false"/>,
+                                {!workOrderRecord.Service_Center__r.BillingCity}<br/>
+                                {!workOrderRecord.Service_Center__r.BillingState}-{!workOrderRecord.Service_Center__r.BillingPostalCode}
+                                <br /> <span style="font-size: 14px;"> Email: {!workOrderRecord.Service_Center__r.Email__c}, &nbsp; Phone: +91 {!workOrderRecord.Service_Center__r.Phone} </span>
+                                <br /> <span style="font-size: 14px;"> CIN: {!workOrderRecord.Service_Center__r.CIN__c} </span>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel rendered="{!storeType = 'COCO'}">
+                                <b><span style="font-size: 15px;"> {!dcPdf.CompanyName__c} </span></b> 
+                                <br /> <span style="font-size: 14px;"> No. 25/3, KIADB EPIP Zone, Seetharampalya–Hoodi Road, Mahadevapura, </span>
+                                <br /> <span style="font-size: 14px;"> Whitefield, Bengaluru, Bengaluru Urban, Karnataka, India 560048 </span>
+                                <br /> <span style="font-size: 14px;"> Email: {!cocoBillEmail}, &nbsp; Phone: +91 {!cocoPhone} </span>
+                                <br /> <span style="font-size: 14px;"> CIN: {!cocoCIN} </span>
+                            </apex:outputPanel>
+                            
+                        </p>
 
                 
             </td>
@@ -84,7 +97,7 @@
         </tr>
     </table>
 </div>
-
+<br/><br/>
 <hr />
 
 <table style="vertical-align: top; border-collapse:true; float:left; text-align:left; font-family: Arial, Helvetica, sans-serif;margin-top:4px;font-size:12px;" width="100%" class="invoice-details-table">
@@ -96,37 +109,72 @@
                     </apex:outputText>
             <br /><br />
             <b>Invoice No</b>: <span style="white-space: nowrap;">{!workOrderRecord.Invoice_No__c}</span><br /><br />
-            <b>Job Card No.</b>: <span style="white-space: nowrap;">{!workOrderRecord.WorkOrderNumber}</span><br /><br />
-            <b>VIN</b> : {!workOrderRecord.Vehicle__r.VehicleIdentificationNumber} <br /><br/>
+            <!-- <b>Job Card No.</b>: <span style="white-space: nowrap;">{!workOrderRecord.WorkOrderNumber}</span><br /><br /> -->
+            <!-- <b>VIN</b> : {!workOrderRecord.Vehicle__r.VehicleIdentificationNumber} <br /><br/> -->
             <b>Place of Supply</b>: Karnataka<br/><br/>
-            <b>Job Type</b> : {!workOrderRecord.RR_Job_Type__c}
+            <b>Job Card No:</b> : {!workOrderRecord.WorkOrderNumber}
         </td>
         <!-- Customer Details -->
         <td>
-            <b>Customer Name</b> : {!workOrderRecord.Account.Name}<br/><br/>
-            <b>Reg. No.</b>: <span style="white-space: nowrap;">{!workOrderRecord.Vehicle_Registration_Number__c}</span><br /><br />
-            <b>KMS Cov</b>: <span style="white-space: nowrap;">{!workOrderRecord.Odometer_Reading__c}</span><br /><br />
-            <b>Ser. Adv Name</b> : {!workOrderRecord.RR_Service_Advisor__r.Name} <br /><br/>
-            <b>Invoice Type</b> : {!workOrderRecord.Invoice_Type__c}<br/><br/>
+            <b>Job Type:</b> : {!workOrderRecord.RR_Job_Type__C}<br/><br/>
+            <b>VIN:</b>: <span style="white-space: nowrap;">{!workOrderRecord.Vehicle__r.VehicleIdentificationNumber}</span><br /><br />
+            <b>Motor No:</b>: <span style="white-space: nowrap;">{!workOrderRecord.Vehicle__r.EngineNumber}</span><br /><br />
+            <!-- <b>Ser. Adv Name</b> : {!workOrderRecord.RR_Service_Advisor__r.Name} <br /><br/> -->
+            <!-- <b>Invoice Type</b> : {!workOrderRecord.Invoice_Type__c}<br/><br/> -->
             <b>Model Name</b> : {!workOrderRecord.Vehicle__r.Name}
         </td>
         
-        <td width="30%" style="vertical-align: top;padding:5px; padding-left: 20px;">
-            <b>Billed To:</b><br/><br/>
-            <b>{!workOrderRecord.Account.Name}</b><br/>
-            {!workOrderRecord.Account.BillingStreet}<br/>
-            {!workOrderRecord.Account.BillingCity}<br/>
-            {!workOrderRecord.Account.BillingState} - {!workOrderRecord.Account.BillingPostalCode}<br/><br/>             
-            <b>Email</b>: {!workOrderRecord.Account.Email__c}<br/>
-            <b>Phone No</b>: {!workOrderRecord.Account.Phone}<br/>
-            <b>Secondary Ph No</b>: {!workOrderRecord.Account.Secondary_Phone_Number__c}<br/>
-            <div style="padding-top:5px;">
-                <b>GSTIN</b>: {!workOrderRecord.Account.GSTIN_Number__c}<br/>
-            </div>
+        <td>
+            <b>Customer Name:</b> : {!workOrderRecord.Account.Name}<br/><br/>
+            <b>Reg. No:</b> <span style="white-space: nowrap;">{!workOrderRecord.Vehicle__r.VehicleRegistrationNumber}</span><br /><br />
+            <b>Kilometers covered:</b>: <span style="white-space: nowrap;">{!workOrderRecord.Odometer_Reading__c}</span><br /><br />
+            <b>Service Advisor Name:</b> : {!workOrderRecord.RR_Service_Advisor__r.Name} <br /><br/>
+            <!-- <b>Invoice Type</b> : {!workOrderRecord.Invoice_Type__c}<br/><br/> -->
+            <!-- <b>Model Name</b> : {!workOrderRecord.Vehicle__r.Name} -->
         </td>
     </tr>
 </table>
+<hr/>
+<br/><br/>
+<!--Address Section-->
+<div>
+    <table style="vertical-align: top; border-collapse:true; float:left; text-align:left; font-family: Arial, Helvetica, sans-serif;margin-top:4px;font-size:12px;" width="100%" class="invoice-details-table">
+         <tr>
+            <td >
+                    <b>Billed From</b><br/>
+                    <b>{!workOrderRecord.Service_Center__r.Name}</b><br/>
+                    <apex:outputText value="{!formattedAccountBillingStreet}" escape="false"/> <br/>
+                    {!workOrderRecord.Service_Center__r.BillingCity}
+                    {!workOrderRecord.Service_Center__r.BillingState}  {!workOrderRecord.Service_Center__r.BillingPostalCode}<br/>               
+                    Email: {!IF(AND(NOT(ISNULL(workOrderRecord.Service_Center__c)), NOT(ISNULL(workOrderRecord.Service_Center__r.Email__c))), workOrderRecord.Service_Center__r.Email__c, '')}<br/>
+                    Phone No: +91 {!workOrderRecord.Service_Center__r.Phone}<br/><br/>
+                    <!-- Secondary Ph No: {!workOrderRecord.Service_Center__r.Secondary_Phone_Number__c}<br/> -->
+                    <div style="padding-top:5px;">
+                        GSTIN: {!workOrderRecord.Service_Center__r.GSTIN_Number__c}<br/>
+                    </div>
+                </td>
 
+
+                 <td >
+                    <b>Billed To</b><br/>
+                    <b>{!workOrderRecord.Account.Name}</b><br/>
+                    <apex:outputText value="{!formattedBillingStreet}" escape="false"/><br/>
+                    {!workOrderRecord.Account.BillingCity}
+                    {!workOrderRecord.Account.BillingState}  {!workOrderRecord.Account.BillingPostalCode}<br/>               
+                    Email: {!IF(AND(NOT(ISNULL(workOrderRecord.AccountId)), NOT(ISNULL(workOrderRecord.Account.Email__c))), workOrderRecord.Account.Email__c, '')}<br/>
+                    Phone No: +91 {!workOrderRecord.Account.Phone}<br/><br/>
+                    <!-- Secondary Ph No: {!workOrderRecord.Service_Center__r.Secondary_Phone_Number__c}<br/> -->
+                    <div style="padding-top:5px;">
+                        GSTIN: XXXXXXXXXXXXXXX<br/>
+                    </div>
+                </td>
+                <td></td>
+         </tr>
+    </table>
+
+</div>
+
+<!--Upto here-->
             <p style="text-indent: 0pt;text-align: left;"><br/></p>
             <table style="border-collapse:collapse;" cellspacing="0" width="100%">
                 <tr style="height:21pt">
@@ -145,9 +193,7 @@
                     <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="2">
                         <p class="s3" style="padding-top: 5pt;padding-left: 10pt;text-indent: 0pt;text-align: left;">Rate</p>
                     </td>
-                    <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="2">
-                        <p class="s3" style="padding-top: 5pt;padding-left: 10pt;text-indent: 0pt;text-align: left;">Total</p>
-                    </td>
+                    
                     <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="2">
                         <p class="s3" style="padding-top: 5pt;padding-left: 6pt;text-indent: 0pt;text-align: left;">Discount</p>
                     </td>
@@ -158,25 +204,28 @@
                         <p class="s3" style="padding-top: 5pt;text-indent: 0pt;text-align: center;">TAX</p>
                         <p class="s3" style="text-indent: 0pt;text-align: center;">%</p>
                     </td>
-                    <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                    <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p class="s3" style="padding-top: 5pt;padding-left: 1pt;text-indent: 0pt;text-align: center;">CGST</p>
                     </td>
-                    <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                    <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p class="s3" style="padding-top: 5pt;padding-left: 1pt;text-indent: 0pt;text-align: center;">SGST</p>
                     </td>
-                    <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                    <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p class="s3" style="padding-top: 5pt;text-indent: 0pt;text-align: center;">IGST</p>
+                    </td>
+                    <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="2">
+                        <p class="s3" style="padding-top: 5pt;padding-left: 10pt;text-indent: 0pt;text-align: left;">Total</p>
                     </td>
                 </tr>
                 <tr style="height:21pt">
-                    <td style="width:52pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s3" style="padding-top: 5pt;padding-left: 1pt;text-indent: 0pt;text-align: center;">Amount</p>
+                    <td style='border-right-width:1pt;border-right-style:solid'>
+                        <p class="s3" style="padding-top: 5pt;padding-left: 1pt;text-indent: 0pt;text-align: center;border-right-width:1pt">Amount</p>
                     </td>
-                    <td style="width:50pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s3" style="padding-top: 5pt;padding-left: 1pt;text-indent: 0pt;text-align: center;">Amount</p>
+                    <td style='border-right-width:1pt;border-right-style:solid'>
+                        <p class="s3" style="padding-top: 5pt;padding-left: 1pt;text-indent: 0pt;text-align: center;border-right-width:1pt">Amount</p>
                     </td>
-                    <td style="width:49pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s3" style="padding-top: 5pt;text-indent: 0pt;text-align: center;">Amount</p>
+                    <td style='border-right-width:1pt;border-right-style:solid'>
+                        <p class="s3" style="padding-top: 5pt;padding-left: 1pt;text-indent: 0pt;text-align: center;border-right-width:1pt">Amount</p>
                     </td>
                 </tr>
                 <!-- Parts Start -->
@@ -220,9 +269,7 @@
                         <td style="width:46pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                             <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Subtotal * item.Discount/100}"/></apex:outputText></p>
                         </td>
-                        <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.TotalPrice}"/></apex:outputText></p>
-                        </td>
+                        
                         <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                             <apex:outputpanel rendered="{!workOrderRecord.Same_State__c == true}">
                                 <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.RR_Product__r.CGST_Percentage__c + item.RR_Product__r.SGST_Percentage__c}"/></apex:outputText></p>
@@ -245,6 +292,9 @@
                             <apex:outputpanel rendered="{!workOrderRecord.Same_State__c == false}">
                                 <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.IGST_Amount__c}"/></apex:outputText></p>
                             </apex:outputpanel>
+                        </td>
+                        <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.TotalPrice}"/></apex:outputText></p>
                         </td>
                     </tr>
                 </apex:repeat>
@@ -312,255 +362,98 @@
                                 <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.IGST_Amount__c}"/></apex:outputText></p>
                             </apex:outputpanel>
                         </td>
+                        <td style="width:40pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Labour_Charge__c}"/></apex:outputText></p>
+                        </td>
                     </tr>
+                    
                 </apex:repeat>
-                <!-- Labour End -->
-                <!-- <tr style="height:16pt">
-                    <td style="width:230pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="5">
-                    <p style="text-indent: 0pt;text-align: left;"><br/></p>
-                    </td>
-                    <td style="width:40pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: left;"><br/></p>
-                    </td>
-                    <td style="width:46pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: left;"><br/></p>
-                    </td>
-                    <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: left;"><br/></p>
-                    </td>
-                    <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: left;"><br/></p>
-                    </td>
-                    <td style="width:52pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: left;"><br/></p>
-                    </td>
-                    <td style="width:50pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: left;"><br/></p>
-                    </td>
-                    <td style="width:49pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: left;"><br/></p>
-                    </td>
-                </tr>
-                <tr style="height:15pt">
-                    <td style="width:316pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="7">
-                        <p style="text-indent: 0pt;text-align: left;"><br/></p>
-                    </td>
-                    <td style="width:233pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="2">
-                        <p class="s3" style="padding-left: 5pt;text-indent: 0pt;text-align: left;">TOTAL (In Rs):</p>
-                    </td>
-                    <td style="width:233pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s3" style="padding-left: 5pt;text-indent: 0pt;text-align: left;">{!amountCGST}</p>
-                    </td>
-                    <td style="width:233pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s3" style="padding-left: 5pt;text-indent: 0pt;text-align: left;">{!amountSGST}</p>
-                    </td>
-                    <td style="width:233pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s3" style="padding-left: 5pt;text-indent: 0pt;text-align: left;">{!amountIGST}</p>
-                    </td>
-                </tr> -->
+              <tr>
+    <!-- Invoice Total (In Words) spans Sl. No to Tax % -->
+    <td colspan="9" style="border:1pt solid black; padding-left:5pt; padding-top:8pt; padding-bottom:8pt; text-align:left;">
+        <p style="margin:0;"><b>Invoice Total (In Words): Rs {!invoiceTotalInWords}</b></p>
+    </td>
+
+    <!-- Invoice Total spans CGST, SGST, IGST -->
+    <td colspan="3" style="border:1pt solid black; padding-left:5pt; padding-top:8pt; padding-bottom:8pt; text-align:left;">
+        <p style="margin:0;">
+            <b>
+                Invoice Total: 
+                <apex:outputText value="{0, number, ###,###,###,##0.00}">
+                    <apex:param value="{!invoiceTotal}"/>
+                </apex:outputText>
+            </b>
+        </p>
+    </td>
+</tr>
+
+
+
+               
+             
+            
             </table>
-            <p style="text-indent: 0pt;text-align: left;"><br/></p>
-            <table style="border-collapse:collapse;" cellspacing="0">
-                <tr style="height:25pt">
-                    <td style="width:71pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s3" style="padding-top: 1pt;padding-left: 15pt;text-indent: 0pt;text-align: center;">Particulars</p>
-                    </td>
-                    <td style="width:57pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s3" style="padding-top: 1pt;padding-left: 17pt;text-indent: 0pt;text-align: center;">Value</p>
-                    </td>
-                    <td style="width:57pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s3" style="padding-top: 1pt;padding-left: 12pt;text-indent: 0pt;text-align: center;">Discount</p>
-                    </td>
-                    <td style="width:85pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s3" style="padding-top: 1pt;padding-left: 12pt;text-indent: 0pt;text-align: center;">Taxable Value</p>
-                    </td>
-                    <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s3" style="padding-top: 1pt;padding-left: 10pt;text-indent: 0pt;text-align: center;">CGST</p>
-                    </td>
-                    <td style="width:42pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s3" style="padding-top: 1pt;padding-left: 11pt;text-indent: 0pt;text-align: center;">SGST</p>
-                    </td>
-                    <td style="width:48pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s3" style="padding-top: 1pt;padding-left: 15pt;text-indent: 0pt;text-align: center;">IGST</p>
-                    </td>
-                    <td style="width:70pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s3" style="padding-top: 1pt;text-indent: 0pt;text-align: center;">Total</p>
-                    </td>
-                    <!--<td style="width:101pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="5">
-                        <p style="text-indent: 0pt;text-align: center;"><br/></p>
-                    </td>-->
-                </tr>
-                <tr style="height:16pt">
-                    <td style="width:71pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s3" style="padding-top: 1pt;padding-left: 5pt;text-indent: 0pt;text-align: center;">Parts Total</p>
-                    </td>
-                    <td style="width:57pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!partTotal}"/></apex:outputText></p>
-                    </td>
-                    <td style="width:57pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!partDiscount}"/></apex:outputText></p>
-                    </td>
-                    <td style="width:85pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!parttaxValue}"/></apex:outputText></p>
-                    </td>
-                    <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <apex:outputpanel rendered="{!workOrderRecord.Same_State__c == true}">
-                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!partCGST}"/></apex:outputText></p>
-                        </apex:outputpanel>
-                    </td>
-                    <td style="width:42pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <apex:outputpanel rendered="{!workOrderRecord.Same_State__c == true}">
-                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!partSGST}"/></apex:outputText></p>
-                        </apex:outputpanel>
-                    </td>
-                    <td style="width:48pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <apex:outputpanel rendered="{!workOrderRecord.Same_State__c == false}">
-                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!partIGST}"/></apex:outputText></p>
-                        </apex:outputpanel>
-                    </td>
-                    <td style="width:70pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!partsTotal}"/></apex:outputText></p>
-                    </td>
-                </tr>
-                <tr style="height:19pt">
-                    <td style="width:71pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s3" style="padding-top: 1pt;padding-left: 5pt;text-indent: 0pt;text-align: center;">Labour Total</p>
-                    </td>
-                    <td style="width:57pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!labourTotal}"/></apex:outputText></p>
-                    </td>
-                    <td style="width:57pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!labourDiscount}"/></apex:outputText></p>
-                    </td>
-                    <td style="width:85pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!labourtaxValue}"/></apex:outputText></p>
-                    </td>
-                    <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <apex:outputpanel rendered="{!workOrderRecord.Same_State__c == true}">
-                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!labourCGST}"/></apex:outputText></p>
-                        </apex:outputpanel>
-                    </td>
-                    <td style="width:42pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <apex:outputpanel rendered="{!workOrderRecord.Same_State__c == true}">
-                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!labourSGST}"/></apex:outputText></p>
-                        </apex:outputpanel>
-                    </td>
-                    <td style="width:48pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <apex:outputpanel rendered="{!workOrderRecord.Same_State__c == false}">
-                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!labourIGST}"/></apex:outputText></p>
-                        </apex:outputpanel>
-                    </td>
-                    <td style="width:70pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!laboursTotal}"/></apex:outputText></p>
-                    </td>
-                </tr>
-                <tr style="height:18pt">
-                    <td style="width:71pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p class="s3" style="padding-left: 5pt;text-indent: 0pt;text-align: center;">Other Charges</p>
-                    </td>
-                    <td style="width:57pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: center;"><br/></p>
-                    </td>
-                    <td style="width:57pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: center;"><br/></p>
-                    </td>
-                    <td style="width:85pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: center;"><br/></p>
-                    </td>
-                    <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: center;"><br/></p>
-                    </td>
-                    <td style="width:42pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: center;"><br/></p>
-                    </td>
-                    <td style="width:48pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: center;"><br/></p>
-                    </td>
-                    <td style="width:70pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: center;"><br/></p>
-                    </td>
-                </tr>
-                <tr style="height:19pt">
-                    <td style="width:71pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p class="s3" style="padding-top: 1pt;padding-left: 5pt;text-indent: 0pt;text-align: center;">Round Off</p>
-                    </td>
-                    <td style="width:57pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: center;"><br/></p>
-                    </td>
-                    <td style="width:57pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: center;"><br/></p>
-                    </td>
-                    <td style="width:85pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: center;"><br/></p>
-                    </td>
-                    <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: center;"><br/></p>
-                    </td>
-                    <td style="width:42pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: center;"><br/></p>
-                    </td>
-                    <td style="width:48pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: center;"><br/></p>
-                    </td>
-                    <td style="width:70pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="text-indent: 0pt;text-align: center;"><br/></p>
-                    </td>
-                </tr>
-                <tr style="height:18pt">
-                    <td style="width:447pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="7">
-                    <p class="s3" style="padding-left: 5pt;text-indent: 0pt;text-align: left;">Invoice Total (In Words): Rs {!invoiceTotalInWords}</p>
-                    </td>
-                    <td style="width:101pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p class="s3" style="padding-left: 5pt;text-indent: 0pt;text-align: left;">Invoice Total : <apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!invoiceTotal}"/></apex:outputText></p>
-                    </td>
-                </tr>
-                <tr style="height:87pt">
-                    <td style="width:241pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="4">
-                    <p class="s2" style="padding-top: 5pt;padding-left: 5pt;padding-right: 3pt;text-indent: 0pt;text-align: left;">Certified that the Particulars given are true and correct and the amount indicated.</p>
-                    <ol id="l1">
-                        <li data-list-text="a)">
-                            <p class="s2" style="padding-left: 14pt;text-indent: -9pt;text-align: left;">Represent the price actually charged and there is not flow</p>
-                            <p class="s2" style="padding-left: 5pt;padding-right: 3pt;text-indent: 0pt;text-align: left;">additional considerational directly or indirectly from the buyer or</p>
-                        </li>
-                        <li data-list-text="b)">
-                            <p class="s2" style="padding-left: 5pt;padding-right: 17pt;text-indent: 0pt;text-align: left;">Is provisional as additional consideration will be received from the buyer on account.</p>
-                        </li>
-                    </ol>
-                    </td>
-                    <td style="width:307pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="4">
-                    <p class="s3" style="padding-top: 5pt;padding-left: 5pt;text-indent: 0pt;text-align: left;">Terms &amp; Conditions</p>
-                    <ol id="l2">
-                        <li data-list-text="1.">
-                            <p class="s2" style="padding-left: 13pt;text-indent: -8pt;text-align: left;">Goods once sold will not be taken back or exchanged.</p>
-                        </li>
-                        <li data-list-text="2.">
-                            <p class="s2" style="padding-left: 13pt;text-indent: -8pt;text-align: left;">Seller is not responsible for any loss or damage of goods in transit.</p>
-                        </li>
-                        <li data-list-text="3.">
-                            <p class="s2" style="padding-left: 5pt;padding-right: 13pt;text-indent: 0pt;text-align: left;">Buyer undertakes to submit prescribed ST declaration to sender on demand. Disputes if any will be subject to seller court jurisdiction.</p>
-                        </li>
-                    </ol>
-                    </td>
-                </tr>
-                <tr style="height:87pt">
-                    <td style="width:548pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="8">
-                    <p class="s2" style="padding-top: 6pt;padding-left: 5pt;padding-right: 13pt;text-indent: 0pt;text-align: center;">I/we hereby certify that our certificate under the <span>{!workOrderRecord.City__r.State__c}</span> Goods and service Tax act. 2017 and Central Goods and Service Act, 2017 are in force on which the sale of goods specified in this tax invoice made by us and that the transaction of sale is covered by this invoice has been effected by us and it shall be accounted for in the turnover of sales while filing of return and the due tax if any payable on the sales has been paid or shall be paid.</p>
-                    <p class="s2" style="padding-left: 5pt;padding-right: 28pt;text-indent: 0pt;text-align: center;">I/We have received my/our vehicle duly repaired to my/our entire satisfaction and in good condition after conducting the self test ride of the vehicle. The Invoice/bill has been explained to me/us. The old parts were shown and offered to me. I chose to ( ) take it with me or ( ) leave it behind.</p>
-                    </td>
-                </tr>
-                <tr style="height:66pt">
-                    <td style="width:241pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="4">
-                        <p style="text-indent: 0pt;text-align: left;"><br/></p>
-                        <p class="s3" style="padding-left: 11pt;text-indent: 0pt;text-align: center;">Customer Sign</p>
-                    </td>
-                    <td style="width:307pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="4">
-                        <p class="s3" style="padding-top: 6pt;padding-left: 17pt;padding-right: 10pt;text-indent: 0pt;text-align: center;">For <span>{!workOrderRecord.Service_Center__r.Company_GSTIN_name__c}</span></p>
-                        <p style="text-indent: 0pt;text-align: left;"><br/></p>
-                        <p style="text-indent: 0pt;text-align: left;"><br/></p>
-                        <p style="text-indent: 0pt;text-align: left;"><br/></p>
-                        <p class="s3" style="padding-left: 17pt;text-indent: 0pt;text-align: center;">Authorised Stamp &amp; Sign</p>
-                    </td>
-                </tr>
-            </table>
+
        </body>
+       <div style="page-break-before:always;"></div>
+       
+        <!-- Disclaimer -->
+    <p style="margin-bottom:5px;font-size:14px;"><strong>Disclaimer</strong></p>
+    <p style="margin:0;font-size:14px;">
+        Certified that the particulars given are true and correct and the amount<br/> indicated:
+        a) Represents the price charged, and there is no additional <br/>consideration directly or indirectly from the buyer, or
+        b) is provisional as <br/>additional consideration will be received from the buyer on account.
+    </p>
+
+    <!-- Terms & Conditions -->
+    <p style="margin-top:10px; margin-bottom:5px;font-size:14px;"><strong>Terms &amp; Conditions</strong></p>
+    <p style="margin:0;font-size:14px;">
+         1. Goods once sold will not be taken back or exchanged.<br/><br/>
+          2.The seller is not responsible for any loss or damage to goods in transit.<br/><br/>
+           3.The buyer undertakes to submit the prescribed ST<br/>
+           <p style='padding-left:12px;font-size:14px;'>declaration to the sender on demand. Disputes, if any,</p>
+           <p style='padding-left:12px;font-size:14px;'>will be subject to the seller’s court’s jurisdiction.</p><br/>
+     </p>
+
+    <!-- Disclosure -->
+    <p style="margin-top:10px; margin-bottom:5px;font-size:14px;"><strong>Disclosure</strong></p>
+    <p style="margin:0;font-size:14px;">
+        I/We hereby certify that our certificate is in accordance with the provisions<br/> of the 
+        <span>{!workOrderRecord.City__r.State__c}</span> Goods and Services Tax Act, 2017, and the Central <br/>Goods and Service Act, 2017, which are in force, 
+        and that the sale of <br/>goods specified in this tax invoice has been made by us. This invoice<br/> covers the transaction of sale effected by us, 
+        and it shall be included in<br/> the turnover of sales while filing the return.The due tax,if any,payable<br/>on the sales has been paid or shall be paid.I/We have received my/<br/>
+        our vehicle,duly repaired to my/our entire satisfaction, and in good<br/> condition after conducting a self-test ride of the vehicle. The invoice/bill<br/>
+        has been explained to me/us. the old parts were shown to and offered<br/>to me /us.I choose to () take them with me or () leave them behind.
+    </p>
+    <br/><br/>
+    <!-- Signature section -->
+    <div style="margin-top:40px;">
+        <table style="width:100%; border-collapse:collapse;">
+            <tr>
+                <td style="width:50%;font-size:14px;">
+                    For   <b>{!storeNameForBottom}</b>
+                </td>
+                <td style="width:50%;"></td>
+            </tr>
+            <tr style="height:100px;">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Authorised Signatory</td>
+                <td>Customer Signatory</td>
+            </tr>
+        </table>
+    </div>
+         
 </apex:page>

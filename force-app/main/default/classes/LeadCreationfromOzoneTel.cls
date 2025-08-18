@@ -1,88 +1,75 @@
+/**
+* @description       : 
+* @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+* @group             : 
+* @last modified on  : 08-14-2025
+* @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+**/
 @RestResource(urlMapping='/createLeadOzoneTel')  
 global class LeadCreationfromOzoneTel{  
     @HttpPost  
-    global static string createLeadFromWebsite() {  
+    global static String createLeadFromWebsite() {  
         RestRequest req = RestContext.request;  
         RestResponse res = RestContext.response;  
         
-        // Parse the request body  
+        // Parse request body  
         String requestBody = req.requestBody.toString();  
         Map<String, Object> requestBodyMap = (Map<String, Object>) JSON.deserializeUntyped(requestBody);  
         
-        String fullName = (String) requestBodyMap.get('FullName');  
-        String company = (String) requestBodyMap.get('Company');  
-        String email = (String) requestBodyMap.get('Email');  
-        String phone = (String) requestBodyMap.get('Phone');  
-        String city = (String) requestBodyMap.get('City');  
-        String postalCode = String.valueOf(requestBodyMap.get('PostalCode'));  
-        Boolean homeTestRide = (Boolean) requestBodyMap.get('HomeTestRide');  
+        String fullName        = (String) requestBodyMap.get('FullName');  
+        String company         = (String) requestBodyMap.get('Company');  
+        String email           = (String) requestBodyMap.get('Email');  
+        String phone           = (String) requestBodyMap.get('Phone');  
+        String city            = (String) requestBodyMap.get('City');  
+        String postalCode      = String.valueOf(requestBodyMap.get('PostalCode'));  
+        Boolean homeTestRide   = (Boolean) requestBodyMap.get('HomeTestRide');  
         Boolean instoreTestdrive = (Boolean) requestBodyMap.get('InstoreTestdrive');  
         
-        // Retrieve date/time values from the request body  
         String startDateTimeStr = (String) requestBodyMap.get('startDateTimeStr');  
-        String endDateTimeStr = (String) requestBodyMap.get('endDateTimeStr');  
+        String endDateTimeStr   = (String) requestBodyMap.get('endDateTimeStr');  
         
-        // Initialize Datetime variables  
-        Datetime startDateTime;  
-        Datetime endDateTime;  
-        
-        // Convert to Datetime if values are provided  
-        if (startDateTimeStr != null) {  
-            startDateTime = Datetime.valueOf(startDateTimeStr);  
-        } else {  
-            // Handle null case for startDateTime (e.g., set to a default value or log an error)  
-            startDateTime = null; // or some default value  
-        }  
-        
-        if (endDateTimeStr != null) {  
-            endDateTime = Datetime.valueOf(endDateTimeStr);  
-        } else {  
-            // Handle null case for endDateTime (e.g., set to a default value or log an error)  
-            endDateTime = null; // or some default value  
-        }  
+        Datetime startDateTime = String.isNotBlank(startDateTimeStr) ? Datetime.valueOf(startDateTimeStr) : null;  
+        Datetime endDateTime   = String.isNotBlank(endDateTimeStr) ? Datetime.valueOf(endDateTimeStr) : null;  
         
         String dealerCode = (String) requestBodyMap.get('DealerCode');  
         
-        try {
-            List<Lead> leads = [SELECT Id, LastName, Company, Email, Phone, City,   
-                                Test_ride_Start_date__c, Test_ride_end_date__c,   
-                                Dealer_Code__c, Home_Test_Ride__c, Instore_Test_drive__c   
-                                FROM Lead WHERE Phone = :phone LIMIT 1];  
+        try {  
+            List<Lead> leads = new List<Lead>();  
+            if (String.isNotBlank(phone)) {  
+                leads = [SELECT Id, LastName, Company, Email, Phone, City,Test_ride_Start_date__c, Test_ride_end_date__c, Dealer_Code__c, 
+                         Home_Test_Ride__c, Instore_Test_drive__c FROM Lead WHERE Phone = :phone LIMIT 1];  
+            }  
             
             Lead leadToUpdate;  
-            
+            Boolean isNewLead = false;
             if (!leads.isEmpty()) {  
                 leadToUpdate = leads[0];  
-                
-                // Duplicate found — log and return with 409
                 Integration_Log__c logObj = new Integration_Log__c(
                     Integration_Type__c = 'Lead Creation',
                     Duplicate_Lead_Phone__c = leads[0].Phone,
                     Request_Payload__c = JSON.serializePretty(requestBodyMap),
                     Response_Payload__c = 'Duplicate Lead Found: ' + leads[0].Id,
                     Lead__c = leads[0].Id
-                    //Status__c = 'Duplicate'
                 );
                 insert logObj;
-                
-                res.statusCode = 409; // Conflict
-                return 'Duplicate Lead Found: ' + leadToUpdate.Id;
             } else {  
                 leadToUpdate = new Lead();  
-                leadToUpdate.LeadSource = 'OzoneTel WhatsApp';  
+                isNewLead = true;
+                leadToUpdate.LeadSource = 'OzoneTel WhatsApp';
             }  
             
-            leadToUpdate.LastName = fullName;  
-            leadToUpdate.Company = fullName;  
-            leadToUpdate.Email = email;  
-            leadToUpdate.Phone = phone;  
-            leadToUpdate.City = city;  
-            leadToUpdate.PostalCode = postalCode;  
-            leadToUpdate.Test_ride_Start_date__c = startDateTime;  
-            leadToUpdate.Test_ride_end_date__c = endDateTime;  
-            leadToUpdate.Home_Test_Ride__c = homeTestRide != null ? homeTestRide : false;  
-            leadToUpdate.Instore_Test_drive__c = instoreTestdrive != null ? instoreTestdrive : false;  
+            leadToUpdate.LastName                 = fullName;  
+            leadToUpdate.Company                  = fullName;  
+            leadToUpdate.Email                    = email;  
+            leadToUpdate.Phone                    = phone;  
+            leadToUpdate.City                     = city;  
+            leadToUpdate.PostalCode                = postalCode;  
+            leadToUpdate.Test_ride_Start_date__c  = startDateTime;  
+            leadToUpdate.Test_ride_end_date__c    = endDateTime;  
+            leadToUpdate.Home_Test_Ride__c        = homeTestRide != null ? homeTestRide : false;  
+            leadToUpdate.Instore_Test_drive__c    = instoreTestdrive != null ? instoreTestdrive : false;  
             
+            // Dealer code resolution  
             Account dealerCodeAccount;  
             if (String.isNotBlank(postalCode)) {  
                 String resolvedDealerCode = LeadTriggerHandler.getPreferredStoreByPincode(postalCode);  
@@ -102,17 +89,27 @@ global class LeadCreationfromOzoneTel{
             leadToUpdate.Stores_Name__c = dealerCodeAccount != null ? dealerCodeAccount.Name : '';  
             leadToUpdate.Dealer_Code__c = dealerCodeAccount != null ? dealerCodeAccount.Center_Code__c : dealerCode;  
             
-            if (leadToUpdate.Id != null) {  
-                update leadToUpdate;  
-            } else {  
-                insert leadToUpdate;  
-            }  
+            if (isNewLead) {
+                insert leadToUpdate;
+                Integration_Log__c successLog = new Integration_Log__c(  
+                    Integration_Type__c = 'Lead Creation',  
+                    Request_Payload__c = JSON.serializePretty(requestBodyMap),  
+                    Response_Payload__c = 'Lead processed successfully: ' + leadToUpdate.Id,  
+                    Status__c = 'Success',
+                    Lead__c = leadToUpdate.Id
+                );  
+                insert successLog;  
+            } else {
+                if (leadToUpdate != null && leadToUpdate.Id != null) {
+                    update leadToUpdate;
+                }
+            }
             
             Integration_Log__c logObj = new Integration_Log__c(  
                 Integration_Type__c = 'Lead Creation',  
-                Request_Payload__c = JSON.serializePretty(requestBodyMap),  
+                Request_Payload__c  = JSON.serializePretty(requestBodyMap),  
                 Response_Payload__c = 'Lead processed successfully: ' + leadToUpdate.Id,  
-                Status__c = 'Success'  
+                Status__c           = 'Success'  
             );  
             insert logObj;  
             
@@ -121,13 +118,13 @@ global class LeadCreationfromOzoneTel{
         } catch (Exception e) {  
             Integration_Log__c logObj = new Integration_Log__c(  
                 Integration_Type__c = 'Lead Creation',  
-                Request_Payload__c = JSON.serializePretty(requestBodyMap),  
+                Request_Payload__c  = JSON.serializePretty(requestBodyMap),  
                 Response_Payload__c = 'Error: ' + e.getMessage(),  
-                Error_Message__c = e.getMessage(),  
-                Status__c = 'Failed'  
+                Error_Messages__c = 'Exception: ' + e.getMessage() + ' at line number ====>' + e.getLineNumber() + ' /createLeadOzoneTel',
+                Status__c           = 'Failed'  
             );  
             insert logObj;  
-            
+            System.debug('Error =====>' +  + e.getMessage() + ' at line number ====>' + e.getLineNumber());
             return 'Error: ' + e.getMessage();  
         }  
     }  

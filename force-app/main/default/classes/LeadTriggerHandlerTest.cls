@@ -115,6 +115,8 @@ public class LeadTriggerHandlerTest {
         ledRec1.Threshold_Count__c = 6;
         ledRec1.Phone = '9035244424';
         ledRec1.Is_Order_Created__c = true;
+        ledRec1.LeadSource='Bike Dekho';
+        ledRec1.Dealer_Code__c='331001';
         insert ledRec1;        
         leadList.add(ledRec1);
         mapOfLead.put(ledRec1.Id, ledRec1);
@@ -158,7 +160,7 @@ public class LeadTriggerHandlerTest {
         LeadTriggerHandler.beforeConversionCheckAnyFollowIsOpendThenThrowError(leadList, mapOfLead);
         LeadTriggerHandler.callQueableMethodForAfterUpdate(leadList, mapOfLead);
         LeadTriggerHandler.checkLeadStatus(leadList);
-        LeadTriggerHandler.createTestRideIftheCreateTestRideCheckboxIsTicked(leadList);   
+        //LeadTriggerHandler.createTestRideIftheCreateTestRideCheckboxIsTicked(leadList);   
     }
     
     
@@ -177,6 +179,8 @@ public class LeadTriggerHandlerTest {
         ledRec1.Status = 'New';
         ledRec1.Threshold_Count__c = 6;
         ledRec1.Phone = '9035244424';
+        ledRec1.LeadSource='Bike Dekho';
+        ledRec1.Dealer_Code__c='331001';
         insert ledRec1;        
         leadList.add(ledRec1);
         mapOfLead.put(ledRec1.Id, ledRec1);
@@ -243,7 +247,7 @@ public class LeadTriggerHandlerTest {
         testRide.Test_Drive_Date__c = system.now();
         Insert testRide;
         
-        LeadTriggerHandler.createTestRideIftheCreateTestRideCheckboxIsTicked(newLeadList);
+        //LeadTriggerHandler.createTestRideIftheCreateTestRideCheckboxIsTicked(newLeadList);
         LeadTriggerHandler.checkLeadStatus(newLeadList);
         LeadTriggerHandler.callQueableMethodForNewLead(newLeadList);
         LeadTriggerHandler.mytest();

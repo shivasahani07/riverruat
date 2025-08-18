@@ -54,89 +54,6 @@ public class WorkOrderTriggerHandler {
         }
     }
     
-    
-    
-    public static void validateWorkOrders(List<WorkOrder> newList, Map<Id, WorkOrder> oldMap) {
-        try {
-            Set<Id> vehicleSet = new Set<Id>();
-            Map<Id, Set<Id>> mapVehicleIdToWoIds = new Map<Id, Set<Id>>();
-            Set<Id> newVehicleSet = new Set<Id>();
-            
-            for (WorkOrder wo : newList) {
-                if (wo.Vehicle__c != null) {
-                    vehicleSet.add(wo.Vehicle__c);
-                }
-            }
-            
-            // Query existing work orders (excluding completed/canceled)
-            List<WorkOrder> existingWorkOrders = [
-                SELECT Id, Vehicle__c, Vehicle_Identification_number__c, Vehicle_registration_number__c 
-                FROM WorkOrder 
-                WHERE Vehicle__c IN :vehicleSet 
-                AND Status NOT IN ('Completed', 'Canceled')
-            ];
-            
-            for (WorkOrder wo : existingWorkOrders) {
-                if (!mapVehicleIdToWoIds.containsKey(wo.Vehicle__c)) {
-                    mapVehicleIdToWoIds.put(wo.Vehicle__c, new Set<Id>());
-                }
-                mapVehicleIdToWoIds.get(wo.Vehicle__c).add(wo.Id);
-            }
-            
-            // Fetch last odometer reading
-            Map<Id, Decimal> mapVehicleIdToMaxOdometer = new Map<Id, Decimal>();
-            List<AggregateResult> lastOdometerReadings = [
-                SELECT Vehicle__c vehicleId, MAX(Odometer_Reading__c) maxOdo
-                FROM WorkOrder
-                WHERE Vehicle__c IN :vehicleSet
-                AND Id NOT IN :new Map<Id, WorkOrder>(newList).keySet()
-                GROUP BY Vehicle__c
-            ];
-            
-            for (AggregateResult ar : lastOdometerReadings) {
-                mapVehicleIdToMaxOdometer.put((Id)ar.get('vehicleId'), (Decimal)ar.get('maxOdo'));
-            }
-            
-            for (WorkOrder wo : newList) {
-                // Duplicate VIN/VRN validation
-                if (Trigger.isInsert) {
-                    if ((mapVehicleIdToWoIds.containsKey(wo.Vehicle__c) && mapVehicleIdToWoIds.get(wo.Vehicle__c).size() > 0) ||
-                        newVehicleSet.contains(wo.Vehicle__c)) {
-                            wo.Vehicle__c.addError('A job card already exists for this vehicle with the same VIN or VRN.');
-                        }
-                    newVehicleSet.add(wo.Vehicle__c);
-                } else {
-                    if (mapVehicleIdToWoIds.containsKey(wo.Vehicle__c) && 
-                        mapVehicleIdToWoIds.get(wo.Vehicle__c).size() > 0 &&
-                        oldMap.get(wo.Id).Vehicle__c != wo.Vehicle__c) {
-                            
-                            if (!(mapVehicleIdToWoIds.get(wo.Vehicle__c).size() == 1 &&
-                                  mapVehicleIdToWoIds.get(wo.Vehicle__c).contains(wo.Id))) {
-                                      wo.Vehicle__c.addError('A job card already exists for this vehicle with the same VIN or VRN.');
-                                  }
-                        }
-                    
-                    if (!mapVehicleIdToWoIds.containsKey(wo.Vehicle__c)) {
-                        mapVehicleIdToWoIds.put(wo.Vehicle__c, new Set<Id>());
-                    }
-                    mapVehicleIdToWoIds.get(wo.Vehicle__c).add(wo.Id);
-                }
-                
-                // Odometer reading validation
-                if (wo.Odometer_Reading__c != null && mapVehicleIdToMaxOdometer.containsKey(wo.Vehicle__c)) {
-                    Decimal previousOdo = mapVehicleIdToMaxOdometer.get(wo.Vehicle__c);
-                    if (wo.Odometer_Reading__c <= previousOdo) {
-                        wo.Odometer_Reading__c.addError('Odometer reading must be greater than the previous recorded value: ' + previousOdo);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.debug('Error Message: ' + e.getMessage() + ' at Line Number: ' + e.getLineNumber());
-        }
-    }
-    
-    
-    
     public static void handleTrigger(List<WorkPlan> newobjWorkPlan) {
         
         Set<Id> setobjWorkPlan = new Set<Id>();
@@ -343,6 +260,7 @@ public class WorkOrderTriggerHandler {
             System.debug('Updated WorkPlans: ' + workPlansToUpdate);
         }
     }
+    
     
     
     public static void ResetPDICheckAfterJobCardClosed(List<WorkOrder> newWorkOrders, Map<Id, WorkOrder> oldWorkOrders) {
@@ -720,95 +638,208 @@ public class WorkOrderTriggerHandler {
         }
     }
     
-    public static void onJobcardOpenUdpateAssetMilestone(List<WorkOrder> orderList) {
-        try {
-            System.debug('orderList === ' + orderList);
-            
-            if (orderList.isEmpty()) {
-                return;
-            }
-            
-            // Map of Vehicle Id -> WorkOrder Created Date
-            Map<Id, Date> vehicleIdToWODate = new Map<Id, Date>();
-            Map<Id, String> vehicleIdToMaintenanceType = new Map<Id, String>();
-            
-            for (WorkOrder wo : orderList) {
-                System.debug('Inside1 === ' );
-                if (wo.AssetId != null && wo.RR_Periodic_Maintenance_Type__c != null) {
-                    vehicleIdToWODate.put(wo.AssetId, wo.CreatedDate.date());
-                    vehicleIdToMaintenanceType.put(wo.AssetId, wo.RR_Periodic_Maintenance_Type__c);
-                }
-            }
-            
-            if (vehicleIdToWODate.isEmpty()) {
-                return;
-            }
-            
-            // Build filter values for WHERE clause
-            Set<Id> vehicleIds = new Set<Id>();
-            Set<String> maintenanceTypes = new Set<String>();
-            
-            for (Id vehId : vehicleIdToMaintenanceType.keySet()) {
-                System.debug('Inside2 === ' );
-                vehicleIds.add(vehId);
-                maintenanceTypes.add(vehicleIdToMaintenanceType.get(vehId));
-            }
-            
-            List<AssetMilestone> milestonesToUpdate = [
-                SELECT Id, VehicleId, MilestoneDate, Stage, MilestoneType
-                FROM AssetMilestone
-                WHERE VehicleId IN :vehicleIds
-                AND MilestoneType IN :maintenanceTypes
-            ];
-            
-            
-            List<AssetMilestone> updateList = new List<AssetMilestone>();
-            set<Id> assetid = new Set<Id>();
-            for (AssetMilestone milestone : milestonesToUpdate) {
-                System.debug('Inside3 === ' );
-                Date woCreatedDate = vehicleIdToWODate.get(milestone.VehicleId);
-                assetid.add(milestone.id);
-                // Check if Milestone Date is greater than WO Created Date + 30 days
-                if (milestone.MilestoneDate != null && 
-                    milestone.MilestoneDate > woCreatedDate.addDays(30)) {
-                        
-                        milestone.Stage = 'Active';
-                        updateList.add(milestone);
-                    }
-            }
-            
-            if (!updateList.isEmpty()) {
-                System.debug('Inside4 === ' );
-                update updateList;
-                System.debug('Updated ' + updateList.size() + ' Asset Milestones to Active.');
-            }
-            
-            List<ServiceAppointment> serviceAppointMentlist = [Select id From ServiceAppointment where Asset_Milestone__c IN:assetid];
-            Set<Id> servAppointId = new set<Id>();
-            If(!serviceAppointMentlist.IsEmpty()){
-                System.debug('Inside5 === ' );
-                For(ServiceAppointment SARec :serviceAppointMentlist){
-                    servAppointId.add(SARec.Id);
-                }
-            }
-            
-            List<Task> tasklist = [Select id,Status from Task Where WhatId IN:servAppointId AND Status != 'Completed'];
-            List<Task> updateTasklist = new List<Task>();
-            If(!tasklist.IsEmpty()){
-                System.debug('Inside6 === ' );
-                For(Task taskRec : tasklist){
-                    taskRec.Status = 'Completed';
-                    updateTasklist.add(taskRec);               
-                }
-            }
-            
-            If(!updateTasklist.IsEmpty()){
-                System.debug('Inside7 === ' );
-                Update updateTasklist;
-                System.debug('Updated ' + updateTasklist.size() + ' All task is updated Completed .');
-            }
-        } catch (Exception e) {
-            System.debug('getError Message: ' + e.getMessage() + ' Get LineError: ' + e.getLineNumber());
+   public static void onJobcardOpenUdpateAssetMilestone(List<WorkOrder> orderList) {
+    try {
+        System.debug('orderList === ' + orderList);
+
+        if (orderList.isEmpty()) {
+            return;
         }
+
+        // Map of MaintenanceType -> Earliest WO Created Date
+        Map<String, Date> maintenanceTypeToWODate = new Map<String, Date>();
+
+        for (WorkOrder wo : orderList) {
+            System.debug('Inside1 === ');
+            if (wo.RR_Periodic_Maintenance_Type__c != null) {
+                Date woDate = wo.CreatedDate != null ? wo.CreatedDate.date() : Date.today();
+                
+                // Keep earliest WO date for each Maintenance Type
+                if (!maintenanceTypeToWODate.containsKey(wo.RR_Periodic_Maintenance_Type__c) ||
+                    maintenanceTypeToWODate.get(wo.RR_Periodic_Maintenance_Type__c) > woDate) {
+                    maintenanceTypeToWODate.put(wo.RR_Periodic_Maintenance_Type__c, woDate);
+                }
+            }
+        }
+
+        if (maintenanceTypeToWODate.isEmpty()) {
+            return;
+        }
+
+        Set<String> maintenanceTypes = maintenanceTypeToWODate.keySet();
+
+        // Query AssetMilestone by only MilestoneType
+        List<AssetMilestone> milestonesToUpdate = [
+            SELECT Id, VehicleId, MilestoneDate, Stage, MilestoneType
+            FROM AssetMilestone
+            WHERE MilestoneType IN :maintenanceTypes
+        ];
+
+        List<AssetMilestone> updateList = new List<AssetMilestone>();
+        Set<Id> assetMilestoneIds = new Set<Id>();
+
+        for (AssetMilestone milestone : milestonesToUpdate) {
+            System.debug('Inside3 === ');
+            Date woCreatedDate = maintenanceTypeToWODate.get(milestone.MilestoneType);
+            assetMilestoneIds.add(milestone.Id);
+
+            // Check if Milestone Date is greater than WO Created Date + 30 days
+            if (milestone.MilestoneDate != null && 
+                milestone.MilestoneDate > woCreatedDate.addDays(30)) {
+                milestone.Stage = 'Active';
+                updateList.add(milestone);
+            }
+        }
+
+        if (!updateList.isEmpty()) {
+            System.debug('Inside4 === ');
+            update updateList;
+            System.debug('Updated ' + updateList.size() + ' Asset Milestones to Active.');
+        }
+
+        // Get related ServiceAppointments
+        List<ServiceAppointment> serviceAppointmentList = [
+            SELECT Id,Call_Status__c
+            FROM ServiceAppointment
+            WHERE Asset_Milestone__c IN :assetMilestoneIds
+        ];
+
+        Set<Id> serviceAppointmentIds = new Set<Id>();
+        list<ServiceAppointment> UpdatedSAlist = new list<ServiceAppointment>();
+        if (!serviceAppointmentList.isEmpty()) {
+            System.debug('Inside5 === ');
+            for (ServiceAppointment saRec : serviceAppointmentList) {
+                serviceAppointmentIds.add(saRec.Id);
+                saRec.Call_Status__c = 'Completed';
+                UpdatedSAlist.add(saRec);
+            }
+        }
+
+        // Get and update related Tasks
+        List<Task> taskList = [
+            SELECT Id, Status
+            FROM Task
+            WHERE WhatId IN :serviceAppointmentIds
+            AND Status != 'Completed'
+        ];
+
+        List<Task> updateTaskList = new List<Task>();
+        if (!taskList.isEmpty()) {
+            System.debug('Inside6 === ');
+            for (Task taskRec : taskList) {
+                taskRec.Status = 'Completed';
+                updateTaskList.add(taskRec);               
+            }
+        }
+        
+        if(!UpdatedSAlist.IsEmpty()){
+            update UpdatedSAlist;
+        }
+
+        if (!updateTaskList.isEmpty()) {
+            System.debug('Inside7 === ');
+            update updateTaskList;
+            System.debug('Updated ' + updateTaskList.size() + ' tasks to Completed.');
+        }
+
+    } catch (Exception e) {
+        System.debug('getError Message: ' + e.getMessage() + 
+                     ' Get LineError: ' + e.getLineNumber());
     }
+   }
+       
+ public static void onJobcardCompleteUpdateAssetMilestone(List<WorkOrder> orderList, Map<Id, WorkOrder> oldMap) {
+    try {
+        System.debug('orderList === ' + orderList);
+
+        if (orderList.isEmpty()) {
+            return;
+        }
+
+        // Get Maintenance Types for WOs that have just been marked Completed
+        Set<String> maintenanceTypes = new Set<String>();
+        for (WorkOrder wo : orderList) {
+            WorkOrder oldWo = oldMap.get(wo.Id);
+
+            // Only run when status changes from something else to 'Completed'
+            if (wo.Status == 'Completed' && oldWo != null && oldWo.Status != 'Completed') {
+                if (wo.RR_Periodic_Maintenance_Type__c != null) {
+                    maintenanceTypes.add(wo.RR_Periodic_Maintenance_Type__c);
+                }
+            }
+        }
+
+        if (maintenanceTypes.isEmpty()) {
+            System.debug('No completed WorkOrders found for processing.');
+            return;
+        }
+
+        // Query AssetMilestone records by maintenance type
+        List<AssetMilestone> milestonesToUpdate = [
+            SELECT Id, VehicleId, MilestoneDate, Stage, MilestoneType
+            FROM AssetMilestone
+            WHERE MilestoneType IN :maintenanceTypes
+        ];
+
+        List<AssetMilestone> updateMilestoneList = new List<AssetMilestone>();
+        Set<Id> assetMilestoneIds = new Set<Id>();
+
+        for (AssetMilestone milestone : milestonesToUpdate) {
+            milestone.Stage = 'Active';
+            updateMilestoneList.add(milestone);
+            assetMilestoneIds.add(milestone.Id);
+        }
+
+        if (!updateMilestoneList.isEmpty()) {
+            update updateMilestoneList;
+            System.debug('Updated ' + updateMilestoneList.size() + ' Asset Milestones to Active.');
+        }
+
+        // Get related ServiceAppointments and mark Call_Status__c = 'Completed'
+        List<ServiceAppointment> serviceAppointmentList = [
+            SELECT Id, Call_Status__c
+            FROM ServiceAppointment
+            WHERE Asset_Milestone__c IN :assetMilestoneIds
+        ];
+
+        List<ServiceAppointment> updatedSAList = new List<ServiceAppointment>();
+        Set<Id> serviceAppointmentIds = new Set<Id>();
+        for (ServiceAppointment saRec : serviceAppointmentList) {
+            saRec.Call_Status__c = 'Completed';
+            updatedSAList.add(saRec);
+            serviceAppointmentIds.add(saRec.Id);
+        }
+
+        if (!updatedSAList.isEmpty()) {
+            update updatedSAList;
+            System.debug('Updated ' + updatedSAList.size() + ' Service Appointments to Completed.');
+        }
+
+        // Get and update related Tasks
+        List<Task> taskList = [
+            SELECT Id, Status
+            FROM Task
+            WHERE WhatId IN :serviceAppointmentIds
+            AND Status != 'Completed'
+        ];
+
+        List<Task> updateTaskList = new List<Task>();
+        for (Task taskRec : taskList) {
+            taskRec.Status = 'Completed';
+            updateTaskList.add(taskRec);
+        }
+
+        if (!updateTaskList.isEmpty()) {
+            update updateTaskList;
+            System.debug('Updated ' + updateTaskList.size() + ' Tasks to Completed.');
+        }
+
+    } catch (Exception e) {
+        System.debug('getError Message: ' + e.getMessage() +
+                     ' Get LineError: ' + e.getLineNumber());
+    }
+}
+
+
+
 }

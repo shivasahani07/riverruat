@@ -97,7 +97,7 @@ public wiThout SHARING class CustomProfileHandler {
             // 6. Insert all shares at once
             if (!shares.isEmpty()) {
                 try {
-                    insert shares;
+                    insert shares[0];
                     System.debug('Inserted ' + shares.size() + ' share records.');
                 } catch (DmlException dmlEx) {
                     System.debug('DML Exception: ' + dmlEx.getMessage());

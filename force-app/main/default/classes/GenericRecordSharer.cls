@@ -31,7 +31,7 @@ public without sharing class GenericRecordSharer {
             }
             
             Map<Id, Contact> contactMap = new Map<Id, Contact>(
-                [SELECT Id, Designation__c, AccountId FROM Contact WHERE Id IN :contactIds]
+                [SELECT Id, Designation__c, AccountId, Role_Type__c FROM Contact WHERE Id IN :contactIds]
             );
             
             system.debug('contactMap---:' +contactMap);
@@ -63,7 +63,13 @@ public without sharing class GenericRecordSharer {
             }
             
             system.debug('shareObjectName---:' +shareObjectName);
-            Schema.SObjectType shareType = Schema.getGlobalDescribe().get(shareObjectName);
+            // === Check Share Object Existence ===
+            Map<String, Schema.SObjectType> gd = Schema.getGlobalDescribe();
+            if (!gd.containsKey(shareObjectName)) {
+                System.debug('No share object exists for ' + objectApiName + '. Sharing logic will not execute.');
+                return;
+            }
+            Schema.SObjectType shareType = gd.get(shareObjectName);
             List<SObject> shares = new List<SObject>();
             for (Id recordId : recordIds) {
                 Id ownerId = recordToOwnerMap.get(recordId);
@@ -73,7 +79,7 @@ public without sharing class GenericRecordSharer {
                 if (!contactMap.containsKey(ownerUser.ContactId)) continue;
                 
                 Contact ownerContact = contactMap.get(ownerUser.ContactId);
-                Set<String> hierarchyRoles = getHierarchy(ownerContact.Designation__c);
+                Set<String> hierarchyRoles = getHierarchy(ownerContact.Designation__c, ownerContact.Role_Type__c);
                 
                 List<Contact> relatedContacts = accountToContacts.get(ownerContact.AccountId);
                 if (relatedContacts == null) continue;
@@ -84,7 +90,34 @@ public without sharing class GenericRecordSharer {
                         if(objectApiName=='lead'){
                             shareRecord.put('LeadId', recordId);
                             shareRecord.put('LeadAccessLevel', accessLevel);
-                        }else{
+                            
+                        }
+                        else if(objectApiName=='Contact'){
+                            shareRecord.put('ContactId', recordId);
+                            shareRecord.put('ContactAccessLevel', accessLevel);
+                            
+                        }
+                        else if(objectApiName=='Account'){
+                            shareRecord.put('AccountId', recordId);
+                            shareRecord.put('AccountAccessLevel', accessLevel);
+                            
+                        }
+                        else if(objectApiName=='Order'){
+                            shareRecord.put('OrderId', recordId);
+                            shareRecord.put('OrderAccessLevel', accessLevel);
+                            
+                        }
+                        else if(objectApiName=='Asset'){
+                            shareRecord.put('AssetId', recordId);
+                            shareRecord.put('AssetAccessLevel', accessLevel);
+                            
+                        }
+                        else if(objectApiName=='Case'){
+                            shareRecord.put('CaseId', recordId);
+                            shareRecord.put('CaseAccessLevel', accessLevel);
+                            
+                        }
+                        else{
                             shareRecord.put('ParentId', recordId);
                             shareRecord.put('AccessLevel', accessLevel);
                         }
@@ -100,8 +133,13 @@ public without sharing class GenericRecordSharer {
             
             // 6. Insert shares
             if (!shares.isEmpty()) {
-                System.debug('shares---: ' +shares);
-                insert shares;
+                try {
+                    insert shares;
+                    System.debug('Share---'+shares);
+                    System.debug('Inserted ' + shares.size() + ' share records.');
+                } catch (DmlException ex) {
+                    System.debug('DML Exception while inserting shares: ' + ex.getMessage()); 
+                }
             }
             
         } catch (Exception ex) {
@@ -110,22 +148,53 @@ public without sharing class GenericRecordSharer {
         }
     }
     
-    private static Set<String> getHierarchy(String designation) {
+    private static Set<String> getHierarchy(String designation, String roleType) {
         Set<String> hierarchySet = new Set<String>();
-        Map<String, Service_Roles_Hirarchy__mdt> metadataMap = new Map <String, Service_Roles_Hirarchy__mdt>();
-        Try{
-            for (Service_Roles_Hirarchy__mdt mdt : [SELECT DeveloperName, Eg_Value__c FROM Service_Roles_Hirarchy__mdt]) {
-                metadataMap.put(mdt.DeveloperName, mdt);
+        
+        try {
+            if (String.isBlank(roleType)) {
+                System.debug('Role Type is blank.');
+                return hierarchySet;
             }
-            if (metadataMap.containsKey(designation)) {
-                for (String val : metadataMap.get(designation).Eg_Value__c.split(',')) {
-                    hierarchySet.add(val.trim());
+            
+            if (String.isBlank(designation)) {
+                System.debug('Designation is blank.');
+                return hierarchySet;
+            }
+            
+            // Handle 'Service' role type
+            if (roleType.equalsIgnoreCase('Service')) {
+                Map<String, Service_Roles_Hirarchy__mdt> metadataMap = new Map<String, Service_Roles_Hirarchy__mdt>();
+                for (Service_Roles_Hirarchy__mdt mdt : [SELECT DeveloperName, Eg_Value__c, Label FROM Service_Roles_Hirarchy__mdt]) {
+                    metadataMap.put(mdt.Label, mdt);
+                }
+                System.debug('metadataMap ---'+ metadataMap);
+                if (metadataMap.containsKey(designation)) {
+                    for (String val : metadataMap.get(designation).Eg_Value__c.split(',')) {
+                        hierarchySet.add(val.trim());
+                    }
                 }
             }
+            // Handle 'Sales' role type
+            else if (roleType.equalsIgnoreCase('Sales')) {
+                Map<String, Sales_Role_Hirarchy__mdt> metadataMap = new Map<String, Sales_Role_Hirarchy__mdt>();
+                for (Sales_Role_Hirarchy__mdt mdt : [SELECT DeveloperName, Label, Eg_Value__c FROM Sales_Role_Hirarchy__mdt]) {
+                    metadataMap.put(mdt.Label, mdt);
+                }
+                System.debug('metadataMap ---'+ metadataMap);
+                if (metadataMap.containsKey(designation)) {
+                    for (String val : metadataMap.get(designation).Eg_Value__c.split(',')) {
+                        hierarchySet.add(val.trim());
+                    }
+                }
+            } else {
+                System.debug('Unsupported role type: ' + roleType);
+            }
+            
             System.debug('hierarchySet---: ' + hierarchySet);
             return hierarchySet;
-        }
-        catch(Exception ex){
+            
+        } catch(Exception ex) {
             System.debug('Error: ' + ex.getMessage());
             System.debug('Error: ' + ex.getLineNumber());
             return null;

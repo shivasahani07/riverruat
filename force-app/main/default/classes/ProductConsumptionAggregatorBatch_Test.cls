@@ -59,6 +59,21 @@ private class ProductConsumptionAggregatorBatch_Test {
         );
         insert ord;
 		
+        // Create Sales Consumption
+        List<Sales_Consumption__c> lstSalesConsumption = new List<Sales_Consumption__c>();
+        
+        for(Integer i = 6; i >= 1; i--){
+            Sales_Consumption__c sale = new Sales_Consumption__c(
+                Product__c = prod.Id,
+                Quantity_Consumed__c = 10,
+                Manual_Date_Test__c = System.today().addMonths(-i), // inside 6 months
+                Product_Inventory__c = pi.Id,
+                Order__c = ord.Id
+            );
+            lstSalesConsumption.add(sale);
+        }
+        insert lstSalesConsumption;
+        
         // Work Order
         WorkOrder wo = new WorkOrder(
             Subject = 'Test Work Order',
@@ -66,6 +81,16 @@ private class ProductConsumptionAggregatorBatch_Test {
             Service_Center__c = serviceCenter.Id
         );
         insert wo;
+        
+        // Product Consumed
+        ProductConsumed pc = new ProductConsumed(
+            //Product2Id = prod.Id,
+            ProductItemId = pi.Id,
+            WorkOrderId = wo.Id,
+            QuantityConsumed = 5,
+            Manual_Created_Date__c = System.today().addDays(-10)
+        );
+        insert pc;
         
         
     }

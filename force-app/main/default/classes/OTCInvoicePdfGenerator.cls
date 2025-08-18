@@ -153,7 +153,7 @@ public class OTCInvoicePdfGenerator {
                             System.debug('No existing invoice found, using default: ' + invoiceSequenceVH);
                         }
                         
-                        PageReference pdfPage = (productType == 'Accessories') ? Page.NewAccessoriesInvoicePDF
+                        PageReference pdfPage = (productType == 'Accessories' || productType == 'Parts') ? Page.NewAccessoriesInvoicePDF
                             : (productType == 'Merchandise') ? Page.NewMerchandiseInvoicePDF
                                 : null;
                         
@@ -168,7 +168,9 @@ public class OTCInvoicePdfGenerator {
                         Blob pdfBlob = Test.isRunningTest() ? Blob.valueOf('Test') : pdfPage.getContentAsPDF();
                         System.debug('Generated PDF Blob for Order: ' + ord.Id);
                         
-                        String attachmentName = 'OTC ' + productType + ' Invoice ' +
+                        String productLabel = (productType == 'Accessories' || productType == 'Parts') ? 'Accessories' : productType;
+                        
+                        String attachmentName = 'OTC ' + productLabel + ' Invoice ' +
                             ord.OrderNumber + '-' + Date.today().format() + ' ' +
                             System.now().format('h:mm a') + '.pdf';
                         

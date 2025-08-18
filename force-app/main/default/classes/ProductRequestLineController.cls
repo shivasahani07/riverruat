@@ -349,7 +349,7 @@ public Without Sharing class ProductRequestLineController {
     public static String createPurchaseorder(String shipmentType, String loggedInUserId, String ProductType) {
         System.debug('=== START createPurchaseorder ===');
         System.debug('Shipment Type: ' + shipmentType + ', Logged-in User ID: ' + loggedInUserId + ', Product Type ==> ' + ProductType);
-        
+        //System.debug('deliveryDate==>'+deliveryDate);
         
         List<ProductRequest> newProductRequest = new List<ProductRequest>();
         String userLocationId = '';
@@ -397,6 +397,7 @@ public Without Sharing class ProductRequestLineController {
         productRequest.Account__c = (useRec.Contact != null && useRec.Contact.AccountId != null) ? useRec.Contact.AccountId : null;
         productRequest.Contact__c = (useRec.ContactId != null) ? useRec.ContactId : null;
         productRequest.Destination_Location__c = userLocationId;
+        //productRequest.Expected_Delivery_Date__c=deliveryDate;
         
         newProductRequest.add(productRequest);
         

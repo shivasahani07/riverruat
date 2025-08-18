@@ -1,3 +1,3 @@
 <aura:application extends="force:slds">
-	 <c:jobCardActionPlanApproval recordId='0WOF4000001hBh1OAE'></c:jobCardActionPlanApproval>
+	 <c:rideRiverWarrantyRecord recordId='0WOBh000003cg1JOAQ'></c:rideRiverWarrantyRecord>
 </aura:application>

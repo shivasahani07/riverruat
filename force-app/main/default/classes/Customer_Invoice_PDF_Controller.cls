@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 08-11-2025
+ * @last modified on  : 08-14-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public class Customer_Invoice_PDF_Controller {
@@ -37,6 +37,23 @@ public class Customer_Invoice_PDF_Controller {
     public decimal laboursTotal {get; set;}
     public decimal invoiceTotal {get; set;}
     public String invoiceTotalInWords {get; set;}
+
+    public String storeType { get; set; }
+    public DeliveryChallanPDF__mdt dcPdf { get; set; } 
+
+    public string dodoAccName { get; set; }
+    public string dodoBillCityName { get; set; }
+    public string dodoBillStateName { get; set; }
+    public string dodoBillPostalCode { get; set; }
+    public string dodoBillEmail { get; set; }
+    public String dodoPhone { get; set; }
+    public string cocoBillEmail { get; set; }
+    public String cocoPhone { get; set; } 
+    public String cocoCIN { get; set; }
+    public Terms_and_Condition__mdt cocoTC { get; set; }
+    public String formatedIRNNumber { get; set; }
+
+    public String storeNameForBottom{get;set;}
     
     
     public Customer_Invoice_PDF_Controller(ApexPages.StandardController controller) {
@@ -66,15 +83,18 @@ public class Customer_Invoice_PDF_Controller {
         invoiceTotalInWords = '';
         
         String workOrderId = Apexpages.currentPage().getParameters().get('id');
+
+        dcPdf = [SELECT Id, CIN__c, Company_Email__c, Company_Phone__c, Company_Website__c, CompanyName__c, Factory_Address__c, Former_Address__c, GST__c, Registered_Office__c, Bill_From__c, Bill_To__c, PartA__c, Small_CName__c  FROM DeliveryChallanPDF__mdt] ;
         
         List<WorkOrder> workOrderList = [Select Id,CreatedDate,EndDate,Service_Center__r.Name,Service_Center__r.Company_GSTIN_name__c ,Service_Center__r.GSTIN_Number__c,Service_Center__r.ShippingStreet,Service_Center__r.ShippingCity,Service_Center__r.ShippingState,Service_Center__r.ShippingCountry,Service_Center__r.ShippingPostalCode,Company__c, Invoice_No__c, WorkOrderNumber, Invoice_Date__c, Account.ShippingState,Account.Name,Status,Service_Center__r.Center_Code__c, Same_State__c,
                                          Vehicle__r.Insurance__r.Name,Vehicle__r.Policy_Number__c, Vehicle__r.EngineNumber,Invoice_Type__c,Vehicle__r.isCustomerStateSame__c,City__r.State__c,Vehicle_Registration_Number__c,
 
                                          Vehicle__r.VehicleIdentificationNumber,Vehicle__r.Name,Vehicle__r.VehicleRegistrationNumber,Vehicle__r.LastOdometerReading,toLabel(RR_Job_Type__c),
                                          Vehicle__r.Dealer__r.Name,Vehicle__r.Dealer__r.ShippingStreet,Vehicle__r.Dealer__r.GSTIN_Number__c,Vehicle__r.Insurance__r.Address__c,
-                                         Vehicle__r.Insurance__r.GSTIN_Number__c,Vehicle__r.CurrentOwner.Name,Vehicle__r.CurrentOwner.GSTIN_Number__c,Vehicle__r.CurrentOwner.ShippingStreet,Service_Center__r.BillingCity,Service_Center__r.BillingCountry,Service_Center__r.BillingState,Service_Center__r.BillingStreet,
-                                         Service_Center__r.BillingPostalCode,Account.BillingStreet,Account.BillingCity,Account.BillingState,Account.BillingPostalCode,Account.Email__c,Account.Phone,Account.Secondary_Phone_Number__c,Account.GSTIN_Number__c,
-                                         Vehicle__r.CurrentOwner.ShippingCity,Vehicle__r.CurrentOwner.ShippingState,Vehicle__r.CurrentOwner.ShippingCountry,Vehicle__r.CurrentOwner.ShippingPostalCode,
+                                         Vehicle__r.Insurance__r.GSTIN_Number__c,Vehicle__r.CurrentOwner.Name,Vehicle__r.CurrentOwner.GSTIN_Number__c,Vehicle__r.CurrentOwner.ShippingStreet,Service_Center__r.BillingCity,Service_Center__r.BillingCountry,Service_Center__r.BillingState,Service_Center__r.BillingStreet,Service_Center__r.CIN__c,
+                                         Service_Center__r.BillingPostalCode,Account.BillingStreet,Account.BillingCity,Account.BillingState,Account.BillingPostalCode,Account.Email__c,Account.Phone,Account.Secondary_Phone_Number__c,Account.GSTIN_Number__c,Service_Center__r.Store_Type__c,Service_Center__r.Email__c,Service_Center__r.Phone,
+                                         Vehicle__r.CurrentOwner.ShippingCity,Vehicle__r.CurrentOwner.ShippingState,Vehicle__r.CurrentOwner.ShippingCountry,Vehicle__r.CurrentOwner.ShippingPostalCode,Service_Center__r.Secondary_Phone_Number__c,
+
                                          RR_Service_Advisor__r.Name,Odometer_Reading__c,toLabel(RR_Service_Advisor__r.ResourceType)
                                          From WorkOrder Where Id = :workOrderId Limit 1];
         
@@ -95,6 +115,39 @@ public class Customer_Invoice_PDF_Controller {
                                      from WorkPlan WHERE WorkOrderId =:workOrderRecord.Id AND RR_Labour_Category__c IN ('Paid')];
             
             system.debug('work plans are>>'+workPlansItemList);
+
+          //addded By Aniket on 13/08/2025
+           if (workOrderRecord.Service_Center__r.Store_Type__c != null) {
+                if (workOrderRecord.Service_Center__r.Store_Type__c == 'DODO') {
+                    storeType = 'DODO';
+                    dodoAccName = workOrderRecord.Service_Center__r.Name;
+                    dodoBillCityName = workOrderRecord.Service_Center__r.BillingCity != null ? workOrderRecord.Service_Center__r.BillingCity : '';
+                    dodoBillStateName = workOrderRecord.Service_Center__r.BillingState;
+                    dodoBillPostalCode = workOrderRecord.Service_Center__r.BillingPostalCode;
+                    dodoBillEmail = workOrderRecord.Service_Center__r.Email__c;
+                    dodoPhone = workOrderRecord.Service_Center__r.Phone;
+                } else if (workOrderRecord.Service_Center__r.Store_Type__c == 'COCO') {
+                    dodoAccName = 'RIVER MOBILITY PRIVATE LIMITED';
+                    storeType = 'COCO';
+                    dodoBillCityName = workOrderRecord.Service_Center__r.BillingCity;
+                    dodoBillStateName = workOrderRecord.Service_Center__r.BillingState;
+                    dodoBillPostalCode = workOrderRecord.Service_Center__r.BillingPostalCode;
+                    dodoBillEmail = workOrderRecord.Service_Center__r.Email__c;
+                    dodoPhone = workOrderRecord.Service_Center__r.Phone;
+                    cocoBillEmail = system.Label.COCOEmail;
+                    cocoPhone = System.label.COCOPhone;
+                    cocoCIN = System.label.COCOCIN;
+                }
+            }
+            
+          //////////////////////////////////
+
+          if(workorderRecord.Service_Center__r.Store_Type__c == 'COCO'){
+            storeNameForBottom = workorderRecord.Service_Center__r.Name;
+          }else if(workorderRecord.Service_Center__r.Store_Type__c == 'DODO'){
+            storeNameForBottom = workorderRecord.Service_Center__r.Company_GSTIN_name__c;
+          }
+
             
             if(workOrderLineItemList != null && workOrderLineItemList.size() > 0){
                 for(WorkOrderLineItem workItem : workOrderLineItemList){
@@ -148,6 +201,9 @@ public class Customer_Invoice_PDF_Controller {
         }
     }
     public String getFormattedBillingStreet() {
+        return workOrderRecord.Account.BillingStreet != null ? workOrderRecord.Account.BillingStreet.replace('\n', '<br/>') : '';
+    }
+    public String getFormattedAccountBillingStreet() {
         return workOrderRecord.Service_Center__r.BillingStreet != null ? workOrderRecord.Service_Center__r.BillingStreet.replace('\n', '<br/>') : '';
     }
 }

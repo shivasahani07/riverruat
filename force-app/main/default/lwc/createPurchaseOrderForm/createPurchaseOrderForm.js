@@ -19,6 +19,7 @@ export default class CreatePurchaseOrderForm extends LightningModal {
     accountRecordId = '';
     locationRecordId = '';
     selectedType = '';
+    deliveryDate='';
 
     @api purchaseOrderRecordId = {};
     @api POTempObj = {};
@@ -84,7 +85,29 @@ export default class CreatePurchaseOrderForm extends LightningModal {
 
     handleShipmentChange(event) {
         this.shipmentType = event.detail.value;
+
     }
+    //added by Aniket on 16/08/2025
+    // handleDeliveryDate(event){
+    //     debugger;
+    //     this.deliveryDate=event.target.value;
+    //     console.log('this.deliveryDate=>',this.deliveryDate);
+
+    //     let inputDateValidity = this.template.querySelector('.inputDate');
+
+    //     let rightNow = new Date();
+    //     let yyyyMmDd = rightNow.toISOString().slice(0,10);
+
+    //     let today = new Date(yyyyMmDd);
+    //     let inputDate = new Date(this.deliveryDate);
+
+    //     if(inputDate < today){
+    //         inputDateValidity.setCustomValidity('Choose a future Date');
+    //     }else{
+    //         inputDateValidity.setCustomValidity('');
+    //     }
+    //     inputDateValidity.reportValidity();
+    // }
 
     handleSubmitProcess() {
         if (this.shipmentType === '' || this.locationRecordId === null) {
@@ -97,6 +120,43 @@ export default class CreatePurchaseOrderForm extends LightningModal {
             );
             return;
         }
+        //new validation added by Aniket
+        // let rightNow = new Date();
+        // let yyyyMmDd = rightNow.toISOString().slice(0,10);
+
+        // let today = new Date(yyyyMmDd);
+        // let inputDate = new Date(this.deliveryDate);
+        // if(inputDate < today){
+        //     this.dispatchEvent(
+        //         new ShowToastEvent({
+        //             title: 'Error',
+        //             message: 'Expected Delivery Date Cannot be in past',
+        //             variant: 'error'
+        //         })
+        //     );
+        //     return;
+        // }
+        
+
+        //  let inputDateValidity = this.template.querySelector('.inputDate');
+        //  if(this.deliveryDate == ''){
+        //    inputDateValidity.setCustomValidity('Choose a Date');
+        //    this.dispatchEvent(
+        //         new ShowToastEvent({
+        //             title: 'Error',
+        //             message: 'Expected Delivery Date Cannot be Blank',
+        //             variant: 'error'
+        //         })
+        //     );
+        //     return;
+        //  }else{
+        //     inputDateValidity.setCustomValidity('');
+        //  }
+        //  inputDateValidity.reportValidity();
+         
+
+
+           
 
         this.firstScreen = false;
         this.middleScreen = true;
@@ -112,7 +172,9 @@ export default class CreatePurchaseOrderForm extends LightningModal {
         const obj = {
             shipmentType: this.shipmentType,
             loggedInUserId: this.currentUserId,
-            selectedType: this.selectedType
+            selectedType: this.selectedType,
+            deliveryDate: this.deliveryDate//added by Aniket on 16/08/2025
+
         };
 
         this.purchaseOrderRecordId = obj;

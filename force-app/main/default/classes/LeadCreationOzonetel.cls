@@ -22,30 +22,30 @@ global class LeadCreationOzonetel{
         String phone = (String) requestBodyMap.get('Phone');  
         String city = (String) requestBodyMap.get('City');  
         String postalCode = String.valueOf(requestBodyMap.get('PostalCode'));  
-       String dealerCode = (String) requestBodyMap.get('DealerCode');  
-
+        String dealerCode = (String) requestBodyMap.get('DealerCode');  
+        
         try {
             List<Lead> leads = [  
                 SELECT Id, LastName, Company, Email, Phone, City, Dealer_Code__c  
                 FROM Lead WHERE Phone = :phone LIMIT 1  
             ];  
-
+            
             Lead leadToUpdate;  
-
+            
             if (!leads.isEmpty()) {  
                 leadToUpdate = leads[0];  
             } else {  
                 leadToUpdate = new Lead();  
                 leadToUpdate.LeadSource = 'Ozonetel';  
             }  
-
+            
             leadToUpdate.LastName = fullName;  
             leadToUpdate.Company = fullName;  
             leadToUpdate.Email = email;  
             leadToUpdate.Phone = phone;  
             leadToUpdate.City = city;  
             leadToUpdate.PostalCode = postalCode;  
-
+            
             Account dealerCodeAccount;  
             if (String.isNotBlank(postalCode)) {  
                 String resolvedDealerCode = LeadTriggerHandler.getPreferredStoreByPincode(postalCode);  
@@ -61,16 +61,16 @@ global class LeadCreationOzonetel{
                     }  
                 }  
             }  
-
+            
             leadToUpdate.Stores_Name__c = dealerCodeAccount != null ? dealerCodeAccount.Name : '';  
             leadToUpdate.Dealer_Code__c = dealerCodeAccount != null ? dealerCodeAccount.Center_Code__c : dealerCode;  
-
+            
             if (leadToUpdate.Id != null) {  
                 update leadToUpdate;  
             } else {  
                 insert leadToUpdate;  
             }  
-
+            
             Integration_Log__c logObj = new Integration_Log__c(  
                 Integration_Type__c = 'Lead Creation - Ozonetel',  
                 Request_Payload__c = JSON.serializePretty(requestBodyMap),  
@@ -78,9 +78,9 @@ global class LeadCreationOzonetel{
                 Status__c = 'Success'  
             );  
             insert logObj;  
-
+            
             return 'Lead processed successfully: ' + leadToUpdate.Id;  
-
+            
         } catch (Exception e) {  
             Integration_Log__c logObj = new Integration_Log__c(  
                 Integration_Type__c = 'Lead Creation - Ozonetel',  
@@ -90,9 +90,9 @@ global class LeadCreationOzonetel{
                 Status__c = 'Failed'  
             );  
             insert logObj;  
-
+            
             return 'Error: ' + e.getMessage();  
         } 
     }  
-
+    
 }

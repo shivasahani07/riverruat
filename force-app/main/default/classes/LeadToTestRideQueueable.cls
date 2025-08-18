@@ -2,10 +2,10 @@
  * @description       : 
  * @author            : Aniket Karmakar
  * @group             : 
- * @last modified on  : 08-11-2025
+ * @last modified on  : 08-12-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
-public without sharing class LeadToTestRideQueueable {
+public without sharing class LeadToTestRideQueueable implements Queueable, Database.allowsCallouts{
     private List<Id> orderIdsToProcess;
     private String templateName;
     private Map<Id,String> orderByPhoneMap;
@@ -39,8 +39,8 @@ public without sharing class LeadToTestRideQueueable {
         List<WhatsappIntegration__c> ws = WhatsappIntegration__c.getAll().values();
         
         WhatsappIntegration__c w = WhatsappIntegration__c.getInstance('WhatsApp API');
-        String url = w.API_Endpoint__c!=null ? w.API_Endpoint__c : '';
-        String apikey = w.API_Endpoint_Updated__c!=null ? w.API_Endpoint_Updated__c : '';
+        String url = w.API_Endpoint_Updated__c!=null ? w.API_Endpoint_Updated__c : '';
+        String apikey = w.API_Key__c!=null ? w.API_Key__c : '';
         String recipientId = '91' + phoneNumber;
 
         // API endpoint
@@ -56,22 +56,21 @@ public without sharing class LeadToTestRideQueueable {
         Map<String, Object> template = new Map<String, Object>();
         template.put('name', templateName);
         template.put('language', 'en_US');
-        template.put('parameters', new Map<String, Object>()); // Parameters are currently empty
+        template.put('parameters', new Map<String, Object>()); 
 
         requestBody.put('template', template);
 
         
         String jsonBody = JSON.serialize(requestBody);
-        system.debug('jsonBody ===> ' + jsonBody);
+        system.debug('jsonBody ===> ' + JSON.serializePretty(requestBody));
 
         Http http = new Http();
         
         HttpRequest req = new HttpRequest();
         req.setEndpoint(url);
         req.setMethod('POST');
-        req.setHeader('apikey', apikey); // Replace with actual API key
+        req.setHeader('apikey', apikey);
         req.setHeader('Content-Type', 'application/json');
-       // req.setHeader('Cookie', 'PHPSESSID=baefcd0d990d72449dfb7692422f8a65'); // Replace with the actual session ID if required
         req.setBody(jsonBody);
 		system.debug('req ===> ' + req);
        

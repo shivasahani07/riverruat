@@ -1,3 +1,10 @@
+<!--
+  @description       : 
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             : 
+  @last modified on  : 08-14-2025
+  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+-->
 <apex:page standardController="Order" extensions="NewCreateReceiptVehicleController" applyHtmlTag="false" docType="html-5.0" showheader="false" renderAs="Pdf" standardStylesheets="true" sidebar="false">
     <head>
         <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
@@ -37,7 +44,7 @@
         </style>
     </head>
     
-    <body style="font-family: sans-serif;font-size:10pt;  margin: 0; padding: 0;">
+    <body style="font-family: sans-serif;font-size:14pt;  margin: 0; padding: 0;">
         <div>
             <table style="border-collapse: collapse; text-align: left; font-family: Arial, Helvetica, sans-serif; vertical-align: top;" width="100%">
                 <tr>

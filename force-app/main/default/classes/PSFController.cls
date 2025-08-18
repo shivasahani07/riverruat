@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 06-18-2025
+ * @last modified on  : 08-13-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public class PSFController {
@@ -201,9 +201,11 @@ public static void saveFeedback(
         String vfPageName = 'PostServiceFeedback';
         
         for (WorkOrder WorkOrd : newList) {
-            WorkOrder oldWorkOrd = oldMap.get(WorkOrd.Id);
+            //WorkOrder oldWorkOrd = oldMap.get(WorkOrd.Id);
+
+            Boolean isSchedulerRun = (oldMap == null);
             
-            if (WorkOrd.Status != oldWorkOrd.Status && WorkOrd.Status == 'Completed') {
+            if ((isSchedulerRun && WorkOrd.Status == 'Completed') ||(!isSchedulerRun && WorkOrd.Status != oldMap.get(WorkOrd.Id).Status && WorkOrd.Status == 'Completed')) {
                  fullUrl = siteBaseUrl + '/' + vfPageName + '?id=' + WorkOrd.Id;
                 System.debug('Generated URL: ' + fullUrl);
                 
@@ -274,9 +276,11 @@ leadToUpdate.add(leadUpdate);
         }
         
         for (WorkOrder ord : newLeads) {
-            WorkOrder oldOrd = oldMap.get(ord.Id);
+
+            Boolean isSchedulerRun = (oldMap == null);
+            //WorkOrder oldOrd = oldMap.get(ord.Id);
             
-            if (ord.Status != oldOrd.Status && ord.Status == 'Completed') {
+            if ((isSchedulerRun && ord.Status == 'Completed') ||(!isSchedulerRun && ord.Status != oldMap.get(ord.Id).Status && ord.Status == 'Completed')) {
                  String primaryContactPhone = accountPrimaryContactPhoneMap.get(ord.AccountId);
                  String serviceCentreName = serviceIdAndNameMap.get(ord.Service_Center__c);
                     newLeadIds.add(ord.Id);

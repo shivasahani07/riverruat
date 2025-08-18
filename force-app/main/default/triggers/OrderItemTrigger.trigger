@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 07-01-2025
+ * @last modified on  : 08-14-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 trigger OrderItemTrigger on OrderItem (before insert, after insert, after delete, after update, before update,before delete) {
@@ -21,6 +21,7 @@ trigger OrderItemTrigger on OrderItem (before insert, after insert, after delete
              if(TriggerInstancee.isActive__c == true){
            OrderItemTriggerHandler.createProductOnWebsite(Trigger.new);//added by Aniket on 14/05/2025
              }
+        OrderInventoryManagementHandler.manageInventory(Trigger.new);//added by Aniket on 13/08/2025     
         
     }
     if (Trigger.isAfter && Trigger.isDelete) {
@@ -38,6 +39,7 @@ trigger OrderItemTrigger on OrderItem (before insert, after insert, after delete
              }
         
         OrderItemTriggerHandler.inventoryUpdateAfterOTCProductDeletion(Trigger.old);//added by Aniket on 05/06/2025
+        //OrderInventoryManagementHandler.handleAfterDeletion(Trigger.old);//added by Aniket on 13/08/2025
     }
     
     

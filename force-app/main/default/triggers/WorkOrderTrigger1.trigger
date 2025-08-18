@@ -8,7 +8,7 @@
 trigger WorkOrderTrigger1 on WorkOrder (before insert, before update, after update, after Insert) {
     if (trigger.isAfter && trigger.isInsert) {
         WorkOrderTriggerHandler.handleNewJobCards(trigger.new);
-        WorkOrderTriggerHandler.onJobcardOpenUdpateAssetMilestone(trigger.new);
+       
     }
     if(Trigger.isAfter && Trigger.isUpdate){
         //code Added by Aniket on 14/02/2025
