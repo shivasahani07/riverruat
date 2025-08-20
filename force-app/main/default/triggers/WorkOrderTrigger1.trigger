@@ -2,12 +2,13 @@
 * @description       : 
 * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
 * @group             : 
-* @last modified on  : 06-17-2025
+* @last modified on  : 08-19-2025
 * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 trigger WorkOrderTrigger1 on WorkOrder (before insert, before update, after update, after Insert) {
     if (trigger.isAfter && trigger.isInsert) {
         WorkOrderTriggerHandler.handleNewJobCards(trigger.new);
+        GenericRecordSharer.shareRecordsWithHierarchy(Trigger.NewMap, 'WorkOrder', 'Read', 'Manual');
        
     }
     if(Trigger.isAfter && Trigger.isUpdate){

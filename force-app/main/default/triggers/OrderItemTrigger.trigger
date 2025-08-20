@@ -39,7 +39,7 @@ trigger OrderItemTrigger on OrderItem (before insert, after insert, after delete
              }
         
         OrderItemTriggerHandler.inventoryUpdateAfterOTCProductDeletion(Trigger.old);//added by Aniket on 05/06/2025
-        //OrderInventoryManagementHandler.handleAfterDeletion(Trigger.old);//added by Aniket on 13/08/2025
+        
     }
     
     

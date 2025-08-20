@@ -6,6 +6,7 @@
     <!--c:tfrCreator loading="true"></c:tfrCreator--> 
     <!--c:jobCardActionPlanApproval recordId='0WOBh000003WQQfOAO'></c:jobCardActionPlanApproval-->
     <!--c:customHighlightPanel recordId="0WOBh000003OxILOA0"></c:customHighlightPanel--> 
+    <!--c:bulkInsert_JCProductsCustom recordId="0WOBh000003cg1JOAQ"></c:bulkInsert_JCProductsCustom--> 
     
-    <c:bulkInsert_JCProductsCustom recordId="0WOBh000003cg1JOAQ"></c:bulkInsert_JCProductsCustom> 
+    <c:tfrCreator></c:tfrCreator> 
 </aura:application>

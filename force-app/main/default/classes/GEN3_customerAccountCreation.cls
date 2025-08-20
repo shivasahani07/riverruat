@@ -46,7 +46,7 @@ global class GEN3_customerAccountCreation {
                 GEN3_Wrapper.setResponse(401, 'Please provide pincode', null);
                 return;
             }
-
+            
             String Name = wrp.Name;
             string Email = wrp.Email;
             string Phone = wrp.Phone;
@@ -107,7 +107,7 @@ global class GEN3_customerAccountCreation {
             insert ocr;
             
             Integration_Log__c logObj = new Integration_Log__c(
-                Integration_Type__c = 'Mobile App',
+                Integration_Type__c = 'GEN 3',
                 Request_Payload__c = JSON.serializePretty(body),
                 Response_Payload__c = 'Enquiry Created successfully: ' + newOpp.Id,
                 Status__c = 'Success'
@@ -124,7 +124,7 @@ global class GEN3_customerAccountCreation {
         
         catch (Exception e) {
             Integration_Log__c logObj = new Integration_Log__c(
-                Integration_Type__c = 'Mobile App',
+                Integration_Type__c = 'GEN 3',
                 Request_Payload__c = JSON.serializePretty(body),
                 Response_Payload__c = 'Error: ' + e.getMessage(),
                 Error_Message__c = 'Exception: ' + e.getMessage(),

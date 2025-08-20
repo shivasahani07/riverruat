@@ -29,6 +29,7 @@ public with sharing class WarrantyTagPDFController {
     public String qrCodeData {get;set;}
     public String qrCodeURL {get;set;}
     public String dealerCode {get;set;}
+    public String qrCodeUrlFromField {get;set;}
     
     public WarrantyTagPDFController() {
         try{
@@ -42,7 +43,7 @@ public with sharing class WarrantyTagPDFController {
                         Claim.Job_Card__r.CreatedDate, Claim.Job_Card__r.Dealer_Observation__c, Quantity__c, Claim.Vehicle__r.Dealer__r.Name, Claim.Job_Card__r.Service_Center__r.Name, Claim.Job_Card__r.Odometer_Reading__c,
                         Claim.Vehicle__r.ModelName, Claim.Vehicle__r.LastOdometerReading, Claim.Vehicle__r.Purchased_Date__c, Claim.Vehicle__r.VehicleIdentificationNumber,Part__r.Product2.Name,
                         Claim.Vehicle__r.EngineNumber, Claim.Vehicle__r.VehicleRegistrationNumber, Part__r.Product_Code__c, Part__r.Consequential_Parts__c, Part__r.Electrical_Value__c, Part__r.LineItemNumber,  Part__r.Description,  
-                        Part__r.Replacement_Type__c, Electrical_Value_Formula__c, Claim.Job_Card__r.Service_Center__r.Center_Code__c
+                        Part__r.Replacement_Type__c, Electrical_Value_Formula__c, Claim.Job_Card__r.Service_Center__r.Center_Code__c, QR_Code_URL__c
                         FROM ClaimItem WHERE Id = :claimItemId LIMIT 1];
                      
                     System.debug('Fetched ClaimItem record ==>  ' + claimItem);
@@ -120,6 +121,8 @@ public with sharing class WarrantyTagPDFController {
                     qrCodeURL = 'http://api.qrserver.com/v1/create-qr-code/?data=' 
                     + EncodingUtil.urlEncode(qrCodeData, 'UTF-8') +
                     '&size=100x100&format=png';
+                    
+                    qrCodeUrlFromField = claimItem.QR_Code_URL__c;
                 } 
                 catch (Exception ex) {
                     System.debug('Error fetching Claim Item:  ' + ex.getMessage());

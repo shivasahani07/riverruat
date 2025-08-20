@@ -2,7 +2,7 @@ public class ClaimItemTriggerHandler {
     
     public static void processClaimUpdates(List<ClaimItem> updatedItems) {
         Set<Id> claimIds = new Set<Id>();
-
+        
         // Collect Claim IDs for processing
         for (ClaimItem item : updatedItems) {
             if (item.Status__c == 'Approved' || item.Status__c == 'Rejected' /*|| item.Status__c == 'Pending'*/) {
@@ -30,20 +30,20 @@ public class ClaimItemTriggerHandler {
             // Update Claims
             if (!claimsToUpdate.isEmpty()) {
                 update claimsToUpdate;
-
+                
                 // Notify System Admin if Claims are sent to Finance
                 sendNotificationToSystemAdmin(claimsToUpdate, 'Sent to Finance');
             }
         }
     }
-
+    
     private static List<Claim> evaluateAndUpdateClaims(Map<Id, List<ClaimItem>> claimItemsMap) {
         List<Claim> claimsToUpdate = new List<Claim>();
         
         for (Id claimId : claimItemsMap.keySet()) {
             Boolean hasPendingItems = false;
             Boolean allApprovedOrRejected = true;
-
+            
             // Check all Claim Items for the Claim
             for (ClaimItem ci : claimItemsMap.get(claimId)) {
                 if (ci.Status__c == 'Pending') {
@@ -53,7 +53,7 @@ public class ClaimItemTriggerHandler {
                     allApprovedOrRejected = false;
                 }
             }
-
+            
             // Update Claim status based on ClaimItem statuses
             if (hasPendingItems) {
                 claimsToUpdate.add(new Claim(
@@ -70,54 +70,86 @@ public class ClaimItemTriggerHandler {
         
         return claimsToUpdate;
     }
-
     
-
-   private static void sendNotificationToSystemAdmin(List<Claim> updatedClaims, String status) {
     
-    String emailBody = '<p>Dear Finance Team,</p>';
-    emailBody += '<p>The following claims have been updated to "<b>' + status + '</b>":</p>';
-
-    String baseUrl = System.URL.getOrgDomainUrl().toExternalForm();
-
-    for (Claim claim : updatedClaims) {
-        if (claim.Status == status) {
-            String claimLink = baseUrl + '/' + claim.Id;
-            emailBody += 'Claim ID: <a href="' + claimLink + '">' + claim.Id + '</a></p>';
+    
+    private static void sendNotificationToSystemAdmin(List<Claim> updatedClaims, String status) {
+        
+        String emailBody = '<p>Dear Finance Team,</p>';
+        emailBody += '<p>The following claims have been updated to "<b>' + status + '</b>":</p>';
+        
+        String baseUrl = System.URL.getOrgDomainUrl().toExternalForm();
+        
+        for (Claim claim : updatedClaims) {
+            if (claim.Status == status) {
+                String claimLink = baseUrl + '/' + claim.Id;
+                emailBody += 'Claim ID: <a href="' + claimLink + '">' + claim.Id + '</a></p>';
+            }
+        }
+        
+        emailBody += '<p>Best regards,<br>Your Salesforce System</p>';
+        
+        List<User> financeUsers = [
+            SELECT Email
+            FROM User
+            WHERE Profile.Name = 'Finance'
+            AND IsActive = true
+        ];
+        
+        List<String> financeEmails = new List<String>();
+        for (User user : financeUsers) {
+            financeEmails.add(user.Email);
+        }
+        
+        if (!financeEmails.isEmpty()) {
+            OrgWideEmailAddress owea = [SELECT Id, DisplayName 
+                                        FROM OrgWideEmailAddress 
+                                        WHERE DisplayName = :System.Label.OrgWideEmail 
+                                        LIMIT 1];
+            
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            email.setToAddresses(financeEmails);
+            email.setSubject('Claims Updated to "' + status + '"');
+            email.setHtmlBody(emailBody); 
+            if (owea != null) {
+                email.setOrgWideEmailAddressId(owea.Id);
+            }
+            
+            Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });
         }
     }
+    
+    // Generate QR Code on Before Insert or Update of Claim Item
+    public static void generateQRCodes(List<ClaimItem> claimItems){
+        
+        Map<Id, ClaimItem> ciMap = new Map<Id, ClaimItem>(
+            [SELECT Id, Name, Claim_Item_Number__c, 
+                    Claim.Job_Card__r.Odometer_Reading__c, 
+                    Claim.Job_Card__r.Vehicle_Identification_Number__c, 
+                    Part__c, Part__r.LineItemNumber, 
+                    Claim.Job_Card__r.Service_Center__r.Center_Code__c
+             FROM ClaimItem
+             WHERE Id IN :claimItems]
+        );
+        
+        for(ClaimItem ci : claimItems){
+            ClaimItem fullCi = ciMap.get(ci.Id);
+            if(fullCi == null) continue;
+            
+            String qrData = 
+                'VIN           : ' + fullCi.Claim.Job_Card__r.Vehicle_Identification_Number__c + 
+                '\nPart          : ' + fullCi.Part__r.LineItemNumber + 
+                '\nODO           : ' + fullCi.Claim.Job_Card__r.Odometer_Reading__c + 
+                '\nDealer Code   : ' + fullCi.Claim.Job_Card__r.Service_Center__r.Center_Code__c;
+            
+            // Data to pass
+            String encoded = EncodingUtil.urlEncode(qrData, 'UTF-8');
 
-    emailBody += '<p>Best regards,<br>Your Salesforce System</p>';
-
-    List<User> financeUsers = [
-        SELECT Email
-        FROM User
-        WHERE Profile.Name = 'Finance'
-        AND IsActive = true
-    ];
-
-    List<String> financeEmails = new List<String>();
-    for (User user : financeUsers) {
-        financeEmails.add(user.Email);
-    }
-
-    if (!financeEmails.isEmpty()) {
-        OrgWideEmailAddress owea = [SELECT Id, DisplayName 
-                                    FROM OrgWideEmailAddress 
-                                    WHERE DisplayName = :System.Label.OrgWideEmail 
-                                    LIMIT 1];
-
-        Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-        email.setToAddresses(financeEmails);
-        email.setSubject('Claims Updated to "' + status + '"');
-        email.setHtmlBody(emailBody); 
-        if (owea != null) {
-            email.setOrgWideEmailAddressId(owea.Id);
+            // API URL
+            String qrUrl = 'http://api.qrserver.com/v1/create-qr-code/?data=' + encoded + '&size=100x100&format=png';
+            
+            // Assign value to QR Code URL Field
+            ci.QR_Code_URL__c = qrUrl;
         }
-
-        Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });
     }
-}
-
-
 }

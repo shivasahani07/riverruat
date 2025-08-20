@@ -72,6 +72,7 @@ trigger OrderTrigger on Order (
         OrderTriggerHandler.sendWhatsAppAfterOrderCreation(Trigger.new, Trigger.oldMap);
          //OTCInvoicePdfGenerator.handleOrderUpdate(Trigger.new, null);
        // OrderTriggerHandler.eWAndRSAAfterOTC(Trigger.new);//added by Aniket on 02/05/2025
+       GenericRecordSharer.shareRecordsWithHierarchy(Trigger.NewMap, 'WorkOrder', 'Read', 'Manual');
     }
     // ==================== AFTER UPDATE SECTION ====================
     if (Trigger.isAfter && Trigger.isUpdate) {

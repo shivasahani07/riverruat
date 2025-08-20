@@ -1,0 +1,116 @@
+.dummy{
+	color : blue;
+}
+
+/* You may need additional styles to match the exact look and feel from the image */
+.seeMoreBTN{
+    color: #FFDC24;
+font-style: normal;
+font-weight: 400;
+line-height: 20px; /* 153.846% */
+}
+.example-accordion {
+    --slds-c-accordion-color-border: #0176D3;
+	--slds-c-accordion-heading-text-color :white;
+}
+.hoverOnsession:hover{
+	 font-weight: bold;
+	 --slds-c-accordion-heading-text-color :white;
+	 background: #6CA1E9;
+	 box-shadow: 4px 0px 0px 0px #FFDC24 inset;
+}
+.contentBody{
+    height: 440px;
+    overflow-y: scroll;
+}
+.contentBody::-webkit-scrollbar {
+    display: none;
+}
+.grid-container {
+    display: grid;
+}
+.quizBox{
+	border-radius: 4px;
+border: 1px solid var(--Foundation-Gray-Neutral-80, #C9C9C9);
+background: var(--Foundation-Gray-Neutral-100, #FFF);
+
+/* 04 - Card / Default */
+box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.10);
+}
+.quizTitel{
+	color: var(--Text-Default, #181818);
+font-feature-settings: 'clig' off, 'liga' off;
+font-size: 24px;
+font-style: normal;
+font-weight: 700;
+line-height: 24px; /* 150% */
+}
+.quizImageText{
+    color: #000;
+    text-align: center;
+font-size: 14px;
+font-style: normal;
+font-weight: 400;
+line-height: 21px; /* 150% */
+}
+.quizBody{
+    overflow-y: scroll;
+    height: 290px;
+}
+.quizBody::-webkit-scrollbar {
+    display: none;
+}
+.quiz-footer {
+    text-align: center;
+    padding-top: 1rem;
+	box-shadow: 0px -1px 0px 0px #C9C9C9;
+}
+
+.quiz-footer a {
+    color: #0070d2;
+    text-decoration: none;
+	font-weight: 700;
+}
+.desSmallTitleText{
+	color: #1A1A1A;
+font-feature-settings: 'clig' off, 'liga' off;
+font-size: 20px;
+font-style: normal;
+font-weight: 700;
+line-height: 24px; /* 150% */
+}
+.desTitelText{
+	color: #1A1A1A;
+font-feature-settings: 'clig' off, 'liga' off;
+font-size: 24px;
+font-style: normal;
+font-weight: 700;
+line-height: 32px; /* 133.333% */
+}
+.slds-list_dotted li {
+    list-style-type: disc;
+    margin-left: 1rem;
+}
+.video-container {
+    position: relative;
+    width: 100%; /* or specific width as needed */
+    max-width: 533px; /* As per the image */
+    margin: auto; /* Center the video in the container */
+}
+
+.video-player {
+    width: 100%;
+    height: auto; /* maintain aspect ratio */
+    border-radius: 0.25rem; /* Rounded corners as per the image */
+}
+
+.video-timestamp {
+    position: absolute;
+    right: 1rem; /* Positioned at the bottom-right corner of the video */
+    bottom: 1rem;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    color: #FFFFFF; /* White text */
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem; /* Small font size for timestamp */
+}

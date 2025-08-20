@@ -52,7 +52,7 @@ export default class TfrSampleForm extends LightningElement {
         this.isLoading = true;
         this.recordId = event.detail.id;
         this.showToast('Success', 'TFR Sample record created/updated', 'success');
-        this.sendEevntToParent('Success',true,event.detail.id,inputObject.Id);
+        // this.sendEevntToParent('Success',true,event.detail.id,this.inputObject.Id);
         this.isLoading = false;
     }
 
@@ -81,6 +81,15 @@ export default class TfrSampleForm extends LightningElement {
                 parentId:parentId
             }
         }));
+
+    }
+    
+    // NOT IN  USE
+    updateTFRonPart(partId,tfrid){
+      const  parts = [];
+      WorkOrderLineItem = {};
+      WorkOrderLineItem.Id=partId;
+      WorkOrderLineItem.TFR__C=tfrid;
 
     }
 }

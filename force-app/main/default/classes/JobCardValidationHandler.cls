@@ -1,9 +1,9 @@
 /**
  * @description       : Preventing Update if job card is already completed
- * @author            : 
+ * @author            : Ram Kumar
  * @group             : 
  * @last modified on  : 08-11-2025
- * @last modified by  : 
+ * @last modified by  : Ram Kumar
 **/
 public class JobCardValidationHandler {
 

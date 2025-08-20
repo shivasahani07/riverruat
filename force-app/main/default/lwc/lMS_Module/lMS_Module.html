@@ -1,0 +1,186 @@
+<template>
+	<div class="slds-grid slds-wrap" style="background-color:white;width:100%">
+		<!-- Accordion Section -->
+        <div class="slds-col slds-size_1-of-1 slds-large-size_3-of-12 slds-theme_default" style="background-color:#0176D3;color:white;padding:20px;min-height: 27.9rem;">
+			<div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_left">
+					<lightning-icon icon-name="utility:search" size="x-small"
+						class="slds-input__icon slds-icon-text-default"></lightning-icon>
+					<input type="text" id="search-input" class="slds-input" placeholder="Search" />
+			</div>
+            <!-- Existing Code for Search and Accordion -->
+            <lightning-accordion class="example-accordion" allow-multiple-sections-open>
+                <template for:each={filteredData} for:item="module" for:index="index">
+                    <lightning-accordion-section name={module.modules.modulename} label={module.modules.modulename} key={module.modules.moduleId}>
+                        <!-- Session Rendering Code -->
+						<template if:true={module.modules.sessions}>
+								<template for:each={module.modules.sessions} for:item="session">
+									<div key={session.sessionId} onclick={Handleclicksession}
+										data-session-id={session.sessionId}
+										class="slds-p-around_x-small slds-media slds-media_center slds-hint-parent hoverOnsession">
+										<span class="slds-media__body">{session.sessionname}</span>
+									</div>
+								</template>
+							</template>
+                    </lightning-accordion-section>
+                </template>
+            </lightning-accordion>
+            <a class="seeMoreBTN" onclick={handleSeeMore} if:true={isSeeMoreVisible}>See More</a>
+        </div>
+			<!-- Main Content Section -->
+			<div class="slds-col slds-size_1-of-1 slds-large-size_9-of-12">
+				<div class="slds-grid slds-wrap">
+					<!--Video Content Section-->
+					<div class="slds-col slds-size_1-of-1 slds-large-size_2-of-3 contentBody">
+						<div class="video-container">
+							<video class="video-player" controls poster="/resources/video-poster.jpg">
+								<!-- Replace with your actual video source -->
+								<source src="/resources/video.mp4" type="video/mp4">
+								<!-- Add additional video sources for other formats if necessary -->
+								Your browser does not support the video tag.
+							</video>
+							<div class="video-timestamp">02:00</div>
+						</div>
+						<!-- Description Section -->
+						<div class="slds-p-around_medium">
+							<div class="desTitelText">Onboarding and Store Operations- Introduction to GoColors and its
+								mission</div>
+							<article class="slds-m-around_medium">
+								<div class="desSmallTitleText">Description</div>
+								<p class="slds-text-body_regular slds-m-bottom_large">
+									Welcome to the vibrant world of GoColors! In this submodule, you'll embark on a
+									journey to understand the essence of GoColors and its mission within the retail
+									landscape. As a crucial part of your onboarding process, this submodule aims to
+									provide you with insights into the brand's identity, values, and aspirations.
+								</p>
+
+								<div class="desSmallTitleText">Learning Objectives</div>
+								<ol class="slds-list_ordered slds-list_vertical-space">
+									<li class="slds-text-body_regular">
+										<strong>Understanding the GoColors Brand:</strong> Delve into the history and
+										background of GoColors, exploring its origins, evolution, and unique positioning
+										in the fashion industry.
+									</li>
+									<li class="slds-text-body_regular">
+										<strong>Exploring the Brand Identity:</strong> Gain an insight into the core
+										elements that define GoColors, including its style philosophy, target audience,
+										and key product offerings.
+									</li>
+									<li class="slds-text-body_regular">
+										<strong>Unveiling the Mission:</strong> Discover the driving force behind
+										GoColors' existence. Learn about the brand's mission, vision, and commitment to
+										delivering exceptional experiences to customers.
+									</li>
+									<li class="slds-text-body_regular">
+										<strong>Embracing Values and Culture:</strong> Explore the values and culture
+										that underpin GoColors' operations, fostering a sense of belonging and alignment
+										among team members.
+									</li>
+									<li class="slds-text-body_regular">
+										<strong>Connecting with the Customer:</strong> Gain an understanding of the
+										importance of building strong relationships with customers and delivering
+										unparalleled service in line with GoColors' mission.
+									</li>
+								</ol>
+
+								<div class="desSmallTitleText">Course Structure</div>
+								<ol class="slds-list_ordered slds-list_vertical-space">
+									<li class="slds-text-body_regular">
+										<strong>Introduction to GoColors:</strong> Get acquainted with the brand's
+										history, vision, and key milestones.
+									</li>
+									<li class="slds-text-body_regular">
+										<strong>Defining the Brand Identity:</strong> Dive deeper into GoColors' unique
+										style, target market, and product range.
+									</li>
+									<li class="slds-text-body_regular">
+										<strong>Mission Unveiled:</strong> Explore the brand's mission statement and its
+										significance in driving organizational goals.
+									</li>
+									<li class="slds-text-body_regular">
+										<strong>Cultural Immersion:</strong> Learn about the values and culture that
+										shape the GoColors experience for both customers and employees.
+									</li>
+									<li class="slds-text-body_regular">
+										<strong>Customer-Centric Approach:</strong> Understand the importance of
+										prioritizing customer satisfaction and loyalty in line with GoColors' mission.
+									</li>
+								</ol>
+							</article>
+							<div class="desSmallTitleText">Who Should take this course</div>
+							<p class="slds-text-body_regular slds-m-bottom_large">
+								This submodule is essential for all new team members joining GoColors, including store
+								staff, managers, and support personnel. It provides a foundational understanding of the
+								brand's ethos and sets the stage for delivering exceptional customer experiences.Join us
+								as we embark on an exciting journey to discover the essence of GoColors and align
+								ourselves with its mission of spreading joy and style to every corner of the fashion
+								world.
+							</p>
+
+
+						</div>
+					</div>
+
+					<!--Start Quiz Section -->
+					<template if:true={showstart_quiz_scrren}>
+						<div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
+							<div class="slds-box slds-theme_default slds-theme_shade slds-m-around_medium quizBox">
+								<div class="slds-grid slds-align_absolute-center slds-wrap">
+									<div class="slds-col slds-size_1-of-2">
+										<div class="quizTitel">Quiz Time</div>
+									</div>
+								</div>
+								<div class="slds-m-around_medium quizBody">
+									<!--add Image-->
+									<img src={quizImageUrl} alt="Quiz Image" class="quizImage">
+									<div class="quizImageText">To earn 6 Points start the quiz now!</div>
+
+								</div>
+								<div class="quiz-footer">
+									<a href="javascript:void(0);" onclick={handleStratQuiz}>Start Quiz</a>
+								</div>
+							</div>
+						</div>
+					</template>
+
+
+                    <!-- Quiz Section -->
+					<template if:false={showstart_quiz_scrren}>
+						<div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
+							<div class="slds-box slds-theme_default slds-theme_shade slds-m-around_medium quizBox">
+								<div class="slds-grid slds-align_absolute-center slds-wrap">
+									<div class="slds-col slds-size_1-of-2">
+										<div class="quizTitel">Quiz Time</div>
+									</div>
+									<div class="slds-col slds-size_1-of-2 slds-text-align_right">
+										<div class="totalPoints slds-text-heading_medium">Total Points: 6</div>
+									</div>
+								</div>
+								<div class="slds-m-around_medium quizBody">
+									<lightning-radio-group name="quizQuestion1" label="1. What is the mission of GoColors?"
+										options={quizOptionsQuestion1} value={selectedQuizValue}
+										onchange={handleQuizChange}>
+									</lightning-radio-group>
+									<lightning-radio-group name="quizQuestion2"
+										label="2. Which of the following best describes GoColors' primary product range?"
+										options={quizOptionsQuestion2} value={selectedQuizValue}
+										onchange={handleQuizChange}>
+									</lightning-radio-group>
+									<lightning-radio-group name="quizQuestion3"
+										label="3. How does GoColors differentiate itself in the market?"
+										options={quizOptionsQuestion3} value={selectedQuizValue}
+										onchange={handleQuizChange}>
+									</lightning-radio-group>
+
+								</div>
+								<div class="quiz-footer">
+									<a href="javascript:void(0);" onclick={handleSubmitQuiz}>Submit</a>
+								</div>
+							</div>
+						</div>
+                    </template>
+
+					<!--End Quiz Section-->
+				</div>
+			</div>
+		</div>
+</template>

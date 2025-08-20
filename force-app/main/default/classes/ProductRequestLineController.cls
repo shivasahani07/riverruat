@@ -863,7 +863,7 @@ public Without Sharing class ProductRequestLineController {
                 Id orderIdToUpdate = newOrderItems[0].OrderId;
                 if (orderIdToUpdate != null) {
                     Order ordToUpdate = [SELECT Id, Status FROM Order WHERE Id = :orderIdToUpdate LIMIT 1];
-                    ordToUpdate.Status = 'Submitted to Finance	'; // Or any status/field you want to update
+                    ordToUpdate.Status = 'PO Payment Pending'; // Or any status/field you want to update//changed by Aniket on 19/08/2025
                     update ordToUpdate;
                     System.debug('Updated Order: ' + ordToUpdate);
                 }

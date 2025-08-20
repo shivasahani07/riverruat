@@ -36,8 +36,8 @@ public class WorkOrderLineItemTrgHandler1 {
                     WorkOrder wrkord = workOrderMap.get(prts.WorkOrderId);
                     if (wrkord.Status != null && ConstantData.blockedStatuses.contains(wrkord.Status)) {
                         prts.addError(
-                            'You cannot update or delete Part because the related Job Card status is "' + wrkord.Status + '". ' +
-                            'Please change the status of the Job Card to "new" or "In progress" for any modifications or deletions.'
+                            'You cannot update or delete Part because the related Job Card status is "' + wrkord.Status
+                            //'Please change the status of the Job Card to "new" or "In progress" for any modifications or deletions.'
                         );
                     }
                 }

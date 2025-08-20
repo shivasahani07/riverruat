@@ -501,6 +501,7 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
 
     // FORM SUBMISSION
     async handleSubmit() {
+        debugger;
         this.isLoading = true;
         console.log('Before Processing', JSON.stringify(this.itemList))
         if (!this.validateForm()) {
@@ -523,12 +524,12 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
         }
 
         try {
-            // const lineItems = this.prepareLineItems();
-            // console.log('After Processing', JSON.stringify(lineItems))
-            // await createWorkOrderLineItems({ lineItems });
-            // this.showToast('Success', 'Products added successfully', 'success');
-            // await refreshApex(this.refreshResultData);
-            // this.resetForm();
+            const lineItems = this.prepareLineItems();
+            console.log('After Processing', JSON.stringify(lineItems))
+            await createWorkOrderLineItems({ lineItems });
+            this.showToast('Success', 'Products added successfully', 'success');
+            await refreshApex(this.refreshResultData);
+            this.resetForm();
              this.isLoading = false;
         }
         catch (error) {

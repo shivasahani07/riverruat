@@ -12,12 +12,14 @@
                         <th scope="col">Claim No.</th>
                         <th scope="col">Claim Item Number</th>
                         <th scope="col">Part No</th>
+                        <th scope="col">Product Code</th>
                         <th scope="col">HSN Code</th>
                         <th scope="col">Warranty Type</th>
                         <th scope="col">Status</th>
                         <th scope="col">Claim Amount</th>
                         <th scope="col">Shipped Quantity</th>
                         <th scope="col" style="width: 150px; white-space: nowrap; text-align: center;">Received Quantity</th>
+                        <th scope="col" style="width: 150px; white-space: nowrap; text-align: center;">Remarks</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -27,6 +29,7 @@
                             <td style="font-family: 'Arial', sans-serif; font-size: 14px; ">{ClaimItem.Claim.Name}</td>
                             <td style="font-family: 'Arial', sans-serif; font-size: 14px; ">{ClaimItem.Claim_Item_Number__c}</td>
                             <td style="font-family: 'Arial', sans-serif; font-size: 14px; ">{ClaimItem.Part__r.LineItemNumber}</td>
+                            <td style="font-family: 'Arial', sans-serif; font-size: 14px; ">{ClaimItem.Product_Code__c}</td>
                             <td style="font-family: 'Arial', sans-serif; font-size: 14px; ">{ClaimItem.Part__r.HSN_Code__c}</td>
                             <td style="font-family: 'Arial', sans-serif; font-size: 14px; ">{ClaimItem.Claim.ClaimType}</td>
                             <td style="font-family: 'Arial', sans-serif; font-size: 14px; ">{ClaimItem.Status__c}</td>
@@ -34,13 +37,24 @@
                             <td style="font-family: 'Arial', sans-serif; font-size: 14px; text-align: center; ">{ClaimItem.Quantity_Formula__c}</td>
                             <td style="font-family: 'Arial', sans-serif; font-size: 14px; text-align: center; width: 150px; white-space: nowrap; ">                    
                                 <lightning-input
-                                type="number"
-                                value={ClaimItem.Received_Quantity__c}
-                                data-id={ClaimItem.Id}
-                                data-field="Received_Quantity__c"
-                                onchange={handleQuantityChange}
-                                style="width: 100px; padding: 5px; border-radius: 4px; margin-bottom: 10px;"
-                            ></lightning-input></td>
+                                    type="number"
+                                    value={ClaimItem.Received_Quantity__c}
+                                    data-id={ClaimItem.Id}
+                                    data-field="Received_Quantity__c"
+                                    onchange={handleQuantityChange}
+                                    style="width: 100px; padding: 5px; border-radius: 4px; margin-bottom: 10px;">
+                                </lightning-input>
+                            </td>
+                            <td style="font-family: 'Arial', sans-serif; font-size: 14px; text-align: center; width: 150px; white-space: nowrap; ">                    
+                                <lightning-textarea
+                                    type="text"
+                                    value={ClaimItem.Remarks__c}
+                                    data-id={ClaimItem.Id}
+                                    data-field="Remarks__c"
+                                    onchange={handleRemarksChange}
+                                    style="width: 200px; padding: 5px; border-radius: 4px; margin-bottom: 10px;">
+                                </lightning-textarea>
+                            </td>
                             <!-- <td> <lightning-input data-field="Received_Quantity__c" value={ClaimItem.Received_Quantity__c} onchange={handleQuantityChange} style=" padding: 5px; border-radius: 4px;margin-bottom:10px" disabled={inputDisable}></lightning-input></td> -->
                         </tr>
 

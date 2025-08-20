@@ -151,7 +151,7 @@ public without sharing class clainAndShipmentItemController {
                 Amount__c, Quantity_Formula__c, Received_Quantity__c, Rejection_Reason__c, 
                 Claim.Create_Batch__c, Claim.Create_Batch__r.Name, Approved_Quantity__c,
                 Quantity_Rejected__c,Claim.Create_Batch__r.Send_to_Finance__c ,
-                Claim.Shipped_Quantity__c
+                Claim.Shipped_Quantity__c, Remarks__c
                 FROM ClaimItem 
                 WHERE Claim.Create_Batch__c = :recordId 
                  
@@ -267,7 +267,8 @@ public without sharing class clainAndShipmentItemController {
                 Part__r.HSN_Code__c,
                 Part__r.LineItemNumber,
                 Claim.Create_Batch__r.Is_GRN_Received__c, Quantity_Rejected__c,
-                Claim.Shipped_Quantity__c
+                Claim.Shipped_Quantity__c,
+                Remarks__c, Product_Code__c, Product_Name__c
                 FROM ClaimItem 
                 WHERE Claim.Create_Batch__c = :recordId  and Claim_Type__c = 'Part'
             ]; //and Status__c = 'Approved'
@@ -333,7 +334,103 @@ public without sharing class clainAndShipmentItemController {
             
             update claimList;
             System.debug('Updated ClaimItem records: ' + claimList);
+
+            List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
+            List<Messaging.CustomNotification> notificationsList = new List<Messaging.CustomNotification>();
             
+            User dealerUser = [SELECT Id, Name, Email, Manager.Name, ManagerId FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
+            System.debug('dealerUser : ' + dealerUser);
+
+            //User asmUser    = [SELECT Id, Email FROM User WHERE Id = :dealerUser.ManagerId LIMIT 1];
+            //System.debug('asmUser : ' + asmUser);
+
+            OrgWideEmailAddress orgWideEmail = [SELECT Id, Address, DisplayName FROM OrgWideEmailAddress WHERE DisplayName = 'River Mobility' LIMIT 1];
+            System.debug('orgWideEmail : ' + orgWideEmail);
+
+            CustomNotificationType cnt = [SELECT Id, DeveloperName FROM CustomNotificationType WHERE DeveloperName = 'GRN_Mismatch_Notification' LIMIT 1];
+            System.debug('CustomNotificationType Found : ' + cnt);
+         
+
+            String htmlBody = '<html><body>';
+            htmlBody += '<h2>Claim Item Quantity Mismatch Notification</h2>';
+            htmlBody += '<p>The following mismatch has been detected: </p>';
+            htmlBody += '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse; font-family: Arial; font-size: 14px;">';
+            htmlBody += '<tr style="background-color:#f2f2f2;">'
+                    +  '<th>Claim Item</th>'
+                    +  '<th>Shipped Qty</th>'
+                    +  '<th>Received Qty</th>'
+                    +  '<th>Remarks</th>'
+                    +  '</tr>';
+
+
+            for (ClaimItem ci : claimList) {
+                if (ci.Received_Quantity__c != ci.Quantity_Formula__c) {
+                    
+                    htmlBody += '<tr>'
+                    +  '<td>' + ci.Name + '</td>'
+                    +  '<td style="text-align:center;">' + ci.Quantity_Formula__c + '</td>'
+                    +  '<td style="text-align:center;">' + ci.Received_Quantity__c + '</td>'
+                    +  '<td>' + (String.isNotBlank(ci.Remarks__c) ? ci.Remarks__c.escapeHtml4() : '-') + '</td>'
+                    +  '</tr>';
+                }
+            }
+
+            htmlBody += '</table>';
+            htmlBody += '<br/><p>Regards,<br/>Salesforce System</p>';
+            htmlBody += '</body></html>';
+
+            /*
+            // For Testing Purpose
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+            mail.setToAddresses(new List<String>{'saurabh4sfdc@gmail.com'});
+            mail.setSubject('Claim Item Quantity Mismatch');
+            mail.setHTMLBody(htmlBody);
+            emails.add(mail);
+            */
+            
+            for (User u : new List<User>{dealerUser}) {
+                if (u.Email != null) {
+                    System.debug('u.Email : ' + u.Email);
+
+                    Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+                    mail.setToAddresses(new List<String>{u.Email});
+                    mail.setOrgWideEmailAddressId(orgWideEmail.Id);
+                    mail.setSubject('Claim Item Quantity Mismatch');
+                    mail.setHTMLBody(htmlBody);
+                    emails.add(mail);
+
+                    /*
+                    Messaging.CustomNotification notification = new Messaging.CustomNotification();
+                    notification.setTitle('GRN Quantity Mismatch');
+                    notification.setBody('Difference In Shipped and Received Quantity !');
+                    notification.setNotificationTypeId(cnt.Id);
+                    notification.setTargetId(c.Id);
+                    notification.send(new Set<String>{u.Id});
+                    */
+                }
+            }
+
+            if (!emails.isEmpty()) {
+                Messaging.sendEmail(emails);
+                System.debug('Email Sent Successfully !!');
+            }
+            
+            // CUSTOM NOTIFICATION
+            Messaging.CustomNotification notif = new Messaging.CustomNotification();
+            notif.setTitle('GRN Quantity Mismatch');
+            notif.setBody('Difference in Shipped and Received Quantity!');
+            notif.setNotificationTypeId(cnt.Id);   
+            notif.setTargetId(c.Id);               
+
+            Set<String> recipientsIds = new Set<String>();
+            List<User> userList = new List<User>{dealerUser};
+            
+            for (User u : userList) {
+                recipientsIds.add((String)u.Id);
+            }
+
+            notif.send(recipientsIds);    
+
             System.debug('Exiting updateClaimItems method with SUCCESS');
             return 'SUCCESS';
         } catch (Exception e) {
@@ -341,6 +438,8 @@ public without sharing class clainAndShipmentItemController {
              return 'ERROR: ' + e.getMessage();
         }
     }
+    // 11:29:14:045 USER_DEBUG [340]|DEBUG|Exception Occurred - Update failed. First exception on row 0 with id a2GBh0000004cebMAA; 
+    // first error: FIELD_CUSTOM_VALIDATION_EXCEPTION, Before moving to Readdy for Dispatche, you must have to enter all Shipping Details: []
     
     @AuraEnabled
     public static Id createClaimItem(String name, String claimId, String labourCode) {

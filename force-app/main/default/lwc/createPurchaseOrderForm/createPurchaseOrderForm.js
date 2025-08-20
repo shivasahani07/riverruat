@@ -2,9 +2,27 @@ import getCurrentLogedUserAccountRecord from '@salesforce/apex/ProductRequestLin
 import userId from '@salesforce/user/Id';
 import LightningModal from 'lightning/modal';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import { api, track } from 'lwc';
+import { api, track,wire } from 'lwc';
+import USER_ID from '@salesforce/user/Id';
+import { getRecord } from 'lightning/uiRecordApi';
+
+import ACCOUNT_FIELD from '@salesforce/schema/User.AccountId';
 
 export default class CreatePurchaseOrderForm extends LightningModal {
+   //added by Aniket on 19/08/2025
+   userAccountId;
+
+    // Fetch current user's AccountId
+    @wire(getRecord, { recordId: USER_ID, fields: [ACCOUNT_FIELD] })
+    wiredUser({ error, data }) {
+        if (data) {
+            this.userAccountId = data.fields.AccountId.value;
+        } else if (error) {
+            console.error('Error fetching user account: ', error);
+        }
+    }
+    //upto here 
+
     closeModal() {
         this.close('close');
     }
@@ -72,11 +90,17 @@ export default class CreatePurchaseOrderForm extends LightningModal {
     }
 
     get typeOptions() {
-        return [
+        let options = [
             { label: 'Service', value: 'Service' },
-            { label: 'Merchandise', value: 'Merchandise' },
             { label: 'Accessories', value: 'Accessories' }
         ];
+
+        // Add "Merchandise" only if AccountId matches
+        if (this.userAccountId === '001F400002SOh0yIAD' || this.userAccountId === '001F400002T242iIAB') {
+            options.push({ label: 'Merchandise', value: 'Merchandise' });
+        }
+
+        return options;
     }
 
     handleStatusChange(event) {

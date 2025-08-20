@@ -132,11 +132,13 @@ public class WorkOrderLineItemTriggerHandler {
         Set<Id> warrantyPriorIds = new Set<Id>();
         for (WorkOrderLineItem item : workOrderLineItems) {
             if (item.Warranty_Prior__c != null) {
-                warrantyPriorIds.add(item.Warranty_Prior__c);
+                //warrantyPriorIds.add(item.Warranty_Prior__c);
             }
             WorkOrderLineItem oldItem = oldMap.get(item.Id);
             if (oldItem != null && oldItem.Warranty_Prior__c != item.Warranty_Prior__c) {
-                warrantyPriorIds.add(oldItem.Warranty_Prior__c);
+                if(item.TotalAmount__c !=oldItem.TotalAmount__c){
+                   warrantyPriorIds.add(oldItem.Warranty_Prior__c);
+                }
             }
         }
         

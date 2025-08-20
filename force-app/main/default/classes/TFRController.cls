@@ -1,4 +1,9 @@
 public without sharing class TFRController {
+    
+    @AuraEnabled(Cacheable=true)
+    Public Static  List<TFR__c> getExistingVIN(){
+         return [SELECT Id,VIN_Start__c,Createddate,Description__c,Is_Active__c FROM  TFR__c where Is_Active__c=true];
+    }
     @AuraEnabled
     public static void createTFRWithParts(String vin, String errorCode, String description, List<Object> parts) {
         TFR__c tfr = new TFR__c(
@@ -248,6 +253,17 @@ public without sharing class TFRController {
         }
         
         insert partEffectRecords;
+    }
+    
+    public static string updatePartsTFRform(list<WorkOrderLineItem> listtoUpdated){
+        try{
+            update listtoUpdated;
+            return 'sucess';
+        }Catch (Exception e){
+            System.debug('Error update tfr on parts: ' + e.getMessage());
+            System.debug('Error at line ' + e.getLineNumber());
+            return 'failed';
+        }
     }
     
     

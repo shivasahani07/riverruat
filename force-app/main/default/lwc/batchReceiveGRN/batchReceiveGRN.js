@@ -4,6 +4,7 @@ import updateClaimItems from '@salesforce/apex/clainAndShipmentItemController.up
 import { CloseActionScreenEvent } from 'lightning/actions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { LightningElement, api, wire } from 'lwc';
+import { refreshApex } from '@salesforce/apex';
 
 export default class BatchReceiveGRN extends LightningElement {
     @api recordId;
@@ -65,6 +66,8 @@ export default class BatchReceiveGRN extends LightningElement {
         let isValid = true;
         this.claimList.forEach((ClaimItem, index) => {
             const inputField = this.template.querySelector(`lightning-input[data-id="${ClaimItem.Id}"]`);
+            const remarksInput = this.template.querySelector(`lightning-textarea[data-id="${ClaimItem.Id}"]`);
+
             if (ClaimItem.Received_Quantity__c > ClaimItem.Quantity_Formula__c) {
                 this.showToast('Warning', 'Received Quantity Cannot be greater than Shipped Quantity', 'warning');
                 inputField.setCustomValidity('Received Quantity Cannot exceed Shipped Quantity');
@@ -79,11 +82,46 @@ export default class BatchReceiveGRN extends LightningElement {
                 inputField.setCustomValidity(''); 
                 inputField.reportValidity();
             }
+
+            // Remarks mandatory if mismatch
+            if (ClaimItem.Received_Quantity__c !== ClaimItem.Quantity_Formula__c) {
+                if (!ClaimItem.Remarks__c || ClaimItem.Remarks__c.trim() === '') {
+                    this.showToast('Warning', 'Remarks are mandatory when Received Quantity differs from Shipped Quantity', 'warning');
+                    remarksInput.setCustomValidity('Remarks required due to mismatch');
+                    remarksInput.reportValidity();
+                    isValid = false;
+                } else {
+                    remarksInput.setCustomValidity('');
+                    remarksInput.reportValidity();
+                }
+            } else {
+                // clear any previous error
+                remarksInput.setCustomValidity('');
+                remarksInput.reportValidity();
+            }
+
+
+
         });
         return isValid;
     }
     
     
+    handleRemarksChange(event) {
+        const dataId = event.target.dataset.id;
+        const fieldName = event.target.dataset.field;
+        const fieldValue = event.target.value;
+
+        this.claimList = this.claimList.map(item => {
+            if (item.Id === dataId) {
+                return { ...item, [fieldName]: fieldValue };
+            }
+            return item;
+        });
+
+        console.log('Updated Claim List with Remarks ==> ', this.claimList);
+    }
+
     handleSubmit(){
 
         debugger;

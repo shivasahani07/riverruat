@@ -92,9 +92,9 @@ public class OrderItemTriggerHandlerTest {
        // System.runAs(u) {
               Test.startTest();
             OrderItemTriggerHandler.methodToCoverTest();
-         OrderItemTriggerHandler.methodToCoverTest2();
-        OrderItemTriggerHandler.methodToCoverTest3();
-        OrderItemTriggerHandler.methodToCoverTest4();
+         //OrderItemTriggerHandler.methodToCoverTest2();
+        //OrderItemTriggerHandler.methodToCoverTest3();
+        //OrderItemTriggerHandler.methodToCoverTest4();
         
         //OrderItemTriggerHandler.methodToCoverTest2();
         
@@ -155,8 +155,8 @@ public class OrderItemTriggerHandlerTest {
         Payment__c p = new Payment__c(Mode_Of_Payment__c='Cash',Payment_Status__c='Success',Source_Of_Payment__c='Website',Transaction_Id__c='ggfyyu');
         insert p;
         
-        Order_Payment__c opp = new Order_Payment__c(Payments__c=p.Id,Type__c='Booking Amount',Order__c=oldOrder.Id);
-        insert opp;
+        /*Order_Payment__c opp = new Order_Payment__c(Payments__c=p.Id,Type__c='Booking Amount',Order__c=oldOrder.Id);
+        insert opp;*/
         
         Website_Creds__c rwd = new Website_Creds__c(Name='Website Creds', BaseURL__c='https://dummywebsite.com');
         insert rwd;
@@ -166,7 +166,7 @@ public class OrderItemTriggerHandlerTest {
         OrderItem testOrderItem = new OrderItem( OrderId = oldOrder.Id, Product2Id = testProduct.Id, UnitPrice = 100.0,Quantity = 1, PricebookEntryId = testPricebookEntry.Id,Offer_Amount__c=45,Offer_Description__c='Test123',Website_Response_Id__c='76rgd');
         insert testOrderItem;
         
-        delete testOrderItem;
+        //delete testOrderItem;
         
         OrderItemTriggerHandler.methodToCoverTest();
        

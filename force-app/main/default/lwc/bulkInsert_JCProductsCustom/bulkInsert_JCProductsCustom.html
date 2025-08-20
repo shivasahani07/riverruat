@@ -1,51 +1,56 @@
 <template>
     <lightning-card title="Add Parts" icon-name="standard:product" class="slds-card_boundary impactedClass">
         <div class="slds-p-around_medium">
-            <!-- Existing WorkOrderLineItems Table -->
+            <!-- Existing Parts Section -->
             <div class="slds-m-bottom_large">
                 <h2 class="slds-text-heading_medium slds-m-bottom_small">Existing Parts</h2>
-                <!-- <div class="slds-card slds-card_boundary">
-                    <lightning-datatable 
-                        key-field="id" 
-                        data={existingWorkOrderLineItems} 
-                        columns={columns}
-                        onrowaction={handleRowAction} 
-                        hide-checkbox-column 
-                        show-row-number-column 
-                        resize-column-disabled
-                        sorted-by="Consequential_Part__c" 
-                        sorted-direction="asc">
-                    </lightning-datatable>
-                </div> -->
                 <div class="slds-card slds-card_boundary">
                     <template if:true={existingWorkOrderLineItems}>
-                        <lightning-tree-grid key-field="Id" data={existingWorkOrderLineItems} columns={treeColumns}
-                            expanded-rows={expandedRows} onrowaction={handleRowAction} hide-checkbox-column
-                            aria-label="Products Tree" sorted-by="sequence" sorted-direction="asc">
+                        <lightning-tree-grid 
+                            key-field="Id" 
+                            data={existingWorkOrderLineItems} 
+                            columns={treeColumns}
+                            expanded-rows={expandedRows} 
+                            onrowaction={handleRowAction} 
+                            hide-checkbox-column
+                            aria-label="Products Tree" 
+                            sorted-by="sequence"
+                            sorted-direction="asc">
                         </lightning-tree-grid>
+                    </template>
+                    <template if:false={existingWorkOrderLineItems}>
+                        <div class="slds-p-around_medium slds-text-align_center">
+                            No existing parts found
+                        </div>
                     </template>
                 </div>
             </div>
 
-            <!-- Dynamic Form Section -->
+            <!-- Add New Products Section -->
             <c-loader loading={isLoading}></c-loader>
             <template if:true={showAll}>
                 <div class="slds-m-top_large">
                     <div class="slds-grid slds-grid_align-spread slds-m-bottom_medium">
                         <h2 class="slds-text-heading_medium">Add New Products</h2>
-                        <lightning-button label="Add Product" icon-name="utility:add" variant="brand"
+                        <lightning-button 
+                            label="Add Product" 
+                            icon-name="utility:add" 
+                            variant="brand"
                             onclick={addParentRow}>
                         </lightning-button>
                     </div>
 
                     <template for:each={itemList} for:item="item" for:index="index">
                         <div key={item.id} class={item.cssClass}>
-                            <!-- Row Header with Sequence -->
+                            <!-- Row Header -->
                             <div class="slds-grid slds-grid_align-spread slds-m-bottom_x-small">
                                 <div class="slds-text-title_caps">
                                     <template if:true={item.isChild}>
-                                        <lightning-icon icon-name="utility:chevronright" size="x-small"
-                                            class="slds-m-right_xx-small"></lightning-icon>
+                                        <lightning-icon 
+                                            icon-name="utility:chevronright" 
+                                            size="x-small"
+                                            class="slds-m-right_xx-small">
+                                        </lightning-icon>
                                         Consequential Product #{item.sequence}
                                     </template>
                                     <template if:false={item.isChild}>
@@ -54,92 +59,155 @@
                                 </div>
                                 <div>
                                     <template if:false={item.isChild}>
-                                        <lightning-button variant="brand-outline" label="Add Consequential"
-                                            title="Add Consequential Product" icon-name="utility:add"
-                                            disabled={item.isDisableaddChildProduct} onclick={addChildProduct}
-                                            data-id={index} class="slds-m-right_x-small">
+                                        <lightning-button 
+                                            variant="brand-outline" 
+                                            label="Add Consequential"
+                                            title="Add Consequential Product" 
+                                            icon-name="utility:add"
+                                            disabled={item.isDisableaddChildProduct} 
+                                            onclick={addChildProduct}
+                                            data-id={index} 
+                                            class="slds-m-right_x-small">
                                         </lightning-button>
                                     </template>
-                                    <lightning-button-icon icon-name="utility:delete" alternative-text="Remove"
-                                        title="Remove" onclick={removeRow} data-id={index} variant="border-filled">
+                                    <lightning-button-icon 
+                                        icon-name="utility:delete" 
+                                        alternative-text="Remove"
+                                        title="Remove" 
+                                        onclick={removeRow} 
+                                        data-id={index} 
+                                        variant="border-filled">
                                     </lightning-button-icon>
                                 </div>
                             </div>
 
+                            <!-- Form Fields -->
                             <div class="slds-grid slds-wrap slds-gutters">
-                                <!-- Product Selection -->
+                                <!-- Parts Category -->
                                 <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_3-of-12">
-                                    <lightning-combobox label="Parts Category" value={item.partsCategory}
-                                        disabled={item.isChild} options={filteredReplacementTypeOptions}
-                                        onchange={handlePicklistChange} data-id={index}
-                                        data-fieldname="RR_Parts_Category__c" required>
+                                    <lightning-combobox 
+                                        label="Parts Category" 
+                                        value={item.partsCategory}
+                                        disabled={item.isChild} 
+                                        options={filteredReplacementTypeOptions}
+                                        onchange={handlePicklistChange} 
+                                        data-id={index}
+                                        data-fieldname="RR_Parts_Category__c" 
+                                        required>
                                     </lightning-combobox>
                                 </div>
 
+                                <!-- Product Selection -->
                                 <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_3-of-12">
-                                    <lightning-record-picker label="Product" placeholder="Search Products..." class="productpicker" disabled={item.isDisbaledProduct}
-                                        object-api-name="Product2" value={item.productId} icon-name="standard:product"
-                                        variant="label-stacked" data-id={index} onchange={handleProductChange} required>
+                                    <lightning-record-picker 
+                                        label="Product" 
+                                        placeholder="Search Products..." 
+                                        class="productpicker" 
+                                        disabled={item.isDisbaledProduct}
+                                        object-api-name="Product2" 
+                                        value={item.productId} 
+                                        icon-name="standard:product"
+                                        variant="label-stacked" 
+                                        data-id={index} 
+                                        onchange={handleProductChange} 
+                                        required>
                                     </lightning-record-picker>
                                 </div>
 
+                                <!-- Product Code -->
                                 <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_2-of-12">
-                                    <lightning-input type="text" label="Product Code" value={item.productCode}
-                                        data-id={index} required disabled>
+                                    <lightning-input 
+                                        type="text" 
+                                        label="Product Code" 
+                                        value={item.productCode}
+                                        data-id={index} 
+                                        required 
+                                        disabled>
                                     </lightning-input>
                                 </div>
 
+                                <!-- Available Quantity -->
                                 <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_2-of-12">
-                                    <lightning-input type="number" label="Available Quantity"
-                                        value={item.availableQuantity} min="1" data-id={index} required disabled>
+                                    <lightning-input 
+                                        type="number" 
+                                        label="Available Quantity"
+                                        value={item.availableQuantity} 
+                                        min="1" 
+                                        data-id={index} 
+                                        required 
+                                        disabled>
                                     </lightning-input>
                                 </div>
 
+                                <!-- Quantity -->
                                 <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_2-of-12">
-                                    <lightning-input type="number" label="Quantity" value={item.quantity} min="1"
-                                        onchange={handleQuantityChange} data-id={index} required disabled={item.isDisbaledProductQuantity}
+                                    <lightning-input 
+                                        type="number" 
+                                        label="Quantity" 
+                                        value={item.quantity} 
+                                        min="1"
+                                        onchange={handleQuantityChange} 
+                                        data-id={index} 
+                                        required 
+                                        disabled={item.isDisbaledProductQuantity}
                                         message-when-range-underflow="Quantity must be at least 1">
                                     </lightning-input>
                                 </div>
 
-                                <!-- Additional Fields (Conditional) -->
+                                <!-- Additional Fields -->
                                 <template if:true={item.showAdditionalFields}>
                                     <template if:false={item.isChild}>
-                                        <div
-                                            class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12 slds-large-size_3-of-12">
-                                            <lightning-combobox label="Replacement Type" value={item.replacementType}
-                                                options={replacementTypeOptions} onchange={handlePicklistChange}
-                                                data-id={index} data-fieldname="Replacement_Type__c">
+                                        <!-- Replacement Type -->
+                                        <div class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12 slds-large-size_3-of-12">
+                                            <lightning-combobox 
+                                                label="Replacement Type" 
+                                                value={item.replacementType}
+                                                options={replacementTypeOptions} 
+                                                onchange={handlePicklistChange}
+                                                data-id={index} 
+                                                data-fieldname="Replacement_Type__c">
                                             </lightning-combobox>
                                         </div>
 
+                                        <!-- Failure Code -->
                                         <template if:true={item.isFailureCodeVisible}>
-                                            <div
-                                                class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12 slds-large-size_3-of-12">
-                                                <lightning-record-picker label="Failure Code "
+                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12 slds-large-size_3-of-12">
+                                                <lightning-record-picker 
+                                                    label="Failure Code "
                                                     placeholder="Search Failure Code.."
-                                                    object-api-name="Failure_Code__c" value={item.Failure_Code__c}
-                                                    filter={item.filter} variant="label-stacked" data-id={index}
+                                                    object-api-name="Failure_Code__c" 
+                                                    value={item.Failure_Code__c}
+                                                    filter={item.filter} 
+                                                    variant="label-stacked" 
+                                                    data-id={index}
                                                     onchange={handleFailureCodeChange}>
                                                 </lightning-record-picker>
                                             </div>
                                         </template>
 
+                                        <!-- Electrical Value -->
                                         <template if:true={item.isElectricalValueRequired}>
-                                            <div
-                                                class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12 slds-large-size_3-of-12">
-                                                <lightning-input type="text" label="Electrical Value"
-                                                    value={item.electricalValue} onchange={handleInputChange}
-                                                    data-id={index} data-fieldname="Electrical_Value__c">
+                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12 slds-large-size_3-of-12">
+                                                <lightning-input 
+                                                    type="text" 
+                                                    label="Electrical Value"
+                                                    value={item.electricalValue} 
+                                                    onchange={handleInputChange}
+                                                    data-id={index} 
+                                                    data-fieldname="Electrical_Value__c">
                                                 </lightning-input>
                                             </div>
                                         </template>
 
-                                        <div
-                                            class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_3-of-12">
-                                            <lightning-input type="text" label="Dealer Observation"
-                                                value={item.partDescription} onchange={handleInputChange}
-                                                data-id={index} data-fieldname="Part_Description__c">
+                                        <!-- Dealer Observation -->
+                                        <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_3-of-12">
+                                            <lightning-input 
+                                                type="text" 
+                                                label="Dealer Observation"
+                                                value={item.partDescription} 
+                                                onchange={handleInputChange}
+                                                data-id={index} 
+                                                data-fieldname="Part_Description__c">
                                             </lightning-input>
                                         </div>
                                     </template>
@@ -148,29 +216,23 @@
 
                             <!-- Error Message -->
                             <template if:true={item.hasError}>
-                                <div class="slds-notify slds-notify_alert slds-theme_error slds-m-top_small"
-                                    role="alert">
-                                    <lightning-icon icon-name="utility:error" size="x-small"
-                                        class="slds-m-right_x-small"></lightning-icon>
+                                <div class="slds-notify slds-notify_alert slds-theme_error slds-m-top_small" role="alert">
+                                    <lightning-icon icon-name="utility:error" size="x-small" class="slds-m-right_x-small"></lightning-icon>
                                     <span>{item.errorMessage}</span>
                                 </div>
                             </template>
                         </div>
                     </template>
 
-                    <!-- Form Action Buttons -->
+                    <!-- Action Buttons -->
                     <div class="slds-m-top_large slds-grid slds-grid_align-spread slds-m-top_medium">
-
-                        <lightning-button label="Cancel" variant="neutral" onclick={toggleTemplates}>
-                        </lightning-button>
-                        <lightning-button label="Submit" variant="brand" onclick={handleSubmit}
-                            disabled={hasErrorInList}>
-                        </lightning-button>
+                        <lightning-button label="Cancel" variant="neutral" onclick={toggleTemplates}></lightning-button>
+                        <lightning-button label="Submit" variant="brand" onclick={handleSubmit} disabled={hasErrorInList}></lightning-button>
                     </div>
                 </div>
             </template>
 
-            <!-- Show message when form is not editable -->
+            <!-- Status Message -->
             <template if:false={showAll}>
                 <div class="slds-notify slds-notify_alert slds-theme_info" role="alert">
                     <lightning-icon icon-name="utility:info" size="small" class="slds-m-right_x-small"></lightning-icon>

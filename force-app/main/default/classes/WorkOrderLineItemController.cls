@@ -38,7 +38,7 @@ public without sharing class WorkOrderLineItemController {
             List<TFR_Part_Effect__c> partEffectList = [
                 SELECT Id, Comments__c, Consequence__c, Product__c, Root_Cause__c, TFR__c, Name 
                 FROM TFR_Part_Effect__c 
-                WHERE Product__c = :productId //AND TFR__r.Is_Active__c = TRUE 
+                WHERE Product__c = :productId AND TFR__r.Is_Active__c = TRUE 
                 LIMIT 1
             ];
             

@@ -87,11 +87,11 @@ export default class RideRiverWarrantyRecord extends LightningElement {
         { label: 'Quantity', fieldName: 'Quantity', type: 'number', cellAttributes: { alignment: 'center' } },
         // { label: 'Status', fieldName: 'Status', type: 'text' },
         { label: 'FFIR No.', fieldName: 'FFIR_Number__c', type: 'text' },
-        { 
-            label: 'FFIR Links', 
-            fieldName: 'FFIR_Links__c', 
-            type: 'url', editable: { fieldName: 'isDisableFFRLink' } ,
-            typeAttributes: { label: { fieldName: 'FFIR_Link_Label' }, target: '_blank' } ,
+        {
+            label: 'FFIR Links',
+            fieldName: 'FFIR_Links__c',
+            type: 'url', editable: { fieldName: 'isDisableFFRLink' },
+            typeAttributes: { label: { fieldName: 'FFIR_Link_Label' }, target: '_blank' },
             // disabled: { fieldName: 'isDisableFFRLink' } 
         },
         // {
@@ -252,7 +252,7 @@ export default class RideRiverWarrantyRecord extends LightningElement {
                 FFIR_Link_Label: item.FFIR_Links__c ? item.FFIR_Links__c : '',
                 disableView: !item.TFR_Required__c,
                 isDisableFFRLink: !item.TFR_Required__c,
-                TFR__c:''
+                TFR_Sample__c:item.TFR_Sample__c,
                 // Status:item.Status
 
             }));
@@ -447,7 +447,7 @@ export default class RideRiverWarrantyRecord extends LightningElement {
             this.template.querySelector('lightning-datatable').errors = {
                 rows: invalidRows.reduce((acc, rowId) => {
                     acc[rowId] = { title: 'Required Field Missing', messages: ['FFIR Links cannot be empty.'] };
-                    return acc;
+                    // return acc;
                 }, {})
             };
 
@@ -522,11 +522,12 @@ export default class RideRiverWarrantyRecord extends LightningElement {
 
         // Validate FFIR_Links__c
         const invalidFFIRLinks = this.additionalPartsData.filter(
-                       (part) => (!part.FFIR_Links__c && part.TFR_Required__c !=true)
-                       || (part.FFIR_Links__c.trim() === '' && part.TFR_Required__c !=true)
+            (part) => (!part.FFIR_Links__c && part.TFR_Required__c != true)
+                || (part.FFIR_Links__c.trim() === '' && part.TFR_Required__c != true)
         );
 
         if (invalidFFIRLinks.length > 0) {
+            // this.isApprovalFired = true
             // const errorMessage = 'FFIR Links are required for all parts.';
             const errorMessage = 'FFIR Links are required';
             console.error('Validation Error:', errorMessage);
@@ -534,16 +535,17 @@ export default class RideRiverWarrantyRecord extends LightningElement {
             return; // Stop execution if validation fails
         }
 
-        const TFRvalidation=this.additionalPartsData.filter(
-            (part) =>{
-                part.TFR_Required__c ==true && (part.TFR__c ==null || part.TFR__c =='') 
-            }
+        const TFRvalidation = this.additionalPartsData.filter(
+            (part) => 
+                part.TFR_Required__c == true && (part.TFR_Sample__c == null || part.TFR_Sample__c == '')
+            
         )
 
-         if (invalidFFIRLinks.length > 0) {
-             this.showToast('Validation Error', 'Please Submit Form' ,'error');
-             return;
-         }
+        if (TFRvalidation.length > 0) {
+            // this.isApprovalFired = true
+            this.showToast('Validation Error', 'Please Submit TFR Form', 'error');
+            return;
+        }
 
 
         // const invalidParts = this.partsData.filter(
@@ -572,32 +574,32 @@ export default class RideRiverWarrantyRecord extends LightningElement {
 
 
         console.log('Validation passed. Proceeding with submission...');
-        // submitApprovalProcess({
-        //     warrantyId: this.warrantyId,
-        //     typeOfWarranty: this.warrantyPrior.Type_of_Warranty__c,
-        //     asmFeedback: this.warrantyPrior.ASM_Feedback__c,
-        //     ffirNumber: this.warrantyPrior.FFIR_Number__c,
-        //     dealerObservation: this.warrantyPrior.Dealer_Observation__c,
-        //     media: this.warrantyPrior.Media__c,
-        //     standardValue: this.warrantyPrior.Standard_Values__c,
-        //     ffirLink: this.warrantyPrior.FFIR_Link__c
-        // })
+        submitApprovalProcess({
+            warrantyId: this.warrantyId,
+            typeOfWarranty: this.warrantyPrior.Type_of_Warranty__c,
+            asmFeedback: this.warrantyPrior.ASM_Feedback__c,
+            ffirNumber: this.warrantyPrior.FFIR_Number__c,
+            dealerObservation: this.warrantyPrior.Dealer_Observation__c,
+            media: this.warrantyPrior.Media__c,
+            standardValue: this.warrantyPrior.Standard_Values__c,
+            ffirLink: this.warrantyPrior.FFIR_Link__c
+        })
 
-        //     .then(result => {
-        //         if (result == 'Success') {
-        //             this.isApprovalFired = true;
-        //             this.showToast('Success', 'Approval process initiated and Warranty updated successfully', 'success');
-        //             // submitApprovalProcess({ warrantyId: this.warrantyId });
-        //             //window.location.reload();
-        //         } else {
-        //             this.isApprovalFired = true;
-        //             this.showToast('error', 'Approval process Already initiated for this Record', 'error');
-        //         }
-        //     })
-        //     .catch(error => {
-        //         this.error = error;
+            .then(result => {
+                if (result == 'Success') {
+                    this.isApprovalFired = true;
+                    this.showToast('Success', 'Approval process initiated and Warranty updated successfully', 'success');
+                    // submitApprovalProcess({ warrantyId: this.warrantyId });
+                    //window.location.reload();
+                } else {
+                    this.isApprovalFired = true;
+                    this.showToast('error', 'Approval process Already initiated for this Record', 'error');
+                }
+            })
+            .catch(error => {
+                this.error = error;
 
-        //     });
+            });
         // // .then(() => {
         // //     console.log('Warranty updated successfully');
         // //     submitApprovalProcess({ warrantyId: this.warrantyId });
@@ -672,9 +674,9 @@ export default class RideRiverWarrantyRecord extends LightningElement {
     handleView(row) {
         debugger;
         console.log('View button clicked for:', row);
-        this.TFrData=row;
+        this.TFrData = row;
         this.variable = true;
-        
+
         // add your logic here
     }
 
@@ -682,13 +684,22 @@ export default class RideRiverWarrantyRecord extends LightningElement {
         this.variable = false;
     }
 
-    tfrSampleSuccess(event){
-        debugger
-        const parent =event.detail;
-        let newArray = this.additionalPartsData.filter(item => {
-            return item.Id=='' ;
+    tfrSampleSuccess(event) {
+        debugger;
+        const parent = event.detail;
+        let parentId = parent.parentId;
+        let tfrformId = parent.recordId;
+
+        this.additionalPartsData = this.additionalPartsData.map(item => {
+            if (item.Id === parentId) {
+                return {
+                    ...item,
+                    TFR_Sample__c: tfrformId
+                };
+            }
+            return item;
         });
-
-
     }
+
+
 }

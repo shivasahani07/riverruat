@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CheckList_Response__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>CheckList Response</label>
+    <referenceTo>Questions__c</referenceTo>
+    <relationshipLabel>Response Line Items</relationshipLabel>
+    <relationshipName>Quiz_Response</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

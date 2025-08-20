@@ -91,6 +91,8 @@
             title="Details" />  
         -->
         <img src="{!qrCodeURL}" alt="Scan For Details" title="Details" />
+        
+        <img src="{!qrCodeUrlFromField}" alt="Scan For Details" title="Details" />
     </div>
 
     <div style="font-family: Arial, sans-serif; font-size: 12px; color: #333;">

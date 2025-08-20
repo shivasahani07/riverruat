@@ -1,0 +1,64 @@
+<template>
+	<div class="main-container slds-grid slds-gutters slds-wrap slds-text-align_center slds-align_absolute-center" style="background:white;">
+		<div class="slds-col slds-size_12-of-12">
+			<span >
+				<h1 style="text-allign:centre;font-size: 2em;">
+				    Cheery Tyres Management System
+				</h1>
+			</span>
+		</div>
+		<div class="slds-col slds-size_12-of-12">
+			<span >
+			    <div class="card-container">
+					<template for:each={courses} for:item="course" for:index="index">
+						<div class="custom-card" key={course.id}>
+							<!-- <div class="card-header">
+			                    <slot name="header">{course.header}</slot>
+			                </div> -->
+							<div class="card-body">
+								<img src={course.image} alt={course.name}/>
+			                </div>
+								<div class="inside-body">
+									<div class="text-style">
+										<h1>{course.name}</h1>
+									</div>
+									<div class="flex-container">
+										<h1>{course.ratingvalue}</h1>
+										<template for:each={course.rating} for:item="rate" for:index="i">
+											<div key={rate}>
+												<img  src={star} />
+			                               </div>
+										</template>
+									</div>
+									<!-- <slot name="header">{course.name}</slot> -->
+			
+								</div>
+								<div class="card-footer">
+			
+									<slot name="footer">
+										<lightning-button variant="brand" label="View Course" data-id={course.id}
+											onclick={handleButtonClick}></lightning-button>
+									</slot>
+									<slot name="footer">
+										<template lwc:if={course.showplainheart}>
+											<a href="javascript:void(0);" data-rowindex={index} data-id={course.id}
+												onclick={handleheartClick}>
+												<img data-id={course.id} src={plainheart}/>
+			                            </a>
+			
+										</template>
+										<template lwc:if={course.showredheart}>
+											<a href="javascript:void(0);" data-rowindex={index} data-id={course.id}
+												onclick={handleRedheartClick}>
+												<img data-id={course.id} src={redheart}/>
+			                            </a>
+										</template>
+									</slot>
+								</div>
+							</div>
+					</template>
+				</div>
+			            </span>
+			</div>
+			</div>
+</template>

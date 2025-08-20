@@ -57,7 +57,7 @@ public with sharing class WarrantyPriorController {
         System.debug('Fetching related WorkOrderLineItems for Warranty ID: ' + warrantyId);
         return [
             SELECT Id, LineItemNumber, PricebookEntryId, Warranty_Prior__c, PricebookEntry.Product2.Name,
-                   PricebookEntry.Product2.ProductCode, Quantity, RR_Parts_Category__c, Status, Tax__c,Product2Id,
+                   PricebookEntry.Product2.ProductCode, Quantity, RR_Parts_Category__c, Status, Tax__c,Product2Id,TFR_Sample__c,
                    Amount_per_Hour__c, CreatedDate, WorkOrder.WorkOrderNumber, PricebookEntry.Product2Id,Total_Labour_Charges__c,Total_NDP__c,Grand_Total__c,IGST_Percentage_formula__c,
                    TotalAmount__c,Labour_Code__r.Name,Labour_Code__r.RR_Labour_Charge__c ,Replacement_Type__c,Labour_Code__r.RR_Efforts_Hours__c,Hours__c,Part_Description__c,Consequential_Part__c,Electrical_Value__c,
                     FFIR_Number__c, FFIR_Links__c
@@ -71,7 +71,7 @@ public with sharing class WarrantyPriorController {
     public static List<WorkOrderLineItem> getRelatedWorkOrderLineItemsOnlyCausal(Id warrantyId) {
         System.debug('Fetching related WorkOrderLineItems for Warranty ID: causal ' + warrantyId);
         return [
-            SELECT Id, LineItemNumber, PricebookEntryId, Warranty_Prior__c, PricebookEntry.Product2.Name,TFR_Required__c,Failure_Code__c,Post_Vin_cutt_off__c,
+            SELECT Id, LineItemNumber, PricebookEntryId, Warranty_Prior__c, PricebookEntry.Product2.Name,TFR_Required__c,Failure_Code__c,Post_Vin_cutt_off__c,TFR_Sample__c,
                    PricebookEntry.Product2.ProductCode, Quantity, RR_Parts_Category__c, Status, Tax__c,WorkOrder.service_center__c,
                    Amount_per_Hour__c, CreatedDate, WorkOrder.WorkOrderNumber, PricebookEntry.Product2Id,Total_Labour_Charges__c,Total_NDP__c,Grand_Total__c,IGST_Percentage_formula__c,
                    TotalAmount__c,Labour_Code__r.Name,Labour_Code__r.RR_Labour_Charge__c ,Replacement_Type__c,Labour_Code__r.RR_Efforts_Hours__c,Hours__c,Part_Description__c,Consequential_Part__c,Electrical_Value__c,

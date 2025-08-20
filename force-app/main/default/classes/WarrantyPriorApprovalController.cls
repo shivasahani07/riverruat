@@ -30,7 +30,6 @@ public with sharing class WarrantyPriorApprovalController {
             warrantyToUpdate.Media__c = media;
             warrantyToUpdate.Standard_Values__c = standardValue;
             warrantyToUpdate.FFIR_Link__c = ffirLink;
-            
             update warrantyToUpdate;
             
         // // Allow submission only if the status is 'Pending' or 'Rejected'

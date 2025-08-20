@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Question_Options__c</fullName>
+    <label>Question Options</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>2005</fullName>
+                <default>false</default>
+                <label>2005</label>
+            </value>
+            <value>
+                <fullName>2011</fullName>
+                <default>false</default>
+                <label>2011</label>
+            </value>
+            <value>
+                <fullName>2015</fullName>
+                <default>false</default>
+                <label>2015</label>
+            </value>
+            <value>
+                <fullName>2000</fullName>
+                <default>false</default>
+                <label>2000</label>
+            </value>
+            <value>
+                <fullName>To be the global leader in electronics retail.</fullName>
+                <default>false</default>
+                <label>To be the global leader in electronics retail.</label>
+            </value>
+            <value>
+                <fullName>To provide a wide range of fashionable bottom wear for women.</fullName>
+                <default>false</default>
+                <label>To provide a wide range of fashionable bottom wear for women.</label>
+            </value>
+            <value>
+                <fullName>To innovate in sustainable energy solutions.</fullName>
+                <default>false</default>
+                <label>To innovate in sustainable energy solutions.</label>
+            </value>
+            <value>
+                <fullName>To offer the best coffee in town.</fullName>
+                <default>false</default>
+                <label>To offer the best coffee in town.</label>
+            </value>
+            <value>
+                <fullName>Competitive pricing</fullName>
+                <default>false</default>
+                <label>Competitive pricing</label>
+            </value>
+            <value>
+                <fullName>Technological innovation</fullName>
+                <default>false</default>
+                <label>Technological innovation</label>
+            </value>
+            <value>
+                <fullName>Customer-centric service</fullName>
+                <default>false</default>
+                <label>Customer-centric service</label>
+            </value>
+            <value>
+                <fullName>Fast shipping</fullName>
+                <default>false</default>
+                <label>Fast shipping</label>
+            </value>
+            <value>
+                <fullName>Opening their 1000th store</fullName>
+                <default>false</default>
+                <label>Opening their 1000th store</label>
+            </value>
+            <value>
+                <fullName>Launching their first overseas branch</fullName>
+                <default>false</default>
+                <label>Launching their first overseas branch</label>
+            </value>
+            <value>
+                <fullName>First participation in a major fashion week</fullName>
+                <default>false</default>
+                <label>First participation in a major fashion week</label>
+            </value>
+            <value>
+                <fullName>Reaching 1 million sales in a single year</fullName>
+                <default>false</default>
+                <label>Reaching 1 million sales in a single year</label>
+            </value>
+            <value>
+                <fullName>Speed</fullName>
+                <default>false</default>
+                <label>Speed</label>
+            </value>
+            <value>
+                <fullName>Quality</fullName>
+                <default>false</default>
+                <label>Quality</label>
+            </value>
+            <value>
+                <fullName>Luxury</fullName>
+                <default>false</default>
+                <label>Luxury</label>
+            </value>
+            <value>
+                <fullName>Sustainability</fullName>
+                <default>false</default>
+                <label>Sustainability</label>
+            </value>
+            <value>
+                <fullName>Check the email for any corporate communications.</fullName>
+                <default>false</default>
+                <label>Check the email for any corporate communications.</label>
+            </value>
+            <value>
+                <fullName>Take a quick break before the rush begins.</fullName>
+                <default>false</default>
+                <label>Take a quick break before the rush begins.</label>
+            </value>
+            <value>
+                <fullName>Perform a safety check and ensure all emergency exits are clear.</fullName>
+                <default>false</default>
+                <label>Perform a safety check and ensure all emergency exits are clear.</label>
+            </value>
+            <value>
+                <fullName>Turn on the music system to set up the day&apos;s ambiance.</fullName>
+                <default>false</default>
+                <label>Turn on the music system to set up the day&apos;s ambiance.</label>
+            </value>
+            <value>
+                <fullName>Always stock the least popular items at the front.</fullName>
+                <default>false</default>
+                <label>Always stock the least popular items at the front.</label>
+            </value>
+            <value>
+                <fullName>Use first in, first out (FIFO) method to keep inventory fresh.</fullName>
+                <default>false</default>
+                <label>Use first in, first out (FIFO) method to keep inventory fresh.</label>
+            </value>
+            <value>
+                <fullName>Only restock items when completely out of stock.</fullName>
+                <default>false</default>
+                <label>Only restock items when completely out of stock.</label>
+            </value>
+            <value>
+                <fullName>Ignore expiration dates as long as the product looks fine.</fullName>
+                <default>false</default>
+                <label>Ignore expiration dates as long as the product looks fine.</label>
+            </value>
+            <value>
+                <fullName>Once a year.</fullName>
+                <default>false</default>
+                <label>Once a year.</label>
+            </value>
+            <value>
+                <fullName>Every month.</fullName>
+                <default>false</default>
+                <label>Every month.</label>
+            </value>
+            <value>
+                <fullName>At the end of each day.</fullName>
+                <default>false</default>
+                <label>At the end of each day.</label>
+            </value>
+            <value>
+                <fullName>Weekly.</fullName>
+                <default>false</default>
+                <label>Weekly.</label>
+            </value>
+            <value>
+                <fullName>Wait until the end of the day to address it.</fullName>
+                <default>false</default>
+                <label>Wait until the end of the day to address it.</label>
+            </value>
+            <value>
+                <fullName>Immediately report the issue to the technical support team.</fullName>
+                <default>false</default>
+                <label>Immediately report the issue to the technical support team.</label>
+            </value>
+            <value>
+                <fullName>Try to fix it yourself without any guidance.</fullName>
+                <default>false</default>
+                <label>Try to fix it yourself without any guidance.</label>
+            </value>
+            <value>
+                <fullName>Shut down the store until the issue is resolved.</fullName>
+                <default>false</default>
+                <label>Shut down the store until the issue is resolved.</label>
+            </value>
+            <value>
+                <fullName>Focus on one task until it is completed before moving to the next.</fullName>
+                <default>false</default>
+                <label>Focus on one task until it is completed before moving to the next.</label>
+            </value>
+            <value>
+                <fullName>Prioritize tasks that directly involve customer interaction.</fullName>
+                <default>false</default>
+                <label>Prioritize tasks that directly involve customer interaction.</label>
+            </value>
+            <value>
+                <fullName>Handle administrative tasks first, customer needs second.</fullName>
+                <default>false</default>
+                <label>Handle administrative tasks first, customer needs second.</label>
+            </value>
+            <value>
+                <fullName>Leave all tasks until after the store closes.</fullName>
+                <default>false</default>
+                <label>Leave all tasks until after the store closes.</label>
+            </value>
+            <value>
+                <fullName>Wait for them to approach you for help.</fullName>
+                <default>false</default>
+                <label>Wait for them to approach you for help.</label>
+            </value>
+            <value>
+                <fullName>Greet them warmly and ask how you can assist them today.</fullName>
+                <default>false</default>
+                <label>Greet them warmly and ask how you can assist them today.</label>
+            </value>
+            <value>
+                <fullName>Continue stocking shelves and acknowledge them if they come close.</fullName>
+                <default>false</default>
+                <label>Continue stocking shelves and acknowledge them if they come close.</label>
+            </value>
+            <value>
+                <fullName>Point them to the sales section without a verbal greeting.</fullName>
+                <default>false</default>
+                <label>Point them to the sales section without a verbal greeting.</label>
+            </value>
+            <value>
+                <fullName>Offer a refund immediately.</fullName>
+                <default>false</default>
+                <label>Offer a refund immediately.</label>
+            </value>
+            <value>
+                <fullName>Listen to their concerns and validate their feelings.</fullName>
+                <default>false</default>
+                <label>Listen to their concerns and validate their feelings.</label>
+            </value>
+            <value>
+                <fullName>Suggest they buy a different product.</fullName>
+                <default>false</default>
+                <label>Suggest they buy a different product.</label>
+            </value>
+            <value>
+                <fullName>Ignore their complaints as most customers are hard to please.</fullName>
+                <default>false</default>
+                <label>Ignore their complaints as most customers are hard to please.</label>
+            </value>
+            <value>
+                <fullName>Tell them it&apos;s not your fault and to check back later.</fullName>
+                <default>false</default>
+                <label>Tell them it&apos;s not your fault and to check back later.</label>
+            </value>
+            <value>
+                <fullName>Offer to check inventory for potential restock dates or similar available products.</fullName>
+                <default>false</default>
+                <label>Offer to check inventory for potential restock dates or similar available products.</label>
+            </value>
+            <value>
+                <fullName>Suggest another store.</fullName>
+                <default>false</default>
+                <label>Suggest another store.</label>
+            </value>
+            <value>
+                <fullName>Ignore the question and move to another task.</fullName>
+                <default>false</default>
+                <label>Ignore the question and move to another task.</label>
+            </value>
+            <value>
+                <fullName>Escalate immediately to your manager without trying to help.</fullName>
+                <default>false</default>
+                <label>Escalate immediately to your manager without trying to help.</label>
+            </value>
+            <value>
+                <fullName>Listen patiently, remain polite, and address their needs as efficiently as possible.</fullName>
+                <default>false</default>
+                <label>Listen patiently, remain polite, and address their needs as efficiently as possible.</label>
+            </value>
+            <value>
+                <fullName>Tell them other customers are waiting and speed them along.</fullName>
+                <default>false</default>
+                <label>Tell them other customers are waiting and speed them along.</label>
+            </value>
+            <value>
+                <fullName>Suggest they calm down if they want help.</fullName>
+                <default>false</default>
+                <label>Suggest they calm down if they want help.</label>
+            </value>
+            <value>
+                <fullName>When the customer seems unhappy or complains.</fullName>
+                <default>false</default>
+                <label>When the customer seems unhappy or complains.</label>
+            </value>
+            <value>
+                <fullName>When they are buying an item that is damaged or the last in stock.</fullName>
+                <default>false</default>
+                <label>When they are buying an item that is damaged or the last in stock.</label>
+            </value>
+            <value>
+                <fullName>During a casual conversation to make them like you.</fullName>
+                <default>false</default>
+                <label>During a casual conversation to make them like you.</label>
+            </value>
+            <value>
+                <fullName>Never, it’s against store policy to offer discounts personally.</fullName>
+                <default>false</default>
+                <label>Never, it’s against store policy to offer discounts personally.</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <visibleLines>4</visibleLines>
+</CustomField>

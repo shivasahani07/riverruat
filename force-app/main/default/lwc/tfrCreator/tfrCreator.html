@@ -1,14 +1,50 @@
-<!-- simpleAccounts.html -->
 <template>
-  <div class="slds-var-m-horizontal_medium">
-    <template lwc:if={results}>
-      <template for:each={results} for:item="account">
-        <div key={account.Id}>
-          <lightning-card icon-name="standard:account">
-            <h1 slot="title">{account.Name.value}</h1>
-          </lightning-card>
-        </div>
-      </template>
-    </template>
-  </div>
+    <lightning-card title="Existing VIN Records">
+        <template if:true={existingVINCuttoff}>
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">VIN Start</th>
+                        <th scope="col">Created Date</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Active</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={existingVINCuttoff} for:item="record">
+                        <tr key={record.Id}>
+                            <td>{record.VIN_Start__c}</td>
+                            <!-- <td>{record.CreatedDate}</td> -->
+                            <td><lightning-formatted-date-time value={record.CreatedDate}></lightning-formatted-date-time></td>
+                            <td>{record.Description__c}</td>
+                            <td>{record.Is_Active__c}</td>
+                            <td>
+                              <lightning-button-group>
+                                <lightning-button 
+                                    label="Select"
+                                    variant="brand"
+                                    data-id={record.Id}
+                                    onclick={handleRowAction}>
+                                </lightning-button>
+
+                                <lightning-button 
+                                    label="Add failure code"
+                                    variant="brand"
+                                    data-id={record.Id}
+                                  
+                                    onclick={addFailureCodeAction}>
+                                </lightning-button>
+                                </lightning-button-group>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </template>
+
+        <template if:true={error}>
+            <p class="slds-text-color_error">{error}</p>
+        </template>
+    </lightning-card>
 </template>
