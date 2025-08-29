@@ -1,0 +1,114 @@
+<template>
+	<template if:false={showQuizSummary}>
+		<lightning-card>
+			<div class="slds-grid slds-gutters slds-p-vertical_large slds-p-right_large">
+				<div style="text-align: right;padding-right: 50px;" class="slds-col slds-size_2-of-3">
+					<span  class="goColorsHeader">Learning Leadership Board</span>
+				</div>
+				<div class="slds-col slds-size_1-of-3">
+					<span><lightning-button variant="brand" label="Go to Quiz Summary" onclick={goToQuizSummary} class="slds-m-left_x-small slds-float_right"></lightning-button></span>
+				</div>
+			</div>
+			<div class="slds-grid slds-gutters slds-p-bottom_large slds-align_absolute-center">
+				<div style="background-color:#7D97F4;" class="slds-col slds-size_1-of-2 myRank slds-float_right">
+					<div class="slds-grid slds-gutters ">
+						<div class="slds-col slds-m-left_medium slds-m-top_medium">
+							<span class="rankContent">My Rank</span></br>
+							<span class="rankNumber">{myRankIndex}</span>
+						</div>
+						<div class="slds-col">
+							<span><img class="myRankImg slds-float_right" src ={myrank} /></span>
+						</div>
+					</div>
+				</div>
+				<div style="background-color:#B57BFF;"
+					class="slds-m-left_small slds-col slds-size_1-of-2 myRank slds-float_right">
+					<div class="slds-grid slds-gutters">
+						<div class="slds-col slds-m-left_medium slds-m-top_medium">
+							<span class="rankContent">My Points</span></br>
+							<span class="rankNumber">{myPoints}</span>
+						</div>
+						<div class="slds-col">
+							<span><img class="hikerImg slds-float_right" src ={hiker} /></span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+			<div class="slds-grid slds-gutters">
+				<div class="slds-col slds-size_1-of-12 slds-p-top_xx-small">
+					<span class="slds-p-left_x-large">Sort by</span>
+				</div>
+				<div class="slds-col slds-size_2-of-12">
+					<span style="padding-left: 0px;"><lightning-combobox name="sortBy" value={sortByValue} placeholder="Select" options={sortByOptions}
+                    variant="label-hidden" onchange={handleChangeSortby} ></lightning-combobox></span>
+				</div>
+			</div>
+
+			<div class="slds-p-around_large">
+				<table>
+					<thead>
+						<tr>
+							<th style="width: 200px;" class="table-header leftBorder" scope="col">Rank</th>
+							<th style="width:290px;" class="table-header" scope="col">Employee Name</th>
+							<th style="width:290px;" class="table-header" scope="col">Points</th>
+							<th class="table-header" scope="col">Badges</th>
+							<th style="width: 200px;" class="table-header rightBorder" scope="col">Levels</th>
+						</tr>
+					</thead>
+					<tbody>
+						<template for:each={employeeList} for:item="emp" for:index="index">
+							<tr key={emp.id} class="table-row slds-border_bottom">
+								<template if:true={emp.indexCount}>
+									<td class="tableBody levelImages">
+									<img class={emp.rankCss} src={emp.formattedIndex}/></td>
+								</template>
+								<template if:false={emp.indexCount}>
+									<td style="width: 200px;"  class={emp.rankCss}>{emp.formattedIndex}</td>
+								</template>
+								<td style="width:290px;" class="tableBody">{emp.Employee_Name__c}</td>
+								<td style="width:290px;" class="tableBody">{emp.Points_custom}</td>
+								<td class="tableBody">{emp.Badges__c}</td>
+								<td class="tableBody levelImages">
+									<img style="margin-top:0px;" class="img1 " src={emp.Levels}
+							data-points={emp.Points__c} data-level={emp.Levels} data-badges={emp.Badges__c} onclick={openLevelImage}/></td>
+							</tr>
+						</template>
+					</tbody>
+				</table>
+			</div>
+		</lightning-card>
+	</template>
+
+	<template if:true={showQuizSummary}>
+		<c-lwc_quizsummary></c-lwc_quizsummary>
+	</template>
+
+	<template if:true={showLevelPopup}>
+		<section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+			aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+			<div class="slds-modal__container">
+
+				<div class="slds-modal__content slds-p-around_medium " id="modal-content-id-1">
+					<div class="slds-align_absolute-center"><img class="popUpImg" src={levelImage}></img></div>
+					<div style="font-size:18px; font-weight:600;" class="slds-align_absolute-center slds-p-top_x-large">
+						{levels}</div>
+					<div class="slds-align_absolute-center slds-p-vertical_small">
+						<span style="font-size:14px;font-weight:500;">Badges&nbsp;</span><span style="color:green;padding-top:2px;">{badges}</span>
+					</div>
+					<div class="slds-align_absolute-center slds-p-vertical_xx-small">
+						<span style="font-size:14px;font-weight:500;">Points&nbsp;</span><span style="color:green;padding-top:2px;">{points}</span>
+					</div>
+				</div>
+
+				<footer style="background-color:white;" class="slds-p-bottom_large">
+					<button class="slds-button slds-button_brand slds-align_absolute-center" onclick={hideModalBox}>Cancel</button>
+				</footer>
+
+			</div>
+		</section>
+		<div class="slds-backdrop slds-backdrop_open"></div>
+	</template>
+
+</template>

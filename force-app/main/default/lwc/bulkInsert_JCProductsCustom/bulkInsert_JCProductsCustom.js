@@ -593,6 +593,7 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
                 Replacement_Type__c: item.isChild ? 'Consequential' : item.Replacement_Type__c,
                 Failure_Code__c: item.Failure_Code__c,
                 TFR_Required__c: item.TFR_Required__c,
+                RR_Product__c:item.productId,
                 Warranty_Prior__c: isAddWP ? this.warrantyId : null,
                 Post_Vin_cutt_off__c: item.Post_Vin_cutt_off__c,
                 ...(!item.isChild && {

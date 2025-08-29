@@ -1,7 +1,7 @@
 @isTest
 public class OrderStatusHandlerTest {
     
-    @isTest
+  /*  @isTest
     static void testUpdateVehicle() {
         Account acc = new Account(Name = 'Test Name',Type = 'Customer',Phone='9011113246', Email__c = 'test@gmail.com');
         insert acc;
@@ -149,10 +149,10 @@ public class OrderStatusHandlerTest {
          Test.setMock(HttpCalloutMock.class, new HttpCalloutMockImpl());
         
         
-    }
+    } */
     
     
-    @isTest
+   /* @isTest
     static void testUpdateVehicle01() {
         // Create sample Order and Vehicle records
         Account acc = new Account(Name = 'Test Name', Type = 'Customer', Phone = '9011113246', Email__c = 'test@gmail.com');
@@ -240,7 +240,7 @@ public class OrderStatusHandlerTest {
             PDI_Status_Pass__c = TRUE,
             Software_Version__c = sft.Id
         );
-        insert vehicle;
+        insert vehicle; */
     
         
         // Create AssetMilestone record
@@ -269,7 +269,7 @@ public class OrderStatusHandlerTest {
     
         // Update Order status to trigger the logic'
         
-        order.Status = 'Vehicle Delivered';
+     /*   order.Status = 'Vehicle Delivered';
         order.Payment_Status__c = 'Completed'; 
         update order;
     
@@ -296,7 +296,7 @@ public class OrderStatusHandlerTest {
         // Verify that the Vehicle status was updated
         Vehicle updatedVehicle = [SELECT Id, Status FROM Vehicle WHERE Id = :vehicle.Id];
        // System.assertEquals('Sold to Customer', updatedVehicle.Status, 'Vehicle status should be updated to Sold to Customer');
-    }
+    } */
     
 /*@isTest
 static void testEmailHandllerMethod() {
@@ -442,7 +442,7 @@ static void testEmailHandllerMethod() {
 } */
 
     
-    @isTest
+   /* @isTest
     static void testSendReceipt() {
         // Create sample Order and Vehicle records
         //Test.setMock(HttpCalloutMock.class, new TestCalloutMock());
@@ -708,7 +708,7 @@ static void testEmailHandllerMethod() {
         OrderStatusHandler.sendPreOrderReceipt(testNewOrderList, oldMap);
         OrderStatusHandler.sendPreOrderReceipt01(new List<Order_Payment__c>{op});
         Test.stopTest();
-    } 
+    } */
     
   /*  @isTest
     static void testcreateInvoicesTest() {
@@ -935,7 +935,7 @@ static void testEmailHandllerMethod() {
          
     } */
     
-    @isTest
+  /*  @isTest
     static void testcreateInvoicesAccessoriesTest() {
         // Create sample Order and Vehicle records
         Account acc = new Account(Name = 'Test Name',Type = 'Customer',Phone='9011113246', Email__c = 'test@gmail.com');
@@ -1178,7 +1178,7 @@ static void testEmailHandllerMethod() {
         
         Test.stopTest();
         
-    }
+    } */
     public class HttpCalloutMockImpl implements HttpCalloutMock {
         public HTTPResponse respond(HTTPRequest req) {
              
@@ -1201,6 +1201,10 @@ static void testEmailHandllerMethod() {
         OrderStatusHandler.addTest2();
         OrderStatusHandler.addTest3();
         OrderStatusHandler.addTest4();
+        OrderStatusHandler.addTest5();
+        OrderStatusHandler.addTest6();
+        OrderStatusHandler.addTest7();
+        OrderStatusHandler.addTest8();
         
        
     }

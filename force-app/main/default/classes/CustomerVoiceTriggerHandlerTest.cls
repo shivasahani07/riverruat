@@ -78,4 +78,11 @@ public class CustomerVoiceTriggerHandlerTest {
         }
         Test.stopTest();
     }
+    static testMethod void testCodeCoverage() {
+        CustomerVoiceTriggerHandler.addTest();
+       
+        CustomerVoiceTriggerHandler.addTest2();
+                
+       
+    }
 }

@@ -126,6 +126,7 @@ public class WarrantyPriorTriggerHandlerTest {
         wo.Pricebook2Id = stdPrBk;
         update wo;
     }
+            
 
     WorkOrderLineItem woli = new WorkOrderLineItem(
         WorkOrderId = wo.Id,
@@ -166,6 +167,9 @@ public class WarrantyPriorTriggerHandlerTest {
     static void testCreatClaimLineItemPartJobsAdded() {
         WorkOrder wo = createWorkOrder();
         Warranty_Prior__c wp = createWarrantyPrior('Pending', wo.Id);
+        
+        
+        
 
         wp.Status__c = 'Approved';
         update wp;
@@ -179,6 +183,8 @@ public class WarrantyPriorTriggerHandlerTest {
 
         Test.startTest();
         WarrantyPriorTriggerHandler.creatClaimLineItemPartJobsAdded(new List<Warranty_Prior__c>{ wp }, oldMap);
+        wp.Status__c = 'Approved';
+        update wp;
         Test.stopTest();
     }
 }

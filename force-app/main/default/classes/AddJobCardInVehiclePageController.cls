@@ -200,7 +200,10 @@ public static wrapperForJobCards getVehicleDetails(String recordId) {
             }
 
             Id vehiclePDIRecordTypeId = vehiclePDIRecordTypes[0].Id;
-
+            
+            
+            Id userId = UserInfo.getUserId();
+            user userServiceAccount = [SELECT   id,Contact.AccountId From User where Id =: userId];
             WorkOrder w = new WorkOrder();
             w.AccountId = (Id) jobCardMap.get('accId');
             w.ContactId = (Id) jobCardMap.get('conId');
@@ -208,7 +211,7 @@ public static wrapperForJobCards getVehicleDetails(String recordId) {
             w.Odometer_Reading__c = (Integer) jobCardMap.get('oRed');
             w.RR_Job_Type__c = (String) jobCardMap.get('jobType');
             w.RecordTypeId = vehiclePDIRecordTypeId;
-
+            w.Service_Center__c = userServiceAccount.Contact.AccountId;
             workOrdersToInsert.add(w);
             System.debug('workOrdersToInsert ======>'+workOrdersToInsert);
 

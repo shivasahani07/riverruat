@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Level__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(
+    Points__c &gt;= 300000,
+    &quot;&lt;img src=&apos;URLFOR($Resource.AllStarRanger, &apos;AllStarRanger.png&apos;)&apos; alt=&apos;AllStarRanger&apos; /&gt;&quot;,
+    IF(
+        AND(Points__c &lt; 300000, Points__c &gt;= 250000),
+        &quot;&lt;img src=&apos;URLFOR($Resource.FiveStarRanger, &apos;FiveStarRanger.png&apos;)&apos; alt=&apos;FiveStarRanger&apos; /&gt;&quot;,
+        IF(
+            AND(Points__c &lt; 250000, Points__c &gt;= 200000),
+            &quot;&lt;img src=&apos;URLFOR($Resource.FourStarRanger, &apos;FourStarRanger.png&apos;)&apos; alt=&apos;FourStarRanger&apos; /&gt;&quot;,
+            IF(
+                AND(Points__c &lt; 200000, Points__c &gt;= 150000),
+                &quot;&lt;img src=&apos;URLFOR($Resource.TripleStarRanger, &apos;TripleStarRanger.png&apos;)&apos; alt=&apos;TripleStarRanger&apos; /&gt;&quot;,
+                IF(
+                    AND(Points__c &lt; 150000, Points__c &gt;= 100000),
+                    &quot;&lt;img src=&apos;URLFOR($Resource.DoubleStarRanger, &apos;DoubleStarRanger.png&apos;)&apos; alt=&apos;DoubleStarRanger&apos; /&gt;&quot;,
+                    &quot;&lt;img src=&apos;URLFOR($Resource.Ranger, &apos;Ranger.png&apos;)&apos; alt=&apos;Ranger&apos; /&gt;&quot;
+                )
+            )
+        )
+    )
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Level</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

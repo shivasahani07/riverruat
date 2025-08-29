@@ -1,3 +1,10 @@
+/**
+ * @description       : 
+ * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @group             : 
+ * @last modified on  : 08-25-2025
+ * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+**/
 public class DailyNewLeadsEmailService implements Schedulable {
 
     public void execute(SchedulableContext SC) {
@@ -17,6 +24,8 @@ public class DailyNewLeadsEmailService implements Schedulable {
             AND Status = 'New'
             ORDER BY CreatedDate DESC
         ];
+
+        System.debug('newLeads==>'+newLeads.size());
 
         if (newLeads.isEmpty()) {
             System.debug('No new leads created today. Email not sent.');
@@ -71,6 +80,10 @@ public class DailyNewLeadsEmailService implements Schedulable {
             // HQ receives all leads
             hqLeads.add(lead);
         }
+        
+        System.debug('Label.Enable_Store_Email'+Label.Enable_Store_Email);
+        System.debug('Label.Enable_ASM_Email'+Label.Enable_ASM_Email);
+        System.debug('Label.Enable_HQ_Email'+Label.Enable_HQ_Email);
 
         // Send Emails
         if (Label.Enable_Store_Email == 'True') {
@@ -95,7 +108,7 @@ public class DailyNewLeadsEmailService implements Schedulable {
                 Messaging.SingleEmailMessage mail = prepareEmail(
                     email, 
                     '📋 Today’s New Lead List – ' + Date.today().format(),
-                    formatLeadsData(leads, recipientType)
+                    formatLeadsData(leads, recipientType),leads
                 );
                 emailList.add(mail);
             }
@@ -116,6 +129,7 @@ public class DailyNewLeadsEmailService implements Schedulable {
                 hqEmails.add(record.Email__c);
             }
         }
+        System.debug('hqEmails==>'+hqEmails);
 
         if (hqEmails.isEmpty()) {
             System.debug('No active HQ emails found in metadata.');
@@ -127,7 +141,7 @@ public class DailyNewLeadsEmailService implements Schedulable {
             Messaging.SingleEmailMessage mail = prepareEmail(
                 email, 
                 '📋 Today’s New Lead List for All Stores – ' + Date.today().format(),
-                formatLeadsData(hqLeads, 'Team')
+                formatLeadsData(hqLeads, 'Team'),hqLeads
             );
             emailList.add(mail);
         }
@@ -137,11 +151,31 @@ public class DailyNewLeadsEmailService implements Schedulable {
         }
     }
 
-    private static Messaging.SingleEmailMessage prepareEmail(String recipientEmail, String subject, String htmlBody) {
+    private static Messaging.SingleEmailMessage prepareEmail(String recipientEmail, String subject, String htmlBody,List<Lead> leads) {
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
         mail.setToAddresses(new List<String>{recipientEmail});
         mail.setSubject(subject);
-        mail.setHtmlBody(htmlBody);
+        //mail.setHtmlBody(htmlBody);
+        mail.setHtmlBody('Please find the attached Excel report for new leads.'); 
+
+
+         String csv = 'Lead Name,Email,Phone,Store Name,Status,Created Date\n';
+        for (Lead l : leads) {
+            csv += '"' + (l.Name != null ? l.Name : '') + '",';
+            csv += '"' + (l.Email != null ? l.Email : '') + '",';
+            csv += '"' + (l.Phone != null ? l.Phone : '') + '",';
+            csv += '"' + (l.Stores_Name__c != null ? l.Stores_Name__c : '') + '",';
+            csv += '"' + (l.Status != null ? l.Status : '') + '",';
+            csv += '"' + (l.CreatedDate != null ? l.CreatedDate.format('dd/MM/yyyy, hh:mm a', 'Asia/Kolkata') : '') + '"\n';
+        }
+
+        // Attach CSV
+        Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
+        attachment.setFileName('NewLeadsReport_' + Date.today().format() + '.csv');
+        attachment.setBody(Blob.valueOf(csv));
+        attachment.setContentType('text/csv'); // CSV MIME type
+        mail.setFileAttachments(new List<Messaging.EmailFileAttachment>{ attachment });
+
         
         // Set Org-Wide Email Address
         OrgWideEmailAddress[] orgWideEmail = [SELECT Id FROM OrgWideEmailAddress WHERE Address = :System.Label.OrgWideEmailAddress LIMIT 1];

@@ -40,7 +40,7 @@ public without sharing class OrderInventoryManagementHandler {
                 Set<Id> productIdsToStore = new Set<Id>();
                 
                     for(OrderItem oi : vehicleOrderItems){
-                        if(oi.Product2Id != null && oi.Quantity != null && oi.Type__c !='Vehicle' && oi.Type__c != 'Parts'){
+                        if(oi.Product2Id != null && oi.Quantity != null && (oi.Type__c !='Vehicle' || oi.Type__c != 'Parts')){
                             productIdsToStore.add(oi.Product2Id);
                             quantityProductMap.put(oi.Product2Id,oi.Quantity);
                         }
@@ -122,7 +122,7 @@ public without sharing class OrderInventoryManagementHandler {
                     List<Order> ordersToUpdate = [
                         SELECT Id, Inventory_Error__c
                         FROM Order
-                        WHERE Id IN :ordersWithMissingInventory
+                        WHERE Id IN :ordersWithMissingInventory AND RecordTypeId=:VehicleRecordType
                     ];
 
                     for(Order o : ordersToUpdate){

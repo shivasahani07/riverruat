@@ -11,9 +11,9 @@
                     <tr>
                         <th scope="col">Claim No.</th>
                         <th scope="col">Claim Item Number</th>
-                        <th scope="col">Part No</th>
+                        <!-- <th scope="col">Part No</th> -->
                         <th scope="col">Product Code</th>
-                        <th scope="col">HSN Code</th>
+                        <!-- <th scope="col">HSN Code</th> -->
                         <th scope="col">Warranty Type</th>
                         <th scope="col">Status</th>
                         <th scope="col">Claim Amount</th>
@@ -28,9 +28,9 @@
                         <tr key={ClaimItem.Id}>
                             <td style="font-family: 'Arial', sans-serif; font-size: 14px; ">{ClaimItem.Claim.Name}</td>
                             <td style="font-family: 'Arial', sans-serif; font-size: 14px; ">{ClaimItem.Claim_Item_Number__c}</td>
-                            <td style="font-family: 'Arial', sans-serif; font-size: 14px; ">{ClaimItem.Part__r.LineItemNumber}</td>
+                            <!-- <td style="font-family: 'Arial', sans-serif; font-size: 14px; ">{ClaimItem.Part__r.LineItemNumber}</td> -->
                             <td style="font-family: 'Arial', sans-serif; font-size: 14px; ">{ClaimItem.Product_Code__c}</td>
-                            <td style="font-family: 'Arial', sans-serif; font-size: 14px; ">{ClaimItem.Part__r.HSN_Code__c}</td>
+                            <!-- <td style="font-family: 'Arial', sans-serif; font-size: 14px; ">{ClaimItem.Part__r.HSN_Code__c}</td> -->
                             <td style="font-family: 'Arial', sans-serif; font-size: 14px; ">{ClaimItem.Claim.ClaimType}</td>
                             <td style="font-family: 'Arial', sans-serif; font-size: 14px; ">{ClaimItem.Status__c}</td>
                             <td style="font-family: 'Arial', sans-serif; font-size: 14px; text-align: center; ">{ClaimItem.Claim_Amount__c}</td>

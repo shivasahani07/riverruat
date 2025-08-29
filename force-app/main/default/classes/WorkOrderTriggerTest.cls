@@ -100,6 +100,7 @@ public class WorkOrderTriggerTest {
         acc1.Email__c = 'partner@gmail.com';
         acc1.Phone = '6767656776';
         acc1.Type = 'Dealer';
+        acc1.Center_Code__c = '8908098';
         Insert acc1;
         
         List<contact> conList = [SELECT Id, Name , Email from contact where AccountId=:acc1.Id AND Primary_Contact__c = true];

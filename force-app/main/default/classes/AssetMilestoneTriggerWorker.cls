@@ -219,12 +219,12 @@ public class AssetMilestoneTriggerWorker {
                     System.debug('vehicleStatus.get(key) :'+vehicleStatus.get(key));
                     System.debug('asset.MilestoneType :'+asset.MilestoneType);
                     if(lastStatusSeq + 1 != nextStatusSeq){
-                        //  asset.addError('You cannot create a '+asset.MilestoneType+' milestone before completing the prior milestones.');
+                         // asset.addError('You cannot create a '+asset.MilestoneType+' milestone before completing the prior milestones.');
                     }
                 } 
                 else if(isFirstMileStone && milestoneseqs.get(asset.MilestoneType) != 1){
                     System.debug('milestoneseqs.get(asset.MilestoneType) : '+milestoneseqs.get(asset.MilestoneType));
-                    // asset.addError('You cannot create a '+asset.MilestoneType+' milestone before completing the prior milestones.');
+                     //asset.addError('You cannot create a '+asset.MilestoneType+' milestone before completing the prior milestones.');
                 }
             }
         }

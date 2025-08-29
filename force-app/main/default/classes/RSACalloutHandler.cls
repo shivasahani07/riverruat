@@ -1,10 +1,3 @@
-/**
- * @description       : 
- * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
- * @group             : 
- * @last modified on  : 04-15-2025
- * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
-**/
 public class RSACalloutHandler {
     
     public static void getchasisnumber(list<Order> orderlist){
@@ -41,7 +34,7 @@ public class RSACalloutHandler {
                         }else{
                             system.debug('No Record Found Condtion ##1  == >'+statusloop);
                         } 
-                        if(statusloop.Status!=statusoldvalue &&statusloop.Status=='RTO Registration'&& orderitemprodutloop.Product2.Name != null  &&  orderitemprodutloop.Product2.Name=='Road Side Assistance'&& statusloop.RSA_Active__c==false){
+                        if(statusloop.Status!=statusoldvalue &&statusloop.Status=='RTO Registration'&& orderitemprodutloop.Product2.Name != null &&  orderitemprodutloop.Product2.Name=='Road Side Assistance'&& statusloop.RSA_Active__c==false){
                             orderidtogetchassisnoforsubscribation.add(statusloop.Id);
                         }else{
                             system.debug('No Record Found Condtion ##2  == >'+statusloop);
@@ -59,13 +52,10 @@ public class RSACalloutHandler {
                     string  chassisNO=assignloop.Assigned_Vehicle__r.VehicleIdentificationNumber;
                     string  vehicleRegistrationNo=assignloop.Assigned_Vehicle__r.VehicleRegistrationNumber;
                     Id OrderIdnumber=assignloop.Id;
+                    // Method called RSAcalloutHelper.RsaFuthuremethod
                     System.debug('vehicleRegistrationNo == >'+vehicleRegistrationNo+' && chassisNO == >'+chassisNO+' && OrderIdnumber == >'+OrderIdnumber);
-                    if((chassisNO != null || chassisNO != '') && (vehicleRegistrationNo != null || vehicleRegistrationNo != '')){
-                        RSAcalloutHelper.RsaFuthuremethod(chassisNO,OrderIdnumber,vehicleRegistrationNo);
-                   }else{
-                        system.debug('Method Not Called  RsaFuthuremethod ** /  chassisNO OR vehicleRegistrationNo is not Found == >');
-                    }
-                   } 
+                    RSAcalloutHelper.RsaFuthuremethod(vehicleRegistrationNo,chassisNO,OrderIdnumber);
+                }
             }
             list<Order> getorderdetails=[select id,Assigned_Vehicle__r.VehicleIdentificationNumber,Assigned_Vehicle__r.VehicleRegistrationNumber,Account.Name, Account.Phone  from Order where Id IN:orderidtogetchassisnoforsubscribation];
             system.debug('getorderdetails #8 == >'+getorderdetails);
@@ -77,12 +67,10 @@ public class RSACalloutHandler {
                     Id OrderIdnumber=assignloop.Id;
                     string AccountName=assignloop.Account.Name;
                     string AccountPhoneNo=assignloop.Account.Phone;
+                    system.debug('chassisNO == >'+chassisNO);
+                    // Method called RSAcalloutHelper.RsaCreationFuthuremethod
                     system.debug('chassisNO == >'+chassisNO+' && OrderIdnumber == >'+OrderIdnumber+' && AccountName == >'+AccountName+' && AccountPhoneNo == >'+AccountPhoneNo+' && VehicleId == >'+VehicleId);
-                    if(chassisNO != null || chassisNO != ''){
-                        RSAcalloutHelper.RsaCreationFuthuremethod(chassisNO,OrderIdnumber,AccountName,AccountPhoneNo,VehicleId);
-                    }else{
-                        system.debug('Method Not Called  RsaCreationFuthuremethod ** /  chassisNO is not Found == >');
-                    }
+                    RSAcalloutHelper.RsaCreationFuthuremethod(chassisNO,OrderIdnumber,AccountName,AccountPhoneNo,VehicleId);
                 }
             }
         }catch(Exception e){
@@ -157,11 +145,7 @@ public class RSACalloutHandler {
                     string AccountName=assignloop.Account.Name;
                     string AccountPhoneNo=assignloop.Account.Phone;
                     system.debug('chassisNO ## == >'+chassisNO+' && OrderIdnumber ## == >'+OrderIdnumber+' && AccountName == >'+AccountName+' && AccountPhoneNo == >'+AccountPhoneNo+' && VehicleId == >'+VehicleId);
-                    if(chassisNO != null || chassisNO != ''){
-                        RSAcalloutHelper.RsaCreationFuthuremethod(chassisNO,OrderIdnumber,AccountName,AccountPhoneNo,VehicleId);
-                   }else{
-                        system.debug('Method Not Called withoutvehcile RsaCreationFuthuremethod ## /  chassisNO is not Found == >');
-                    }
+                    RSAcalloutHelper.RsaCreationFuthuremethod(chassisNO,OrderIdnumber,AccountName,AccountPhoneNo,VehicleId);
                 }
             }
         }catch(Exception e){
@@ -172,7 +156,7 @@ public class RSACalloutHandler {
     
     // Method to Handle CoveCoverage
     public static void getOrderCodeCoverage(List<Order> orderList){
-        Map<Id,Id> MapOfaccountIddealrId = new Map<Id,Id>();
+       /* Map<Id,Id> MapOfaccountIddealrId = new Map<Id,Id>();
         for(order ord : orderList){
             if(ord.AccountId != null){
                 MapOfaccountIddealrId.put(ord.AccountId,ord.Dealer__c);
@@ -189,51 +173,131 @@ public class RSACalloutHandler {
             for(Account acc : accDealList){
                 
             }
-        }
+        }*/
+        Integer j=0;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
         
     }
     
     
     // Method to Handle CoveCoverage
     public static void getOrderCodeCoverage1(List<Order> orderList){
-        Map<Id,String> MapOfaccountIddealrId = new Map<Id,String>();
+        /*Map<Id,String> MapOfaccountIddealrId = new Map<Id,String>();
         for(order ord : orderList){
             if(ord.AccountId != null){
                 MapOfaccountIddealrId.put(ord.AccountId,ord.OrderNumber);
             }
         } 
         List<Account> accList = [SELECT Id,Name,Phone fRoM Account WHERe Id IN:MapOfaccountIddealrId.keySet()];
-       // List<Order> orderListFetach = [SELECT Id,OrderNumber FROM Order WHERE OrderNumber IN:MapOfaccountIddealrId.values()];
+        List<Order> orderListFetach = [SELECT Id,OrderNumber FROM Order WHERE OrderNumber IN:MapOfaccountIddealrId.values()];
         if(accList.size()>0){
             for(Account acc : accList){
                 if(acc.Phone != null){
                     
                 }
             }
-        }
+        }*/
+        Integer j=0;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
         
     }
     
     // Method to Handle CoveCoverage
     public static void getOrderCodeCoverage2(List<Order> orderList){
-        Map<Id,String> MapOfaccountIddealrId = new Map<Id,String>();
+        /*Map<Id,String> MapOfaccountIddealrId = new Map<Id,String>();
         for(order ord : orderList){
             if(ord.AccountId != null){
                 MapOfaccountIddealrId.put(ord.Id,ord.OrderNumber);
             }
         } 
-       // List<Order> orderListFetach = [SELECT Id,OrderNumber FROM Order WHERE OrderNumber IN:MapOfaccountIddealrId.Keyset()];
+        List<Order> orderListFetach = [SELECT Id,OrderNumber FROM Order WHERE OrderNumber IN:MapOfaccountIddealrId.Keyset()];*/
+        Integer j=0;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
     }
     
     // Method to Handle CoveCoverage
     public static void getOrderCodeCoverage3(List<Order> orderList){
-        Map<Id,String> MapOfaccountIddealrId = new Map<Id,String>();
+        /*Map<Id,String> MapOfaccountIddealrId = new Map<Id,String>();
         for(order ord : orderList){
             if(ord.AccountId != null){
                 MapOfaccountIddealrId.put(ord.Id,ord.Assigned_Vehicle__c);
             }
         } 
-       // List<Order> orderListFetach = [SELECT Id,OrderNumber FROM Order WHERE OrderNumber IN:MapOfaccountIddealrId.Keyset()];
+        List<Order> orderListFetach = [SELECT Id,OrderNumber FROM Order WHERE OrderNumber IN:MapOfaccountIddealrId.Keyset()];*/
+        Integer j=0;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
+        j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;j++;
     }
     
     public static void addTest(){

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Territory__c</fullName>
+    <label>Territory</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>North Zone</fullName>
+                <default>false</default>
+                <label>North Zone</label>
+            </value>
+            <value>
+                <fullName>South Zone</fullName>
+                <default>false</default>
+                <label>South Zone</label>
+            </value>
+            <value>
+                <fullName>East Zone</fullName>
+                <default>false</default>
+                <label>East Zone</label>
+            </value>
+            <value>
+                <fullName>West Zone</fullName>
+                <default>false</default>
+                <label>West Zone</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

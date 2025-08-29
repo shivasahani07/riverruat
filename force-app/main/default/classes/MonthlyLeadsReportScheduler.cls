@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 04-23-2025
+ * @last modified on  : 08-25-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 global class MonthlyLeadsReportScheduler implements Schedulable {
@@ -158,6 +158,7 @@ global class MonthlyLeadsReportScheduler implements Schedulable {
                 hqEmails.add(record.Email__c);
             }
         }
+        System.debug('hqEmails==>'+hqEmails);
 
         if (hqEmails.isEmpty()) {
             System.debug('No active HQ emails found in metadata.');
@@ -172,6 +173,9 @@ global class MonthlyLeadsReportScheduler implements Schedulable {
             }
 
         Messaging.sendEmail(new Messaging.SingleEmailMessage[]{email});
+
+        Messaging.SendEmailResult[] results = Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });
+        System.debug('Send Email Result: ' + results[0].isSuccess());
     }
 
     // Helper class for aggregating data

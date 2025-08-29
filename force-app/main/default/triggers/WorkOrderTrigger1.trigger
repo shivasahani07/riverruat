@@ -8,7 +8,7 @@
 trigger WorkOrderTrigger1 on WorkOrder (before insert, before update, after update, after Insert) {
     if (trigger.isAfter && trigger.isInsert) {
         WorkOrderTriggerHandler.handleNewJobCards(trigger.new);
-        GenericRecordSharer.shareRecordsWithHierarchy(Trigger.NewMap, 'WorkOrder', 'Read', 'Manual');
+        GenericRecordSharer.shareRecordsWithHierarchy(Trigger.NewMap, 'WorkOrder', 'Edit', 'Manual');
        
     }
     if(Trigger.isAfter && Trigger.isUpdate){

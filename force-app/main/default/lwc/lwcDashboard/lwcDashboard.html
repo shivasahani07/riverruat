@@ -1,0 +1,16 @@
+<template>
+  <!--div style="margin-left:80%;margin-top:1%;">
+        <button class="slds-button slds-button_success" style="color:white;font-size:16px;" onclick={openModal}>Daily Store SOP</button>
+    </div-->
+
+         <!-- Conditionally render the child component based on a flag -->
+    <template if:true={showChildComponent}>
+       <c-daily-store-operations-form></c-daily-store-operations-form>
+    </template>
+
+    <div style="margin-top:2%;">
+        <img src={myImageUrl1} alt="My Static Image" />
+    </div>
+     
+
+</template>

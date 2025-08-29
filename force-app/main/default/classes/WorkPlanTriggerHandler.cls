@@ -94,8 +94,7 @@ public class WorkPlanTriggerHandler {
                     WorkOrder wrkord = workOrderMap.get(wrkpln.WorkOrderId);
                     if (wrkord.Status != null && ConstantData.blockedStatuses.contains(wrkord.Status)) {
                         wrkpln.addError(
-                            'You cannot update or delete Labour Code because the related Job Card status is "' + wrkord.Status + '". ' +
-                            'Please change the status of the Job Card to new or In progress for any modifications or deletions.'
+                           'You cannot update or delete Labour Code because the related Job Card status is "' + wrkord.Status + '".'
                         );
                     }
                 }

@@ -191,19 +191,9 @@ global with sharing class UpdateAccountInSFFromWebsite {
             System.debug('orderProductList==>'+orderProductList[0]);
             delete orderProductList[0];
 
-             //just for testing 
-        // Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-        // mail.setToAddresses(new String[] { 'aniket.k@utilitarianlabs.com' });
-        // mail.setSubject('Order Product Deleted');
-        // mail.setPlainTextBody('The Order Product for Website Order ID: ' + websiteOrderId + ' has been successfully updated.\n\n' +
-        //                     'Old SKU: ' + oldSKU + '\n' +
-        //                     'New SKU: ' + newSKU + '\n' +
-        //                     'Response ID: ' + responseId + '\n\n' +
-        //                     'Thank you.');
-        // Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
-
+           
         
-        Messaging.SingleEmailMessage mail2 = new Messaging.SingleEmailMessage();
+        /*Messaging.SingleEmailMessage mail2 = new Messaging.SingleEmailMessage();
         mail2.setToAddresses(new String[] { 'aniket.k@utilitarianlabs.com' });
         mail2.setSubject('Order Product Deleted');
         mail2.setPlainTextBody('The Order Product for Website Order ID: ' + websiteOrderId + ' has been successfully updated.\n\n' +
@@ -212,7 +202,7 @@ global with sharing class UpdateAccountInSFFromWebsite {
                             'Response ID: ' + responseId + '\n\n' +
                             'Thank you.');
         Messaging.SendEmailResult[] results = Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail2 });
-        System.debug('Send Email Result: ' + results[0].isSuccess());
+        System.debug('Send Email Result: ' + results[0].isSuccess());*/
         //upto here 
             
         }

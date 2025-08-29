@@ -1,0 +1,70 @@
+<template>
+	<div class="slds-grid slds-wrap">
+		<div class="slds-col slds-size_12-of-12">
+			<span>
+			    <div class="highlight-panel slds-grid slds-gutters" style="margin-top: 15px; margin-bottom: 15px;">
+					<div class="highlightpanel-inner">
+						<div class="slds-col slds-size_1-of-12">
+							<span>
+								<img src= {gocolours} style="max-width: 120%; height: auto;"></img>
+							</span>
+						 </div>
+						<div class="slds-col slds-size_5-of-12">
+							<div class="slds-grid slds-wrap">
+								<div class="slds-col slds-size_1-of-3">
+                                    <span style="font-size:17px;"><b>Progress Tracker</b></span>
+								</div>
+								  <div class="slds-col slds-size_8-of-12 slds-m-top_x-small">
+									  <lightning-progress-bar value="80" size="large" variant="circular" class="slds-progress-bar__value_success"></lightning-progress-bar>
+								</div>	
+							</div>
+						<!-- <span> 
+							<img src= {progressbar} style="max-width: 100%; height: auto; float:right;"></img>
+						</span> -->
+		            </div>
+					<div class="slds-col slds-size_4-of-12">
+						<span> 
+							 <div class="flex-container">
+								 <h3 style="font-size:20px;">80% completed </h3>
+								 <h3 style="font-size:20px;">800/1000 Points </h3>
+								 <img src={hikerrank} style="width: 50px; height: auto;"></img>
+								 <!-- <h3>Next Badge </h3>
+								 <img src={nextbadge}  style="width: 30px; height: auto;"></img> -->
+                   			 </div>
+
+						</span>
+		            </div>
+		            <div class="slds-col slds-size_2-of-12">
+			            <span>
+						    <template lwc:if={showcoursesbtn}>
+								<lightning-button variant="brand" label="View Quiz Summary" title="Primary action" onclick={handleshowsummary}
+									class="slds-m-left_x-small"></lightning-button>
+							</template>
+			                <template lwc:if={showgotoLmsbtn}>
+								<lightning-button variant="brand" label="Go to LMS" title="Primary action" onclick={handleshowcourses}
+								class="slds-m-left_x-small"></lightning-button>
+							</template>
+						</span>
+		            </div>
+						 
+					</div>
+                </div>
+	        </span>
+	    </div>
+	    <div class="slds-col slds-size_12-of-12">
+		    <span>
+				<div style="margin-top:15px;">
+				<template lwc:if={showcourses}>
+					<c-lwc_course-component oncourseevent={handleMessage}></c-lwc_course-component>
+				</template>
+				<template lwc:if={showmodules}>
+					<c-lwc_lmsmodule courseid={courseId} ></c-lwc_lmsmodule>
+				</template>
+				<template lwc:if={showquizsummary}>
+					<c-lwc_quizsummary oncourseevent={handleMessage} ></c-lwc_quizsummary>
+				</template>
+				</div>
+            </span>
+	    </div>
+	</div>
+</template>

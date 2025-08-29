@@ -9,14 +9,15 @@ trigger WorkOrderTrigger on WorkOrder (before insert, before update, after updat
         }
     }
     
-    if (Trigger.isBefore && (Trigger.isInsert || Trigger.isUpdate)) {
+     if (Trigger.isBefore && (Trigger.isInsert || Trigger.isUpdate)) {
         if (!isFirstRun) {
-            return;
+            //return;
         }
         Set<Id> vehicleSet = new Set<Id>();
         Map<Id, Set<Id>> mapVehicleIdToWoIds = new Map<Id, Set<Id>>();
         Set<Id> newVehicleSet = new Set<Id>();
         Map<Id, Decimal> vehicleOdoMap = new Map<Id, Decimal>();
+        Map<Id,WorkOrder> oldJCbyId = new Map<Id,WorkOrder>();
         
         // Collect Vehicle IDs from Trigger.new
         for (WorkOrder wo : Trigger.new) {
@@ -24,6 +25,11 @@ trigger WorkOrderTrigger on WorkOrder (before insert, before update, after updat
                 vehicleSet.add(wo.Vehicle__c);
             }
         }
+         
+                 
+         if (Trigger.isUpdate) {
+             oldJCbyId.putAll(Trigger.oldMap);
+         }
         
         if (!vehicleSet.isEmpty()) {
             
@@ -45,8 +51,9 @@ trigger WorkOrderTrigger on WorkOrder (before insert, before update, after updat
             for (WorkOrder wo : Trigger.new) {
                 // Odometer validation
                 Decimal lastOdo = vehicleOdoMap.get(wo.Vehicle__c);
+                WorkOrder oldWo=oldJCbyId.get(wo.id);
                 if (lastOdo != null && wo.Odometer_Reading__c != null &&
-                    wo.Odometer_Reading__c <= lastOdo) {
+                    wo.Odometer_Reading__c <= lastOdo && (oldWo == null || oldWo.Status != 'Submit For Approval')) {
                         wo.Odometer_Reading__c.addError(
                             'Odometer reading must be greater than the Vehicle record value: ' + lastOdo
                         );
@@ -71,7 +78,9 @@ trigger WorkOrderTrigger on WorkOrder (before insert, before update, after updat
                                       wo.Vehicle__c.addError('A job card already exists for this vehicle with same VIN or VRN.');
                                   }
                         }
-                    mapVehicleIdToWoIds.get(wo.Vehicle__c).add(wo.Id);
+                    if (wo.Vehicle__c != null && mapVehicleIdToWoIds.containsKey(wo.Vehicle__c)) {
+                        mapVehicleIdToWoIds.get(wo.Vehicle__c).add(wo.Id);
+                    }
                 }
             }
         }
@@ -105,7 +114,7 @@ trigger WorkOrderTrigger on WorkOrder (before insert, before update, after updat
     if(Trigger.isAfter && Trigger.isUpdate){
         // WorkOrderTriggerHandler.updatePDIAfterCompetetion(Trigger.new,Trigger.oldMap); 
         WorkOrderTriggerHandler.createSkippedActionPlan(Trigger.new, Trigger.oldMap);
-        WorkOrderTriggerHandler.onJobcardCompleteUpdateAssetMilestone(Trigger.new, Trigger.oldMap);
+       // WorkOrderTriggerHandler.onJobcardCompleteUpdateAssetMilestone(Trigger.new, Trigger.oldMap);
         //code Added by Sagar on 14/04/2025
         // WorkOrderTriggerHandler.handleJobCardCompletion(Trigger.new,Trigger.oldMap);
     }
@@ -113,7 +122,7 @@ trigger WorkOrderTrigger on WorkOrder (before insert, before update, after updat
     //code Added by Sagar on 07/04/2025
     if (trigger.isAfter && trigger.isInsert) {
         // WorkOrderTriggerHandler.handleNewJobCards(trigger.new);
-         WorkOrderTriggerHandler.onJobcardOpenUdpateAssetMilestone(trigger.new);
+        // WorkOrderTriggerHandler.onJobcardOpenUdpateAssetMilestone(trigger.new);
     }
     
 }

@@ -2,10 +2,10 @@ global class BatchOnWorkOrderVORCreation implements Database.Batchable<SObject>,
     
     global Database.QueryLocator start(Database.BatchableContext BC) {
         List<String> partsSplit = system.label.ISVORTesting.split(',');
-        String VORflag = partsSplit[0];
+        String VORflag = 'True';
         String TestRecordId = partsSplit[1];
         if(VORflag == 'True'){
-            return Database.getQueryLocator([ SELECT Id,CreatedDate,Is_VOR__c,Service_Center__c,Vehicle__c FROM WorkOrder WHERE Status != 'Completed' AND id =: TestRecordId  ]);
+            return Database.getQueryLocator([ SELECT Id,CreatedDate,Is_VOR__c,Service_Center__c,Vehicle__c,Status FROM WorkOrder WHERE id ='0WOBh000003bGorOAE']);
         }else{
             return Database.getQueryLocator([ SELECT Id,CreatedDate,Is_VOR__c,Service_Center__c,Vehicle__c,Status FROM WorkOrder WHERE Status NOT IN ('Completed','Cancellation Requested','Canceled') AND Is_VOR__c = true  ]);
         }
@@ -29,6 +29,7 @@ global class BatchOnWorkOrderVORCreation implements Database.Batchable<SObject>,
                 if (!existingVORMap.containsKey(wo.Id)) {
                     VOR__c vor = new VOR__c();
                     vor.Job_Card__c = wo.Id;
+                    vor.Stage__c=wo.Status;
                     vor.Service_Center__c = wo.Service_Center__c != null ? wo.Service_Center__c :null;
                     vor.Vehicle__c = wo.Vehicle__c != null ? wo.Vehicle__c :null;
                     vorsToInsert.add(vor);

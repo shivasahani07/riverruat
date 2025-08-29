@@ -1,3 +1,10 @@
+/**
+ * @description       : 
+ * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @group             : 
+ * @last modified on  : 08-26-2025
+ * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+**/
 public class WorkOrderTriggerHandler {
     
     
@@ -839,6 +846,110 @@ public class WorkOrderTriggerHandler {
                      ' Get LineError: ' + e.getLineNumber());
     }
 }
+//added by Aniket on 26/06/2025
+public static void handleWorkPlanUpdateCategory(List<WorkPlan> newWorkPlans,Map<Id,Workplan> oldMap) {
+        // Step 1: Collect WorkOrder IDs (Job_Card__c) from WorkPlans
+        Set<String> restrictedLabourCategories = new Set<String>();
+        for (Labour_Category_Restricted__mdt meta : [SELECT Labour_Category_Name__c FROM Labour_Category_Restricted__mdt]) {
+            restrictedLabourCategories.add(meta.Labour_Category_Name__c);
+        }
+        
+        Set<Id> workOrderIds = new Set<Id>();
+        for (WorkPlan workPlan : newWorkPlans) {
+            if (workPlan.WorkOrderId != null && workPlan.RR_Labour_Category__c != oldMap.get(workPlan.Id).RR_Labour_Category__c && !restrictedLabourCategories.contains(workPlan.RR_Labour_Category__c)) {
+                workOrderIds.add(workPlan.WorkOrderId);
+            }
+        }
+        
+        // Step 2: Query existing Warranties related to Job_Card__c (WorkOrder IDs)
+        Map<Id, Warranty_Prior__c> existingWarrantyMap = new Map<Id, Warranty_Prior__c>(
+            [SELECT Id, Job_Card__c, Status__c
+             FROM Warranty_Prior__c
+             WHERE Job_Card__c IN :workOrderIds]
+        );
+        
+        // Step 3: Map existing warranties by Job_Card__c
+        Map<Id, Id> workOrderToWarrantyMap = new Map<Id, Id>();
+        for (Warranty_Prior__c warranty : existingWarrantyMap.values()) {
+            workOrderToWarrantyMap.put(warranty.Job_Card__c, warranty.Id); // Map Job_Card__c to Warranty ID
+        }
+        
+        // **Only Update Status to Pending for Existing Warranties**
+        List<Warranty_Prior__c> warrantiesToUpdate = new List<Warranty_Prior__c>();
+        for (Warranty_Prior__c warranty : existingWarrantyMap.values()) {
+            if (warranty.Status__c == 'Approved') {
+                warranty.Status__c = 'Pending'; 
+                warrantiesToUpdate.add(warranty);
+            }
+        }
+        
+        
+        if (!warrantiesToUpdate.isEmpty()) {
+            update warrantiesToUpdate;
+            System.debug('Updated Warranties Status to Pending: ' + warrantiesToUpdate);
+        }
+        
+        // Step 4: Query WorkOrder details for creating new Warranties
+        Map<Id, WorkOrder> workOrderMap = new Map<Id, WorkOrder>(
+            [SELECT Id,
+             Vehicle__c,
+             Odometer_Reading__c,
+             Vehicle_Registration_Number__c,
+             Vehicle__r.EngineNumber,
+             Vehicle__r.VehicleIdentificationNumber
+             FROM WorkOrder
+             WHERE Id IN :workOrderIds]
+        );
+        
+        // Step 5: Create new Warranties for WorkOrders without an existing Warranty
+        List<Warranty_Prior__c> newWarranties = new List<Warranty_Prior__c>();
+        
+        for (WorkPlan workPlan : newWorkPlans) {
+            if (workPlan.WorkOrderId != null && !workOrderToWarrantyMap.containsKey(workPlan.WorkOrderId)) {
+                WorkOrder relatedWorkOrder = workOrderMap.get(workPlan.WorkOrderId);
+                if (relatedWorkOrder != null) {
+                    // Create a new Warranty Prior record and populate the additional details
+                    Warranty_Prior__c newWarranty = new Warranty_Prior__c(
+                        Job_Card__c = workPlan.WorkOrderId,
+                        Motor_Number__c = relatedWorkOrder.Vehicle__r.EngineNumber,
+                        Odometer_Reading__c = relatedWorkOrder.Odometer_Reading__c,
+                        Registration_Number__c = relatedWorkOrder.Vehicle_Registration_Number__c,
+                        VIN__c = relatedWorkOrder.Vehicle__r.VehicleIdentificationNumber,
+                        Warranty_Prior_Date__c = Date.today(),
+                        Status__c = 'Pending'
+                    );
+                    newWarranties.add(newWarranty);
+                }
+            }
+        }
+        
+        if (!newWarranties.isEmpty()) {
+            insert newWarranties;
+            
+            // Map newly created Warranties
+            for (Warranty_Prior__c warranty : newWarranties) {
+                workOrderToWarrantyMap.put(warranty.Job_Card__c, warranty.Id);
+            }
+        }
+        
+        // Step 6: Update WorkPlans with related Warranty Prior
+        List<WorkPlan> workPlansToUpdate = new List<WorkPlan>();
+        for (WorkPlan workPlan : newWorkPlans) {
+            if (workPlan.WorkOrderId != null && workOrderToWarrantyMap.containsKey(workPlan.WorkOrderId)) {
+                // Update the WorkPlan with Warranty information
+                WorkPlan updatedWorkPlan = new WorkPlan(
+                    Id = workPlan.Id,
+                    Warranty_Prior__c = workOrderToWarrantyMap.get(workPlan.WorkOrderId) // Assign Warranty Prior
+                );
+                workPlansToUpdate.add(updatedWorkPlan);
+            }
+        }
+        
+        if (!workPlansToUpdate.isEmpty()) {
+            update workPlansToUpdate;
+            System.debug('Updated WorkPlans: ' + workPlansToUpdate);
+        }
+    }
 
 
 

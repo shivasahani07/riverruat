@@ -1,7 +1,8 @@
-trigger TriggerOnTFRSample on TFR_Sample__c (before insert,after Insert) {
+trigger TriggerOnTFRSample on TFR_Sample__c (before insert,after Insert, before update, before delete) {
     if(Trigger.isBefore){
         if(Trigger.isInsert){
-            TriggerOnTFRSampleHelper.BeforeInsert(Trigger.new);          
+            TriggerOnTFRSampleHelper.BeforeInsert(Trigger.new); 
+            JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.new);
         }
     }
     
@@ -9,5 +10,14 @@ trigger TriggerOnTFRSample on TFR_Sample__c (before insert,after Insert) {
         if(Trigger.isInsert){
             TriggerOnTFRSampleHelper.AfterInsert(Trigger.new);          
         }
+    }
+    
+    //Added By Ram 24/06/2025
+    if(trigger.IsBefore && (trigger.IsUpdate)){
+        JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.new);
+    }
+    //Added By Ram 24/06/2025
+    if(trigger.IsBefore && trigger.IsDelete){
+        JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.old);
     }
 }

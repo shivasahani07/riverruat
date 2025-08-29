@@ -1,7 +1,12 @@
 import { LightningElement, wire, track } from 'lwc';
 import wiredCourses from '@salesforce/apex/Handlecourses.wiredCourses';
 import updateCourseDetails from '@salesforce/apex/Handlecourses.updateCourseDetails';
-
+import My_STAR from "@salesforce/resourceUrl/star";
+import LMS_IMAGE1 from "@salesforce/resourceUrl/lmsimage1";
+import LMS_IMAGE2 from "@salesforce/resourceUrl/lmsimage2";
+import LMS_IMAGE3 from "@salesforce/resourceUrl/lmsimage3";
+import RED_HEART from "@salesforce/resourceUrl/redheart";
+import PLAIN_HEART from "@salesforce/resourceUrl/plainheart";
 
 export default class Lwc_courseComponent extends LightningElement {
 

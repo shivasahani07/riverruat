@@ -4,6 +4,7 @@ import createJobCard from '@salesforce/apex/AddJobCardInVehiclePageController.cr
 import { CloseActionScreenEvent } from 'lightning/actions';
 import { NavigationMixin } from 'lightning/navigation';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import Id from '@salesforce/user/Id';
 
 
 export default class AddJobCardInVehiclePage extends NavigationMixin(LightningElement) {
@@ -13,6 +14,7 @@ export default class AddJobCardInVehiclePage extends NavigationMixin(LightningEl
     @track odoMeter = 0;
     @track isVisible = true;
     @track showSpinner = false;
+    
 
     @wire(getVehicleDetails, { recordId: '$recordId' })
     wiredData({ data, error }) {
@@ -137,7 +139,7 @@ export default class AddJobCardInVehiclePage extends NavigationMixin(LightningEl
                     this.handleCloseScreen();
                 })
                 .catch((error) => {
-                    this.showSpinner = False;
+                    this.showSpinner = false;
                     let errorMessage = 'Something Went Wrong!!!';
                     if (error.body && error.body.message) {
                         errorMessage = error.body.message;

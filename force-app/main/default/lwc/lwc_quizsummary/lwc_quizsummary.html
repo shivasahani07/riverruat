@@ -1,0 +1,72 @@
+<template>
+	<template if:false={showLeadershipDashboard}>
+	<div class="slds-grid slds-wrap">
+		<div class="slds-col slds-size_12-of-12">
+			<span>
+				<div class="highlight-panel slds-grid slds-gutters slds-wrap slds-text-align_center slds-align_absolute-center" style="background: #f4f6f9; border-radius:10px; padding: 20px;">
+					<div class="slds-col slds-size_10-of-12">
+							<span >
+								<h1 style="text-allign:centre;font-size: 2em; padding-left:150px">
+					                 Quiz Summary
+					             </h1>
+							</span>
+					</div>
+					<div class="slds-col slds-size_2-of-12">
+						<span>
+							<lightning-button variant="brand" label="Leader DashBoard" onclick={handleshowLeaderDashboard}></lightning-button>
+						</span>
+					</div>
+				</div>
+			</span>
+		</div>
+	</div>
+	<div class="slds-col slds-size_12-of-12" style="background: white; border-radius:10px">
+		<span>
+			    <div class="slds-align_absolute-center" >
+					<img src ={quizsummary} />
+                </div> 
+
+				<table class="slds-table_bordered">
+					<thead >
+						<tr >
+							<th class="table-header" scope="col">Module</th>
+							<th class="table-header" scope="col">SubModule</th>
+							<th class="table-header" scope="col">Point Scored</th>
+							<th class="table-header" scope="col">Total Point</th>
+							<th class="table-header" scope="col">Badge</th>
+						</tr>
+					</thead>
+					<tbody>
+            <template for:each={quizsummarydetails} for:item="qsdetails">
+                <tr key={qsdetails}>
+                    <td class="table-rows">{qsdetails.module}</td>
+                    <td class="table-rows" >{qsdetails.session}</td>
+                    <td class="table-rows">
+                        {qsdetails.pointscore}
+                    </td>
+                    <td class="table-rows">
+                        {qsdetails.totalscore}
+                    </td>
+                     <td class="table-rows">
+                        <template lwc:if={qsdetails.showsessionbtn}>
+                            <lightning-button data-id={qsdetails.courseId} variant="brand" label="Take quiz" title="titleName" onclick={handletakequiz}></lightning-button>
+                        </template>
+                         <template lwc:if={qsdetails.showbadge}>
+                             <img src={scoreabdge}></img>
+                            <!-- <lightning-icon variant="brand" label="Take quiz" title="titleName" onclick={handletakequiz}></lightning-button> -->
+                        </template>
+                    </td>
+                </tr>
+            </template>
+        </tbody>
+    </table>
+			</span>
+	</div>
+	</template>
+
+	 <template lwc:if={showmodules}>
+					<c-lwc_lmsmodule courseid={courseId} ></c-lwc_lmsmodule>
+	</template> 
+	
+
+</template>

@@ -1,0 +1,488 @@
+<template>
+    <lightning-card>
+
+         <!-- <div class="custom-heading">
+             <lightning-icon icon-name="action:record"></lightning-icon>
+       <span> Daily Store SOP</span>
+        </div> -->
+      
+         
+        
+        <template if:true={showModal}>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+            <div role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <!-- Modal Header -->
+                    <header class="slds-modal__header">
+                        <div style="margin-top:20px;">
+                         <lightning-progress-indicator current-step={currentStep} type="base" variant="base" class="custom-progress">
+        <lightning-progress-step value="1" variant="success"></lightning-progress-step>
+        <lightning-progress-step value="2"></lightning-progress-step>
+        <lightning-progress-step value="3"></lightning-progress-step>
+        <lightning-progress-step value="4"></lightning-progress-step>
+        <lightning-progress-step value="5"></lightning-progress-step>
+        <lightning-progress-step value="6"></lightning-progress-step>
+    </lightning-progress-indicator>
+                    </div>
+                    </header>
+                    <!-- Modal Content -->
+                    <template if:true={firstSlide}>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <div class="slds-p-around_medium">
+                        <div class="slds-text-heading_small">Store Opening and Closing</div>
+                        <div class="slds-grid slds-wrap slds-gutters" style="margin-left:8%;margin-right:8%;">
+                            <div class="slds-col slds-size_1-of-2">
+                                <div class="row leftCol" style="">
+                                    
+                                    <span class="label-inline labelstyle">Store Open Date:</span> &nbsp;
+                                <lightning-input type="date" variant="standard" name="openDate"  value={openDate} onchange={handleChange}></lightning-input>
+                                </div>
+                                
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-2">
+                                <div class="row rightCol" style="">
+                                    <span class="label-inline labelstyle rightLabel" >Store Open Time:</span>&nbsp;
+                                    <lightning-input type="time" variant="standard" name="openTime"  value={openTime} onchange={handleChange}></lightning-input>
+                                </div>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-2">
+                                <div class="row leftCol" style="">
+                                    <span class="label-inline labelstyle" >Store Close Date:</span> &nbsp;
+                                    <lightning-input type="date" variant="standard" name="closeDate"  value={closeDate} onchange={handleChange}></lightning-input>
+                                </div>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-2">
+                                <div class="row rightCol" style="">
+                                    <span class="label-inline labelstyle rightLabel" >Store Close Time:</span>&nbsp;
+                                    <lightning-input type="time" variant="standard" name="closeTime"  value={closeTime} onchange={handleChange}></lightning-input>
+                                </div>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 inline-container" style="margin-top:2%;">
+                                <span class="label-inline labelstyle">Any Issues Noted?</span>&nbsp;
+                                <div class="radio-buttons-container">
+                                    <template for:each={yesNoOptions} for:item="item">
+                                        <fieldset key={item.value} class="inline-radio-group">
+                                            <div class="slds-form-element__control">
+                                                <span class="slds-radio">
+                                                    <input name="radiogroup" id={item.value} type="radio" value={item.value}
+                                                        onchange={handleSelected} />
+                                                    <label class="slds-radio__label" for={item.value}>
+                                                        <span class="slds-radio_faux"></span>
+                                                        <span class="slds-form-element__label">{item.label}</span>
+                                                    </label>
+                                                </span>
+                                            </div>
+                                        </fieldset>
+                                    </template>
+                                </div>
+                            </div>
+                            
+                            
+
+                            <div class="slds-col slds-size_1-of-1 "  style="margin-top:2%;">
+                                <span class="label-inline labelstyle" >Comments:</span>&nbsp;
+                                <lightning-textarea type="text" variant="standard" name="comments" value={comments} placeholder="Type Comments..." onchange={handleChange} style="height:5%;"></lightning-textarea>
+                            </div>
+                        </div>
+                        <div style="margin-left:40%; margin-top:2%;">
+                            <button class="slds-button slds-button_neutral" onclick={closeModal}>Cancel</button>
+                            <button class="slds-button slds-button_brand" onclick={handlenext}>Save & Next</button>
+                            
+                        </div>
+
+                    </div>
+                </div>
+            </template>
+
+            <template if:true={secondSlide}>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <div class="slds-p-around_medium">
+                        <div class="slds-text-heading_small">Inventory Management</div>
+
+
+                        <div style="margin-left:10%;margin-right:10%;">
+
+
+                           <div class="slds-col slds-size_1-of-1 inline-container"  style="margin-top:2%;">
+    <span class="label-inline labelstyle">Stock Level</span>&nbsp;
+    <div class="radio-buttons-container">
+        <template for:each={stockLevelOptions} for:item="item">
+            <fieldset key={item.value} class="inline-radio-group">
+                <div class="slds-form-element__control">
+                    <span class="slds-radio">
+                        <input name="stockLevel" id={item.value} type="radio" value={item.value}
+                            onchange={handleStockLevelChange} />
+                        <label class="slds-radio__label" for={item.value}>
+                            <span class="slds-radio_faux"></span>
+                            <span class="slds-form-element__label">{item.label}</span>
+                        </label>
+                    </span>
+                </div>
+            </fieldset>
+        </template>
+    </div>
+</div>
+
+
+                            
+
+
+                            <div class="slds-col slds-size_1-of-1 inline-container" style="margin-top:2%;">
+    <span class="label-inline labelstyle">Any Shortages?</span>&nbsp;
+    <div class="radio-buttons-container">
+        <template for:each={yesNoOptions} for:item="item">
+            <fieldset key={item.value} class="inline-radio-group">
+                <div class="slds-form-element__control">
+                    <span class="slds-radio">
+                        <input name="shortage" id={item.value} type="radio" value={item.value}
+                            onchange={handleShortageChange} />
+                        <label class="slds-radio__label" for={item.value}>
+                            <span class="slds-radio_faux"></span>
+                            <span class="slds-form-element__label">{item.label}</span>
+                        </label>
+                    </span>
+                </div>
+            </fieldset>
+        </template>
+    </div>
+</div>
+
+
+                            <div class="slds-col slds-size_1-of-1" style="margin-top:2%;">
+                                <span class="label-inline labelstyle" >inventoryAdjustments:</span>&nbsp;
+                                <lightning-textarea type="text" variant="standard" name="inventoryAdjustments" value={inventoryAdjustments} placeholder="write here...." onchange={handleChange} style="height:5%;"></lightning-textarea>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1" style="margin-top:2%;">
+                                <span class="label-inline labelstyle" >Comments:</span>&nbsp;
+                                <lightning-textarea type="text" variant="standard" name="inventoryComments" value={inventoryComments} placeholder="Type Comments..." onchange={handleChange} style="height:5%;"></lightning-textarea>
+                            </div>
+                        </div>
+                        <div style="margin-left:40%;margin-top:2%;">
+                            <button class="slds-button slds-button_neutral" onclick={closeModal}>Cancel</button>
+                            <button class="slds-button slds-button_neutral" onclick={handleBack}>Back</button>
+                            <button class="slds-button slds-button_brand" onclick={handlenext}>Save & Next</button>
+                            
+                        </div>
+
+                    </div>
+                </div>
+            </template>
+
+            <template if:true={thirdSlide}>
+    <div class="slds-modal__content slds-p-around_medium">
+        <div class="slds-p-around_medium">
+            <div class="slds-text-heading_small">Sales And Cash Handling</div>
+            <div class="slds-grid slds-wrap slds-gutters" style="margin-left:8%;margin-right:8%;">
+                <!-- First Row - Two Columns -->
+                <div class="slds-col slds-size_1-of-2">
+                    <div class="slds-form-element">
+                        <span class="label-inline labelstyle">Total Cash</span>
+                        <lightning-input type="currency" variant="standard" name="totalSales" value={totalSales} onchange={handleChange}></lightning-input>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <div class="slds-form-element">
+                        <span class="label-inline labelstyle">Cash Deposited</span>
+                        <lightning-input type="currency" variant="standard" name="cashDeposited"  value={cashDeposited} onchange={handleChange}></lightning-input>
+                    </div>
+                </div>
+                <!-- Remaining Fields in Single Columns -->
+                <div class="slds-col slds-size_1-of-1" style="margin-top:2%;">
+                    <div class="slds-form-element">
+                        <span class="label-inline labelstyle">Any Discrepancies?</span>
+                        <lightning-radio-group options={yesNoOptions} name="discrepancies" value={discrepancies} type="radio" onchange={handleChange}></lightning-radio-group>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_1-of-1" style="margin-top:2%;">
+                    <div class="slds-form-element">
+                        <span class="label-inline labelstyle">Comments:</span>
+                        <lightning-textarea type="text" variant="standard" name="salesCashComments" value={salesCashComments} placeholder="Type Comments..." onchange={handleChange} style="height:5%;"></lightning-textarea>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-left:40%; margin-top:5%;">
+                <button class="slds-button slds-button_neutral" onclick={closeModal}>Cancel</button>
+                <button class="slds-button slds-button_neutral" onclick={handleBack}>Back</button>
+                <button class="slds-button slds-button_brand" onclick={handlenext}>Save & Next</button>
+            </div>
+        </div>
+    </div>
+</template>
+
+
+            
+            
+            
+            <template if:true={fourthSlide}>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <div class="slds-p-around_medium">
+                        <div class="slds-text-heading_small">Customer Service</div>
+                        <div class="slds-grid slds-wrap slds-gutters" style="margin-left:8%;margin-right:8%;">
+            
+                            <!-- Number of Customer Complaints -->
+                            <div class="slds-col slds-size_1-of-1">
+                                <div class="slds-form-element">
+                                    <div class="slds-grid slds-gutters slds-wrap slds-align_absolute-center">
+                                        <label class="slds-form-element__label slds-col slds-size_1-of-3 stylelabel" for="customerComplaints">Number Of Customer Complaints:</label>
+                                        <div class="slds-form-element__control slds-col slds-size_2-of-3">
+                                            <lightning-input type="number" variant="standard" name="customerComplaints" value={customerComplaints} onchange={handleChange}></lightning-input>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+            
+                            <!-- Number of Customer Returns -->
+                            <div class="slds-col slds-size_1-of-1">
+                                <div class="slds-form-element">
+                                    <div class="slds-grid slds-gutters slds-wrap slds-align_absolute-center">
+                                        <label class="slds-form-element__label slds-col slds-size_1-of-3 stylelabel" for="customerReturns">Number of Customer Returns:</label>
+                                        <div class="slds-form-element__control slds-col slds-size_2-of-3">
+                                            <lightning-input type="number" variant="standard" name="customerReturns" value={customerReturns} onchange={handleChange}></lightning-input>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+            
+                            <!-- Overall Customer Satisfaction -->
+                            <div class="slds-col slds-size_1-of-1">
+                                <div class="slds-form-element">
+                                    <div class="slds-grid slds-gutters slds-wrap slds-align_absolute-center">
+                                        <label class="slds-form-element__label slds-col slds-size_1-of-3 stylelabel" for="Overall customerSatisfaction">Overall Customer Satisfaction</label>
+                                        <div class="slds-form-element__control slds-col slds-size_2-of-3">
+                                            <lightning-combobox name="customerSatisfaction" options={satisfactionOptions} value={customerSatisfaction}  onchange={handleChange}></lightning-combobox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+            
+                            <!-- Customer Comments -->
+                            <div class="slds-col slds-size_1-of-1">
+                                <div class="slds-form-element">
+                                    <div class="slds-grid slds-gutters slds-wrap slds-align_absolute-center">
+                                        <label class="slds-form-element__label slds-col slds-size_1-of-3 stylelabel" for="customerServiceComments">Customer Comments:</label>
+                                        <div class="slds-form-element__control slds-col slds-size_2-of-3">
+                                            <lightning-textarea type="text" variant="standard" name="customerServiceComments" value={customerServiceComments} onchange={handleChange}></lightning-textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            
+                        <div style="margin-left:40%; margin-top:5%;">
+                            <button class="slds-button slds-button_neutral" onclick={closeModal}>Cancel</button>
+                            <button class="slds-button slds-button_neutral" onclick={handleBack}>Back</button>
+                            <button class="slds-button slds-button_brand" onclick={handlenext}>Save & Next</button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <template if:true={fifthSlide}>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <div class="slds-p-around_medium">
+                        <div class="slds-text-heading_small">Housekeeping</div>
+                        <div class="slds-grid slds-wrap slds-gutters" style="margin-left:5%;margin-right:5%;">
+
+
+                            <!-- Overall Customer Satisfaction -->
+                            <div class="slds-col slds-size_1-of-1">
+                                <div class="slds-form-element">
+                                    <div class="slds-grid slds-gutters slds-wrap slds-align_absolute-center">
+                                        <label class="slds-form-element__label slds-col slds-size_1-of-3 stylelabel" for="Cleanliness Level">Overall Customer Satisfaction</label>
+                                        <div class="slds-form-element__control slds-col slds-size_2-of-3">
+                                            <lightning-combobox  name="cleanlinessLevel" options={cleanlinessOptions} value={cleanlinessLevel}  onchange={handleChange}></lightning-combobox>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                           
+                            <!-- Any Maintenance Issues? -->
+                            <div class="slds-col slds-size_1-of-1" style="margin-top:2%;">
+                                <div class="slds-form-element">
+                                    <div class="slds-grid slds-gutters slds-wrap slds-align_absolute-center">
+                                        <label class="slds-form-element__label slds-col slds-size_1-of-3 stylelabel" for="issuesNoted">Any Maintenance Issues?</label>
+                                        <div class="slds-form-element__control slds-col slds-size_2-of-3">
+                                            <lightning-radio-group
+                                                options={yesNoOptions}
+                                                name="maintenanceIssues"
+                                                value={maintenanceIssues}
+                                                type="radio"
+                                                onchange={handleChange}>
+                                            </lightning-radio-group>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+            
+                            <!-- Housekeeping Comments -->
+                            <div class="slds-col slds-size_1-of-1" style="margin-top:2%;">
+                                <div class="slds-form-element">
+                                    <div class="slds-grid slds-gutters slds-wrap slds-align_absolute-center">
+                                        <label class="slds-form-element__label slds-col slds-size_1-of-3 stylelabel" for="housekeepingComments">Housekeeping Comments:</label>
+                                        <div class="slds-form-element__control slds-col slds-size_2-of-3">
+                                            <lightning-textarea type="text" variant="standard" name="housekeepingComments" value={housekeepingComments} placeholder="Type Comments..." onchange={handleChange}></lightning-textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+            
+                        </div>
+            
+                        <div style="margin-left:40%; margin-top:5%;">
+                            <button class="slds-button slds-button_neutral" onclick={closeModal}>Cancel</button>
+                            <button class="slds-button slds-button_neutral" onclick={handleBack}>Back</button>
+                            <button class="slds-button slds-button_brand" onclick={handlenext}>Save & Next</button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <template if:true={sixthSlide}>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <div class="slds-p-around_medium">
+                        <div class="slds-text-heading_small">Employee Management</div>
+                        <div class="slds-grid slds-wrap slds-gutters" style="margin-left:5%;margin-right:5%;">
+                            
+                            <!-- Staff Attendance -->
+                            <div class="slds-col slds-size_1-of-1">
+                                <div class="slds-form-element">
+                                    <div class="slds-grid slds-gutters slds-wrap slds-align_absolute-center">
+                                        <label class="slds-form-element__label slds-col slds-size_1-of-3 stylelabel" for="staffAttendance">Staff Attendance:</label>
+                                        <div class="slds-form-element__control slds-col slds-size_2-of-3">
+                                            <lightning-combobox  name="staffAttendance" options={attendanceOptions} value={staffAttendance} onchange={handleChange}></lightning-combobox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Any Issue Noted? -->
+                            <div class="slds-col slds-size_1-of-1" style="margin-top:2%;">
+                                <div class="slds-form-element">
+                                    <div class="slds-grid slds-gutters slds-wrap slds-align_absolute-center">
+                                        <label class="slds-form-element__label slds-col slds-size_1-of-3 stylelabel" for="staffIssues">Any Issue Noted?</label>
+                                        <div class="slds-form-element__control slds-col slds-size_2-of-3">
+                                            <lightning-radio-group
+                                                options={yesNoOptions}
+                                                name="staffIssues"
+                                                value={staffIssues}
+                                                type="radio"
+                                                onchange={handleChange}>
+                                            </lightning-radio-group>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Comments -->
+                            <div class="slds-col slds-size_1-of-1">
+                                <div class="slds-form-element">
+                                    <div class="slds-grid slds-gutters slds-wrap slds-align_absolute-center">
+                                        <label class="slds-form-element__label slds-col slds-size_1-of-3 stylelabel" for="employeeComments">Comments:</label>
+                                        <div class="slds-form-element__control slds-col slds-size_2-of-3">
+                                            <lightning-textarea type="text" variant="standard" name="employeeComments" value={employeeComments} placeholder="Type Comments..." onchange={handleChange}></lightning-textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+            
+                        </div>
+            
+                        <div style="margin-left:40%; margin-top:5%;">
+                            <button class="slds-button slds-button_neutral" onclick={closeModal}>Cancel</button>
+                            <button class="slds-button slds-button_neutral" onclick={handleBack}>Back</button>
+                            <button class="slds-button slds-button_brand" onclick={handleSubmit}>Save</button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            
+           
+            </div>
+        </div>
+    </template>
+                
+            <!-- <div class="slds-text-heading_small slds-m-top_medium">Inventory Management</div>
+            <div class="slds-grid slds-wrap slds-gutters">
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-combobox label="Stock Level" name="stockLevel" options={stockLevelOptions} onchange={handleChange} value={stockLevel}></lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-combobox label="Any Shortages?" name="shortage" options={yesNoOptions} onchange={handleChange} value={shortage} ></lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="text" variant="standard" name="inventoryAdjustments" label="Inventory Adjustments" onchange={handleChange} value={inventoryAdjustments} ></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="text" variant="standard" name="inventoryComments" label="Inventory Comments" onchange={handleChange} value={inventoryComments} ></lightning-input>
+                </div>
+            </div> -->
+
+            <!-- <div class="slds-text-heading_small slds-m-top_medium">Sales and Cash Handling</div>
+            <div class="slds-grid slds-wrap slds-gutters">
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="currency" variant="standard" name="totalSales" label="Total Sales" value={totalSales} onchange={handleChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="currency" variant="standard" name="cashDeposited" label="Cash Deposited" value={cashDeposited} onchange={handleChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-combobox label="Any Discrepancies?" name="discrepancies" options={yesNoOptions} value={discrepancies} onchange={handleChange}></lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="text" variant="standard" name="salesCashComments" label="Sales/Cash Handling Comments" value={salesCashComments} onchange={handleChange}></lightning-input>
+                </div>
+            </div> -->
+
+            <!-- <div class="slds-text-heading_small slds-m-top_medium">Customer Service</div>
+            <div class="slds-grid slds-wrap slds-gutters">
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="number" variant="standard" name="customerComplaints" label="Number of Customer Complaints" value={customerComplaints}   onchange={handleChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="number" variant="standard" name="customerReturns" label="Number of Customer Returns" value={customerReturns}  onchange={handleChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-combobox label="Overall Customer Satisfaction" name="customerSatisfaction" options={satisfactionOptions} value={customerSatisfaction}  onchange={handleChange}></lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="text" variant="standard" name="customerServiceComments" label="Customer Comments" value={customerServiceComments} onchange={handleChange}></lightning-input>
+                </div>
+            </div> -->
+
+            <!-- <div class="slds-text-heading_small slds-m-top_medium">Housekeeping</div>
+            <div class="slds-grid slds-wrap slds-gutters">
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-combobox label="Cleanliness Level" name="cleanlinessLevel" options={cleanlinessOptions} value={cleanlinessLevel}  onchange={handleChange}></lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-combobox label="Any Maintenance Issues?" name="maintenanceIssues" options={yesNoOptions} value={maintenanceIssues} onchange={handleChange}></lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="text" variant="standard" name="housekeepingComments" label="Housekeeping Comments" value={housekeepingComments} onchange={handleChange}></lightning-input>
+                </div>
+            </div> -->
+
+            <!-- <div class="slds-text-heading_small slds-m-top_medium">Employee Management</div>
+            <div class="slds-grid slds-wrap slds-gutters">
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-combobox label="Staff Attendance" name="staffAttendance" options={attendanceOptions} value={staffAttendance} onchange={handleChange}></lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-combobox label="Any Staff Issues?" name="staffIssues" options={yesNoOptions} value={staffIssues} onchange={handleChange}></lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="text" variant="standard" name="employeeComments" label="Employee Comments" value={employeeComments} onchange={handleChange}></lightning-input> 
+                </div>
+                
+            </div> -->
+            
+                    <!-- Modal Footer -->
+                 
+             
+    </lightning-card>
+</template>

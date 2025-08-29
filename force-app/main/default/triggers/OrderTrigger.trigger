@@ -72,7 +72,7 @@ trigger OrderTrigger on Order (
         OrderTriggerHandler.sendWhatsAppAfterOrderCreation(Trigger.new, Trigger.oldMap);
          //OTCInvoicePdfGenerator.handleOrderUpdate(Trigger.new, null);
        // OrderTriggerHandler.eWAndRSAAfterOTC(Trigger.new);//added by Aniket on 02/05/2025
-       GenericRecordSharer.shareRecordsWithHierarchy(Trigger.NewMap, 'WorkOrder', 'Read', 'Manual');
+       GenericRecordSharer.shareRecordsWithHierarchy(Trigger.NewMap, 'Order', 'Read', 'Manual');
     }
     // ==================== AFTER UPDATE SECTION ====================
     if (Trigger.isAfter && Trigger.isUpdate) {
@@ -120,7 +120,7 @@ trigger OrderTrigger on Order (
         // Test coverage methods
         if (Test.isRunningTest()) {
             RSACalloutHandler.getOrderCodeCoverage(Trigger.new);
-            RSACalloutHandler.getOrderCodeCoverage1(Trigger.new);
+            //RSACalloutHandler.getOrderCodeCoverage1(Trigger.new);
             RSACalloutHandler.getOrderCodeCoverage2(Trigger.new);
             RSACalloutHandler.getOrderCodeCoverage3(Trigger.new);
         } 

@@ -1,0 +1,116 @@
+.firstRank{
+	margin-top: 0px;
+    width: 30px;
+    padding: 0;
+}
+.secondRank{
+	margin-top: 0px;
+    width: 26px;
+    height: 30px;
+    padding-left: 3px;
+}
+.thirdRank{
+	margin-left: 5px;
+	width: 16px;
+    height: 25px;
+	margin-top: 0;
+}
+.normalIndex{
+	background-color: #FAFAFA;
+	padding-left: 21px;
+	font-size: 12px;
+font-weight: 500;
+line-height: 20px;
+}
+.popUpImg{
+	height: 150px;
+}
+.slds-modal__container {
+    max-width: 25%;
+	border-radius: 10px;
+}
+.goColorsHeader{
+color : black;
+font-family: SF Pro Display;
+font-size: 24px;
+font-weight: 700;
+line-height: 32px;
+}
+.levelImages{
+width: 24px;
+height: 10.61px;
+
+}
+.myRank{
+width: 195px;
+height: 94px;
+gap: 0px;
+border-radius: 4px;
+opacity: 0px;
+
+}
+.myRankImg{
+width: 58.73px;
+height: 88px;
+top: 6px;
+left: 135px;
+gap: 0px;
+opacity: 0px;
+margin-top: 6px;
+}
+.rankContent{
+font-family: SF Pro Display;
+font-size: 14px;
+font-weight: 500;
+line-height: 21px;
+text-align: center;
+color: white;
+width: 53px;
+height: 21px;
+}
+.rankNumber{
+font-family: SF Pro Display;
+font-size: 24px;
+font-weight: 700;
+line-height: 32px;
+text-align: center;
+color: white;
+}
+.hikerImg{
+width: 60px;
+height: 55px;
+gap: 0px;
+opacity: 0px;
+margin-top: 18px;
+}
+.img1{
+	width: 40px;
+height: 30px;
+}
+.table-header{
+width: 240px;
+height: 32px;
+padding: 6px 143px 6px 12px;
+background: #6CA1E9;
+color: white;
+border-right:2px solid white;
+border-top:none;
+border-bottom:none;
+}
+.leftBorder{
+border-top-left-radius: 4px;
+border-bottom-left-radius: 4px;
+}
+.rightBorder{
+border-top-right-radius: 4px;
+border-bottom-right-radius: 4px;
+}
+.tableBody{
+background-color: #FAFAFA;
+width: 240px;
+height: 32px;
+padding: 6px 148px 6px 12px;
+font-size: 12px;
+font-weight: 500;
+line-height: 20px;
+}

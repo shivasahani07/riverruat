@@ -5,15 +5,19 @@
 * @modify 
 * @desc
 */
-trigger CustomerVoiceTrigger on RR_Customer_Voice__c (before update, before delete) {
+trigger CustomerVoiceTrigger on RR_Customer_Voice__c (before update, before delete, before insert) {
 	
-    //Added By Ram 24/06/2025
+    //Added By Ram 22/08/2025
     if(trigger.IsBefore && trigger.IsUpdate){
-        CustomerVoiceTriggerHandler.PreventUpdateForJobCardStatus(trigger.new);
+        JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.new);
         System.debug('method called');
     }
-    //Added By Ram 24/06/2025
+    //Added By Ram 22/08/2025
     if(trigger.IsBefore && trigger.IsDelete){
-        CustomerVoiceTriggerHandler.PreventUpdateForJobCardStatus(trigger.old);
+        JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.old);
+    }
+    if(trigger.IsBefore && trigger.IsInsert){
+        JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.new);
+        System.debug('method called');
     }
 }

@@ -96,7 +96,7 @@ public without sharing class TFRController {
         List<TFR_Sample__c> tfrList = [
             SELECT Actions_Taken__c, Approved_by__c, CreatedById, CreatedDate, Customer_Account__c, Customer_Contact__c,Job_card__r.Status,
             Date_of_Complaint__c, Date_of_Repair__c, Date_of_Sale__c, Failure_Code__c, Id, IsDeleted,
-            Issue_Severity__c, Job_Card__c, LastModifiedById, LastModifiedDate, LastReferencedDate,
+            Issue_Severity__c, Job_Card__c, LastModifiedById, LastModifiedDate,
             LastViewedDate, Media__c, Name, Name__c, Observations__c, Odometer_Reading__c, OwnerId,
             Part__c, Service_Center__c, SystemModstamp, TFR__c, VIN_No__c, VOC__c, Warranty_Claim_Number__c
             FROM TFR_Sample__c
@@ -111,24 +111,32 @@ public without sharing class TFRController {
     }
     
     
+    // use from here
     public static Boolean isVIN2AfterVIN1(String n1, String n2) {
         if (String.isBlank(n1) || String.isBlank(n2) || n1.length() != 17 || n2.length() != 17) {
             return false; // Invalid VINs
         }
-        
+
         try {
-            // Extract last 6 digits (production serial number)
-            String serial1 = n1.substring(11); // position 12 to 17 (0-based index)
+            // Step 1: Check if both VINs are from same series (first 11 chars: WMI + VDS + Plant/Year)
+            String series1 = n1.substring(0, 11); 
+            String series2 = n2.substring(0, 11);
+
+            if (series1 != series2) {
+                System.debug('Different VIN series detected: ' + series1 + ' vs ' + series2);
+                return false; // Different vehicle line, cannot compare serial
+            }
+
+            // Step 2: Compare production serial number (last 6 digits)
+            String serial1 = n1.substring(11); // chars 12–17
             String serial2 = n2.substring(11);
-            
-            Integer serialNum1 = Integer.valueOf(serial1);
-            Integer serialNum2 = Integer.valueOf(serial2);
-            System.debug('serialNum2 > serialNum1'+ (serialNum2 > serialNum1));
-            //return serialNum2 > serialNum1;
-            return serialNum2 > serialNum1;
+
+            Integer s1 = Integer.valueOf(serial1);
+            Integer s2 = Integer.valueOf(serial2);
+
+            return s2 > s1;
         } catch (Exception e) {
-            // If serial is not a number or any issue occurs
-            System.debug('Error parsing VIN serial numbers: ' + e.getMessage());
+            System.debug('Error comparing VINs: ' + e.getMessage());
             return false;
         }
     }

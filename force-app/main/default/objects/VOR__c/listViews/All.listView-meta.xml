@@ -10,6 +10,7 @@
     <columns>UPDATEDBY_USER</columns>
     <columns>CREATED_DATE</columns>
     <columns>Job_Status__c</columns>
+    <columns>Stage__c</columns>
     <filterScope>Everything</filterScope>
     <filters>
         <field>VOR_Creation_hours__c</field>

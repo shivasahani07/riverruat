@@ -1,0 +1,81 @@
+<template>
+
+    <lightning-card title="Generate Packing Slip" icon-name="utility:package">
+        <hr />
+
+        <div style="text-align: center;">
+            <lightning-button label="Add Claims" onclick={handleActivatedClaims} variant="brand">
+            </lightning-button>
+        </div>
+
+        <!-- DISPLAY SELECTED CLAIMS IN DATATABLE -->
+        <div class="slds-var-p-around_small">
+            <template if:true={selectedClaims.length}>
+                <div class="slds-m-top_medium">
+                    <h3 class="slds-text-heading_small slds-var-m-bottom_small">Selected Claims</h3>
+                    <lightning-datatable key-field="Id" data={selectedClaims} columns={selectedClaimsColumns}
+                        hide-checkbox-column="true" onrowaction={handleRowActionRemove}>
+                    </lightning-datatable>
+                </div>
+            </template>
+        </div>
+
+        <!-- SHOW ALL CLAIMS -->
+        <div>
+            <template if:true={showModal}>
+                <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container">
+
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                                title="Close" onclick={handleModalClose}>
+
+                                <lightning-icon icon-name="utility:close" alternative-text="Close"></lightning-icon>
+                                <span class="slds-assistive-text">Close</span>
+                            </button>
+
+                            <div style="padding: 10px; 
+                                background: linear-gradient(to bottom, #e3f2fd, #ffffff);">
+                                <h2 class=" slds-text-heading_medium">Select Claims</h2>
+                            </div>
+                        </header>
+
+                        <div class="slds-modal__content slds-p-around_medium">
+
+                            <!--
+                            <lightning-input label="Search Claims" type="text" placeholder='Type here...'
+                                onchange={handleSearchKey} class="slds-var-p-bottom_small">
+                            </lightning-input>
+                            -->
+
+                            <lightning-datatable key-field="Id" data={allClaims} columns={claimColumns}
+                                onrowselection={handleRowSelection}>
+                            </lightning-datatable>
+                        </div>
+
+                        <footer class="slds-modal__footer">
+                            <lightning-button variant="neutral" label="Close" onclick={resetForm}
+                                class="slds-var-p-right_small">
+                            </lightning-button>
+
+                            <lightning-button variant="brand" label="Select" onclick={handleSelect}></lightning-button>
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </template>
+        </div>
+
+
+        <hr />
+
+        <!-- FOOTER BUTTONS -->
+        <div style="text-align: right;">
+            <lightning-button label="Cancel" onclick={closeComponent} class="slds-var-p-right_small"></lightning-button>
+            <lightning-button label="Submit" variant="brand" onclick={handleSubmit}
+                class="slds-var-p-right_medium"></lightning-button>
+        </div>
+
+
+    </lightning-card>
+</template>

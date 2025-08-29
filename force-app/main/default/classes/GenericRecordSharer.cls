@@ -117,6 +117,11 @@ public without sharing class GenericRecordSharer {
                             shareRecord.put('CaseAccessLevel', accessLevel);
                             
                         }
+                        else if(objectApiName=='Opportunity'){
+                            shareRecord.put('OpportunityId', recordId);
+                            shareRecord.put('OpportunityAccessLevel', accessLevel);
+                            
+                        }
                         else{
                             shareRecord.put('ParentId', recordId);
                             shareRecord.put('AccessLevel', accessLevel);
@@ -139,6 +144,7 @@ public without sharing class GenericRecordSharer {
                     System.debug('Inserted ' + shares.size() + ' share records.');
                 } catch (DmlException ex) {
                     System.debug('DML Exception while inserting shares: ' + ex.getMessage()); 
+                    System.debug('Line Number: ' + ex.getLineNumber());
                 }
             }
             

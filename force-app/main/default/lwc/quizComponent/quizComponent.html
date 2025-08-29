@@ -1,0 +1,86 @@
+<template>
+    <lightning-card class="survey-card">
+        <template if:true={showWelcomePage}>
+            <div class="welcome-page animate-slide-in">
+                <h1>Welcome to the Store Survey</h1>
+                <p>Get ready to provide valuable feedback and help us improve!</p>
+                <lightning-button label="Start Survey" onclick={handleStart} class="custom-button start-button"></lightning-button>
+            </div>
+        </template>
+        <template if:true={showSpinner}>
+            <div class="custom-spinner-container full-screen">
+                <div class="custom-spinner">
+                    <div class="dot1"></div>
+                    <div class="dot2"></div>
+                    <div class="dot3"></div>
+                </div>
+                <p class="loading-message">Hold on, starting survey...</p>
+            </div>
+        </template>
+        <template if:true={showSection}>
+            <div class="section-page">
+                <div class="section-card animate-slide-in">
+                    <h2 class="section-header">{currentSection.title}</h2>
+                    <template for:each={currentSection.questions} for:item="question">
+                        <div key={question} class="question-container">
+                            <p class="question-text">{question}?</p>
+                            <div class="score-options">
+                                <label class="score-box">
+                                    <input type="radio" name={question} value="1" onchange={handleScoreChange}>
+                                    <span class="score-label">1</span>
+                                </label>
+                                <label class="score-box">
+                                    <input type="radio" name={question} value="0.5" onchange={handleScoreChange}>
+                                    <span class="score-label">0.5</span>
+                                </label>
+                                <label class="score-box">
+                                    <input type="radio" name={question} value="0" onchange={handleScoreChange}>
+                                    <span class="score-label">0</span>
+                                </label>
+                            </div>
+                            <div class="score-text-container" data-id={question}>
+                                <span class="score-text score-text-satisfied">
+                                    😀 Satisfied
+                                </span>
+                                <span class="score-text score-text-improve">
+                                    😐 Needs Improvement
+                                </span>
+                                <span class="score-text score-text-unsatisfied">
+                                    😞 Unsatisfied
+                                </span>
+                            </div>
+                            <lightning-input
+                                data-id="remark"
+                                data-question={question}
+                                label="Remarks"
+                                onchange={handleRemarkChange}
+                            ></lightning-input>
+                        </div>
+                    </template>
+                    <div class="navigation-buttons">
+                        <lightning-button label="Cancel" onclick={handleCancel} class="custom-button cancel-button"></lightning-button>
+                        <div class="next-prev-buttons">
+                            <lightning-button label="Previous" onclick={handlePrevious} class="custom-button prev-button" disabled={isFirstSection}></lightning-button>
+                            <template if:true={isLastSection}>
+                                <lightning-button label="Submit" onclick={handleSubmit} class="custom-button submit-button"></lightning-button>
+                            </template>
+                            <template if:false={isLastSection}>
+                                <lightning-button label="Next" onclick={handleNext} class="custom-button next-button"></lightning-button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <template if:true={showSubmitSpinner}>
+            <div class="custom-spinner-container full-screen">
+                <div class="custom-spinner">
+                    <div class="dot1"></div>
+                    <div class="dot2"></div>
+                    <div class="dot3"></div>
+                </div>
+                <p class="loading-message">Thanks for your valuable feedback!</p>
+            </div>
+        </template>
+    </lightning-card>
+</template>

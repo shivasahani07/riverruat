@@ -1,3 +1,5 @@
 <aura:application extends="force:slds">
-	<c:salesforceTicketComponent/>
+	<!-- <c:salesforceTicketComponent/> -->
+    
+    <c:packingSlipLwcComp/>
 </aura:application>

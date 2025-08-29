@@ -1,0 +1,133 @@
+.dummy{
+	color : black;
+}
+.slds-section {
+    margin-bottom: 1rem;
+}
+
+.slds-text-heading_small {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+.custom-heading {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333; /* Change color as needed */
+    margin-bottom: 20px; /* Add margin as needed */
+    margin-left:2%;
+}
+
+
+.slds-modal__container {
+    width: 60%; /* Adjust this value as needed */
+    max-width: 60%; /* Ensure it doesn't exceed the max width */
+}
+
+
+.slds-modal__header{
+    height: 80px;
+    
+}
+
+.slds-modal__content{
+    height: 450px;
+
+}
+
+.slds-text-heading_small{
+    text-align : center;
+    font-family: Inter;
+    font-size : 20px;
+    font-weight:700;
+    line-height:24px;
+    color: #0176D3;
+
+}
+.labelstyle{
+    font-family: Inter;
+    font-size: 16px;
+    font-weight: 500;
+   
+    text-align: left;
+    color:#000000;
+
+}
+
+.label-inline {
+    margin-right: 0.5rem; /* Adjust as needed */
+}
+
+@media (min-width: 1200px) {
+
+    .leftCol{
+        align-items: baseline;
+        display: inline-flex;
+    }
+
+    .rightCol{
+        align-items: center;
+        display: inline-flex;
+    }
+    
+    .rightLabel{
+        margin-top: 5%;
+    }
+
+    .commentSection{
+        margin-left: 9%;
+        width: 76%;
+        margin-top: 2%;
+    }
+    }
+
+
+  @media (max-width: 1200px) {
+
+    .label-inline {
+        margin-top: 5%; /* Adjust as needed */
+        
+    }
+    
+    
+  }
+
+  .radio-buttons-container {
+    display: flex;
+    flex-direction: row;
+}
+
+
+
+.custom-progress {
+    --slds-c-progress-path-line-completed: green;
+    --slds-c-progress-path-line-incomplete: green;
+    --slds-c-progress-path-completed: green;
+}
+
+.stylelabel{
+    font-family: Inter;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 19.36px;
+    text-align: left;
+    color: #000000;
+
+
+}
+
+.inline-container {
+    display: flex;
+    align-items: center;
+}
+
+.radio-buttons-container {
+    display: flex;
+    align-items: center;
+    margin-left: 10px; /* Adjust the margin as needed */
+}
+
+.inline-radio-group {
+    display: flex;
+    align-items: center;
+    margin-right: 15px; /* Adjust spacing between radio buttons as needed */
+}

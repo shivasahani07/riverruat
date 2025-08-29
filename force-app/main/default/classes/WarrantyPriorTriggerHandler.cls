@@ -1,3 +1,10 @@
+/**
+* @description       : 
+* @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+* @group             : 
+* @last modified on  : 08-26-2025
+* @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+**/
 public class WarrantyPriorTriggerHandler {
     
     
@@ -64,35 +71,35 @@ public class WarrantyPriorTriggerHandler {
             if (warranty.Status__c == 'Approved' && (oldWarranty == null || oldWarranty.Status__c != 'Approved')) {
                 WorkOrder relatedWorkOrder = workOrderMap.get(warranty.Job_Card__c);
                 if (relatedWorkOrder != null && relatedWorkOrder.AccountId != null) {
-                        List<WorkOrderLineItem> relatedLineItems = workOrderItemsMap.get(relatedWorkOrder.Id);
-                        if (relatedLineItems != null) {
-                            for (WorkOrderLineItem woItem : relatedLineItems) {
-                                woItem.Status = 'Approved';
-                                woItemsToUpdate.add(woItem);
-                            }
+                    List<WorkOrderLineItem> relatedLineItems = workOrderItemsMap.get(relatedWorkOrder.Id);
+                    if (relatedLineItems != null) {
+                        for (WorkOrderLineItem woItem : relatedLineItems) {
+                            woItem.Status = 'Approved';
+                            woItemsToUpdate.add(woItem);
                         }
-                        
-                        List<WorkPlan> relatedWorkPlans = workPlanMap.get(relatedWorkOrder.Id);
-                        if (relatedWorkPlans != null) {
-                            for (WorkPlan wp : relatedWorkPlans) {
-                                wp.Status__c = 'Approved';
-                                workPlansToUpdate.add(wp);
-                            }
-                        }                    
-                    if (!warrantyIdsWithExistingClaims.contains(warranty.Id)) {
-                    
-                    // Create a new Claim
-                    Claim newClaim = new Claim(
-                        Name = 'Claim_' + warranty.Name,
-                        Warranty_Prior__c = warranty.Id,
-                        AccountId = relatedWorkOrder.AccountId,
-                        Vehicle__c = relatedWorkOrder.Vehicle__c,
-                        Job_Card__c = relatedWorkOrder.Id,
-                        Status = 'Draft'
-                    );
-                    claimsToInsert.add(newClaim);
                     }
-
+                    
+                    List<WorkPlan> relatedWorkPlans = workPlanMap.get(relatedWorkOrder.Id);
+                    if (relatedWorkPlans != null) {
+                        for (WorkPlan wp : relatedWorkPlans) {
+                            wp.Status__c = 'Approved';
+                            workPlansToUpdate.add(wp);
+                        }
+                    }                    
+                    if (!warrantyIdsWithExistingClaims.contains(warranty.Id)) {
+                        
+                        // Create a new Claim
+                        Claim newClaim = new Claim(
+                            Name = 'Claim_' + warranty.Name,
+                            Warranty_Prior__c = warranty.Id,
+                            AccountId = relatedWorkOrder.AccountId,
+                            Vehicle__c = relatedWorkOrder.Vehicle__c,
+                            Job_Card__c = relatedWorkOrder.Id,
+                            Status = 'Draft'
+                        );
+                        claimsToInsert.add(newClaim);
+                    }
+                    
                     
                 } else {
                     System.debug('Missing WorkOrder or Account for Warranty: ' + warranty.Id);
@@ -198,6 +205,151 @@ public class WarrantyPriorTriggerHandler {
         }
         
         System.debug('Claim Items Inserted: ' + claimItemsToInsert.size());
+    }
+    
+    //Updated and Optimised Method By Aniket
+    public static void createClaimAndClaimItem(List<Warranty_Prior__c> newWP, Map<Id, Warranty_Prior__c> wpOldMap) {
+        System.debug('Inside Warranty Prior Update Trigger By Aniket');
+        
+        try {
+            Set<Id> warrantyIds = new Set<Id>();
+            Set<Id> jobCardIds = new Set<Id>();
+            
+            for (Warranty_Prior__c w : newWP) {
+                Warranty_Prior__c oldWp = wpOldMap.get(w.Id);
+                if (w.Status__c == 'Approved' && (oldWp == null || oldWp.Status__c != 'Approved')) {
+                    warrantyIds.add(w.Id);
+                    if (w.Job_Card__c != null) {
+                        jobCardIds.add(w.Job_Card__c);
+                    }
+                }
+            }
+            
+            if (warrantyIds.isEmpty()) {
+                return;
+            }
+            
+            
+            Map<Id, WorkOrder> jobCardRecordMap = new Map<Id, WorkOrder>(
+                [SELECT Id, AccountId, Vehicle__c FROM WorkOrder WHERE Id IN :jobCardIds]
+            );
+            
+            
+            Map<Id, Claim> warrantyToClaimMap = new Map<Id, Claim>();
+            for (Claim c : [
+                SELECT Id, Name, Warranty_Prior__c
+                FROM Claim
+                WHERE Warranty_Prior__c IN :warrantyIds
+            ]) {
+                warrantyToClaimMap.put(c.Warranty_Prior__c, c);
+            }
+            
+            
+            List<WorkOrderLineItem> workLineItems = [
+                SELECT Id, Warranty_Prior__c, Status
+                FROM WorkOrderLineItem
+                WHERE Status = 'New' AND Warranty_Prior__c IN :warrantyIds
+            ];
+            
+            List<WorkPlan> workPlans = [
+                SELECT Id, Warranty_Prior__c, Status__c
+                FROM WorkPlan
+                WHERE Status__c = 'New' AND Warranty_Prior__c IN :warrantyIds
+            ];
+            
+            
+            List<Claim> claimsToInsert = new List<Claim>();
+            List<ClaimItem> claimItemsToInsert = new List<ClaimItem>();
+            List<WorkOrderLineItem> partsToUpdate = new List<WorkOrderLineItem>();
+            List<WorkPlan> workPlansToUpdate = new List<WorkPlan>();
+            
+            
+            for (Warranty_Prior__c w : newWP) {
+                if (warrantyIds.contains(w.Id) && !warrantyToClaimMap.containsKey(w.Id)) {
+                    WorkOrder jobCard = jobCardRecordMap.get(w.Job_Card__c);
+                    if (jobCard != null) {
+                        Claim c = new Claim();
+                        c.Name = 'Claim_' + w.Name;
+                        c.Warranty_Prior__c = w.Id;
+                        c.AccountId = jobCard.AccountId;
+                        c.Vehicle__c = jobCard.Vehicle__c;
+                        c.Job_Card__c = jobCard.Id;
+                        c.Status = 'Draft';
+                        claimsToInsert.add(c);
+                    }
+                }
+            }
+            
+            if (!claimsToInsert.isEmpty()) {
+                insert claimsToInsert;
+                for (Claim c : claimsToInsert) {
+                    warrantyToClaimMap.put(c.Warranty_Prior__c, c);
+                }
+            }
+            
+            
+            Set<Id> claimIds = new Set<Id>();
+            for (Claim c : warrantyToClaimMap.values()) {
+                claimIds.add(c.Id);
+            }
+            
+            Set<Id> existingPartIds = new Set<Id>();
+            Set<Id> existingLabourIds = new Set<Id>();
+            if (!claimIds.isEmpty()) {
+                for (ClaimItem ci : [
+                    SELECT Id, ClaimId, Part__c, Labour_Code__c
+                    FROM ClaimItem
+                    WHERE ClaimId IN :claimIds
+                ]) {
+                    if (ci.Part__c != null) existingPartIds.add(ci.Part__c);
+                    if (ci.Labour_Code__c != null) existingLabourIds.add(ci.Labour_Code__c);
+                }
+            }
+            
+            
+            for (WorkOrderLineItem p : workLineItems) {
+                Claim relatedClaim = warrantyToClaimMap.get(p.Warranty_Prior__c);
+                if (relatedClaim != null && !existingPartIds.contains(p.Id)) {
+                    ClaimItem ci = new ClaimItem();
+                    ci.Name = 'Claim_Item_' + relatedClaim.Name;
+                    ci.ClaimId = relatedClaim.Id;
+                    ci.Part__c = p.Id;
+                    ci.FaultDate = Date.today();
+                    ci.Status__c = 'Pending';
+                    ci.Claim_Type__c = 'Part';
+                    claimItemsToInsert.add(ci);
+                    
+                    p.Status = 'Approved';
+                    partsToUpdate.add(p);
+                }
+            }
+            
+            
+            for (WorkPlan wp : workPlans) {
+                Claim relatedClaim = warrantyToClaimMap.get(wp.Warranty_Prior__c);
+                if (relatedClaim != null && !existingLabourIds.contains(wp.Id)) {
+                    ClaimItem ci = new ClaimItem();
+                    ci.Name = 'Claim_Item_' + relatedClaim.Name + '_Labour';
+                    ci.ClaimId = relatedClaim.Id;
+                    ci.FaultDate = Date.today();
+                    ci.Status__c = 'Pending';
+                    ci.Claim_Type__c = 'Labour';
+                    ci.Labour_Code__c = wp.Id;
+                    claimItemsToInsert.add(ci);
+                    
+                    wp.Status__c = 'Approved';
+                    workPlansToUpdate.add(wp);
+                }
+            }
+            
+            
+            if (!claimItemsToInsert.isEmpty()) insert claimItemsToInsert;
+            if (!partsToUpdate.isEmpty()) update partsToUpdate;
+            if (!workPlansToUpdate.isEmpty()) update workPlansToUpdate;
+            
+        } catch (Exception e) {
+            System.debug('Error Occurred: ' + e.getMessage() + ' at line ' + e.getLineNumber());
+        }
     }
     
 }
