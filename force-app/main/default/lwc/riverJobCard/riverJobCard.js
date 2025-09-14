@@ -103,6 +103,9 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
     @track isSecondaryPresent = false;
     @track EstimatedDeliveryTime;
     @track enableFetchButton = true;
+    @track FUTUREMilstoneDate;
+    @track assetMilestoneNam;
+    @track showMilestoneMessage = false;
 
     error;
     @track jobtypes;
@@ -542,9 +545,32 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
                     this.address.country = result.secondarycon.MailingCountry;
                     this.address.postalCode = result.secondarycon.MailingPostalCode;
                     this.address.province = result.secondarycon.MailingState;
+
+                    this.address.province = result.secondarycon.MailingState;
+                    this.assetMilestoneNam = result.currentMilestoneName;
+    
                     // Do something with the contact object returned
                     this.showToastMessage('Success', 'OTP verified successfully', 'success');
                     this.tile1 = !this.tile1;
+
+                    this.FUTUREMilstoneDate = result.furtureMilestoneDate;
+                    if (this.FUTUREMilstoneDate) {
+    // Convert to Date object
+    const milestoneDate = new Date(this.FUTUREMilstoneDate);
+
+    // Get today’s date
+    const today = new Date();
+
+    // Calculate 20 days ahead from today
+    const futureThreshold = new Date();
+    futureThreshold.setDate(today.getDate() + 20);
+
+    // Check condition
+    this.showMilestoneMessage = milestoneDate >= futureThreshold;
+} else {
+    this.showMilestoneMessage = false;
+}
+
                 })
                 .catch(error => {
                     // Handle error

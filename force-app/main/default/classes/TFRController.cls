@@ -2,7 +2,7 @@ public without sharing class TFRController {
     
     @AuraEnabled(Cacheable=true)
     Public Static  List<TFR__c> getExistingVIN(){
-         return [SELECT Id,VIN_Start__c,Createddate,Description__c,Is_Active__c FROM  TFR__c where Is_Active__c=true];
+        return [SELECT Id,VIN_Start__c,Createddate,Description__c,Is_Active__c FROM  TFR__c where Is_Active__c=true];
     }
     @AuraEnabled
     public static void createTFRWithParts(String vin, String errorCode, String description, List<Object> parts) {
@@ -110,30 +110,91 @@ public without sharing class TFRController {
         return new TFRWrapperSample(workOrderLineItemRec, tfrSampleRecord);
     }
     
+    @AuraEnabled
+    public static actionPlanWrapper VeripartWithActionWithPlanApex(String workOrderId){
+        actionPlanWrapper prepareData = new actionPlanWrapper();
+        try{
+            set<string> allAPTids = new set<string>();
+            
+            list<ActionPlan> ins=[SELECT Id, Name,To_be_Completed_in_JC__c,ActionPlanTemplateVersion.Name,
+                            Field_Fix__r.Action_Plan_Template__c
+                            FROM ActionPlan
+                            WHERE Job_Card__c = :workOrderId
+                            AND To_be_Completed_in_JC__c = false];
+            
+            for (ActionPlan aps :ins){
+                allAPTids.add(aps.Field_Fix__r.Action_Plan_Template__c);
+            }
+         
+            list<Required_Labour__c> RequiredLabours=[SELECT Id,Code_Set__c from Required_Labour__c WHERE Action_Plan_Template__c IN: allAPTids]; 
+            list<Required_Product__c> RequiredProducts= [SELECT Id,Product__c from Required_Product__c  WHERE Action_Plan_Template__c IN: allAPTids];
+            prepareData.RequiredLabours=RequiredLabours;
+            prepareData.RequiredProducts=RequiredProducts;
+            return prepareData;
+            
+        }catch(Exception ex){
+            System.debug('Error VeripartWithActionWithPlanApex: ' + ex.getMessage());
+            System.debug('Error at line ' + ex.getLineNumber());
+            return null;
+        }
+    }
+    
+    public class actionPlanWrapper{
+        @AuraEnabled
+        public List<Required_Labour__c> RequiredLabours;
+        @AuraEnabled 
+        public List<Required_Product__c> RequiredProducts;
+    }
+    
+    
+    public static Boolean isVIN2AfterVIN1Old(String n1, String n2) {
+        if (String.isBlank(n1) || String.isBlank(n2) || n1.length() != 17 || n2.length() != 17) {
+            return false; // Invalid VINs
+        }
+        
+        try {
+            // Extract last 6 digits (production serial number)
+            String serial1 = n1.substring(10); // position 12 to 17 (0-based index)
+            String serial2 = n2.substring(10);
+            
+            Integer serialNum1 = Integer.valueOf(serial1);
+            Integer serialNum2 = Integer.valueOf(serial2);
+            System.debug('serialNum2 > serialNum1'+ (serialNum2 > serialNum1));
+            //return serialNum2 > serialNum1;
+            return serialNum2 > serialNum1;
+        } catch (Exception e) {
+            // If serial is not a number or any issue occurs
+            System.debug('Error parsing VIN serial numbers: ' + e.getMessage());
+            return false;
+        }
+        
+    }
+    
+    
     
     // use from here
     public static Boolean isVIN2AfterVIN1(String n1, String n2) {
         if (String.isBlank(n1) || String.isBlank(n2) || n1.length() != 17 || n2.length() != 17) {
             return false; // Invalid VINs
         }
-
+        
         try {
             // Step 1: Check if both VINs are from same series (first 11 chars: WMI + VDS + Plant/Year)
             String series1 = n1.substring(0, 11); 
             String series2 = n2.substring(0, 11);
-
+            
             if (series1 != series2) {
                 System.debug('Different VIN series detected: ' + series1 + ' vs ' + series2);
                 return false; // Different vehicle line, cannot compare serial
             }
-
+            
             // Step 2: Compare production serial number (last 6 digits)
             String serial1 = n1.substring(11); // chars 12–17
             String serial2 = n2.substring(11);
-
+            
             Integer s1 = Integer.valueOf(serial1);
             Integer s2 = Integer.valueOf(serial2);
-
+            
             return s2 > s1;
         } catch (Exception e) {
             System.debug('Error comparing VINs: ' + e.getMessage());
@@ -311,5 +372,43 @@ public without sharing class TFRController {
         @AuraEnabled 
         public Boolean isPostVinCuttoff;
     }
+    
+    
+      @AuraEnabled(cacheable=true)
+    public static List<Failure_Code__c> getFailureCodes() {
+        return [
+            SELECT Id, Name, Batch_Size__c, Sample_Collected__c, Is_Active__c, TFR_Part_Effect__c,
+                   TFR_Part_Effect__r.Product__r.Name, TFR_Part_Effect__r.Product__r.ProductCode,
+                   VIN_Cut_off__c, VIN_Cut_off__r.Is_Active__c, VIN_Cut_off__r.VIN_Start__c,CreatedBy.Name,Createddate,FPV_Validation__c
+            FROM Failure_Code__c
+            LIMIT 100
+        ];
+    }
+    
+     @AuraEnabled
+    public static void deleteFailureCode(Id recordId) {
+        delete [SELECT Id FROM Failure_Code__c WHERE Id = :recordId];
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
 }

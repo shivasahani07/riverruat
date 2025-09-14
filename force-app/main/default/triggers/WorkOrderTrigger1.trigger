@@ -43,7 +43,7 @@ trigger WorkOrderTrigger1 on WorkOrder (before insert, before update, after upda
         ServiceFeedbackController.sendWhatsAppMessageWithFeedbackUrl(Trigger.new, Trigger.oldMap);
         //PSFController.generateFeedbackUrl(Trigger.new, Trigger.oldMap);
         //PSFController.sendWhatsAppMessageWithFeedbackUrl(Trigger.new, Trigger.oldMap);    
-        WorkOrderWhatsAppHandler.sendWhatsAppMsgMethod(Trigger.new, Trigger.oldMap);//added by Aniket on 17/06/2025
+        //WorkOrderWhatsAppHandler.sendWhatsAppMsgMethod(Trigger.new, Trigger.oldMap);//added by Aniket on 17/06/2025
         //
         InvoicePDFLinkOnJobCard.afterUpdate(Trigger.new,Trigger.oldMap);
     }

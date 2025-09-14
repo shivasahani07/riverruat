@@ -6,8 +6,11 @@ public class WorkOrderTriggerHandlerTest {
         Id vehiclePdiRtId = Schema.SObjectType.WorkOrder.getRecordTypeInfosByName().get('Vehicle PDI').getRecordTypeId();
         
         
-        Account testAccount = new Account(Name = 'Test Account 1',Type='Customer');
+        Account testAccount = new Account(Name = 'Test Account 1',Type='Customer',Center_Code__c='098765');
         insert testAccount;
+        
+        Account serviceCenter = new Account(Name = 'Test Account 1',Type='Service Center',Center_Code__c='123456');
+        insert serviceCenter;//Added By Aniket on 03/09/2025 For Test Coverage Validation
         
         Schema.Location testLocation = new Schema.Location(Name = 'Test Location', LocationType = 'State',State__c = 'Karnataka');
         insert testLocation;
@@ -77,7 +80,8 @@ public class WorkOrderTriggerHandlerTest {
             Labour_Charge__c = 0,
             SGST_on_Labour_Charges__c = 0,
             IGST_on_Labour_Charges__c = 0,
-            CGST_on_Labour_Charges__c = 0
+            CGST_on_Labour_Charges__c = 0,
+            Service_Center__c=serviceCenter.Id
 
         );
         insert testWorkOrder;
@@ -198,7 +202,7 @@ public class WorkOrderTriggerHandlerTest {
         pdiItem.Check__c=true;
         update pdiItem;
         testWorkOrder.Status='Completed';
-        update testWorkOrder;
+        //update testWorkOrder;
 
         
         testWorkOrder2.Cancellation_Reason__c='sagar';

@@ -11,15 +11,19 @@ public class TriggerOnFailureCodeHelper {
 
         // Query all related TFR_Part_Effect__c records in a single SOQL
         Map<Id, TFR_Part_Effect__c> partEffectMap = new Map<Id, TFR_Part_Effect__c>(
-            [SELECT Id, TFR__c, TFR__r.VIN_Start__c FROM TFR_Part_Effect__c WHERE Id IN :tfrPartEffectIds]
+            [SELECT Id, TFR__c, TFR__r.VIN_Start__c, Product__r.Name, Product__r.ProductCode FROM TFR_Part_Effect__c WHERE Id IN :tfrPartEffectIds]
         );
 
         // Set the VIN_Cut_off__c field on each Failure_Code__c record
         for (Failure_Code__c fcRec : beforeInsertFC) {
             if (fcRec.TFR_Part_Effect__c != null && partEffectMap.containsKey(fcRec.TFR_Part_Effect__c)) {
                 TFR_Part_Effect__c related = partEffectMap.get(fcRec.TFR_Part_Effect__c);
+                String fpv_key = fcRec.Name + '-' + related.Product__r.Name + '-' + related.TFR__r.VIN_Start__c;
                 fcRec.VIN_Cut_off__c = related.TFR__c;
+                fcRec.FPV_Key__c = fpv_key;
             }
         }
+        
+        //update beforeInsertFC;
     }
 }

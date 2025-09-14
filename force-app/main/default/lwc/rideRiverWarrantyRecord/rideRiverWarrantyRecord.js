@@ -433,26 +433,26 @@ export default class RideRiverWarrantyRecord extends LightningElement {
         let isValid = true;
         let invalidRows = [];
 
-        updateAddParts.forEach(record => {
-            if (!record.FFIR_Links__c || record.FFIR_Links__c.trim() === '') {
-                isValid = false;
-                invalidRows.push(record.Id);
-            }
-        });
+        // updateAddParts.forEach(record => {
+        //     if (!record.FFIR_Links__c || record.FFIR_Links__c.trim() === '') {
+        //         isValid = false;
+        //         invalidRows.push(record.Id);
+        //     }
+        // });
 
-        if (!isValid) {
-            this.showToast('Error', 'FFIR Links is required for all rows.', 'error');
+        // if (!isValid) {
+        //     this.showToast('Error', 'FFIR Links is required for all rows.', 'error');
 
-            // Highlight the invalid rows
-            this.template.querySelector('lightning-datatable').errors = {
-                rows: invalidRows.reduce((acc, rowId) => {
-                    acc[rowId] = { title: 'Required Field Missing', messages: ['FFIR Links cannot be empty.'] };
-                    // return acc;
-                }, {})
-            };
+        //     // Highlight the invalid rows
+        //     this.template.querySelector('lightning-datatable').errors = {
+        //         rows: invalidRows.reduce((acc, rowId) => {
+        //             acc[rowId] = { title: 'Required Field Missing', messages: ['FFIR Links cannot be empty.'] };
+        //             // return acc;
+        //         }, {})
+        //     };
 
-            return; // Stop further processing
-        }
+        //     return; // Stop further processing
+        // }
 
 
         updateAdditionalParts({ partsDraftValues: updateAddParts })

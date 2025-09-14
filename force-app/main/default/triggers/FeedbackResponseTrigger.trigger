@@ -13,17 +13,17 @@ trigger FeedbackResponseTrigger on Feedback_Response__c (before insert,after upd
     }
      if(Trigger.isBefore && Trigger.isInsert){
          AverageCalculationOnFeedbackPSF.populateFormName(Trigger.new);
-          JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.new);
+          //JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.new);
     }
     
      //Added By Ram 24/06/2025
     if(trigger.IsBefore && (trigger.IsUpdate)){
-        JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.new);
+        //JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.new);
     }
     
     //Added By Ram 24/06/2025
     if(trigger.IsBefore && trigger.IsDelete){
-        JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.old);
+        //JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.old);
     }
 
 }

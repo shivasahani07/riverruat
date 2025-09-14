@@ -310,15 +310,12 @@ public  Without Sharing class bulkreceiveGRNController {
                 system.debug('shiprec======'+shiprec);
                 shiprec.Is_Discrepancy_Created__c = True;
                 shiprec.Status='Delivered';
+                shiprec.Completion_Date_Time__c= System.NOW();
                 update shiprec;
                 
                 Order o = [SELECT Id,Status FROM Order WHERE Id=:shiprec.Order__c];
                 o.Status='Delivered';
                 Update o;
-
-
-                
-
 
                 System.debug('Inserted ' + disLineItemsToInsert.size() + ' Discrepancy Line Items');
             }

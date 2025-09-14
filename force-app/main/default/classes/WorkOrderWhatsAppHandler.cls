@@ -5,7 +5,7 @@
  * @last modified on  : 06-17-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
-public with sharing class WorkOrderWhatsAppHandler {
+public without sharing class WorkOrderWhatsAppHandler {
     public static void sendWhatsAppMsgMethod(List<WorkOrder> jobCardList,Map<Id,WorkOrder> oldWorkOrderMap){
         System.debug('jobCardList==>'+jobCardList);
         System.debug('oldWorkOrderMap==>'+oldWorkOrderMap);

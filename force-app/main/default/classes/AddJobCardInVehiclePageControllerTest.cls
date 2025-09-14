@@ -5,7 +5,7 @@ public class AddJobCardInVehiclePageControllerTest {
     static void testGetVehicleDetailsAndCreateJobCard() {
         
          Id vehiclePdiRtId = Schema.SObjectType.WorkOrder.getRecordTypeInfosByName().get('Vehicle PDI').getRecordTypeId();
-         Account testAccount = new Account(Name = 'Test Account 1',Type='Dealer');
+         Account testAccount = new Account(Name = 'Test Account 1',Type='Dealer',Center_Code__c = '8789900');
         insert testAccount;
        
 

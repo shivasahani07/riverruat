@@ -76,6 +76,7 @@ public class QueueableForImageTemplateMsg implements Queueable, Database.allowsC
             
             String reqBody = JSON.serialize(payload); 
             System.debug('reqBody==>'+reqBody);
+            System.debug('Payload ==>'+JSON.serializePretty(payload));
             request.setBody(reqBody);
             
             try {

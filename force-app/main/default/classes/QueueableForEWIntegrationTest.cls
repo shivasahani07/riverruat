@@ -36,7 +36,7 @@ public class QueueableForEWIntegrationTest {
         Software_Version__c testSV = new Software_Version__c(Name='Test Software Version');
         insert testSV;
         
-        Vehicle testVehicle = new Vehicle(Name='Test Vehicle', Account__c=testAccount.Id, AssetId=testAsset.Id,  VehicleDefinitionId=testVD.Id, VehicleIdentificationNumber='A2B3',  Software_Version__c=testSV.Id, Charger_PC_Number__c='abcd',PDI_Status_Pass__c=true,Purchased_Date__c = System.Today(),ChassisNumber='5342',RR_Battery_Number__c='B123',EngineNumber='E321');
+        Vehicle testVehicle = new Vehicle(Name='Test Vehicle', Account__c=testAccount.Id, AssetId=testAsset.Id,  VehicleDefinitionId=testVD.Id, VehicleIdentificationNumber='A2B3',  Software_Version__c=testSV.Id, Charger_PC_Number__c='abcd',PDI_Status_Pass__c=true,Purchased_Date__c = System.Today(),ChassisNumber='5342',Vehicle_Details__c='B123',EngineNumber='E321');
         insert testVehicle;
         
         AssetMilestone asm = new AssetMilestone(Name = 'ASM1', MilestoneDate = Date.today().addMonths(2),  Stage = 'Active', AssetId = testAsset.Id, UsageType = 'Automotive', MilestoneType = 'PDI', VehicleId = testVehicle.Id);

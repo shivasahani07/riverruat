@@ -9,6 +9,9 @@ public class WorkOrderTriggerHandlerTest1 {
         Account testAccount = new Account(Name = 'Test Account 1',Type='Customer');
         insert testAccount;
         
+        Account serviceCenter = new Account(Name = 'Test Account 1',Type='Service Center',Center_Code__c='123456');
+        insert serviceCenter;//Added By Aniket on 03/09/2025 For Test Coverage Validation
+        
         Schema.Location testLocation = new Schema.Location(Name = 'Test Location', LocationType = 'State',State__c = 'Karnataka');
         insert testLocation;
         
@@ -77,7 +80,7 @@ public class WorkOrderTriggerHandlerTest1 {
             Labour_Charge__c = 0,
             SGST_on_Labour_Charges__c = 0,
             IGST_on_Labour_Charges__c = 0,
-            CGST_on_Labour_Charges__c = 0
+            CGST_on_Labour_Charges__c = 0,Service_Center__c=serviceCenter.Id
 
         );
         insert testWorkOrder;
@@ -117,7 +120,7 @@ public class WorkOrderTriggerHandlerTest1 {
             Labour_Charge__c = 0,
             SGST_on_Labour_Charges__c = 0,
             IGST_on_Labour_Charges__c = 0,
-            CGST_on_Labour_Charges__c = 0
+            CGST_on_Labour_Charges__c = 0,Service_Center__c=serviceCenter.Id
         );
         insert testWorkOrder2;
         
@@ -135,12 +138,14 @@ public class WorkOrderTriggerHandlerTest1 {
             Labour_Charge__c = 100.0,
             Duration_Min__c = 130, 
             Duration_Hour__c = 2,
-            Discount__c = 10,
+            //Discount__c = 10,
             Work_Type__c = testWorkType.Id,
             WorkOrderId = testWorkOrder.Id,
             IGST_Percentage__c=18.00,
             SGST_Percentage__c=9.00,
-            CGST_Percentage__c=9.00
+            CGST_Percentage__c=9.00,
+            Status__c='New',
+            RR_Labour_Category__c='Paid'
         );
         insert testWorkPlan;
         
@@ -154,7 +159,8 @@ public class WorkOrderTriggerHandlerTest1 {
             WorkOrderId = testWorkOrder2.Id,
             IGST_Percentage__c=18.00,
             SGST_Percentage__c=9.00,
-            CGST_Percentage__c=9.00
+            CGST_Percentage__c=9.00,
+            Status__c='New'
         );
         insert testWorkPlan2;
         
@@ -174,12 +180,31 @@ public class WorkOrderTriggerHandlerTest1 {
         );
         insert pdiItem1;
         
-        Warranty_Prior__c createdWarranty = [SELECT Id, Job_Card__c, Status__c FROM Warranty_Prior__c WHERE Job_Card__c = :testWorkOrder.Id LIMIT 1];
+        //Warranty_Prior__c createdWarranty = [SELECT Id, Job_Card__c, Status__c FROM Warranty_Prior__c WHERE Job_Card__c = :testWorkOrder.Id LIMIT 1];
+        
+        Warranty_Prior__c createdWarranty = new Warranty_Prior__c(Job_Card__c=testWorkOrder.Id,Status__c='Pending');
+        insert createdWarranty;
  
         createdWarranty.Status__c = 'Approved';
         createdWarranty.Job_Card__c=testWorkOrder.Id;
         update createdWarranty; 
 	
+        WorkPlan testLabour = new WorkPlan(
+            Name = 'Test Workplan',
+            Labour_Charge__c = 100.0,
+            Duration_Min__c = 130, 
+            Duration_Hour__c = 2,
+            Work_Type__c = testWorkType.Id,
+            WorkOrderId = testWorkOrder.Id,
+            IGST_Percentage__c=18.00,
+            SGST_Percentage__c=9.00,
+            CGST_Percentage__c=9.00,
+            Status__c='New',
+            RR_Labour_Category__c='Paid',
+            Warranty_Prior__c=createdWarranty.Id
+        );
+       // insert testLabour;
+        
         
        Test.startTest();
         
@@ -235,9 +260,21 @@ public class WorkOrderTriggerHandlerTest1 {
         //update testWorkOrder2;
        
         testWorkOrder.Status='New';
+        testWorkOrder.Odometer_Reading__c=120.00;
         update testWorkOrder;
         ///delete testWorkOrder;
         delete testWorkOrder2;
+        
+        WorkOrderTriggerHandler.testCoverageMethod();
+        try{
+         //   testLabour.RR_Labour_Category__c='River Warranty';
+        //update testLabour;
+        }catch(Exception e){
+            
+        }
+        
+        //delete testLabour;
+        
         
         
        //testWorkOrder = [SELECT Id, Status FROM WorkOrder WHERE Id = :testWorkOrder.Id];

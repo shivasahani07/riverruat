@@ -33,6 +33,10 @@
             .page-break {
             page-break-after: always;
             }
+            td {
+            word-wrap: break-word;
+            white-space: normal;
+        }
             
         </style>
     </head>
@@ -41,12 +45,12 @@
         <div>
             <table style="border-collapse: collapse; text-align: left; font-family: Arial, Helvetica, sans-serif; vertical-align: top;" width="100%">
                 <tr>
-                    <td style="padding: 8px; font-size: 12px; width: 40%; vertical-align: top;">
+                    <td style="padding: 8px; font-size: 12px; width: 40%; vertical-align: top; word-wrap: break-word; white-space: normal; max-width: 250px;">
                         <apex:image value="{!URLFOR($Resource.RideRiverLogo)}" height="100px" width="230px" style="display: block; margin-bottom: 0; padding-bottom: 0;" />
                         <p style="margin-top: 2px;">
                             
                             <apex:outputPanel rendered="{!storeType = 'DODO'}">
-                                <b><span style="font-size: 16px;"> {!dodoAccName} </span></b> <br/>
+                                <b><span style="font-size: 15px;"> {!dodoAccName} </span></b> <br/>
                                 <apex:outputText value="{!formattedBillingStreet}" escape="false"/>,
                                 {!order.Dealer__r.BillingCity}<br/>
                                 {!order.Dealer__r.BillingState}-{!order.Dealer__r.BillingPostalCode}
@@ -55,7 +59,7 @@
                             </apex:outputPanel>
                             
                             <apex:outputPanel rendered="{!storeType = 'COCO'}">
-                                <b><span style="font-size: 16px;"> {!dcPdf.CompanyName__c} </span></b> 
+                                <b><span style="font-size: 15px;"> {!dcPdf.CompanyName__c} </span></b> 
                                 <br /> <span style="font-size: 14px;"> No. 25/3, KIADB EPIP Zone, Seetharampalya–Hoodi Road, Mahadevapura, </span>
                                 <br /> <span style="font-size: 14px;"> Whitefield, Bengaluru, Bengaluru Urban, Karnataka, India 560048 </span>
                                 <br /> <span style="font-size: 14px;"> Email: {!cocoBillEmail}, &nbsp; Phone: +91 {!cocoPhone} </span>
@@ -109,7 +113,7 @@
                     Place of Supply: <span style="white-space: nowrap;">{!order.Dealer__r.BillingState}</span> 
                 </td>
                 
-                <td style="padding:5px;vertical-align: top; margin-left:10px;">
+                <td style="padding:5px;vertical-align: top; margin-left:10px; word-wrap: break-word; white-space: normal; max-width: 250px;">
                     
                     <b>Billed From:</b><br/>
                     <b>{!dodoAccName}</b><br/>
@@ -125,7 +129,7 @@
                     </div>
                 </td>
                 
-                <td width="30%" style="vertical-align: top;padding:5px; padding-left: 20px;">
+                <td width="30%" style="vertical-align: top;padding:5px; padding-left: 20px; word-wrap: break-word; white-space: normal; max-width: 250px;">
                     <b>Billed To:</b><br/>
                     <b>{!order.Account.Name}</b><br/>
                     <apex:outputText value="{!formattedAccountBillingStreet}" escape="false"/>
@@ -193,7 +197,9 @@
                     
                     <!--4. Pre GST Discount -->
                     <td style="padding-top:10px;padding-right:5px;padding-left:8px;border-collapse: collapse;border-right:1px solid;border-left:1px solid;border-collapse:collapse;vertical-align: top;">
-                         {!OrderItem.Merchandise_Disccount_Amount__c}
+                        <apex:outputText value="{0, number, #,##,###.00}">
+                            <apex:param value="{!merchandiseDiscountAmount}" />
+                        </apex:outputText>
                     </td>
                     
                     <!--5. Taxable Amount -->
@@ -257,14 +263,14 @@
                 </td>
             </tr>
             
-            <tr>            
-                <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">Less: Discount on EX-Showroom Price</td>
+          <!--  <tr>            
+                <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">Less: Discount on EX-Showroom Price (incl.)</td>
                 <td colspan="1" style="border-bottom:1px solid;border-top:1px solid;border-right:1px solid; border-collapse:collapse;" width="17%">
                     <apex:outputText value="{0, number, #,##,###}">
                         <apex:param value="{!DiscountOnEx}"/>
                     </apex:outputText>
                 </td>
-            </tr>
+            </tr> -->
             
             <tr>            
                 <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">Less:PM E-Drive Incentive from Govt. of India</td>
@@ -284,14 +290,26 @@
                 </td>
             </tr>
             
-            <tr>            
-                <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">Less: Offer Amount</td>
+          <!--  <tr>            
+                <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">Less: Offer Amount (incl.)</td>
                 <td colspan="1" style="border-bottom:1px solid;border-top:1px solid; border-right:1px solid; border-collapse:collapse;" width="17%">
                     <apex:outputText value="{0, number, #,##,###}">
                         <apex:param value="{!offerAmount}"/>
                     </apex:outputText>
                 </td>
-            </tr>
+            </tr> -->
+            <!-- Coupon Code -->
+          <!--  <tr>            
+                <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">
+                    <apex:outputText value="{!IF(order.RecordType.DeveloperName = 'OTC', 'Applied Coupon (incl.)', 'Applied Coupon (incl.)')}" />
+                </td>
+                
+                <td colspan="1" style="border-bottom:1px solid;border-top:1px solid; border-right:1px solid; border-collapse:collapse;" width="17%">
+                    <apex:outputText value="{0}">
+                        <apex:param value="{!Coupon_Code}" />
+                    </apex:outputText>
+                </td>
+            </tr> -->
             
             <tr>            
                 <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">Net to be collected from Customer</td>
@@ -325,8 +343,8 @@
             </p>         
         </div>
         <div style="clear: both;"></div>
-        <div style="page-break-before: always;"></div>
-        
+       <!-- <div style="page-break-before: always;"></div> -->
+        <br/><br/><br/><br/><br/><br/><br/><br/>
         <div style="text-align: center; width: 100%;">
             <apex:outputPanel rendered="{!NOT(ISBLANK(cocoTC.DeveloperName))}">
                 <table style="margin: 50px auto; text-align: center; font-family: Arial, Helvetica, sans-serif; font-weight: bold;" width="70%">

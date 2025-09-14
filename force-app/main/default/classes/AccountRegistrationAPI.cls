@@ -130,6 +130,12 @@ country = (String)billing_address.get('country') != null ? (String)billing_addre
                     Database.LeadConvertResult lcr = Database.convertLead(lc);
                     system.debug('New Lead is created >> ' + newLead);                   
                     system.debug('creating new account and contact1');
+                     //This block Is added by Aniket on 06/09/2025
+                    if (!lcr.isSuccess()) {
+                        throw new CommonException('Lead conversion failed for new Lead, no Account created.');
+                    }
+                    //upto here
+                    
                     Account newAccount = new Account(
                         Id = lcr.getAccountId(),
                         Name = (String)requestMap.get('full_name'),
@@ -192,7 +198,18 @@ insert newLead;*/
                     ShippingPostalCode = (String)shipping_address.get('pin_code') != null ? (String)shipping_address.get('pin_code') : ''
                 );
                 Update newAccount;
+                
             }
+            //This block Is added by Aniket on 06/09/2025
+            if (String.isBlank(accountId)) {
+                throw new CommonException('AccountId could not be generated.');
+            }
+            
+            Long start = Limits.getCpuTime();
+            while (Limits.getCpuTime() - start < 5000) {
+                
+            }
+            //upto here
             
             response.put('status', 'Success');
             

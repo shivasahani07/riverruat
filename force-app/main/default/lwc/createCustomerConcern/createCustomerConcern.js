@@ -43,10 +43,10 @@ export default class CreateCustomerConcern extends NavigationMixin(LightningElem
     @track showCategory = false;
     @track typeAsParameter='';
     @track subjectDepartment
-    @track suppliedEmail
+    @track suppliedEmail;
     @track suppliedname;
-    @track suppliedphone
-    @track modelName
+    @track suppliedphone;
+    @track modelName;
      
     objectInfo;
     allPicklists = {};

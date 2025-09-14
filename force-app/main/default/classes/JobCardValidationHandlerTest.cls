@@ -1,6 +1,26 @@
 @isTest
 private class JobCardValidationHandlerTest {
+    
     @isTest static void testPreventUpdateIfCompleted() {
+        
+        // Step 1: Get System Admin profile
+    Profile sysAdminProfile = [SELECT Id FROM Profile WHERE Name = 'Sales Manager' LIMIT 1];
+
+    // Step 2: Create a user with System Administrator profile
+    User sysAdminUser = new User(
+        FirstName = 'Sys',
+        LastName = 'Admin',
+        Email = 'sysadminuser@test.com',
+        Username = 'sysadminuser@test.com' + System.currentTimeMillis(),
+        Alias = 'sysad',
+        ProfileId = sysAdminProfile.Id,
+        TimeZoneSidKey = 'Asia/Kolkata',
+        LocaleSidKey = 'en_US',
+        EmailEncodingKey = 'UTF-8',
+        LanguageLocaleKey = 'en_US'
+    );
+    insert sysAdminUser;
+        
         Account acc = new Account(Name = 'testing Account');
         insert acc;
         Account acc1 = new Account(Name = 'testing Account', Type = 'Dealer', Store_Type__c = 'DODO', Center_Code__c = '322002');
@@ -105,19 +125,25 @@ private class JobCardValidationHandlerTest {
         };
         insert workOrders;
 
-        workOrders[0].Status = 'Completed';
-        update workOrders[0];
+        workOrders[0].Status = 'In Progress';
+    update workOrders[0];
+
+    workOrders[0].Status = 'Ready for Delivery';
+    update workOrders[0];
+
+    workOrders[0].Status = 'Completed';
+    update workOrders[0];
 
         workOrders[0].Subject = 'Update Attempt';
         Map<Id, WorkOrder> oldMap = new Map<Id, WorkOrder>([SELECT Id, Status FROM WorkOrder WHERE Id = :workOrders[0].Id]);
-
+	System.runAs(sysAdminUser) {
         Test.startTest();
         try {
             JobCardValidationHandler.validateJobCardStatus(new List<WorkOrder>{workOrders[0]}, oldMap);
             update workOrders[0];
         } catch (DmlException e) {
         }
-
+    }
         workOrders[1].Subject = 'Update Allowed';
         oldMap = new Map<Id, WorkOrder>([SELECT Id, Status FROM WorkOrder WHERE Id = :workOrders[1].Id]);
         JobCardValidationHandler.validateJobCardStatus(new List<WorkOrder>{workOrders[1]}, oldMap);

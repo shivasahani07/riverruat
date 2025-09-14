@@ -94,6 +94,8 @@ trigger OrderTrigger on Order (
         OrderTriggerHandler.createProductTransferForBackOrder(Trigger.oldMap, Trigger.newMap);
         OrderTriggerHandler.afterUpdate(Trigger.new, Trigger.oldMap);
         form22Controller.handleOrderUpdate(Trigger.new, Trigger.oldMap);
+        
+        OrderTriggerHandler.sendPDFAfterRTO(Trigger.new, Trigger.oldMap);
         //for feedbacks
         OverallExpereinceController.generateFeedbackUrl(Trigger.new, Trigger.oldMap);
         OverallExpereinceController.sendWhatsAppMessageWithFeedbackUrl(Trigger.new, Trigger.oldMap,'delivery_message_feedback'); 

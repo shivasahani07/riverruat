@@ -57,6 +57,10 @@ public class CustomerE_InvoicePDFControler {
     public Terms_and_Condition__mdt cocoTC { get; set; }
     public String formatedIRNNumber { get; set; }
     public String storeNameForBottom { get; set; }
+    public List<Attachment> QRAtt {get;set;}
+    public Boolean IsQrGenerated {get;set;}
+    public String JuriName { get; set; }
+    
 
     // New property to hold individual line item totals
     public Map<Id, Decimal> lineItemTotalsMap { get; set; }
@@ -98,16 +102,17 @@ public class CustomerE_InvoicePDFControler {
             FROM DeliveryChallanPDF__mdt LIMIT 1
         ];
         system.debug('## dcPdf record fetched: ' + dcPdf);
-
+                
         List<WorkOrder> workOrderList = [
-            SELECT Id, CreatedDate, EndDate, Service_Center__r.Name, Service_Center__r.Company_GSTIN_name__c, Service_Center__r.GSTIN_Number__c, Service_Center__r.ShippingStreet, Service_Center__r.ShippingCity,
+            SELECT Id, CreatedDate, IRN_No__c, EndDate, Service_Center__r.Name, Service_Center__r.Company_GSTIN_name__c, Service_Center__r.GSTIN_Number__c, Service_Center__r.ShippingStreet, Service_Center__r.ShippingCity,
                    Service_Center__r.ShippingState, Service_Center__r.ShippingCountry, Service_Center__r.ShippingPostalCode, Company__c, Invoice_No__c, WorkOrderNumber, Invoice_Date__c,
                    Account.ShippingState, Account.Name, Status, Service_Center__r.Center_Code__c, Same_State__c, Account.Company_GSTIN_name__c,
                    Vehicle__r.Insurance__r.Name, Vehicle__r.Policy_Number__c, Vehicle__r.EngineNumber, Invoice_Type__c, Vehicle__r.isCustomerStateSame__c, City__r.State__c,
                    Vehicle_Registration_Number__c, Vehicle__r.VehicleIdentificationNumber, Vehicle__r.Name, Vehicle__r.VehicleRegistrationNumber, Vehicle__r.LastOdometerReading, toLabel(RR_Job_Type__c),
                    Vehicle__r.Dealer__r.Name, Vehicle__r.Dealer__r.ShippingStreet, Vehicle__r.Dealer__r.GSTIN_Number__c, Vehicle__r.Insurance__r.Address__c, Vehicle__r.Insurance__r.GSTIN_Number__c,
                    Vehicle__r.CurrentOwner.Name, Vehicle__r.CurrentOwner.GSTIN_Number__c, Vehicle__r.CurrentOwner.ShippingStreet, Service_Center__r.BillingCity, Service_Center__r.BillingCountry,
-                   Service_Center__r.BillingState, Service_Center__r.BillingStreet, Service_Center__r.CIN__c, Service_Center__r.BillingPostalCode,
+                   Service_Center__r.BillingState, Service_Center__r.BillingStreet, Service_Center__r.CIN__c, Service_Center__r.BillingPostalCode,Service_Center__r.GST_City__c, Service_Center__r.GST_State__c, Service_Center__r.GST_Zip_Postal_Code__c,
+            	   Service_Center__r.GST_Street__c,
                    Account.BillingStreet, Account.BillingCity, Account.BillingState, Account.BillingPostalCode, Account.Email__c, Account.Phone, Account.Secondary_Phone_Number__c, Account.GSTIN_Number__c,
                    Service_Center__r.Store_Type__c, Service_Center__r.Email__c, Service_Center__r.Phone, Vehicle__r.CurrentOwner.ShippingCity, Vehicle__r.CurrentOwner.ShippingState,
                    Vehicle__r.CurrentOwner.ShippingCountry, Vehicle__r.CurrentOwner.ShippingPostalCode, Service_Center__r.Secondary_Phone_Number__c, RR_Service_Advisor__r.Name,
@@ -115,6 +120,28 @@ public class CustomerE_InvoicePDFControler {
             FROM WorkOrder WHERE Id = :workOrderId LIMIT 1
         ];
         system.debug('## WorkOrderList size: ' + workOrderList.size());
+        
+        QRAtt = [SELECT Id,Name FROM Attachment WHERE ParentId = :workOrderId AND Name LIKE '%QRCode%' Order BY CreatedDate DESC LIMIT 1];
+            
+            if(QRAtt != null){
+                
+                IsQrGenerated = QRAtt.size() > 0 ? true : false;
+                
+                System.debug('IsQrGenerated==>'+IsQrGenerated);
+                
+            }else{
+                
+                System.debug('No QRAtt Record Found');
+            }
+        if(workOrderList[0].IRN_No__c != null){
+                
+                Integer midPoint = Math.ceil(workOrderList[0].IRN_No__c.length() / 2).intValue();
+                
+                formatedIRNNumber = workOrderList[0].IRN_No__c.substring(0, midPoint) + '<br/>' + workOrderList[0].IRN_No__c.substring(midPoint);
+                
+                System.debug('formatedIRNNumber==>'+formatedIRNNumber);
+                
+            } 
 
         if (workOrderList != null && workOrderList.size() > 0) {
             workOrderRecord = workOrderList[0];
@@ -126,7 +153,7 @@ public class CustomerE_InvoicePDFControler {
                        DurationType, DurationInMinutes, WorkTypeId, Street, City, State, PostalCode, Country, Latitude, Longitude, GeocodeAccuracy,
                        Address, ServiceTerritoryId, Subject, StatusCategory, IsClosed, Priority, ServiceAppointmentCount, LocationId, Total_Amount__c,
                        Inventory_Lot__c, Product_Available__c, Stage__c, RR_Parts_Category__c, RR_Product__c, RR_Product__r.Name, RR_Product__r.HSN_Code__c, IGST_Percentage_formula__c, CGST_Percentage_Formula__c, SGST_Percentage_Formula__c,
-                       RR_Product__r.IGST_Percentage__c, RR_Product__r.CGST_Percentage__c, RR_Product__r.SGST_Percentage__c, IGST_Amount__c, CGST_Amount__c, SGST_Amount__c, Amount__c, Unit_of_Measurement__c,
+                       RR_Product__r.IGST_Percentage__c,RR_Product__r.ProductCode, RR_Product__r.CGST_Percentage__c, RR_Product__r.SGST_Percentage__c, IGST_Amount__c, CGST_Amount__c, SGST_Amount__c, Amount__c, Unit_of_Measurement__c,
                 Total_Part_Price__c
                 FROM WorkOrderLineItem WHERE WorkOrderId = :workOrderRecord.Id AND RR_Parts_Category__c IN ('Paid')
             ];
@@ -172,8 +199,10 @@ public class CustomerE_InvoicePDFControler {
 
             if (workOrderRecord.Service_Center__r.Store_Type__c == 'COCO') {
                 storeNameForBottom = 'River Mobility Private Limited';
+                 JuriName = 'Bengaluru';
             } else if (workOrderRecord.Service_Center__r.Store_Type__c == 'DODO') {
                 storeNameForBottom = workOrderRecord.Service_Center__r.Company_GSTIN_name__c;
+                 JuriName = workOrderRecord.Service_Center__r.BillingCity;
             }
             system.debug('## StoreNameForBottom: ' + storeNameForBottom);
 
@@ -242,13 +271,21 @@ public class CustomerE_InvoicePDFControler {
     }
 
     public String getFormattedBillingStreet() {
-        String formatted = workOrderRecord.Account.BillingStreet != null ? workOrderRecord.Account.BillingStreet.replace('\n', '<br/>') : '';
+        
+        String formatted = workOrderRecord.Service_Center__r.BillingStreet != null ? workOrderRecord.Service_Center__r.BillingStreet.replace('\n', '<br/>') : '';
+        system.debug('## FormattedBillingStreet: ' + formatted);
+        return formatted;
+    }
+    
+    public String getFormattedGSTBillingStreet() {
+               
+        String formatted = workOrderRecord.Service_Center__r.GST_Street__c != null ? workOrderRecord.Service_Center__r.GST_Street__c.replace('\n', '<br/>') : '';
         system.debug('## FormattedBillingStreet: ' + formatted);
         return formatted;
     }
 
     public String getFormattedAccountBillingStreet() {
-        String formatted = workOrderRecord.Service_Center__r.BillingStreet != null ? workOrderRecord.Service_Center__r.BillingStreet.replace('\n', '<br/>') : '';
+        String formatted = workOrderRecord.Account.BillingStreet != null ? workOrderRecord.Account.BillingStreet.replace('\n', '<br/>') : '';
         system.debug('## FormattedAccountBillingStreet: ' + formatted);
         return formatted;
     }

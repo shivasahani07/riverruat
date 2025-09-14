@@ -59,9 +59,9 @@
                             
                             <apex:outputPanel rendered="{!storeType = 'DODO'}">
                                 <b><span style="font-size: 15px;"> {!dodoAccName} </span></b> <br/>
-                                <apex:outputText value="{!formattedBillingStreet}" escape="false"/>,
-                                {!workOrderRecord.Service_Center__r.BillingCity}<br/>
-                                {!workOrderRecord.Service_Center__r.BillingState}-{!workOrderRecord.Service_Center__r.BillingPostalCode}
+                                <apex:outputText value="{!formattedGSTBillingStreet}" escape="false"/>,
+                                {!workOrderRecord.Service_Center__r.GST_City__c}<br/>
+                                {!workOrderRecord.Service_Center__r.GST_State__c}-{!workOrderRecord.Service_Center__r.GST_Zip_Postal_Code__c}
                                 <br /> <span style="font-size: 14px;"> Email: {!workOrderRecord.Service_Center__r.Email__c}, &nbsp; Phone: +91 {!workOrderRecord.Service_Center__r.Phone} </span>
                                 <br /> <span style="font-size: 14px;"> CIN: {!workOrderRecord.Service_Center__r.CIN__c} </span>
                             </apex:outputPanel>
@@ -79,12 +79,21 @@
                         
                     </td>
                     
-                    <td style="padding: 8px; width: 15%; vertical-align: top; text-align: left;">
-                        <div style="font-size: 13pt; font-weight: bold;">
-                            TAX INVOICE
-                        </div>
-                        <div style="font-size: 10pt; font-weight: bold;">
-                            Customer Copy
+                    <td style="padding: 10px; width: 15%; vertical-align: top; text-align: left;">
+                        <div style="font-size: 13pt; font-weight: bold;">   TAX INVOICE  </div>
+                        <div style="font-size: 10pt; font-weight: bold;"> Customer Copy </div>
+                        <apex:outputPanel rendered="{!NOT(ISBLANK(WorkOrder.IRN_No__c))}">
+                            <br />
+                            <div>
+                                IRN No: <br />
+                                <apex:outputText value="{!formatedIRNNumber}" escape="false"/>
+                            </div>
+                        </apex:outputPanel>
+                        <br/>
+                        <div>
+                            <apex:outputPanel rendered="{!IsQrGenerated == true}">
+                                <apex:image value="{!URLFOR('/servlet/servlet.FileDownload?file=' + QRAtt[0].Id)}" alt="QR Code" height="70px" width="70px" />
+                            </apex:outputPanel>
                         </div>
                     </td>
                 </tr>
@@ -104,7 +113,7 @@
                     <b>Invoice No</b>: <span style="white-space: nowrap;">{!workOrderRecord.Invoice_No__c}</span><br /><br />
                     <!-- <b>Job Card No.</b>: <span style="white-space: nowrap;">{!workOrderRecord.WorkOrderNumber}</span><br /><br /> -->
                     <!-- <b>VIN</b> : {!workOrderRecord.Vehicle__r.VehicleIdentificationNumber} <br /><br/> -->
-                    <b>Place of Supply</b>: Karnataka<br/><br/>
+                    <b>Place of Supply</b>: {!workOrderRecord.City__r.State__c}<br/><br/>
                     <b>Job Card No:</b> : {!workOrderRecord.WorkOrderNumber}
                 </td>
                 <!-- Customer Details -->
@@ -136,7 +145,7 @@
                     <td >
                         <b>Billed From</b><br/>
                         <b>{!workOrderRecord.Service_Center__r.Company_GSTIN_name__c}</b><br/>
-                        <apex:outputText value="{!formattedAccountBillingStreet}" escape="false"/> <br/>
+                         <apex:outputText value="{!formattedBillingStreet}" escape="false"/><br/>
                         {!workOrderRecord.Service_Center__r.BillingCity}
                         {!workOrderRecord.Service_Center__r.BillingState}  {!workOrderRecord.Service_Center__r.BillingPostalCode}<br/>               
                         Email: {!IF(AND(NOT(ISNULL(workOrderRecord.Service_Center__c)), NOT(ISNULL(workOrderRecord.Service_Center__r.Email__c))), workOrderRecord.Service_Center__r.Email__c, '')}<br/>
@@ -151,7 +160,7 @@
                     <td >
                         <b>Billed To</b><br/>
                         <b>{!workOrderRecord.Account.Company_GSTIN_name__c}</b><br/>
-                        <apex:outputText value="{!formattedBillingStreet}" escape="false"/><br/>
+                        <apex:outputText value="{!formattedAccountBillingStreet}" escape="false"/><br/>
                         {!workOrderRecord.Account.BillingCity}
                         {!workOrderRecord.Account.BillingState}  {!workOrderRecord.Account.BillingPostalCode}<br/>               
                         Email: {!IF(AND(NOT(ISNULL(workOrderRecord.AccountId)), NOT(ISNULL(workOrderRecord.Account.Email__c))), workOrderRecord.Account.Email__c, '')}<br/>
@@ -178,7 +187,10 @@
                     <p class="s3" style="padding-top: 5pt;padding-left: 33pt;text-indent: 0pt;text-align: left;">Particulars</p>
                 </td>
                 <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="2">
-                    <p class="s3" style="padding-top: 5pt;padding-left: 9pt;text-indent: 0pt;text-align: left;">HSN/Labour Code</p>
+                    <p class="s3" style="padding-top: 5pt;padding-left: 9pt;text-indent: 0pt;text-align: left;">HSN Code</p>
+                </td>
+                <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="2">
+                    <p class="s3" style="padding-top: 5pt;padding-left: 9pt;text-indent: 0pt;text-align: left;">Product/Labour Code</p>
                 </td>
                 <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="2">
                     <p class="s3" style="padding-top: 5pt;padding-left: 7pt;text-indent: 0pt;text-align: left;">Qty/Duration Hour</p>
@@ -226,7 +238,7 @@
                 <td style="width:22pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                     <p class="s3" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: center;">A</p>
                 </td>
-                <td style="width:527pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="11">
+                <td style="width:527pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="12">
                     <p class="s3" style="padding-top: 1pt;padding-left: 5pt;text-indent: 0pt;text-align: left;">PARTS :</p>
                 </td>
             </tr>
@@ -249,6 +261,9 @@
                     </td>
                     <td style="width:35pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{!item.RR_Product__r.HSN_Code__c}"/></p>
+                    </td>
+                    <td style="width:35pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{!item.RR_Product__r.ProductCode}"/></p>
                     </td>
                     <td style="width:29pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{!item.Quantity}"/></p>
@@ -296,7 +311,7 @@
                 <td style="width:22pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                     <p class="s3" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: center;">B</p>
                 </td>
-                <td style="width:527pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="11">
+                <td style="width:527pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="12">
                     <p class="s3" style="padding-top: 1pt;padding-left: 5pt;text-indent: 0pt;text-align: left;">LABOUR :</p>
                 </td>
             </tr>
@@ -316,6 +331,9 @@
                     </td>
                     <td style="width:35pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{!item.RR_Labour_Code__r.HSN_Code__c}"/></p>
+                    </td>
+                    <td style="width:35pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{!item.RR_Labour_Code__r.Code}"/></p>
                     </td>
                     <td style="width:29pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Duration_Hour__c + (item.Duration_Min__c/60)}"/></apex:outputText></p>
@@ -360,7 +378,7 @@
             
             <tr>
                 <!-- Invoice Total (In Words) spans Sl. No to Tax % -->
-                <td colspan="9" style="border:1pt solid black; padding-left:5pt; padding-top:8pt; padding-bottom:8pt; text-align:left;">
+                <td colspan="10" style="border:1pt solid black; padding-left:5pt; padding-top:8pt; padding-bottom:8pt; text-align:left;">
                     <p style="margin:0;"><b>Invoice Total (In Words): Rs {!invoiceTotalInWords}</b></p>
                 </td>
                 
@@ -397,7 +415,7 @@
         2.The seller is not responsible for any loss or damage to goods in transit.<br/><br/>
         3.The buyer undertakes to submit the prescribed ST<br/>
         <p style='padding-left:12px;font-size:14px;'>declaration to the sender on demand. Disputes, if any,</p>
-    <p style='padding-left:12px;font-size:14px;'>will be subject to the seller’s court’s jurisdiction.</p><br/>
+    <p style='padding-left:12px;font-size:14px;'>will be subject to the <span>{!IF(ISBLANK(JuriName), 'Sellers', JuriName)}</span> court’s jurisdiction.</p><br/>
 </p>
 
 <!-- Disclosure -->

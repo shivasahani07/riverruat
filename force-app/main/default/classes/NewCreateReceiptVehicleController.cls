@@ -44,6 +44,8 @@ public class NewCreateReceiptVehicleController {
     public Terms_and_Condition__mdt cocoTC { get; set; }
     public String formatedIRNNumber { get; set; }
     public String storeType { get; set; }
+    public Decimal merchandiseDiscountAmount { get; set; }
+    public String Coupon_Code { get; set; }
     public Decimal totalValueAfterAllTaxes { get; set; } // New coded Dinesh - 18/03/2025
     
     public String getFormattedBillingStreet() {
@@ -72,7 +74,7 @@ public class NewCreateReceiptVehicleController {
                     Dealer__r.BillingCity,Dealer__r.BillingCountry, Dealer__r.BillingPostalCode, Dealer__r.BillingState, Dealer__r.BillingStreet,	Transportation_Charges__c,Internal_Purchase__c,
                     Discount_on_Ex_Showroom_Price__c, Subsidy_Amount__c, State_Govt_Subsidy__c, Offers_Amount__c, Dealer__r.CIN__c, Dealer__r.RR_Customer_Care_Email__c, Dealer__r.RR_Customer_HelpLine_Number__c,  
                     Dealer__r.Beneficiary_Name__c, Dealer__r.Account_Number__c, Dealer__r.Bank_Name__c, Dealer__r.Swift_Code__c, Dealer__r.IFSC__c, Dealer__r.PAN_Number__c,
-                    IRN_No__c, Dealer__r.Store_Type__c, Dealer__r.Email__c, Dealer__r.Phone, Account.GSTIN_Number__c, Dealer__r.GSTIN_Number__c FROM Order  WHERE Id=:orderId ]; 
+                    IRN_No__c, Dealer__r.Store_Type__c, Dealer__r.Email__c, Dealer__r.Phone, Account.GSTIN_Number__c, Dealer__r.GSTIN_Number__c, RecordType.DeveloperName FROM Order  WHERE Id=:orderId ]; 
             
             cocoTC = [SELECT Id, Terms_and_Condition__c,DeveloperName FROM Terms_and_Condition__mdt WHERE DeveloperName = 'Coco_TC' LIMIT 1];
             if (cocoTC.Terms_and_Condition__c != null) {
@@ -98,6 +100,9 @@ public class NewCreateReceiptVehicleController {
                     cocoBillEmail = system.Label.COCOEmail;
                     cocoPhone = System.label.COCOPhone;
                     cocoCIN = System.label.COCOCIN;
+                    System.debug('cocoBillEmail ==>'+cocoBillEmail);
+                    System.debug('cocoPhone ==>'+cocoPhone);
+                    System.debug('cocoCIN ==>'+cocoCIN);
                 }
             }
             
@@ -135,8 +140,7 @@ public class NewCreateReceiptVehicleController {
                 System.debug('samestate == >'+sameState);
             }
             
-            
-            orderItemList = [SELECT Id, HSN_Code__c, Quantity, UnitPrice,Type__c, TotalPrice, Description, Order.Invoice_No__c,Charger_Included__c, Product2.CGST_Percentage__c, Product2.IGST_Percentage__c, Product2.SGST_Percentage__c,  Product2.Merchandise_discount_price__c, Taxable_Amount__c,Product_IGST__c,Product_IGST_Amount__c,Product_CGST__c,Product_CGST_Amount__c,Product_SGST__c,Product_SGST_Amount__c,Product_Total_Amount__c, Merchandise_Disccount_Amount__c FROM OrderItem  WHERE  OrderId = :orderId AND Type__c = 'Vehicle']; 
+            orderItemList = [SELECT Id, HSN_Code__c, Quantity, UnitPrice,Type__c, TotalPrice, Description, Order.Invoice_No__c,Charger_Included__c, Product2.CGST_Percentage__c, Product2.IGST_Percentage__c, Product2.SGST_Percentage__c,  Product2.Merchandise_discount_price__c, Taxable_Amount__c,Product_IGST__c,Product_IGST_Amount__c,Product_CGST__c,Product_CGST_Amount__c,Product_SGST__c,Product_SGST_Amount__c,Product_Total_Amount__c, Merchandise_Disccount_Amount__c, Discounted_Amount_on_Merchandise__c FROM OrderItem  WHERE  OrderId = :orderId AND Type__c = 'Vehicle']; 
             
            for (OrderItem oi : orderItemList) {
                 Decimal unitPrice = oi.UnitPrice != null ? oi.UnitPrice : 0;
@@ -144,13 +148,34 @@ public class NewCreateReceiptVehicleController {
                 Decimal cgstPercentage = oi.Product2.CGST_Percentage__c != null ? oi.Product2.CGST_Percentage__c : 0;
                 Decimal sgstPercentage = oi.Product2.SGST_Percentage__c != null ? oi.Product2.SGST_Percentage__c : 0;
                 Decimal igstPercentage = oi.Product2.IGST_Percentage__c != null ? oi.Product2.IGST_Percentage__c : 0;
-                Decimal merchandiseDiscountAmount = oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0;
-                Decimal taxableAmount = (unitPrice * quantity) - merchandiseDiscountAmount;
+                merchandiseDiscountAmount = (oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0) + (oi.Discounted_Amount_on_Merchandise__c != null ? oi.Discounted_Amount_on_Merchandise__c : 0);
+               
+               System.debug('merchandiseDiscountAmount1==>'+merchandiseDiscountAmount);
+               System.debug('Offer Amount==>'+order.Offers_Amount__c);
+               System.debug('Ex showroom discount==>'+order.Discount_on_Ex_Showroom_Price__c);
+               
+               //new Coupon
+              /*  Decimal couponRedeemed = order.Coupon_Redeemed_Value__c != null ? order.Coupon_Redeemed_Value__c : 0;
+                String couponCode = order.Coupon_Code__c != null ? order.Coupon_Code__c : ''; */
+               
+               if (oi.Type__c == 'Vehicle') {
+                   
+                    //merchandiseDiscountAmount += oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0;
+                    merchandiseDiscountAmount += order.Offers_Amount__c != null ? order.Offers_Amount__c : 0;
+                    merchandiseDiscountAmount += order.Discount_on_Ex_Showroom_Price__c != null ? order.Discount_on_Ex_Showroom_Price__c : 0;
+                /*   if (couponCode.startsWith('CCGWVH') || couponCode.startsWith('CCGWGR')) {
+                                    Coupon_Code = couponCode;
+                					merchandiseDiscountAmount += couponRedeemed;
+            		} */
+                   System.debug('merchandiseDiscountAmount ==>'+merchandiseDiscountAmount);
+
+               }
+               // Decimal taxableAmount = (unitPrice * quantity) - merchandiseDiscountAmount;
                 
-               totalValueAfterAllTaxes += Math.round(oi.Product_Total_Amount__c);
+               totalValueAfterAllTaxes += oi.Product_Total_Amount__c;
+               System.Debug('totalValueAfterAllTaxes ==>'+totalValueAfterAllTaxes);
             }
             
-            //InvoiceId generation
             //InvoiceId generation
             List<Order_Invoice__c> orderInvoices = [
                 SELECT Id, Name, Invoice_Number__c,Invoice_Type__c, Invoice_Date__c 
@@ -162,97 +187,23 @@ public class NewCreateReceiptVehicleController {
             string invoicesequence = System.currentPageReference().getParameters().get('sequence');
             system.debug('invoicesequence == >'+invoicesequence);
             
+            If(invoicesequence != null && invoicesequence != ''){
+                invoiceId = invoicesequence;
+            }else{
+                invoiceId = 'RV_INVOICE_VH';
+            }
+            
             if(!orderInvoices.isEmpty()){
                  InvoiceDate = orderInvoices[0].Invoice_Date__c;
-                invoiceId = orderInvoices[0].Invoice_Number__c;
-            } else {
-                invoiceId = 'RV_INVOICE_VH';
-                InvoiceDate = System.today();
             }
             
             System.debug('invoiceId>>'+invoiceId);
             decimal trpCharges = order.Transportation_Charges__c == Null? 0: order.Transportation_Charges__c;
             System.debug('trpCharges>>'+trpCharges);
-            
-        /*    discountInvoice = orderItemList?.size() > 0  ? orderItemList[0].Product2?.Merchandise_discount_price__c ?? 0  : 0;
-            System.debug('discountInvoice:::' + discountInvoice);
-            
-            tValueAftGST = orderItemList != null && orderItemList.size() > 0 ? orderItemList[0].UnitPrice + trpCharges- discountInvoice : 0;
-            DiscountOnEx = order.Discount_on_Ex_Showroom_Price__c != null ? order.Discount_on_Ex_Showroom_Price__c : 0;
-            Fame = order.Subsidy_Amount__c != null ? order.Subsidy_Amount__c : 0;
-            sSubsidy = order.State_Govt_Subsidy__c != null ? order.State_Govt_Subsidy__c : 0;
-            offerAmount = order.Offers_Amount__c != null ? order.Offers_Amount__c : 0;
-            NetAmount = tValueAftGST.round() - DiscountOnEx - Fame - sSubsidy - offerAmount;
-            NetAmount = NetAmount.round();
-            
-            cgstPercentage = orderItemList.size() > 0 && orderItemList[0].Product2Id != null && orderItemList[0].Product2.CGST_Percentage__c != null? (orderItemList[0].Product2.CGST_Percentage__c): 2.5;
-            sgstPercentage = orderItemList.size() > 0 && orderItemList[0].Product2Id != null && orderItemList[0].Product2.SGST_Percentage__c != null? (orderItemList[0].Product2.SGST_Percentage__c): 2.5;
-            igstPercentage = orderItemList.size() > 0 && orderItemList[0].Product2Id != null && orderItemList[0].Product2.IGST_Percentage__c != null? (orderItemList[0].Product2.IGST_Percentage__c): 5;
-            
-            trcgstPercentage = 2.5;
-            trsgstPercentage = 2.5;
-            trigstPercentage = 5;
-            List<Tax_Detail__mdt> taxMetadata = [SELECT Id, DeveloperName, CGST__c, SGST__c, IGST__c FROM Tax_Detail__mdt WHERE DeveloperName = 'Transportation_Charges_Tax'];
-            
-            If(taxMetadata.size() > 0){
-                trcgstPercentage = taxMetadata.size()>0 && taxMetadata[0].CGST__c != null? taxMetadata[0].CGST__c : 2.5;
-                trsgstPercentage = taxMetadata.size()>0 && taxMetadata[0].SGST__c != null? taxMetadata[0].SGST__c : 2.5;
-                trigstPercentage = taxMetadata.size()>0 && taxMetadata[0].IGST__c != null? taxMetadata[0].IGST__c : 5;
-            }
-            
-            // Total amount calculation
-            if (!order.Internal_Purchase__c) {
-                if (!sameState) {
-                    calcValue1 = orderItemList != null && orderItemList.size() > 0 ? ((orderItemList[0].TotalPrice)*(igstPercentage/100)) : 0;
-                    calcValue2 = 0;
-                    calcValue3 = 0;
-                    
-                    trcalcValue1 = order.Transportation_Charges__c != null ? (order.Transportation_Charges__c - (order.Transportation_Charges__c/(trigstPercentage/100+1))) : 0;
-                    System.debug('trcalcValue1>>'+trcalcValue1);
-                    trcalcValue2 = 0;
-                    trcalcValue3 = 0;
-                    
-                } else {                    
-                    Decimal unitprice = orderItemList != null && orderItemList.size() > 0 ? (orderItemList[0].TotalPrice): 0;
-                    system.debug('unitprice(base price)>>'+unitprice);
-                    
-                    calcValue1 = 0;
-                    calcValue2 = unitprice * (cgstPercentage/100);
-                    
-                    system.debug('calcValue2(>>'+calcValue2);                                                                
-                    calcValue3 = unitprice * (sgstPercentage/100);
-                    system.debug('calcValue3(>>'+calcValue3); 
-                    
-                    system.debug('order.Transportation_Charges__c(>>'+order.Transportation_Charges__c); 
-                    Decimal transunitprice = order.Transportation_Charges__c != null ? (order.Transportation_Charges__c/ (((trcgstPercentage+trsgstPercentage)/100)+1)).setScale(2) : 0;
-                    
-                    system.debug('transunitprice(>>'+transunitprice);  
-                    
-                    trcalcValue1 = 0;
-                    trcalcValue2 = transunitprice * (trcgstPercentage/100);
-                    trcalcValue3 = transunitprice * (trsgstPercentage/100);
-                }
-                trcalcValue = order.Transportation_Charges__c != null ? (order.Transportation_Charges__c - (trcalcValue1+trcalcValue2+trcalcValue3)): 0;
-            } else {
-                trcalcValue =  order.Transportation_Charges__c != null ? order.Transportation_Charges__c : 0;
-                calcValue1 = 0;
-                calcValue2 = 0;
-                calcValue3 = 0;
-                
-                trcalcValue1 = 0;
-                trcalcValue2 = 0;
-                trcalcValue3 = 0;
-            }
-            if (!order.Internal_Purchase__c) {
-                calcValue = orderItemList != null && orderItemList.size() > 0 ? orderItemList[0].UnitPrice : 0.0;
-                tValueAftGST = calcValue + (calcValue1 + calcValue2 + calcValue3) - discountInvoice;
-                NetAmount = (tValueAftGST.round()  - DiscountOnEx - Fame - sSubsidy - offerAmount).round();
-            }else{
-                calcValue = orderItemList != null && orderItemList.size() > 0 ? orderItemList[0].UnitPrice : 0.0;
-                tValueAftGST = calcValue.round() - discountInvoice ;
-                NetAmount = (tValueAftGST- DiscountOnEx - Fame - sSubsidy - offerAmount).round();
-            } */
-             NetAmount = totalValueAfterAllTaxes - Order.Vehicle_Total_Discount__c; 
+            netAmount = totalValueAfterAllTaxes - (order.Subsidy_Amount__c != null ? order.Subsidy_Amount__c : 0) - (order.State_Govt_Subsidy__c != null ? order.State_Govt_Subsidy__c : 0);
+            System.debug('totalValueAfterAllTaxes ==> '+ totalValueAfterAllTaxes);
+			System.debug('Discount_on_Ex_Showroom_Price__c ==> '+ Order.Subsidy_Amount__c);
+            System.debug('Offers_Amount__c ==> '+ Order.State_Govt_Subsidy__c);
 
             if(NetAmount < 0){
                 NetAmount = 0;

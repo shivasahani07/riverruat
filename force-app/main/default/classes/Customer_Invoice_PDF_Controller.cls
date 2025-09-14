@@ -57,6 +57,8 @@ public class Customer_Invoice_PDF_Controller {
     public Terms_and_Condition__mdt cocoTC { get; set; }
     public String formatedIRNNumber { get; set; }
     public String storeNameForBottom { get; set; }
+    public String JuriName { get; set; }
+    
 
     // New property to hold individual line item totals
     public Map<Id, Decimal> lineItemTotalsMap { get; set; }
@@ -107,7 +109,8 @@ public class Customer_Invoice_PDF_Controller {
                    Vehicle_Registration_Number__c, Vehicle__r.VehicleIdentificationNumber, Vehicle__r.Name, Vehicle__r.VehicleRegistrationNumber, Vehicle__r.LastOdometerReading, toLabel(RR_Job_Type__c),
                    Vehicle__r.Dealer__r.Name, Vehicle__r.Dealer__r.ShippingStreet, Vehicle__r.Dealer__r.GSTIN_Number__c, Vehicle__r.Insurance__r.Address__c, Vehicle__r.Insurance__r.GSTIN_Number__c,
                    Vehicle__r.CurrentOwner.Name, Vehicle__r.CurrentOwner.GSTIN_Number__c, Vehicle__r.CurrentOwner.ShippingStreet, Service_Center__r.BillingCity, Service_Center__r.BillingCountry,
-                   Service_Center__r.BillingState, Service_Center__r.BillingStreet, Service_Center__r.CIN__c, Service_Center__r.BillingPostalCode,
+                   Service_Center__r.BillingState, Service_Center__r.BillingStreet, Service_Center__r.CIN__c, Service_Center__r.BillingPostalCode, Service_Center__r.GST_City__c, Service_Center__r.GST_State__c, Service_Center__r.GST_Zip_Postal_Code__c,
+            	   Service_Center__r.GST_Street__c,
                    Account.BillingStreet, Account.BillingCity, Account.BillingState, Account.BillingPostalCode, Account.Email__c, Account.Phone, Account.Secondary_Phone_Number__c, Account.GSTIN_Number__c,
                    Service_Center__r.Store_Type__c, Service_Center__r.Email__c, Service_Center__r.Phone, Vehicle__r.CurrentOwner.ShippingCity, Vehicle__r.CurrentOwner.ShippingState,
                    Vehicle__r.CurrentOwner.ShippingCountry, Vehicle__r.CurrentOwner.ShippingPostalCode, Service_Center__r.Secondary_Phone_Number__c, RR_Service_Advisor__r.Name,
@@ -125,7 +128,7 @@ public class Customer_Invoice_PDF_Controller {
                        StartDate, EndDate, Status, PricebookEntryId, Quantity, UnitPrice, Discount, ListPrice, Subtotal, TotalPrice, Duration,
                        DurationType, DurationInMinutes, WorkTypeId, Street, City, State, PostalCode, Country, Latitude, Longitude, GeocodeAccuracy,
                        Address, ServiceTerritoryId, Subject, StatusCategory, IsClosed, Priority, ServiceAppointmentCount, LocationId, Total_Amount__c,
-                       Inventory_Lot__c, Product_Available__c, Stage__c, RR_Parts_Category__c, RR_Product__c, RR_Product__r.Name, RR_Product__r.HSN_Code__c, IGST_Percentage_formula__c, CGST_Percentage_Formula__c, SGST_Percentage_Formula__c,
+                       Inventory_Lot__c, Product_Available__c, Stage__c, RR_Parts_Category__c, RR_Product__c, RR_Product__r.Name,RR_Product__r.ProductCode , RR_Product__r.HSN_Code__c, IGST_Percentage_formula__c, CGST_Percentage_Formula__c, SGST_Percentage_Formula__c,
                        RR_Product__r.IGST_Percentage__c, RR_Product__r.CGST_Percentage__c, RR_Product__r.SGST_Percentage__c, IGST_Amount__c, CGST_Amount__c, SGST_Amount__c, Amount__c, Unit_of_Measurement__c,
                 Total_Part_Price__c
                 FROM WorkOrderLineItem WHERE WorkOrderId = :workOrderRecord.Id AND RR_Parts_Category__c IN ('Paid')
@@ -151,7 +154,13 @@ public class Customer_Invoice_PDF_Controller {
                     dodoAccName = workOrderRecord.Service_Center__r.Company_GSTIN_name__c;
                     dodoBillCityName = workOrderRecord.Service_Center__r.BillingCity != null ? workOrderRecord.Service_Center__r.BillingCity : '';
                     dodoBillStateName = workOrderRecord.Service_Center__r.BillingState;
-                    dodoBillPostalCode = workOrderRecord.Service_Center__r.BillingPostalCode;
+                    dodoBillPostalCode = workOrderRecord.Service_Center__r.BillingPostalCode; 
+                    
+                    
+                  /*  dodoBillCityName = workOrderRecord.Service_Center__r.GST_City__c != null ? workOrderRecord.Service_Center__r.GST_City__c : '';
+                    dodoBillStateName = workOrderRecord.Service_Center__r.GST_State__c != null ? workOrderRecord.Service_Center__r.GST_State__c : '';
+                    dodoBillPostalCode = workOrderRecord.Service_Center__r.GST_Zip_Postal_Code__c != null ? workOrderRecord.Service_Center__r.GST_Zip_Postal_Code__c : ''; */
+                    
                     dodoBillEmail = workOrderRecord.Service_Center__r.Email__c;
                     dodoPhone = workOrderRecord.Service_Center__r.Phone;
                     system.debug('## DODO store details: ' + dodoAccName + ', ' + dodoBillCityName);
@@ -172,8 +181,10 @@ public class Customer_Invoice_PDF_Controller {
 
             if (workOrderRecord.Service_Center__r.Store_Type__c == 'COCO') {
                 storeNameForBottom = 'River Mobility Private Limited';
+                JuriName = 'Bengaluru';
             } else if (workOrderRecord.Service_Center__r.Store_Type__c == 'DODO') {
                 storeNameForBottom = workOrderRecord.Service_Center__r.Company_GSTIN_name__c;
+                
             }
             system.debug('## StoreNameForBottom: ' + storeNameForBottom);
 
@@ -242,13 +253,21 @@ public class Customer_Invoice_PDF_Controller {
     }
 
     public String getFormattedBillingStreet() {
-        String formatted = workOrderRecord.Account.BillingStreet != null ? workOrderRecord.Account.BillingStreet.replace('\n', '<br/>') : '';
+        
+        String formatted = workOrderRecord.Service_Center__r.BillingStreet != null ? workOrderRecord.Service_Center__r.BillingStreet.replace('\n', '<br/>') : '';
+        system.debug('## FormattedBillingStreet: ' + formatted);
+        return formatted;
+    }
+    
+    public String getFormattedGSTBillingStreet() {
+               
+        String formatted = workOrderRecord.Service_Center__r.GST_Street__c != null ? workOrderRecord.Service_Center__r.GST_Street__c.replace('\n', '<br/>') : '';
         system.debug('## FormattedBillingStreet: ' + formatted);
         return formatted;
     }
 
     public String getFormattedAccountBillingStreet() {
-        String formatted = workOrderRecord.Service_Center__r.BillingStreet != null ? workOrderRecord.Service_Center__r.BillingStreet.replace('\n', '<br/>') : '';
+        String formatted = workOrderRecord.Account.BillingStreet != null ? workOrderRecord.Account.BillingStreet.replace('\n', '<br/>') : '';
         system.debug('## FormattedAccountBillingStreet: ' + formatted);
         return formatted;
     }

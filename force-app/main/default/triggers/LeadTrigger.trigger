@@ -11,7 +11,7 @@ trigger LeadTrigger on Lead (before Insert, after insert,after update,before upd
         String ApexClass = System.label.ApexClass;
         if(ApexClass == 'true'){
             LeadTriggerHandler.checkLeadStatus(trigger.new); 
-            GenericRecordSharer.shareRecordsWithHierarchy(Trigger.NewMap, 'Lead', 'Read', 'Manual');
+            GenericRecordSharer.shareRecordsWithHierarchy(Trigger.NewMap, 'Lead', 'Edit', 'Manual');
             // LeadTriggerHandler.handleLeadConversionAndTestDriveCreation(trigger.new); 
         }
     }

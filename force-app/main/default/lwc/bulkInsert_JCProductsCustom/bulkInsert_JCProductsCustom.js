@@ -8,6 +8,9 @@ import getPricebookEntry from '@salesforce/apex/WorkOrderLineItemController.getP
 import createWorkOrderLineItems from '@salesforce/apex/WorkOrderLineItemController.createWorkOrderLineItems';
 import getRelatedWorkOrderLineItems from '@salesforce/apex/WorkOrderLineItemController.getRelatedWorkOrderLineItems';
 import getWarrantyForJobCard from '@salesforce/apex/WorkOrderLineItemController.getWarrantyForJobCard';
+import VeripartWithActionWithPlanApex from '@salesforce/apex/TFRController.VeripartWithActionWithPlanApex';
+import getFailureCode from '@salesforce/apex/AddFailureCodeController.getFailureCode';
+
 import checkTFRValidation from '@salesforce/apex/TFRController.checkTFRValidation';
 import LightningAlert from 'lightning/alert';
 
@@ -34,9 +37,32 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
     @track isLoading = false;
     @track currentVinNo;
     @track expandedRows = [];
+    activeProductFilter = [
+        {
+            fieldName: 'IsActive',
+            operator: 'eq',
+            value: true
+        }
+    ];
+
+    @track ActionPlanProducts = [];
+    @track ActionPlanlabours = [];
 
     keyIndex = 0;
     refreshResultData;
+
+    get options() {
+        this.options = this.data.map(item => {
+            return {
+                label: item.Name,
+                value: item.Id
+            };
+        });
+    }
+
+    handleChange(event) {
+        this.selectedValue = event.detail.value;
+    }
 
     // Picklist options
     filteredReplacementTypeOptions = [
@@ -50,7 +76,7 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
 
     replacementTypeOptions = [
         { label: 'Causal', value: 'Causal' },
-        { label: 'Non-Causal', value: 'Non-Causal' }
+        // { label: 'Non-Causal', value: 'Non-Causal' }
     ];
 
     treeColumns = [
@@ -73,6 +99,7 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
     connectedCallback() {
         this.fetchWarranty();
         this.addParentRow();
+        this.VeripartWithActionWithPlan(this.recordId);
     }
 
     @wire(getRecord, { recordId: "$recordId", fields: [STATUS_FIELD, VIN_FIELD] })
@@ -206,6 +233,8 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
             Post_Vin_cutt_off__c: false,
             isDisbaledProduct: isChild ? false : true,
             isDisbaledProductQuantity: true,
+            failureCodeOptions: [],
+
         };
     }
 
@@ -296,6 +325,10 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
         const productId = event.detail.recordId;
         const indexed = this.itemList[index];
 
+        // if (this.checkActionPlansWithProducts(productId)) {
+        //     this.showError(index, `same part found in Action Plans Please check and update`);
+        //     return;
+        // }
 
         if (this.itemList[index].RR_Parts_Category__c == '' || this.itemList[index].RR_Parts_Category__c == null) {
             setTimeout(() => {
@@ -363,6 +396,7 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
                 price: returnPriceBook.UnitPrice,
                 productCode: returnPriceBook.Product2?.ProductCode,
                 TFR_Required__c: !!EffectedParts,
+                TFR_Required_object: EffectedParts,
                 // isFailureCodeVisible: !!EffectedParts
             };
 
@@ -463,15 +497,41 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
             this.itemList[index].isDisableaddChildProduct = (!this.itemList[index].isElectricalValueRequired || this.itemList[index].RR_Parts_Category__c != 'River Warranty')
             this.itemList[index].isFailureCodeVisible = (this.itemList[index].TFR_Required__c && value == 'Causal');
             if (this.itemList[index].isFailureCodeVisible) {
+                let prodcutId = this.itemList[index].prodcutId;
+                let productcode = this.itemList[index].productCode;
+                let vinCuttoff = this.itemList[index].TFR_Required_object.Id
                 // this.itemList[index].Replacement_Type__c = 'Causal';
+                this.getFailureCodes(vinCuttoff, index);
             }
         }
     }
 
+    async getFailureCodes(tfrPEId, index) {
+        try {
+            const data = await getFailureCode({ tfrPEId });
+
+            this.itemList[index].failureCodeOptions = data.map(item => ({
+                label: item.Name,
+                value: item.Id
+            }));
+
+            console.log(
+                'Failure Code Options: ',
+                JSON.stringify(this.itemList[index].failureCodeOptions)
+            );
+        } catch (error) {
+            console.error('Error fetching failure codes: ', error);
+        }
+    }
+
+
+
     async handleFailureCodeChange(event) {
         debugger;
         const index = event.target.dataset.id;
-        this.itemList[index].Failure_Code__c = event.detail.recordId;
+        let value = event.target.value;
+        const fieldName = event.target.dataset.fieldname;
+        this.itemList[index].Failure_Code__c = value;
 
         await this.checkTFRApplicable(
             this.currentVinNo,
@@ -510,7 +570,7 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
         }
 
         let tempMergedList = []
-         const rules = [
+        const rules = [
             { fields: ["productId", "RR_Parts_Category__c"] }           // rule 2: same name + phone
         ];
         tempMergedList = [...this.existingWorkOrderLineItems, ...this.itemList];
@@ -530,7 +590,7 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
             this.showToast('Success', 'Products added successfully', 'success');
             await refreshApex(this.refreshResultData);
             this.resetForm();
-             this.isLoading = false;
+            this.isLoading = false;
         }
         catch (error) {
             this.handleError('Failed to add products', error);
@@ -593,7 +653,7 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
                 Replacement_Type__c: item.isChild ? 'Consequential' : item.Replacement_Type__c,
                 Failure_Code__c: item.Failure_Code__c,
                 TFR_Required__c: item.TFR_Required__c,
-                RR_Product__c:item.productId,
+                RR_Product__c: item.productId,
                 Warranty_Prior__c: isAddWP ? this.warrantyId : null,
                 Post_Vin_cutt_off__c: item.Post_Vin_cutt_off__c,
                 ...(!item.isChild && {
@@ -710,4 +770,24 @@ export default class BulkInsertJCProductsCustom extends NavigationMixin(Lightnin
     }
 
     // console.log(applyDuplicateRules(records, rules));
+
+
+    VeripartWithActionWithPlan(workOrderId) {
+        debugger;
+        VeripartWithActionWithPlanApex({ workOrderId: workOrderId })
+            .then(data => {
+                console.log(`actionplans data ${JSON.stringify(data)}`)
+                this.ActionPlanProducts = data.RequiredProducts;
+                this.ActionPlanlabours = data.RequiredLabours;
+            })
+            .catch(error => {
+                console.error('Error in VeripartWithActionWithPlan:', error);
+            });
+    }
+
+    checkActionPlansWithProducts(productId) {
+        debugger;
+        const isProductfoundInAP = this.ActionPlanProducts.map(item => item.Product__c == productId);
+        return isProductfoundInAP;
+    }
 }

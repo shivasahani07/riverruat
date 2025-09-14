@@ -9,6 +9,12 @@ public class JobCardValidationHandler {
 
     public static void validateJobCardStatus(List<WorkOrder> newList, Map<Id, WorkOrder> oldMap) {
         try {
+           
+            String currentProfileName = [SELECT Profile.Name FROM User WHERE Id = :UserInfo.getUserId()].Profile.Name;
+            if (currentProfileName == 'System Administrator') {
+                return;
+            }
+            
             for (WorkOrder newJob : newList) {
                 WorkOrder oldJob = oldMap.get(newJob.Id);
 
@@ -16,6 +22,7 @@ public class JobCardValidationHandler {
                     System.debug('Skipping record due to null oldJob for ID: ' + newJob.Id);
                     continue;
                 }
+                
 
                 System.debug('Checking Job Card: ' + newJob.Id);
                 System.debug('Old Status: ' + oldJob.Status);

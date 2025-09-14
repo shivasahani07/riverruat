@@ -8,27 +8,7 @@
 
 public class ClearTaxTagIrnNumber {
     
-    // Method to Tag IRN Number to Order Record ##3
-    @future
-    public static void TagIRNnumberToOrder(String orderId,String IrnNumber){
-        try{
-            Order ordRec = new Order();
-            ordRec.Id = orderId;
-            if(IrnNumber != null){
-                ordRec.IRN_No__c = IrnNumber;
-                ordRec.IRN_Generated_DateTime__c = system.Now();
-                update ordRec;
-                System.debug('Update Order Record with IRN  === >'+ordRec);
-            }else{
-                System.debug('No IRN Number Found !===>'+orderId);
-            }
-        }catch(Exception e){
-            ExceptionHelper.createExceptionLog(e);
-            System.debug('Error Message ==>'+e.getMessage()+' && Error Line == >'+e.getLineNumber());
-        }
-    }
-    
-    // Method to Remove IRN Number to Order Record #6
+
     @future
     public static void RemoveIRNnumberToOrder(String orderId){
         try{
@@ -48,49 +28,47 @@ public class ClearTaxTagIrnNumber {
         }
     }
     
-    // Method to Generate QR Code - Response which will come from Goverment ##4
     @future(callout=true)
-    public static void generateAndStoreQRCode(String data,String recordId) {
+    public static void generateAndStoreQRCode(String data, String recordId, String productType) {
         Integer xsize = 170;
         Integer ysize = 170;
         String qrApiUrl = System.Label.QRCodeBaseURL + EncodingUtil.urlEncode(data, 'UTF-8') + '&size=' + ysize + 'x' + xsize + '&format=png';
         try {
-            Order ord = [SELECT Id,OrderNumber,Is_QR_Generated__c FROM Order WHERE Id=:recordId LIMIT 1];
-            System.debug('ord ##  == >'+ord);
+            Order ord = [SELECT Id, OrderNumber, Is_QR_Generated__c FROM Order WHERE Id=:recordId LIMIT 1];
             Http http = new Http();
             HttpRequest request = new HttpRequest();
             request.setEndpoint(qrApiUrl);
             request.setMethod('GET');
             HttpResponse response = http.send(request);
-            System.debug('Response #3 == > ' + response);
+            
             if (response.getStatusCode() == 200) {
                 Blob qrCodeBlob = response.getBodyAsBlob();
-                System.debug('qrCodeBlob  == >'+qrCodeBlob);
                 Attachment attachment = new Attachment();
                 attachment.ParentId = recordId; 
-                attachment.Name = String.valueOf(ord.OrderNumber)+'_QRCode '+System.now().format('h:mm a')+'.png';
+                attachment.Name = productType + '_QRCode_' + ord.OrderNumber + '_' + System.now().format('h:mm a') + '.png';
                 attachment.Body = qrCodeBlob;
-                attachment.ContentType = 'png'; 
+                attachment.ContentType = 'image/png'; 
                 insert attachment; 
-                System.debug('attachment QR Code  == >'+attachment);
             }
         } catch (Exception e) {
             ExceptionHelper.createExceptionLog(e);
-            System.debug('Error Message ==>'+e.getMessage()+' && Error Line == >'+e.getLineNumber());
         }
     }
     
+    
     // Delete Generated QR for that Order record after E-invoice generation ##6
-    public static void deleteOrderQRcode(Order Orderec){
+   @AuraEnabled
+    public static void deleteOrderQRcode(Id orderId){
         try{
-            List<Attachment> attList = [SELECT Id FROM Attachment WHERE  Name LIKE :('' + Orderec.OrderNumber + '%') LIMIT 1];
-            if(attList.size() > 0){
+            Order Orderec = [SELECT Id FROM Order WHERE Id =:orderId LIMIT 1];
+            List<Attachment> attList = [SELECT Id FROM Attachment WHERE Name LIKE '%QRCode%' AND ParentId = :Orderec.Id];
+            if(!attList.isEmpty()){
                 delete attList;
                 System.debug('Deleted QR Code for Order Record === >'+attList);
             }
         }catch(Exception e){
             ExceptionHelper.createExceptionLog(e);
-            System.debug('Error Message ==>'+e.getMessage()+' && Error Line == >'+e.getLineNumber());
+            System.debug('Error Message ==> ' + e.getMessage() + ' && Error Line == >' + e.getLineNumber());
         }
     }
     
@@ -98,6 +76,8 @@ public class ClearTaxTagIrnNumber {
     public static void updateOrderIRNCancel(Order ordRec){
         try{
             ordRec.IRN_No__c = '';
+            ordRec.Accessories_IRN_No__c = '';
+            ordRec.Merchandise_IRN_No__c = '';
             ordRec.IRN_Generated_DateTime__c = null;
             ordRec.Is_IRN_Cancelled__c = true;
             ordRec.Is_E_invoice_Generated__c = false;

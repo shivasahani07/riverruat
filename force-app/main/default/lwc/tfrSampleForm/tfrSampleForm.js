@@ -5,6 +5,10 @@ const BLOCKED_STATUSES = new Set([
     'Cancelled',
     'Rejected',
     'Sumbit for Approval',
+    'Ready for Delivery',
+    'Completed',
+    'Re-Work',
+    'On Hold'
 ]);
 
 const EDITABLE_STATUSES = new Set(['Pending', 'Approved']);
@@ -32,7 +36,7 @@ export default class TfrSampleForm extends LightningElement {
             this.relatedPart = wireData?.workOrderLineItemRec;
             this.tfrSampleRecord = wireData?.tfrSampleRecord;
             this.recordId = wireData?.tfrSampleRecord?.Id;
-            if (this.relatedPart.WorkOrder.Status == 'Completed') {
+            if (this.relatedPart.WorkOrder.Status == 'Completed' || this.relatedPart.WorkOrder.Status == 'Ready for Delivery' || this.relatedPart.WorkOrder.Status == 'Sumbit for Approval') {
                 this.isTFRRecordDisabled = true;
             } else if (this.relatedPart?.Warranty_Prior__r?.Status__c) {
                 let status = this.relatedPart?.Warranty_Prior__r?.Status__c
@@ -69,6 +73,7 @@ export default class TfrSampleForm extends LightningElement {
             variant: variant
         });
         this.dispatchEvent(event);
+        window.location.reload();
     }
 
     sendEevntToParent(message, isSuccess,recordid,parentId) {

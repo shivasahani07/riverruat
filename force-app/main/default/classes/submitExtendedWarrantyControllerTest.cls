@@ -88,7 +88,7 @@ public class submitExtendedWarrantyControllerTest {
             EW_Submitted__c = false,
             ChassisNumber = '1234',
             EngineNumber = 'E1234',
-            RR_Battery_Number__c = 'B1234',
+            //RR_Battery_Number__c = 'B1234',//DFFC
             Purchased_Date__c = System.Today()
         );
         insert testVehicle;
@@ -105,7 +105,7 @@ public class submitExtendedWarrantyControllerTest {
                 'VehicleSaleDate' => formattedVehicleSaleDate,
                 'ChassisNo' => testVehicle.ChassisNumber,
                 'Model' => testVehicle.Name,
-                'BatteryNo' => testVehicle.RR_Battery_Number__c,
+                //'BatteryNo' => testVehicle.RR_Battery_Number__c,//DFFC
                 'Motor' => testVehicle.EngineNumber,
                 'Charger' => testVehicle.Charger_PC_Number__c,
                 'WarrantyType' => 'Extended Warranty',
@@ -192,7 +192,7 @@ public class submitExtendedWarrantyControllerTest {
             Purchased_Date__c = System.today(),
             ChassisNumber = 'CH1234',
             EngineNumber = 'ENG5678',
-            RR_Battery_Number__c = 'BATT999',
+            //RR_Battery_Number__c = 'BATT999',//DFFC
             Charger_PC_Number__c = 'CHG1011',
             EW_Submitted__c = false
         );

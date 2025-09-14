@@ -275,6 +275,7 @@ public class WarrantyPriorTriggerHandler {
                         c.Vehicle__c = jobCard.Vehicle__c;
                         c.Job_Card__c = jobCard.Id;
                         c.Status = 'Draft';
+                        c.OwnerId=w.OwnerId;
                         claimsToInsert.add(c);
                     }
                 }

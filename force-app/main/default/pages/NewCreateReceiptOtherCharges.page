@@ -153,20 +153,20 @@
                     <td style="border-collapse:collapse;padding-top:10px;padding-right:5px;padding-left:8px;border-right:1px solid;text-align:center;vertical-align:top;"><apex:outputText value="-"/></td>
                     
                     <td style="border-collapse:collapse;padding-top:10px;padding-right:5px;padding-left:8px;border-right:1px solid;vertical-align:top;">
-                        <apex:outputText value="{0, number, #,##,###}">
+                        <apex:outputText value="{0, number, #,##0.00}">
                             <apex:param value="{!IF(order.Internal_Purchase__c, order.Handling_Charges__c, order.Handling_Charges__c - Htax)}"/>
                         </apex:outputText></td>
                     
                     <td style="border-collapse:collapse;padding-top:10px;padding-right:5px;padding-left:8px;border-right:1px solid;vertical-align:top;"><apex:outputText value="{!IF(order.Internal_Purchase__c, '0%', IF(sameState, TEXT(HcgstPercent+HsgstPercent)+'%', TEXT(HigstPercent)+'%'))}"/></td>
                     
                     <td style="border-collapse:collapse;padding-top:10px;padding-right:5px;padding-left:8px;border-right:1px solid;vertical-align:top;">
-                        <apex:outputText value="{0, number, #,##,###}">
+                        <apex:outputText value="{0, number, #,##0.00}">
                             <apex:param value="{!IF(order.Internal_Purchase__c, 0, Htax)}"/>
                         </apex:outputText>
                     </td>
                     
                     <td style="border-collapse:collapse;padding-top:10px;padding-right:5px;padding-left:8px;border-right:1px solid;vertical-align:top;">
-                        <apex:outputText value="{0, number, #,##,###}">
+                        <apex:outputText value="{0, number, #,##0.00}">
                             <apex:param value="{!IF(order.Internal_Purchase__c, order.Handling_Charges__c, order.Handling_Charges__c - Htax)}"/>
                         </apex:outputText>
                     </td>
@@ -175,7 +175,7 @@
             
             
             
-            <apex:panelGroup rendered="{!order.Extended_Warranty__c}">            
+         <!--   <apex:panelGroup rendered="{!order.Extended_Warranty__c}">            
                 <tr style="border-collapse: collapse; border: 1px solid; height:{!height2}">
                     
                     <td style="border-collapse:collapse;padding-top:10px;padding-right:5px;padding-left:8px;border-right:1px solid;border-left:1px solid;text-align:left;vertical-align: top;"><apex:outputText value="Extended Warranty"/></td>
@@ -203,7 +203,7 @@
                         </apex:outputText>
                     </td>
                 </tr>            
-            </apex:panelGroup>        
+            </apex:panelGroup> -->       
             
         </table>
         
@@ -212,7 +212,7 @@
             <tr>            
                 <td width="68%" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">Gross Amount:</td>
                 <td style="border-bottom:1px solid;border-top:1px solid;border-collapse:collapse;;" width="17%"></td><td width="15%" style="border-bottom:1px solid;border-top:1px solid;border-right:1px solid;border-collapse:collapse;">
-                <apex:outputText value="{0, number, #,##,###}">
+                <apex:outputText value="{0, number, #,##0.00}">
                     <apex:param value="{!taxableAmount}"/>
                 </apex:outputText>
                 </td>
@@ -222,7 +222,7 @@
                 <tr >
                     <td width="68%" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px;padding:7px;"><apex:outputText value="{!IF(order.Internal_Purchase__c,'CGST (0%): ', 'CGST: ')}"></apex:outputText></td>
                     <td style="border-bottom:1px solid;border-collapse:collapse;" width="17%"></td><td width="15%" style="border-bottom:1px solid;border-right:1px solid;border-collapse:collapse;">
-                    <apex:outputText value="{0, number, #,##,###}">
+                    <apex:outputText value="{0, number, #,##0.00}">
                         <apex:param value="{!cgst}"/>
                     </apex:outputText>
                     </td>
@@ -230,7 +230,7 @@
                 <tr >
                     <td width="68%" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px;padding:7px;"><apex:outputText value="{!IF(order.Internal_Purchase__c,'SGST (0%): ', 'SGST: ')}"></apex:outputText></td>
                     <td style="border-bottom:1px solid;border-collapse:collapse;" width="17%"></td><td width="15%" style="border-bottom:1px solid;border-right:1px solid;border-collapse:collapse;">
-                    <apex:outputText value="{0, number, #,##,###}">
+                    <apex:outputText value="{0, number, #,##0.00}">
                         <apex:param value="{!sgst}"/>
                     </apex:outputText>
                     </td>
@@ -241,7 +241,7 @@
                 <tr >
                     <td width="68%" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px;padding:7px;"><apex:outputText value="{!IF(order.Internal_Purchase__c,'IGST (0%): ', 'IGST: ')}"></apex:outputText></td>
                     <td style="border-bottom:1px solid;border-collapse:collapse;" width="17%"></td><td width="15%" style="border-bottom:1px solid;border-right:1px solid;border-collapse:collapse;">
-                    <apex:outputText value="{0, number, #,##,###}">
+                    <apex:outputText value="{0, number, #,##0.00}">
                         <apex:param value="{!igst}"/>
                     </apex:outputText>
                     </td>
@@ -252,7 +252,7 @@
             <tr>          
                 <td width="68%" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px;padding:7px;">Net Amount:</td>
                 <td style="border-bottom:1px solid;border-collapse:collapse;" width="17%"></td><td width="15%" style="border-collapse: collapse;border-right:1px solid;border-bottom:1px solid;border-collapse:collapse;font-size:14px;">
-                <apex:outputText value="{0, number, #,##,###}">
+                <apex:outputText value="{0, number, #,##0.00}">
                     <apex:param value="{!TotalAmount}"/>
                 </apex:outputText>
                 </td>

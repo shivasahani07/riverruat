@@ -348,6 +348,7 @@ public static String createOrderRecord(String shipmentType, Integer additonal, S
     //method added by Aniket on 02/05/2025
     @AuraEnabled
     public static void eWAndRSAAfterOTC(List<Order> newOrderList){
+        System.debug('RSA Method Is Called By Aniket');
         Id otcRecordTypeId = Schema.SObjectType.Order.getRecordTypeInfosByName().get('OTC').getRecordTypeId();//added by Aniket on 02/05/2025
         System.debug('eWAndRSAAfterOTC List==>'+newOrderList);
         try{
@@ -380,7 +381,7 @@ public static String createOrderRecord(String shipmentType, Integer additonal, S
             System.debug('Order Product List==>'+ordeProductList);
             if(!ordeProductList.isEmpty()){
                 for(OrderItem oi : ordeProductList){
-                    if(oi.Type__c == 'Road side assistance'){
+                    if(oi.Type__c == 'Accessories' && oi.Product2.Name.contains('Road Side Assistance')){
                         orderIdsToGetOrderList.add(oi.OrderId);
                     }
                     if(oi.Type__c == 'Accessories'){
@@ -419,6 +420,7 @@ public static String createOrderRecord(String shipmentType, Integer additonal, S
                     System.enqueueJob(new QueueableForOTCEWIntegration(orderIdsToProcessWhenAssignedVehicle,mapWhenAssignedVehicle));
                 }
                 if(!finalOrderList.isEmpty()){
+                    System.debug('RSA Method Is Called By Aniket 2');
                     for(Order oo : finalOrderList){
                      string  chassisNO=oo.Assigned_Vehicle__r.VehicleIdentificationNumber;
                     string vehicleRegistrationNo=oo.Assigned_Vehicle__r.VehicleRegistrationNumber;

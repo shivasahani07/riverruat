@@ -1,0 +1,40 @@
+.custom-table {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+thead {
+    background: #f3f6f9;
+    text-align: left;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+    background-color: #f9f9f9;
+}
+
+.status {
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.status.active {
+    background-color: #e6f7ec;
+    color: #1d7a3a;
+}
+
+.status.inactive {
+    background-color: #fdecea;
+    color: #b71c1c;
+}

@@ -5,7 +5,7 @@ global class BatchOnWorkOrderVORCreation implements Database.Batchable<SObject>,
         String VORflag = 'True';
         String TestRecordId = partsSplit[1];
         if(VORflag == 'True'){
-            return Database.getQueryLocator([ SELECT Id,CreatedDate,Is_VOR__c,Service_Center__c,Vehicle__c,Status FROM WorkOrder WHERE id ='0WOBh000003bGorOAE']);
+            return Database.getQueryLocator([ SELECT Id,CreatedDate,Is_VOR__c,Service_Center__c,Vehicle__c,Status FROM WorkOrder WHERE id ='0WOBh000003heAZOAY']);
         }else{
             return Database.getQueryLocator([ SELECT Id,CreatedDate,Is_VOR__c,Service_Center__c,Vehicle__c,Status FROM WorkOrder WHERE Status NOT IN ('Completed','Cancellation Requested','Canceled') AND Is_VOR__c = true  ]);
         }

@@ -203,7 +203,7 @@ public static wrapperForJobCards getVehicleDetails(String recordId) {
             
             
             Id userId = UserInfo.getUserId();
-            user userServiceAccount = [SELECT   id,Contact.AccountId From User where Id =: userId];
+            List<user> userServiceAccount = [SELECT   id,Contact.AccountId From User where Id =: userId AND Contact.Account.Type = 'Service Center' limit 1];
             WorkOrder w = new WorkOrder();
             w.AccountId = (Id) jobCardMap.get('accId');
             w.ContactId = (Id) jobCardMap.get('conId');
@@ -211,7 +211,12 @@ public static wrapperForJobCards getVehicleDetails(String recordId) {
             w.Odometer_Reading__c = (Integer) jobCardMap.get('oRed');
             w.RR_Job_Type__c = (String) jobCardMap.get('jobType');
             w.RecordTypeId = vehiclePDIRecordTypeId;
-            w.Service_Center__c = userServiceAccount.Contact.AccountId;
+           if (!userServiceAccount.isEmpty() && userServiceAccount[0].Contact.AccountId != null) {
+            w.Service_Center__c = userServiceAccount[0].Contact.AccountId;
+            } else {
+            // handle fallback - for example, assign accId or leave it null
+            w.Service_Center__c = null;
+            }           
             workOrdersToInsert.add(w);
             System.debug('workOrdersToInsert ======>'+workOrdersToInsert);
 

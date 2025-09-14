@@ -2,110 +2,138 @@
 global class LeadCreationsAPIBikewale {  
     
     @HttpPost  
-    global static String createLeadFromWebsite() {  
-        
+    global static string createLeadFromWebsite() {  
         RestRequest req = RestContext.request;  
         RestResponse res = RestContext.response;  
         
+        // Parse the request body  
         String requestBody = req.requestBody.toString();  
-        System.debug('Request Body ===> ' + requestBody);
         Map<String, Object> requestBodyMap = (Map<String, Object>) JSON.deserializeUntyped(requestBody);  
         
-        // Extract fields from request
-        String fullName = (String) requestBodyMap.get('LastName');  
+        String fullName = (String) requestBodyMap.get('FullName');  
         String company = (String) requestBodyMap.get('Company');  
+        String email = (String) requestBodyMap.get('Email');  
         String phone = (String) requestBodyMap.get('Phone');  
+        String city = (String) requestBodyMap.get('City');  
+        String buyingSpan = (String) requestBodyMap.get('buyingSpan'); 
         String postalCode = String.valueOf(requestBodyMap.get('PostalCode'));  
+        Boolean homeTestRide = (Boolean) requestBodyMap.get('HomeTestRide');  
+        Boolean instoreTestdrive = (Boolean) requestBodyMap.get('InstoreTestdrive');  
+        
+        // Retrieve date/time values from the request body  
+        String startDateTimeStr = (String) requestBodyMap.get('startDateTimeStr');  
+        String endDateTimeStr = (String) requestBodyMap.get('endDateTimeStr');  
+        
+        // Initialize Datetime variables  
+        Datetime startDateTime;  
+        Datetime endDateTime;  
+        
+        // Convert to Datetime if values are provided  
+        if (startDateTimeStr != null) {  
+            startDateTime = Datetime.valueOf(startDateTimeStr);  
+        } else {  
+            // Handle null case for startDateTime (e.g., set to a default value or log an error)  
+            startDateTime = null; // or some default value  
+        }  
+        
+        if (endDateTimeStr != null) {  
+            endDateTime = Datetime.valueOf(endDateTimeStr);  
+        } else {  
+            // Handle null case for endDateTime (e.g., set to a default value or log an error)  
+            endDateTime = null; // or some default value  
+        }  
+        
         String dealerCode = (String) requestBodyMap.get('DealerCode');  
         
         try {
-            // Check if a Lead with same phone exists
-            List<Lead> leads = [
-                SELECT Id, LastName, Company, Email, Phone, City, Dealer_Code__c  
-                FROM Lead WHERE Phone = :phone LIMIT 1
+            List<Lead> leads = [  
+                SELECT Id, LastName, Company, Email, Phone, City,  
+                Test_ride_Start_date__c, Test_ride_end_date__c,  
+                Dealer_Code__c, Home_Test_Ride__c, Instore_Test_drive__c  
+                FROM Lead WHERE Phone = :phone LIMIT 1  
             ];  
-            Lead leadToUpdate;
-            boolean isNewLead = false;
-            if (!leads.isEmpty()) {
-                leadToUpdate = leads[0];
+            
+            Lead leadToUpdate;  
+            
+            if (!leads.isEmpty()) {  
+                leadToUpdate = leads[0];  
+                // Duplicate found — log and return with 409
                 Integration_Log__c logObj = new Integration_Log__c(
-                    Integration_Type__c = ' Lead Creation',
-                    Duplicate_Lead_Phone__c = leads[0].Phone,
+                    Integration_Type__c = 'Lead Creation - BikeWale',
+					Duplicate_Lead_Phone__c = leads[0].Phone,
                     Request_Payload__c = JSON.serializePretty(requestBodyMap),
                     Response_Payload__c = 'Duplicate Lead Found: ' + leads[0].Id,
                     Lead__c = leads[0].Id
+                    //Status__c = 'Duplicate'
                 );
                 insert logObj;
-            }else{
-                leadToUpdate = new Lead();
-                isNewLead = true;
+                
+                res.statusCode = 409; // Conflict
+                return 'Duplicate Lead Found: ' + leadToUpdate.Id;
+            } else {  
+                leadToUpdate = new Lead();  
                 leadToUpdate.LeadSource = 'BikeWale';  
-            }
-            
-            Map<String, Id> queueMap = new Map<String, Id>();
-            for (Group grp : [SELECT Id, DeveloperName FROM Group WHERE Type = 'Queue']) {
-                queueMap.put(grp.DeveloperName, grp.Id);
-            }
-            System.debug('queueMap populated =========>' + queueMap);
+            }  
             
             leadToUpdate.LastName = fullName;  
             leadToUpdate.Company = fullName;  
+            leadToUpdate.Email = email;  
             leadToUpdate.Phone = phone;  
+            leadToUpdate.City = city;  
+            leadToUpdate.Buying_Span__c = buyingSpan;
             leadToUpdate.PostalCode = postalCode;  
+            leadToUpdate.Test_ride_Start_date__c = startDateTime;  
+            leadToUpdate.Test_ride_end_date__c = endDateTime;  
+            leadToUpdate.Home_Test_Ride__c = homeTestRide != null ? homeTestRide : false;  
+            leadToUpdate.Instore_Test_drive__c = instoreTestdrive != null ? instoreTestdrive : false;  
             
-            // leadToUpdate.OwnerId = queueMap.get('Head_Quarter');  
+            Account dealerCodeAccount;  
+            if (String.isNotBlank(postalCode)) {  
+                String resolvedDealerCode = LeadTriggerHandler.getPreferredStoreByPincode(postalCode);  
+                if (String.isNotBlank(resolvedDealerCode)) {  
+                    List<Account> dealerAccounts = [  
+                        SELECT Id, Name, Center_Code__c  
+                        FROM Account  
+                        WHERE Type = 'Dealer' AND Center_Code__c = :resolvedDealerCode  
+                        LIMIT 1  
+                    ];  
+                    if (!dealerAccounts.isEmpty()) {  
+                        dealerCodeAccount = dealerAccounts[0];  
+                    }  
+                }  
+            }  
             
-            // Account dealerCodeAccount;
-            // if (String.isNotBlank(postalCode)) {
-            //     String resolvedDealerCode = LeadTriggerHandler.getPreferredStoreByPincode(postalCode);
-            //     System.debug('📮 Resolved Dealer Code from Postal Code: ' + resolvedDealerCode);
-            //     if (String.isNotBlank(resolvedDealerCode)) {
-            //         List<Account> dealerAccounts = [
-            //             SELECT Id, Name, Center_Code__c 
-            //             FROM Account 
-            //             WHERE Type = 'Dealer' AND Center_Code__c = :resolvedDealerCode 
-            //             LIMIT 1
-            //         ];
-            //         if (!dealerAccounts.isEmpty()) {
-            //             dealerCodeAccount = dealerAccounts[0];
-            //         }
-            //     }
-            // }
+            leadToUpdate.Stores_Name__c = dealerCodeAccount != null ? dealerCodeAccount.Name : '';  
+            leadToUpdate.Dealer_Code__c = dealerCodeAccount != null ? dealerCodeAccount.Center_Code__c : dealerCode;  
             
-            // leadToUpdate.Stores_Name__c = dealerCodeAccount != null ? dealerCodeAccount.Name : '';
-            // leadToUpdate.Dealer_Code__c = dealerCodeAccount != null ? dealerCodeAccount.Center_Code__c : null;
+            if (leadToUpdate.Id != null) {  
+                update leadToUpdate;  
+            } else {  
+                insert leadToUpdate;  
+            }  
             
-            if (isNewLead) {
-                insert leadToUpdate;
-                Integration_Log__c successLog = new Integration_Log__c(  
-                    Integration_Type__c = 'Lead Creation',  
-                    Request_Payload__c = JSON.serializePretty(requestBodyMap),  
-                    Response_Payload__c = 'Lead processed successfully: ' + leadToUpdate.Id,  
-                    Status__c = 'Success',
-                    Lead__c = leadToUpdate.Id
-                );  
-                insert successLog;  
-            } else {
-                if (leadToUpdate != null && leadToUpdate.Id != null) {
-                    update leadToUpdate;
-                }
-            }
+            Integration_Log__c logObj = new Integration_Log__c(  
+                Integration_Type__c = 'Lead Creation - BikeWale',  
+                Request_Payload__c = JSON.serializePretty(requestBodyMap),  
+                Response_Payload__c = 'Lead processed successfully: ' + leadToUpdate.Id,  
+                Status__c = 'Success'  
+            );  
+            insert logObj;  
             
-            return 'Lead created successfully: ' + leadToUpdate.Id;
+            return 'Lead processed successfully: ' + leadToUpdate.Id;  
             
-        } catch (Exception e) {
-            Integration_Log__c logObj = new Integration_Log__c(
-                Integration_Type__c = ' Lead Creation',
-                Request_Payload__c = JSON.serializePretty(requestBodyMap),
-                Response_Payload__c = 'Error: ' + e.getMessage(),
-                Error_Messages__c = 'Exception: ' + e.getMessage() + ' at line number ====>' + e.getLineNumber(),
-                Status__c = 'Failed'
-            );
-            insert logObj;
+        } catch (Exception e) {  
+            Integration_Log__c logObj = new Integration_Log__c(  
+                Integration_Type__c = 'Lead Creation - BikeWale',  
+                Request_Payload__c = JSON.serializePretty(requestBodyMap),  
+                Response_Payload__c = 'Error: ' + e.getMessage(),  
+                Error_Message__c = e.getMessage(),  
+                Status__c = 'Failed'  
+            );  
+            insert logObj;  
             
-            res.statusCode = 500;
-            System.debug('Error =====>' +  + e.getMessage() + ' at line number ====>' + e.getLineNumber());
-            return 'Error: ' + e.getMessage();
-        }
+            return 'Error: ' + e.getMessage();  
+        } 
     }  
+
 }

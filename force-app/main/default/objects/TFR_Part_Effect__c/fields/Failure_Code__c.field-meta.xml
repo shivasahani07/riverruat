@@ -4,7 +4,6 @@
     <deleteConstraint>SetNull</deleteConstraint>
     <label>Failure Code</label>
     <referenceTo>Failure_Code__c</referenceTo>
-    <relationshipLabel>TFR Part Effects</relationshipLabel>
     <relationshipName>TFR_Part_Effects</relationshipName>
     <required>false</required>
     <trackTrending>false</trackTrending>

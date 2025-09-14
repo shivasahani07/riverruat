@@ -81,9 +81,9 @@ private class actionPlanHandlerTest {
         // Create test Product for parts
         Product2 testPartProduct = new Product2(
             Name = 'Test Part Product',
-            ProductCode = 'PART123',
+            ProductCode = 'R112061460',
             IsActive = true,
-            HSN_Code__c='R112081466',
+            HSN_Code__c='65061090',
             Type__c='Parts'
         );
         insert testPartProduct;

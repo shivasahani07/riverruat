@@ -141,7 +141,7 @@ public class CaseTriggerHandler {
         if (caseType == 'Urgent Complaint' && status == 'Open') return 'Urgent Complaint When Case Open';
         if (caseType == 'Service Request' && status == 'Open') return 'Service Request When Case Open';
         if (caseType == 'PSFU Concerns' && status == 'Open') return 'PSFU Concerns When Case Open';
-     if  (caseType == 'Service Request' && status == 'Closed') return 'Service Request When Case Closed';
+        if  (caseType == 'Service Request' && status == 'Closed') return 'Service Request When Case Closed';
         if (caseType == 'General Query' && status == 'Closed') return 'General Query When Case is Closed';
         if (caseType == 'Complaint' && status == 'Closed') return 'Complaint when Case Is Closed';
         if (caseType == 'Urgent Complaint' && status == 'Closed') return 'Urgent Complaint When Case Is Closed';

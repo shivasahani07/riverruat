@@ -110,6 +110,7 @@
                                         variant="label-stacked" 
                                         data-id={index} 
                                         onchange={handleProductChange} 
+                                        filters={activeProductFilter}
                                         required>
                                     </lightning-record-picker>
                                 </div>
@@ -172,7 +173,7 @@
                                         <!-- Failure Code -->
                                         <template if:true={item.isFailureCodeVisible}>
                                             <div class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12 slds-large-size_3-of-12">
-                                                <lightning-record-picker 
+                                                <!-- <lightning-record-picker 
                                                     label="Failure Code "
                                                     placeholder="Search Failure Code.."
                                                     object-api-name="Failure_Code__c" 
@@ -181,7 +182,16 @@
                                                     variant="label-stacked" 
                                                     data-id={index}
                                                     onchange={handleFailureCodeChange}>
-                                                </lightning-record-picker>
+                                                </lightning-record-picker> -->
+                                                <lightning-combobox
+                                                    name="progress"
+                                                    label="Failure Code "
+                                                    value={item.Failure_Code__c}
+                                                    placeholder="Select Failure"
+                                                    data-id={index}
+                                                    options={item.failureCodeOptions}
+                                                    onchange={handleFailureCodeChange}>
+                                            </lightning-combobox>
                                             </div>
                                         </template>
 

@@ -94,6 +94,15 @@ public class JobCardComponentHelper {
                 Contact conObj= new contact();
                 contactDetails condetails = new contactDetails();
                 
+               List<Vehicle> vehcileRec =  [ Select id,VehicleIdentificationNumber, (Select id,stage,Name,MilestoneDate  from AssetMilestones where stage = 'Tentative' limit 1 ) from Vehicle where VehicleIdentificationNumber =:vehicleDetails.VehicleIdentificationNumber];
+
+                Date milestoneDate;
+
+                if (!vehcileRec.isEmpty() && !vehcileRec[0].AssetMilestones.isEmpty()) {
+                milestoneDate = vehcileRec[0].AssetMilestones[0].MilestoneDate;
+                condetails.furtureMilestoneDate = milestoneDate;
+
+               }
                 condetails.isPrimary = false;
                 condetails.isSecondaryPresent = false;
                 
@@ -344,6 +353,9 @@ update vh;*/
         public boolean isPrimary { get; set; }
         @AuraEnabled
         public boolean isSecondaryPresent { get; set; }
+        @AuraEnabled
+        public Date furtureMilestoneDate { get; set; }
+
     }
     
     public class JobCardDetails {

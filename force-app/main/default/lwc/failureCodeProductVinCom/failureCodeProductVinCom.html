@@ -1,0 +1,165 @@
+<template>
+    <lightning-card title="Failure Codes" icon-name="custom:custom63">
+        <!-- <template if:true={hasData}> -->
+        <div class="custom-table">
+            <div class="filterSection">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>
+                                <lightning-input type="search" onchange={filterOnchage} name="failureCode"
+                                    label="Search by Failure code" value={fialureCodeValue}>
+                                </lightning-input>
+                            </th>
+                            <th>
+                                <lightning-input type="search" onchange={filterOnchage} name="productCode"
+                                    label="Search by Product code" value={productCodeValue}>
+                                </lightning-input>
+                            </th>
+                            <th>
+                                <lightning-input type="search" onchange={filterOnchage} name="VINCutoff"
+                                    label="Search by VIN code" value={VINCuttoffValue}>
+                                </lightning-input>
+                            </th>
+                            <th class="slds-m-top_large" style="padding-top: 30px;">
+                                <!-- <label>Add f</label> -->
+                                <lightning-button onclick={addFailureCode} label="Add failure Code"
+                                    name="addFailureCode" variant="success">
+                                </lightning-button>
+                            </th>
+
+                            <!-- <th>
+                                <lightning-button onclick={clearfilter} label="Clear Filter" name="Clear filter"
+                                    variant="destructive">
+                                </lightning-button>
+                            </th> -->
+                        </tr>
+                    </thead>
+                </table>
+
+            </div>
+            <template if:true={hasData}>
+                <table>
+                    <thead>
+                        <tr>
+                            <!-- <th>Failure Code Product Combo</th> -->
+                            <th>Name</th>
+                            <th>Batch Size</th>
+                            <th>Sample Collected</th>
+                            <th>Active?</th>
+                            <th>Causal Product Name</th>
+                            <th>Causal Product Code</th>
+                            <th>VIN Cut Off</th>
+                            <th>VIN Cut Off? Active</th>
+                            <th> Created By</th>
+                            <th> Created Date</th>
+                            <th style="width: 160px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={failureCodes} for:item="fc">
+                            <tr key={fc.Id}>
+                                <!-- <td>{fc.Combination}</td> -->
+                                <td>{fc.Name}</td>
+                                <td>{fc.BatchSize}</td>
+                                <td>{fc.SampleCollected}</td>
+                                <td>
+                                    <span class={fc.isActiveClass}>{fc.isActiveLabel}</span>
+                                </td>
+                                <td>{fc.ProductName}</td>
+                                <td>{fc.ProductCode}</td>
+                                <td>{fc.VinStart}</td>
+
+                                <td>
+                                    <span class={fc.vinActiveClass}>{fc.vinActiveLabel}</span>
+                                </td>
+                                <td>{fc.CreatedBy}</td>
+                                <td>
+                                    <lightning-formatted-date-time value={fc.CreatedDate}>
+                                    </lightning-formatted-date-time>
+                                </td>
+                                <td>
+                                    <lightning-button-group>
+                                        <lightning-button variant="brand" label="View" title="View Record"
+                                            onclick={handleView} data-id={fc.Id}>
+                                        </lightning-button>
+                                        <lightning-button variant="brand" label="Edit" title="Edit Record"
+                                            onclick={handleEdit} data-id={fc.Id}>
+                                        </lightning-button>
+                                        <!-- <lightning-button variant="destructive" label="Delete" title="Delete Record"
+                                            onclick={handleDelete} data-id={fc.Id}>
+                                        </lightning-button> -->
+                                    </lightning-button-group>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+
+                <!-- PAGINATION CODE -->
+<!--                 
+                <div class="slds-m-top_small slds-align_absolute-center">
+                    <lightning-button label="Previous" onclick={handlePrevious} disabled={disablePreviousBtn}></lightning-button>
+                    <span class="slds-m-horizontal_small">Page {page} of {totalPages}</span>
+                    <lightning-button label="Next" onclick={handleNext} disabled={disableNextBtn}></lightning-button> 
+
+                    <lightning-combobox
+                        value={pageSize}
+                        options={pageSizeOptions}
+                        onchange={handlePageSizeChange}
+                        class="slds-m-left_medium"
+                        variant="label-hidden">
+                    </lightning-combobox>
+                </div> -->
+                
+            </template>
+        </div>
+        <!-- </template> -->
+
+        <template if:true={error}>
+            gettting error
+            <!-- <c-error-panel errors={error}></c-error-panel> -->
+        </template>
+
+        <template if:false={hasData}>
+            <p class="slds-p-around_medium">No Failure Codes found.</p>
+        </template>
+
+        <template if:true={isShowModalPopup}>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_large">
+                <div class="slds-modal__container">
+                    <!-- modal header start -->
+                    <!-- <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={hideModalBox}>
+                <lightning-icon icon-name="utility:close"
+                   alternative-text="close"
+                   variant="inverse"
+                   size="small" ></lightning-icon>
+                <span class="slds-assistive-text">Close</span>
+             </button>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Welcome in Apex Hours
+                        </h2>
+                    </header> -->
+
+                    <!-- modal body start -->
+                    <div class="slds-modal__content" id="modal-content-id-1">
+                        <template if:true={componentConstructor}>
+                            <lwc:component lwc:is={componentConstructor} lwc:ref="myCmp" lwc:spread={childProps}>
+                            </lwc:component>
+                        </template>
+                    </div>
+
+                    <!-- modal footer start-->
+                    <footer class="slds-modal__footer">
+                        <button class="slds-button slds-button_neutral slds-right-p_small" variant="brand" onclick={hideModalBox}>Cancel</button>
+                        <!-- <button class="slds-button slds-button_brand" onclick={hideModalBox}>Save</button> -->
+                    </footer>
+
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+
+    </lightning-card>
+</template>

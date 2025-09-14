@@ -57,7 +57,7 @@ public class NewCreateReceiptOChargesController {
             
             order = [SELECT Id,AccountId, OrderNumber, BillingCity, Dealer__c, BillingCountry, BillingPostalCode, BillingState, BillingStreet, ShippingCity,Website_Order_Id__c,Approval_Status__c,
                      ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, RTO_Charges__c, Handling_Charges__c, Insurance_Amount__c, Warranty_Amount__c,Transportation_Charges__c,
-                     Account.Name,Dealer__r.Store_Type__c, Finance_Name__c,Account.GSTIN_Number__c, Account.Phone,Account.Secondary_Phone_Number__c,Account.Email__c, Account.BillingCity,Account.BillingCountry, Account.BillingPostalCode, Account.BillingState, Account.BillingStreet,                
+                     Account.Name,Dealer__r.Store_Type__c, Finance__r.Name,Account.GSTIN_Number__c, Account.Phone,Account.Secondary_Phone_Number__c,Account.Email__c, Account.BillingCity,Account.BillingCountry, Account.BillingPostalCode, Account.BillingState, Account.BillingStreet,                
                      Extended_Warranty__c,Dealer__r.Center_Code__c, Dealer__r.Name, Dealer__r.BillingCity,Dealer__r.BillingCountry, Dealer__r.BillingPostalCode, Dealer__r.BillingState, Dealer__r.BillingStreet, Internal_Purchase__c,
                      Dealer__r.CIN__c, Dealer__r.RR_Customer_Care_Email__c, Dealer__r.RR_Customer_HelpLine_Number__c, Dealer__r.Email__c,  Dealer__r.GSTIN_Number__c,  Dealer__r.Phone,
                      Dealer__r.Beneficiary_Name__c, Dealer__r.Account_Number__c, Dealer__r.Bank_Name__c, Dealer__r.Swift_Code__c, Dealer__r.IFSC__c, Dealer__r.PAN_Number__c  FROM Order  WHERE Id=:orderId ]; 
@@ -184,7 +184,7 @@ public class NewCreateReceiptOChargesController {
             Htax = 0;
             Wtax=0;
             
-            TotalAmount = (order.Warranty_Amount__c != null?order.Warranty_Amount__c:0) +(order.Handling_Charges__c != null?order.Handling_Charges__c:0);
+            TotalAmount = order.Handling_Charges__c != null?order.Handling_Charges__c:0;
             TotalAmount = TotalAmount.setscale(2);
             If(!order.Internal_Purchase__c){
                 Decimal handlingCharge = (order.Handling_Charges__c != null?order.Handling_Charges__c:0);
@@ -197,8 +197,8 @@ public class NewCreateReceiptOChargesController {
                     Decimal unitPriceH = handlingCharge / (1+(HsgstPercent/100) + (HcgstPercent/100));
                     Decimal unitPriceW = warrantyAmount / (1+(WcgstPercent/100) + (WsgstPercent/100));
                     
-                    cgst = unitPriceH * (HcgstPercent/100) + unitPriceW *(WcgstPercent/100);
-                    sgst = unitPriceH * (HsgstPercent/100) + unitPriceW *(WsgstPercent/100);
+                    cgst = unitPriceH * (HcgstPercent/100);
+                    sgst = unitPriceH * (HsgstPercent/100);
                     
                     
                     system.debug('unitPriceH>>'+unitPriceH);
@@ -206,9 +206,11 @@ public class NewCreateReceiptOChargesController {
                     system.debug('unitPriceW>>'+unitPriceW);
                     system.debug('WigstPercent>>'+WigstPercent);
                     system.debug('igst>>'+igst);
+                    system.debug('cgst>>'+cgst);
+                    system.debug('sgst>>'+sgst);
                     
-                    Htax = (handlingCharge - unitPriceH).setscale(2);
-                    Wtax = (warrantyAmount - unitPriceW).setscale(2);
+                    Htax = (handlingCharge - unitPriceH);
+                    Wtax = (warrantyAmount - unitPriceW);
                     
                 }else{
                     Decimal unitPriceH = handlingCharge / (1+(HigstPercent/100));
@@ -216,26 +218,27 @@ public class NewCreateReceiptOChargesController {
                     
                     igst = unitPriceH * (HigstPercent/100) + unitPriceW *(WigstPercent/100);
                     
-                    Htax = (handlingCharge - unitPriceH).setscale(2);
-                    Wtax = (warrantyAmount - unitPriceW).setscale(2);
+                    Htax = (handlingCharge - unitPriceH);
+                    Wtax = (warrantyAmount - unitPriceW);
                 }
                 
-                taxableAmount = TotalAmount - Htax - Wtax;
-                taxableAmount= taxableAmount.setScale(2);
+                taxableAmount = TotalAmount - Htax;
+                taxableAmount= taxableAmount;
             }else{
                 Htax=0;
                 Wtax=0;
                 taxableAmount = TotalAmount;
-                taxableAmount= taxableAmount.setScale(2);
+                taxableAmount= taxableAmount;
                 Gst = 0;
-                Gst= Gst.setScale(2);
+                Gst= Gst;
             }
             
             if(taxableAmount < 0){
                 taxableAmount = 0;
             }
             system.debug('taxableAmount === >'+taxableAmount);
-            Integer roundedValue = taxableAmount.round().intValue();
+            Integer roundedValue = (Integer) Math.Round(TotalAmount);
+
             system.debug('roundedValue === >'+roundedValue);
             inWords = CurrencyToWordsInRupees.convertToWords(Decimal.valueOf(roundedValue));
         }catch(Exception e){
