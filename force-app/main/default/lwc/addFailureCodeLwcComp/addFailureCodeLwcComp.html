@@ -1,88 +1,99 @@
 <template>
-    <lightning-card title="Failure Code" icon-name="action:new_custom34" size="small">
-        <!-- <lightning-button class="slds-m-left_small" label="+ Add" slot="actions" variant="brand" onclick={handleAddRow}>
-        </lightning-button> -->
-        <div class="slds-p-around_small">
-            <table class="slds-table slds-table_cell-buffer slds-table_bordered">
-                <thead>
-                    <tr class="slds-text-title_caps">
-                        <th>Failure Code</th>
-                        <th>Batch Size</th>
-                        <th>Active</th>
-                        <th>Causal Product Code</th>
-                        <th>VIN Cutoff</th>
-                        <th>VIN Cutoff</th>
-                        <th class="slds-align_absolute-center">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <template for:each={failureCodes} for:item="row">
-                        <tr key={row.id} class={row.rowClass}>
-                            <td>
-                                <lightning-input type="text" value={row.failureCode} data-id={row.id}
-                                    data-field="failureCode" variant="label-hidden" required
-                                    onchange={handleInputChange}>
-                                </lightning-input>
-                            </td>
-                            <td>
-                                <lightning-input type="number" value={row.batchSize} data-id={row.id}
-                                    data-field="batchSize" variant="label-hidden" min="1" onchange={handleInputChange}>
-                                </lightning-input>
-                            </td>
-                            <td>
-                                <lightning-input type="checkbox" checked={row.active} data-id={row.id}
-                                    data-field="active" variant="label-hidden" onchange={handleInputChange}>
-                                </lightning-input>
-                            </td>
-                            <td>
-                                <lightning-input type="text" value={row.causalProductCode} data-id={row.id}
-                                    data-field="causalProductCode" variant="label-hidden" required
-                                    onchange={handleInputChange}>
-                                </lightning-input>
-                            </td>
-                            <td>
-                                <!-- <lightning-input type="text" value={row.vinCutoff} data-id={row.id}
-                                    data-field="vinCutoff" pattern="[A-Za-z0-9]{0}|[A-Za-z0-9]{17}"
-                                    message-when-pattern-mismatch="VIN Cutoff must be empty or exactly 17 characters"
-                                    maxlength="17" variant="label-hidden" onchange={handleInputChange}>
-                                </lightning-input> -->
-                            </td>
-                            <td>
-                                <lightning-input type="text" value={row.vinCutoff} data-id={row.id}
-                                    data-field="vinCutoff" pattern="(^$)|^[A-HJ-NPR-Z0-9]{17}$"
-                                    message-when-pattern-mismatch="VIN Cutoff must be empty or exactly 17 valid characters"
-                                    maxlength="17" variant="label-hidden" onchange={handleInputChange}>
-                                </lightning-input>
+    <lightning-card title="Failure Code Management" icon-name="standard:code_set">
+        <div class="container slds-p-around_medium">
+            <!-- Form Section -->
+            <div class="form-section slds-box slds-theme_default">
+                <h2 class="slds-text-heading_medium slds-m-bottom_medium">Add New Failure Code</h2>
 
-                            </td>
-                            <td class="slds-align_absolute-center">
-                                <lightning-button variant="destructive" icon-name="utility:delete" data-id={row.id}
-                                    onclick={handleDeleteRow}>
-                                </lightning-button>
-                            </td>
-                        </tr>
+                <div class="slds-grid slds-wrap slds-gutters">
+                    <!-- Failure Code Field -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input label="Failure Code" value={failureCode.failureCode} data-field="failureCode"
+                            onchange={handleInputChange} required variant="label-stacked" class="input-field"
+                            message-when-value-missing="Failure Code is required">
+                        </lightning-input>
+                    </div>
+
+                    <!-- Batch Size Field -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input label="Batch Size" type="number" value={failureCode.batchSize}
+                            data-field="batchSize" onchange={handleInputChange} variant="label-stacked"
+                            class="input-field" min="0">
+                        </lightning-input>
+                    </div>
+
+                    <!-- Causal Product Code Field -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input label="Causal Product Code" value={failureCode.causalProductCode}
+                            data-field="causalProductCode" onchange={handleInputChange} required variant="label-stacked"
+                            class="input-field" message-when-value-missing="Product Code is required">
+                        </lightning-input>
+                    </div>
+
+                    <!-- VIN Cutoff Field -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input label="VIN Cutoff" value={failureCode.vinCutoff} data-field="vinCutoff"
+                            onchange={handleInputChange} variant="label-stacked" class="input-field" maxlength="17"
+                            message-when-pattern-mismatch="VIN must be 17 alphanumeric characters">
+                        </lightning-input>
+                    </div>
+
+                    <!-- Active Toggle -->
+                    <div class="slds-col slds-size_1-of-1">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label">Status</label>
+                            <div class="slds-form-element__control">
+                                <lightning-input type="toggle" label="Active" checked={failureCode.active}
+                                    data-field="active" onchange={handleInputChange} message-toggle-active="Active"
+                                    message-toggle-inactive="Inactive" variant="label-hidden">
+                                </lightning-input>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Button Group -->
+                <div class="slds-m-top_large button-group">
+                    <lightning-button label="Validate" onclick={handleValidate} variant="neutral" disabled={isLoading}
+                        class="slds-m-right_x-small">
+                    </lightning-button>
+                    <lightning-button label="Save" onclick={handleSave} variant="brand" disabled={DisabledhandleSave}>
+                    </lightning-button>
+                    <lightning-button label="Cancel" onclick={handleCancel} variant="neutral" disabled={isLoading}
+                        class="slds-m-left_x-small">
+                    </lightning-button>
+
+                    <template if:true={isLoading}>
+                        <div class="spinner-container">
+                            <lightning-spinner alternative-text="Processing" size="small"></lightning-spinner>
+                            <span class="slds-m-left_x-small">Processing...</span>
+                        </div>
                     </template>
+                </div>
+            </div>
 
-                </tbody>
-            </table>
-
-            <template if:true={hasDuplicates}>
-                <div class="slds-m-top_small slds-notice slds-notice_warning">
-                    <div class="slds-notice__content">
-                        <span class="slds-icon_container slds-icon-utility-warning slds-m-right_x-small" title="Warning">
-                            <lightning-icon icon-name="utility:warning" size="small"></lightning-icon>
-                        </span>
-                        <strong>Duplicate entries detected.</strong> Please resolve them before saving.
+            <!-- Status Card -->
+            <template if:true={hasResults}>
+                <div class="status-section slds-box slds-m-top_medium">
+                    <h3 class="slds-text-heading_small slds-m-bottom_small">Operation Results</h3>
+                    <div class="slds-notification" class:slds-theme_success={messages.isSuccess}
+                        class:slds-theme_error={messages.isSuccess}>
+                        <div class="slds-notification__body">
+                            <div class="slds-grid slds-grid_align-spread">
+                                <p class="slds-text-body_regular">{messages.message}</p>
+                                <lightning-icon icon-name="utility:success" alternative-text="Success" size="small"
+                                    if:true={messages.isSuccess}
+                                    class="slds-icon slds-icon_x-small slds-icon-text-success">
+                                </lightning-icon>
+                                <lightning-icon icon-name="utility:error" alternative-text="Error" size="small"
+                                    if:false={messages.isSuccess}
+                                    class="slds-icon slds-icon_x-small slds-icon-text-error">
+                                </lightning-icon>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </template>
-
-            <div class="slds-m-top_medium slds-align_absolute-center">
-                <!-- <lightning-button label="Cancel" onclick={handleCancel}></lightning-button> -->
-                <lightning-button class="slds-m-left_small" variant="brand" label="Save" onclick={handleSave}
-                    disabled={hasDuplicates}>
-                </lightning-button>
-            </div>
         </div>
     </lightning-card>
 </template>

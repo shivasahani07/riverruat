@@ -261,13 +261,25 @@ AppointmentFormController.cls  •  Updated create‑method
 *------------------------------------------------------------*/
         if (isServiceAppt) {
             ServiceAppointment sa = [
-                SELECT Id, Call_Status__c
+                SELECT Id, Call_Status__c,Account.Email__c,Account.Name
                 FROM   ServiceAppointment
                 WHERE  Id = :parentId
                 LIMIT  1
             ];
             sa.Call_Status__c = 'Appointment Booked';
             update sa;
+            system.debug('UpdatedServiceAppointment '+sa);
+            OrgWideEmailAddress owea = [SELECT Id, Address, DisplayName FROM OrgWideEmailAddress WHERE DisplayName = 'River Mobility' LIMIT 1 ];
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+            mail.setToAddresses(new String[] { sa.Account.Email__c });
+            mail.setSubject('Your Service Appointment is Cancelled');
+            String body = 'Hey ' + sa.Account.Name + 
+                  ',\n\nYour appointment has been cancelled. ' +
+                  'For more info, please contact our Service Advisor.\n\nThank you.';
+           mail.setPlainTextBody(body);
+           mail.setOrgWideEmailAddressId(owea.Id);
+           Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+           system.debug('Mail sent Successfully to customer ');
         }
         
         /*--------------------------------------------------------------

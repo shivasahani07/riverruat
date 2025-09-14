@@ -1,0 +1,68 @@
+.container {
+    /* max-width: 800px; */
+    margin: 0 auto;
+}
+
+.form-section {
+    border: 1px solid #dddbda;
+    border-radius: 0.25rem;
+    background-color: white;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
+}
+
+.status-section {
+    border: 1px solid #dddbda;
+    border-radius: 0.25rem;
+    background-color: #f3f2f2;
+}
+
+.input-field {
+    margin-bottom: 1rem;
+}
+
+.button-group {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.spinner-container {
+    display: flex;
+    align-items: center;
+    margin-left: 1rem;
+    color: #706e6b;
+}
+
+.slds-notification {
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+}
+
+.slds-theme_success {
+    background-color: rgba(4, 132, 75, 0.1);
+    border: 1px solid #048c4b;
+}
+
+.slds-theme_error {
+    background-color: rgba(194, 57, 52, 0.1);
+    border: 1px solid #c23934;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .button-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .button-group lightning-button {
+        margin: 0.25rem 0;
+        width: 100%;
+    }
+    
+    .spinner-container {
+        margin: 0.5rem 0;
+        justify-content: center;
+    }
+}

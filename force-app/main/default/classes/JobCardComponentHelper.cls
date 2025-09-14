@@ -97,11 +97,12 @@ public class JobCardComponentHelper {
                List<Vehicle> vehcileRec =  [ Select id,VehicleIdentificationNumber, (Select id,stage,Name,MilestoneDate  from AssetMilestones where stage = 'Tentative' limit 1 ) from Vehicle where VehicleIdentificationNumber =:vehicleDetails.VehicleIdentificationNumber];
 
                 Date milestoneDate;
-
+                String milestonName;
                 if (!vehcileRec.isEmpty() && !vehcileRec[0].AssetMilestones.isEmpty()) {
                 milestoneDate = vehcileRec[0].AssetMilestones[0].MilestoneDate;
+                milestonName = vehcileRec[0].AssetMilestones[0].Name; 
                 condetails.furtureMilestoneDate = milestoneDate;
-
+                condetails.currentMilestoneName = milestonName;
                }
                 condetails.isPrimary = false;
                 condetails.isSecondaryPresent = false;
@@ -226,9 +227,11 @@ public class JobCardComponentHelper {
     
     //Creating Job card
     @AuraEnabled
-    public static string saveCardDetails(JobCardDetails jobCardDetails) {
+    public static WrapperjobCardDetails saveCardDetails(JobCardDetails jobCardDetails) {
         
         try{
+
+            WrapperjobCardDetails jobdetails = new WrapperjobCardDetails();
             Contact conObj = new Contact();
             conObj.LastName = jobCardDetails.contactName;
             conObj.Phone = jobCardDetails.phoneNumber;
@@ -248,7 +251,7 @@ public class JobCardComponentHelper {
             }else{
                 insert conObj;
             }
-            
+
             WorkOrder jobCard = new WorkOrder();
             jobCard.Vehicle__c = jobCardDetails.vehicle.Id;
             jobCard.ContactId = conObj.Id;
@@ -300,20 +303,28 @@ public class JobCardComponentHelper {
             //     throw new CustomException('City not found!');
             // }//commented by Aniket on 26/04/2025
             
-            System.debug('jobCard ==>'+jobCard);
-            insert jobCard;
-            
-            //update vehicle odometer reading
-            /* Vehicle vh = new Vehicle();
-vh.LastOdometerReading = jobCardDetails.KmsCovered;
-vh.Id = jobCardDetails.vehicle.Id;
-
-update vh;*/
-            
-            //insert Customer voices
-            
-            
-            List<RR_Customer_Voice__c> voiceList = new List<RR_Customer_Voice__c>();
+            If(jobCardDetails.TypeOfJob == 'Periodic Maintenance'){ 
+            AssetMilestone assetRec = [Select id,Stage from AssetMilestone where VehicleId=:jobCardDetails.vehicle.Id AND MilestoneType  =:jobCardDetails.subType  ];
+    
+            if(assetRec.Stage == 'Tentative' ){
+               insert jobCard;
+               jobdetails.jobcardId = jobCard.Id;  
+               if(jobCardDetails.TypeOfJob == 'Periodic Maintenance') {
+           AssetMilestone assetRecord = [Select id,Stage from AssetMilestone where VehicleId=:jobCard.Vehicle__c AND MilestoneType  =:jobCard.RR_Periodic_Maintenance_Type__c AND Stage = 'Tentative'];
+           if(assetRecord.Stage == 'Tentative'){
+            WorkOrder updatworkOrder = new WorkOrder();
+            updatworkOrder.Id = jobCard.Id;
+            updatworkOrder.Asset_Milestone__c = assetRecord.Id;
+            Update updatworkOrder;
+           }
+           
+           }}else{
+                  jobdetails.message = 'failed';
+           }
+            }else{
+                insert jobCard;
+               jobdetails.jobcardId = jobCard.Id; 
+                List<RR_Customer_Voice__c> voiceList = new List<RR_Customer_Voice__c>();
             System.debug('jobCardDetails'+jobCardDetails);
             System.debug('jobCardDetails'+jobCardDetails.concernNoList);
             
@@ -332,16 +343,42 @@ update vh;*/
                 insert voiceList;
                 System.debug('voice list ==>'+voiceList);
             }
+            }
+            
+           
+             
+
+            
+            //update vehicle odometer reading
+            /* Vehicle vh = new Vehicle();
+vh.LastOdometerReading = jobCardDetails.KmsCovered;
+vh.Id = jobCardDetails.vehicle.Id;
+
+update vh;*/
+            
+            //insert Customer voices
+            
+            
+           
             
             
             
-            Return jobCard.Id;
+
+            return jobdetails;
         }catch (Exception e) {
             System.debug('Error Message Is ==>'+e.getMessage() + 'Error Line Number ==>'+e.getLineNumber());
             string errorStr= 'Error: '+e.getmessage();
             throw new AuraHandledException(errorStr);
         }
         
+    }
+
+     public class WrapperjobCardDetails {
+        @AuraEnabled
+        public String jobcardId { get; set; }
+        @AuraEnabled
+        public String message { get; set; } 
+ 
     }
     
     public class contactDetails {
@@ -354,7 +391,9 @@ update vh;*/
         @AuraEnabled
         public boolean isSecondaryPresent { get; set; }
         @AuraEnabled
-        public Date furtureMilestoneDate { get; set; }
+        public Date furtureMilestoneDate { get; set; } 
+        @AuraEnabled
+        public String currentMilestoneName { get; set; }
 
     }
     

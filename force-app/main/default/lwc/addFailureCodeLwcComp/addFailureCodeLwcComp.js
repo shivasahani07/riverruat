@@ -1,63 +1,33 @@
 import { LightningElement, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import saveFailureCodeRecords from '@salesforce/apex/AddFailureCodeController.saveFailureCodeRecords';
+import createPostVINFCPCVIN from '@salesforce/apex/AddFailureCodeControllerNew.createPostVINFCPCVIN';
+import validateInputs from '@salesforce/apex/AddFailureCodeControllerNew.validateInputs';
 
 export default class AddFailureCodeLwcComp extends LightningElement {
-    @track failureCodes = [{
-        id: 1,
+    @track failureCode = {
         failureCode: '',
         batchSize: '',
-        active: false,
+        active: true, // Default to active
         causalProductCode: '',
         vinCutoff: '',
         isDuplicate: false,
         rowClass: ''
-    }];
-
-    @track messages = [];   // store row-level results
+    };
+    @track DisabledhandleSave = true;
+    @track messages = {};
     @track hasResults = false;
-
-    nextId = 2;
-    hasDuplicates = false;
-
-    handleAddRow() {
-        this.failureCodes = [
-            ...this.failureCodes,
-            {
-                id: this.nextId++,
-                failureCode: '',
-                batchSize: '',
-                active: false,
-                causalProductCode: '',
-                vinCutoff: '',
-                isDuplicate: false,
-                rowClass: ''
-            }
-        ];
-
-        this.checkForDuplicates();
-    }
-
-    handleDeleteRow(event) {
-        const rowId = event.target.dataset.id;
-        this.failureCodes = this.failureCodes.filter(row => row.id != rowId);
-        this.checkForDuplicates();
-    }
+    @track isLoading = false;
 
     handleInputChange(event) {
-        debugger;
-        const rowId = event.target.dataset.id;
         const field = event.target.dataset.field;
         const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
 
-        this.failureCodes = this.failureCodes.map(row => {
-            if (row.id == rowId) {
-                return { ...row, [field]: value, isDuplicate: false, rowClass: '' };
-            }
-            return row;
-        });
-
-        setTimeout(() => this.checkForDuplicates(), 300);
+        this.failureCode = {
+            ...this.failureCode,
+            [field]: value,
+            isDuplicate: false,
+            rowClass: ''
+        };
 
         if (field === "vinCutoff") {
             if (!this.validateVin(value)) {
@@ -68,130 +38,51 @@ export default class AddFailureCodeLwcComp extends LightningElement {
             event.target.reportValidity();
         }
 
-        // Update your row object or whatever logic you need
-        // let row = this.failureCodes.find(item => item.id == rowId);
-        // if (row) {
-        //     row[field] = value;
-        // }
+        // Clear previous results when user starts editing
+        this.hasResults = false;
     }
 
     validateVin(vin) {
-    // Allow empty OR exactly 17 alphanumeric (excluding I, O, Q as per VIN standard)
-    const vinRegex = /^(?:[A-HJ-NPR-Z0-9]{17}|)$/;
+        // Allow empty OR exactly 17 alphanumeric (excluding I, O, Q as per VIN standard)
+        const vinRegex = /^(?:[A-HJ-NPR-Z0-9]{17}|)$/;
+        return vinRegex.test(vin);
+    }
 
-    return vinRegex.test(vin);
-}
+    async handleValidate() {
+        debugger;
+        // Check required fields
+        if (!this.failureCode.failureCode || !this.failureCode.causalProductCode) {
+            this.showNotification('Validation Error', 'Failure Code and Causal Product Code are required', 'error');
+            return;
+        }
 
-    // Duplicate check with rowClass update
-    checkForDuplicates() {
-        let hasDupes = false;
-        let seenKeys = new Set();
+        this.isLoading = true;
 
-        // Reset duplicates
-        this.failureCodes = this.failureCodes.map(row => ({
-            ...row,
-            isDuplicate: false,
-            rowClass: ''
-        }));
+        try {
+            const validationResult = await validateInputs({
+                fcName: this.failureCode.failureCode,
+                productcode: this.failureCode.causalProductCode,
+                newVINCutOff: this.failureCode.vinCutoff
+            });
 
-        this.failureCodes.forEach(row => {
-            if (!row.failureCode || !row.causalProductCode) return;
+            this.messages = validationResult;
+            this.hasResults = true;
 
-            const vin = row.vinCutoff?.trim() || null;
-            const key = vin
-                ? `${row.failureCode}|${row.causalProductCode}|${vin}`
-                : `${row.failureCode}|${row.causalProductCode}`;
-
-            if (seenKeys.has(key)) {
-                hasDupes = true;
-
-                // mark dupes
-                this.failureCodes = this.failureCodes.map(r => {
-                    if (r.id === row.id || this.getRowKey(r) === key) {
-                        return { ...r, isDuplicate: true, rowClass: 'slds-theme_warning' };
-                    }
-                    return r;
-                });
+            if (validationResult.isSuccess) {
+                this.showNotification('Validation Success', validationResult.message, 'success');
+                this.DisabledhandleSave = false;
             } else {
-                seenKeys.add(key);
+                this.showNotification('Validation Error', validationResult.message, 'error');
             }
-        });
-
-        this.hasDuplicates = hasDupes;
+        } catch (error) {
+            this.showNotification('Error', error.body?.message || 'An error occurred during validation', 'error');
+        } finally {
+            this.isLoading = false;
+        }
     }
-
-    getRowKey(row) {
-        const vin = row.vinCutoff?.trim() || null;
-        return vin
-            ? `${row.failureCode}|${row.causalProductCode}|${vin}`
-            : `${row.failureCode}|${row.causalProductCode}`;
-    }
-
-    // async handleSave() {
-    //     const inputs = this.template.querySelectorAll('lightning-input');
-    //     let allValid = true;
-
-    //     inputs.forEach(input => {
-    //         if (!input.checkValidity()) {
-    //             input.reportValidity();
-    //             allValid = false;
-    //         }
-    //     });
-
-    //     if (!allValid) {
-    //         return;
-    //     }
-
-    //     this.checkForDuplicates();
-    //     if (this.hasDuplicates) {
-    //         this.dispatchEvent(
-    //             new ShowToastEvent({
-    //                 title: 'Validation Error',
-    //                 message: 'Duplicate entries found. Please fix them before saving.',
-    //                 variant: 'error'
-    //             })
-    //         );
-    //         return;
-    //     }
-
-    //     const recordsToSave = this.failureCodes.map(row => ({
-    //         sobjectType: 'Failure_Code__c',
-    //         fName: row.failureCode,
-    //         batchSize: row.batchSize,
-    //         isActive: row.active,
-    //         productCode: row.causalProductCode,
-    //         vinCutOff: row.vinCutoff
-    //     }));
-
-
-
-    //     try {
-    //         const data = await saveFailureCodeRecords({ fCodes: recordsToSave });
-    //         console.log('data : ' + data);
-    //         this.dispatchEvent(
-    //             new ShowToastEvent({
-    //                 title: 'Success',
-    //                 message: 'Failure Codes created successfully',
-    //                 variant: 'success'
-    //             })
-    //         );
-
-    //         this.resetTable();
-
-    //     } catch (error) {
-    //         this.dispatchEvent(
-    //             new ShowToastEvent({
-    //                 title: 'Error',
-    //                 message: error.body?.message || 'An error occurred while saving records',
-    //                 variant: 'error'
-    //             })
-    //         );
-    //     }
-    // }
-
 
     async handleSave() {
-        debugger;
+        // Validate inputs first
         const inputs = this.template.querySelectorAll('lightning-input');
         let allValid = true;
 
@@ -203,78 +94,53 @@ export default class AddFailureCodeLwcComp extends LightningElement {
         });
 
         if (!allValid) {
+            this.showNotification('Validation Error', 'Please fix all validation errors before saving', 'error');
             return;
         }
 
-        this.checkForDuplicates();
-        if (this.hasDuplicates) {
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Validation Error',
-                    message: 'Duplicate entries found. Please fix them before saving.',
-                    variant: 'error'
-                })
-            );
-            return;
-        }
-
-        const recordsToSave = this.failureCodes.map(row => ({
-            sobjectType: 'Failure_Code__c',
-            fName: row.failureCode,
-            batchSize: row.batchSize,
-            isActive: row.active,
-            productCode: row.causalProductCode,
-            vinCutOff: row.vinCutoff
-        }));
+        this.isLoading = true;
 
         try {
-            const data = await saveFailureCodeRecords({ fCodes: recordsToSave });
-
-            this.messages = data;   // store messages for UI table
-            this.hasResults = true;
-
-            // show toast for each record
-            data.forEach(r => {
-                let title = r.isSuccess ? 'Success' : 'Error';
-                let message = r.message;
-                let variant = r.isSuccess ? 'success' : 'error'
-                this.showNotification(title, message, variant);
+            const result = await createPostVINFCPCVIN({
+                fcName: this.failureCode.failureCode,
+                productcode: this.failureCode.causalProductCode,
+                newVINCutOff: this.failureCode.vinCutoff
             });
 
-            // reset table only if all rows are successful
-            const allSuccessful = data.every(r => r.isSuccess);
-            if (allSuccessful) {
-                this.resetTable();
-            }
+            this.messages = result;
+            this.hasResults = true;
 
+            if (result.isSuccess) {
+                this.showNotification('Success', result.message, 'success');
+                this.resetForm();
+            } else {
+                this.showNotification('Error', result.message, 'error');
+            }
         } catch (error) {
-            let message = error.body?.message || 'An error occurred while saving records';
-            this.showNotification('Error', message, 'error');
+            this.showNotification('Error', error.body?.message || 'An error occurred while saving', 'error');
+        } finally {
+            this.isLoading = false;
         }
     }
 
-
     handleCancel() {
-        this.resetTable();
+        this.resetForm();
+        this.hasResults = false;
     }
 
-    resetTable() {
-        this.failureCodes = [{
-            id: 1,
+    resetForm() {
+        this.failureCode = {
             failureCode: '',
             batchSize: '',
-            active: false,
+            active: true,
             causalProductCode: '',
             vinCutoff: '',
             isDuplicate: false,
             rowClass: ''
-        }];
-        this.nextId = 2;
-        this.hasDuplicates = false;
+        };
     }
 
     showNotification(title, message, variant) {
-        debugger
         this.dispatchEvent(
             new ShowToastEvent({
                 title: title,

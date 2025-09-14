@@ -87,6 +87,7 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
     @track ServiceCenter = '';
     @track CityName = '';
     @track City = '';
+    errorMessage = '';
 
     primaryContact = {
         Name: '',
@@ -106,6 +107,7 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
     @track FUTUREMilstoneDate;
     @track assetMilestoneNam;
     @track showMilestoneMessage = false;
+    @track showerrorMessage  = false;
 
     error;
     @track jobtypes;
@@ -518,6 +520,7 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
 
     verifyOTP() {
         // Validate phone number format (10 digits and only numbers)
+        debugger;
         const otp = this.template.querySelector('.otpinput');
         if (this.otpSent == this.otpEntered) {
 
@@ -554,7 +557,8 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
                     this.tile1 = !this.tile1;
 
                     this.FUTUREMilstoneDate = result.furtureMilestoneDate;
-                    if (this.FUTUREMilstoneDate) {
+
+if (this.FUTUREMilstoneDate) {
     // Convert to Date object
     const milestoneDate = new Date(this.FUTUREMilstoneDate);
 
@@ -562,12 +566,17 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
     const today = new Date();
 
     // Calculate 20 days ahead from today
-    const futureThreshold = new Date();
+    const futureThreshold = new Date(today);
     futureThreshold.setDate(today.getDate() + 20);
 
-    // Check condition
-    this.showMilestoneMessage = milestoneDate >= futureThreshold;
-} else {
+    // Normalize both dates (remove time part)
+    const milestoneOnly = new Date(milestoneDate.getFullYear(), milestoneDate.getMonth(), milestoneDate.getDate());
+    const thresholdOnly = new Date(futureThreshold.getFullYear(), futureThreshold.getMonth(), futureThreshold.getDate());
+
+    // Check condition: show message if milestone date is within 20 days from today
+    this.showMilestoneMessage = milestoneOnly <= thresholdOnly;
+}
+ else {
     this.showMilestoneMessage = false;
 }
 
@@ -948,9 +957,17 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
             saveCardDetails({ jobCardDetails: jobCardDetails })
                 .then(result => {
                     debugger;
+
+                    if (result.message === 'failed') {
+            // Show custom error message in HTML
+            this.showerrorMessage = true;
+            this.errorMessage = 'There is already Job Card for the same milestone';
+            this.showToastMessage('Error', this.errorMessage, 'error');
+            this.disableSave = false;
+        } else {
                     this.showToastMessage('Success', 'JobCard created successfully', 'success');
 
-                    const recordId = result;
+                    const recordId = result.jobcardId;
 
                     this[NavigationMixin.Navigate]({
                         type: 'standard__recordPage',
@@ -960,6 +977,7 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
                             actionName: 'view'
                         },
                     })
+        }
                 })
                 .catch(error => {
 

@@ -1,8 +1,33 @@
 public without sharing class AddFailureCodeControllerNew {
     
-    public static void createPostVINFCPCVIN(String fcName, String productcode, String newVINCutOff) {
+    public class OperationResult {
+        @AuraEnabled public Boolean isSuccess;
+        @AuraEnabled public String message;
+        @AuraEnabled public String recordId;
+        @AuraEnabled public String failureCodeName;
+        
+        public OperationResult(Boolean success, String msg) {
+            this.isSuccess = success;
+            this.message = msg;
+        }
+        
+        public OperationResult(Boolean success, String msg, String id, String name) {
+            this.isSuccess = success;
+            this.message = msg;
+            this.recordId = id;
+            this.failureCodeName = name;
+        }
+    }
+    
+    @AuraEnabled
+    public static OperationResult createPostVINFCPCVIN(String fcName, String productcode, String newVINCutOff) {
         try {
-            Failure_Code__c fc = null;
+            // Validate input parameters
+            if (String.isBlank(fcName) || String.isBlank(productcode)) {
+                return new OperationResult(false, 'Failure code name, product code are required.');
+            }
+            
+            // Find existing active failure code
             List<Failure_Code__c> fcList = [
                 SELECT Id, Name, Product_Code__c, VIN_Cut_off_No__c, VIN_Cut_off__c, Is_Active__c
                 FROM Failure_Code__c
@@ -11,65 +36,106 @@ public without sharing class AddFailureCodeControllerNew {
                 AND Is_Active__c = true
                 LIMIT 1
             ];
-            if (!fcList.isEmpty()) {
-                fc = fcList[0];
-            }
-
-            Integer comparisonResult; 
-            if (fc != null && fc.VIN_Cut_off__c != null && fc.Is_Active__c) {
-                // fc pc found with vin
-                comparisonResult = VINCutOffManagement.compareVINFormat(fc.VIN_Cut_off_No__c, newVINCutOff);
-
-                if (comparisonResult == 0) {
-                    System.debug('SAME VIN FOUND WITH SAME FC PC!!');
-                    // NOTHING TO DO
-                } else if (comparisonResult == 1) {
-                    System.debug('PostVIN is GREATER !!');
-                    TFR__c existingTFR = checkandCreateVIN(newVINCutOff);
-                    TFR_Part_Effect__c partEffect = checkCausalPartEF(productcode, existingTFR.Id);
-                    Failure_Code__c newFC = checkfailureCode(fc, fcName, partEffect.Id, existingTFR.Id, null);
-
-                } else if (comparisonResult == -1) {
-                    System.debug('PostVIN is SMALLER !!');
-                    // NOTHING TO DO
-                } else {
-                    System.debug('Invalid Result !!');
+            
+            if (fcList.isEmpty()) {
+                OperationResult tfrResult;
+                Integer stringLength = (newVINCutOff != null) ? newVINCutOff.length() : 0;
+                System.debug('String Length: ' + stringLength);
+                
+                if (stringLength == 17) {
+                    tfrResult = checkandCreateVIN(newVINCutOff);
+                    if (tfrResult == null || !tfrResult.isSuccess) {
+                        return (tfrResult != null) ? tfrResult : new OperationResult(false, 'VIN check failed');
+                    }
                 }
-
-                System.debug('comparisonResult---' + comparisonResult);
-
-            } else if (fc != null && fc.VIN_Cut_off__c == null) {
-                TFR__c existingTFR = checkandCreateVIN(newVINCutOff);
-                Failure_Code__c newFC = checkfailureCode(fc, existingTFR.Id);
-            } else {
-                System.debug('No matching Failure Code found or not active.');
+                
+                // Ensure recordId is not null
+                if (tfrResult == null) {
+                    tfrResult = new OperationResult(true, 'VIN not required');
+                }
+                tfrResult.recordId = (tfrResult.recordId != null) ? tfrResult.recordId : null;
+                
+                OperationResult partEffectResult = checkCausalPartEF(productcode, tfrResult.recordId);
+                if (partEffectResult == null || !partEffectResult.isSuccess) {
+                    return (partEffectResult != null) ? partEffectResult : new OperationResult(false, 'Causal part check failed');
+                }
+                
+                OperationResult fcResult = createFailureCode(
+                    fcName,
+                    partEffectResult.recordId,
+                    tfrResult.recordId,
+                    8
+                );
+                return (fcResult != null) ? fcResult : new OperationResult(false, 'Failure code creation failed');
             }
+            
+            
+            Failure_Code__c fc = fcList[0];
+            Integer comparisonResult;
+            
+            if (fc.VIN_Cut_off__c != null) {
+                // Compare VINs
+                VINCutOffManagement.ComparisonResult compResult = 
+                    VINCutOffManagement.compareVINFormat(fc.VIN_Cut_off_No__c, newVINCutOff);
+                
+                if (!compResult.isSuccess) {
+                    return new OperationResult(false, 'VIN comparison failed: ' + compResult.message);
+                }
+                
+                comparisonResult = compResult.resultCode;
+                
+                if (comparisonResult == 0) {
+                    return new OperationResult(false, 'VIN cutoff already exists for this failure code.');
+                } else if (comparisonResult == 1) {
+                    // New VIN is greater - create new records
+                    OperationResult tfrResult = checkandCreateVIN(newVINCutOff);
+                    if (!tfrResult.isSuccess) return tfrResult;
+                    
+                    OperationResult partEffectResult = checkCausalPartEF(productcode, tfrResult.recordId);
+                    if (!partEffectResult.isSuccess) return partEffectResult;
+                    
+                    OperationResult fcResult = checkfailureCode(fc, fcName, partEffectResult.recordId, tfrResult.recordId, null);
+                    return fcResult;
+                } else if (comparisonResult == -1) {
+                    return new OperationResult(false, 'New VIN is older than existing VIN cutoff.');
+                }
+            } else {
+                // No VIN cutoff exists yet
+                /*OperationResult tfrResult = checkandCreateVIN(newVINCutOff);
+                if (!tfrResult.isSuccess) return tfrResult;*/
+                
+                OperationResult fcResult = checkfailureCode(fc,null);
+                return fcResult;
+            }
+            
+            return new OperationResult(false, 'Unexpected error occurred.');
         } catch (Exception e) {
-            System.debug('Error in createPostVINFCPCVIN: ' + e.getMessage());
+            return new OperationResult(false, 'Error: ' + e.getMessage() + ' at line ' + e.getLineNumber());
         }
     }
     
-    private static TFR__c checkandCreateVIN(String newVINCutOff) {
+    private static OperationResult checkandCreateVIN(String newVINCutOff) {
         try {
             List<TFR__c> tfrList = [
                 SELECT Id, Name FROM TFR__c WHERE VIN_Start__c = :newVINCutOff LIMIT 1
             ];
+            
             if (!tfrList.isEmpty()) {
-                return tfrList[0];
+                return new OperationResult(true, 'TFR already exists', tfrList[0].Id, null);
             }
+            
             TFR__c newTFR = new TFR__c(
                 VIN_Start__c = newVINCutOff,
                 Is_Active__c = true
             );
             insert newTFR;
-            return newTFR;
+            return new OperationResult(true, 'Created new TFR', newTFR.Id, null);
         } catch (Exception e) {
-            System.debug('Error in checkandCreateVIN: ' + e.getMessage());
-            return null;
+            return new OperationResult(false, 'Error creating TFR: ' + e.getMessage());
         }
     }
     
-    private static TFR_Part_Effect__c checkCausalPartEF(String productcode, String tfrId) {
+    private static OperationResult checkCausalPartEF(String productcode, String tfrId) {
         try {
             List<TFR_Part_Effect__c> peList = [
                 SELECT Id, Name, Product_Code__c 
@@ -77,31 +143,28 @@ public without sharing class AddFailureCodeControllerNew {
                 WHERE TFR__c = :tfrId AND Product_Code__c = :productcode 
                 LIMIT 1
             ];
+            
             if (!peList.isEmpty()) {
-                return peList[0];
+                return new OperationResult(true, 'Part effect already exists', peList[0].Id, null);
             }
-
-            Product2 prod;
+            
             List<Product2> prodList = [SELECT Id, Name FROM Product2 WHERE ProductCode = :productcode LIMIT 1];
             if (prodList.isEmpty()) {
-                System.debug('No Product found with code: ' + productcode);
-                return null;
+                return new OperationResult(false, 'No Product found with code: ' + productcode);
             }
-            prod = prodList[0];
-
+            
             TFR_Part_Effect__c partEffect = new TFR_Part_Effect__c(
-                Product__c = prod.Id,
+                Product__c = prodList[0].Id,
                 TFR__c = tfrId
             );
             insert partEffect;
-            return partEffect;
+            return new OperationResult(true, 'Created new part effect', partEffect.Id, null);
         } catch (Exception e) {
-            System.debug('Error in checkCausalPartEF: ' + e.getMessage());
-            return null;
+            return new OperationResult(false, 'Error creating part effect: ' + e.getMessage());
         }
     } 
     
-    private static Failure_Code__c checkfailureCode(Failure_Code__c OldFC, String fcName, String partEffectId, String tfrId, Integer batchSize) {
+    private static OperationResult checkfailureCode(Failure_Code__c OldFC, String fcName, String partEffectId, String tfrId, Integer batchSize) {
         try {
             Failure_Code__c newFC = new Failure_Code__c(
                 Name = fcName,
@@ -111,23 +174,78 @@ public without sharing class AddFailureCodeControllerNew {
                 VIN_Cut_off__c = tfrId
             );
             insert newFC;
+            
             OldFC.Is_Active__c = false;
             update OldFC;
-            return newFC;
+            
+            return new OperationResult(true, 'Created new failure code and deactivated old one', newFC.Id, fcName);
         } catch (Exception e) {
-            System.debug('Error in checkfailureCode (create new): ' + e.getMessage());
-            return null;
+            return new OperationResult(false, 'Error creating failure code: ' + e.getMessage());
         }
     }
     
-    private static Failure_Code__c checkfailureCode(Failure_Code__c OldFC, String tfrId) {
+    private static OperationResult createFailureCode(String fcName, String partEffectId, String tfrId, Integer batchSize) {
+        try {
+            Failure_Code__c newFC = new Failure_Code__c(
+                Name = fcName,
+                Batch_Size__c = batchSize, 
+                Is_Active__c = true,
+                TFR_Part_Effect__c = partEffectId,
+                VIN_Cut_off__c = tfrId
+            );
+            insert newFC;
+            
+            return new OperationResult(true, 'Created new failure code', newFC.Id, fcName);
+        } catch (Exception e) {
+            return new OperationResult(false, 'Error creating failure code: ' + e.getMessage());
+        }
+    }
+    
+    private static OperationResult checkfailureCode(Failure_Code__c OldFC, String tfrId) {
         try {
             OldFC.VIN_Cut_off__c = tfrId;
             update OldFC;
-            return OldFC;
+            return new OperationResult(true, 'Updated failure code with VIN cutoff', OldFC.Id, OldFC.Name);
         } catch (Exception e) {
-            System.debug('Error in checkfailureCode (update only): ' + e.getMessage());
-            return null;
+            return new OperationResult(false, 'Error updating failure code: ' + e.getMessage());
+        }
+    }
+    
+    @AuraEnabled
+    public static OperationResult validateInputs(String fcName, String productcode, String newVINCutOff) {
+        try {
+            if (String.isBlank(fcName)) {
+                return new OperationResult(false, 'Failure code name is required.');
+            }
+            
+            if (String.isBlank(productcode)) {
+                return new OperationResult(false, 'Product code is required.');
+            }
+            
+            /*if (String.isBlank(newVINCutOff)) {
+return new OperationResult(false, 'VIN cutoff is required.');
+}*/
+            
+            // Validate VIN format
+            VINCutOffManagement.ComparisonResult vinResult;
+            if(newVINCutOff !=null){
+                vinResult = VINCutOffManagement.validateVIN(newVINCutOff);
+            }
+            
+            if (!vinResult.isSuccess) {
+                
+                //return new OperationResult(false, 'Invalid VIN format: ' + vinResult.message);
+            }
+            
+            // Check if product exists
+            List<Product2> products = [SELECT Id FROM Product2 WHERE ProductCode = :productcode LIMIT 1];
+            if (products.isEmpty()) {
+                return new OperationResult(false, 'Product code not found: ' + productcode);
+            }
+            
+            return new OperationResult(true, 'Input validation successful');
+        } catch (Exception e) {
+            return new OperationResult(false, 'Validation error: ' + e.getMessage());
         }
     }
 }
