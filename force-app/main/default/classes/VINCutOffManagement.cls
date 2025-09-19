@@ -27,6 +27,8 @@ public without sharing class VINCutOffManagement {
             isSuccess = success;
         }
     }
+    
+    
 
     @AuraEnabled
     public static ComparisonResult compareVINFormat(String preVIN, String postVIN) {

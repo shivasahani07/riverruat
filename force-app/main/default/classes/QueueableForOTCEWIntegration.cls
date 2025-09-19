@@ -1,7 +1,14 @@
+/**
+ * @description       : 
+ * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @group             : 
+ * @last modified on  : 09-16-2025
+ * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+**/
 public class QueueableForOTCEWIntegration implements Queueable, Database.allowsCallouts{
     private List<Id> orderIdsToProcess;
-    private Map<Id,OrderController.wrapperForEWIntegration> wrapperValues;
-    public QueueableForOTCEWIntegration(List<Id> orderIdsToProcess, Map<Id,OrderController.wrapperForEWIntegration> wrapperValues){
+    private Map<Id,OrderInvoiceGenerationOTCController.wrapperForEWIntegration> wrapperValues;
+    public QueueableForOTCEWIntegration(List<Id> orderIdsToProcess, Map<Id,OrderInvoiceGenerationOTCController.wrapperForEWIntegration> wrapperValues){
         this.orderIdsToProcess=orderIdsToProcess;
         this.wrapperValues=wrapperValues;
 
@@ -20,7 +27,7 @@ public class QueueableForOTCEWIntegration implements Queueable, Database.allowsC
             
     }
 }
-public static void calloutToEWAPI(Id currentOrderId,Map<Id,OrderController.wrapperForEWIntegration> c){
+public static void calloutToEWAPI(Id currentOrderId,Map<Id,OrderInvoiceGenerationOTCController.wrapperForEWIntegration> c){
     try{
             List<EW_API_Details__c> ewDetails= EW_API_Details__c.getAll().values();
             EW_API_Details__c apiDetails = EW_API_Details__c.getInstance('EW Integration');

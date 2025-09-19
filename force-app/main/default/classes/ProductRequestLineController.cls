@@ -851,13 +851,15 @@ public Without Sharing class ProductRequestLineController {
                 } 
             }
 
-            PORecToUpdate = [SELECT Id,Status FROM ProductRequest WHERE Id=:POId];
+            PORecToUpdate = [SELECT Id,Status FROM ProductRequest WHERE Id=:POId ];
             if (!newOrderItems.isEmpty()) {
                 insert newOrderItems;
-                if(PORecToUpdate !=null){
+                if (PORecToUpdate != null && PORecToUpdate.Status != 'Partial Fulfilled') {
                     PORecToUpdate.Status = 'Processing';
                     update PORecToUpdate;
-                    System.debug('PORecToUpdate == >'+PORecToUpdate);
+                    System.debug('Updated ProductRequest: ' + PORecToUpdate);
+                } else {
+                    System.debug('ProductRequest status is Partial Fulfilled - no update done.');
                 }
 
                 Id orderIdToUpdate = newOrderItems[0].OrderId;

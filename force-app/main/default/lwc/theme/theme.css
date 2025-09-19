@@ -1,0 +1,11 @@
+.vin-container {
+    gap: 0.3rem;
+}
+
+.vin-box {
+    width: 2.5rem;
+}
+
+.vin-input lightning-input {
+    text-align: center;
+}

@@ -3,44 +3,48 @@ import { CloseActionScreenEvent } from 'lightning/actions';
 import { getRecord } from 'lightning/uiRecordApi';
 import cancelIRN_EInvoice from '@salesforce/apex/ClearTaxApiHelper.cancelIRN_EInvoice';
 import { updateRecord } from 'lightning/uiRecordApi';
-const FIELDS = ['Order.IRN_No__c'];
+const FIELDS = ['Order.IRN_No__c', 'Order.Accessories_IRN_No__c', 'Order.Merchandise_IRN_No__c'];
 
 export default class CancelIRNLwc extends LightningElement {
     @track selectedReason = '';
     @track irnValue = '';
     @track irnRemarksValue = ''; 
     @track showSpinner = false;
+    @track accessoriesIrnValue = '';
+    @track merchandiseIrnValue = '';
+
 
     @track showToast = false;
     @track toastMessage = '';
     @track toastVariant = 'success';
-    @track toastClass = 'toast'; // Default class
+    @track toastClass = 'toast'; 
     @track IsshowCancelBtn = true;
     @api recordId;
     @track closeScreen;
 
     connectedCallback() {
-        setTimeout(() => {
+      
             this.recordId = this.recordId;
-        }, 300);
+            if(this.recordId == undefined || this.recordId == null){
+                if (this.recordId == undefined) {
+                    const url = window.location.href;
+                    const match = url.match(/\/order\/([^/]+)/);
+                    if (match) {
+                        this.recordId = match[1];
+                        console.log('Record Id:', this.recordId);
+                    }
+                }
+                this.recordId = this.recordId;
+            }
+        
     }
 
     @wire(getRecord, { recordId: '$recordId', fields: FIELDS })
     wiredOrderdata({ error, data }) {
         if (data) {
-            const vehicleIRN = data.fields.IRN_No__c?.value;
-            const accessoriesIRN = data.fields.Accessories_IRN_No__c?.value;
-            const merchandiseIRN = data.fields.Merchandise_IRN_No__c?.value;
-            
-            if (vehicleIRN) {
-                this.irnValue = vehicleIRN;
-            } else if (accessoriesIRN) {
-                this.irnValue = accessoriesIRN;
-            } else if (merchandiseIRN) {
-                this.irnValue = merchandiseIRN;
-            }
-            
-            console.log('Selected IRN Value:', this.irnValue);
+            this.irnValue = data.fields.IRN_No__c.value;
+            this.accessoriesIrnValue = data.fields.Accessories_IRN_No__c.value;
+            this.merchandiseIrnValue = data.fields.Merchandise_IRN_No__c.value;
             console.log('Order Data:', data.fields);
         } else if (error) {
             console.error('Error retrieving order data:', error);
@@ -66,12 +70,12 @@ export default class CancelIRNLwc extends LightningElement {
         debugger;
         if (!this.selectedReason) {
             this.closeScreen = 'No';
-            this.showToastMessage('⚠️ Please select a reason!', 'error');
+            this.showToastMessage(' Please select a reason!', 'error');
             return;
         }
         if (!this.irnRemarksValue) {
             this.closeScreen = 'No';
-            this.showToastMessage('⚠️ Please Enter Remarks!', 'error');
+            this.showToastMessage(' Please Enter Remarks!', 'error');
             return;
         }
 
@@ -87,15 +91,15 @@ export default class CancelIRNLwc extends LightningElement {
             if (result === 'success') {
                 updateRecord({ fields: { Id: this.recordId }})
                 this.closeScreen = 'Yes';
-                this.showToastMessage('✔ IRN Canceled Successfully!', 'success');
+                this.showToastMessage('IRN Canceled Successfully!', 'success');
             } else {
-                this.showToastMessage('❌ Error while cancelling IRN', 'error');
+                this.showToastMessage('Error while cancelling IRN', 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
             this.showSpinner = false;
-            this.showToastMessage('❌ Error while cancelling IRN', 'error');
+            this.showToastMessage('Error while cancelling IRN', 'error');
         });
     }
 
@@ -106,9 +110,8 @@ export default class CancelIRNLwc extends LightningElement {
         this.showToast = true;
         this.toastClass = `toast ${variant === 'success' ? 'success-toast' : 'error-toast'}`;
 
-        // Hide toast with animation before closing screen
         setTimeout(() => {
-            this.toastClass += ' toast-hide'; // Add fade-out animation
+            this.toastClass += ' toast-hide'; 
             setTimeout(() => {
                 this.showToast = false;
                 if (this.closeScreen === 'No') {
@@ -116,7 +119,7 @@ export default class CancelIRNLwc extends LightningElement {
                 }else{
                     this.dispatchEvent(new CloseActionScreenEvent());
                 }
-            }, 500); // Wait for fade-out animation
-        }, 2000); // Show for 2.5 seconds before fading out
+            }, 500); 
+        }, 2000); 
     }
 }

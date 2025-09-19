@@ -1,0 +1,82 @@
+<template>
+    <lightning-card title="Labour Effects" icon-name="custom:custom63">
+        <div class="slds-p-around_medium">
+
+            <!-- Existing Records -->
+            <template if:true={existingEffects}>
+                <div class="slds-scrollable_y" style="max-height: 560px;">
+                    <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                        <thead>
+                            <tr class="slds-line-height_reset slds-text-title_caps">
+                                <th scope="col">
+                                    <div class="slds-truncate" title="Name">Name</div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate" title="Labour Code">Labour Code</div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate" title="CodeSet Name">CodeSet</div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate" title="CodeSet Name">Failure Code</div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate" title="CodeSet Name">CodeSet Type</div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={existingEffects} for:item="effect">
+                                <tr key={effect.Id}>
+                                    <td>
+                                        <div class="slds-truncate">{effect.Name}</div>
+                                    </td>
+                                    <td>
+                                        <div class="slds-truncate">{effect.Labour_Code__c}</div>
+                                    </td>
+                                    <td>
+                                        <div class="slds-truncate">{effect.Code_Set__r.Name}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="slds-truncate">{effect.Failure_Code__r.Name}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="slds-truncate">
+                                            {effect.Code_Set__r.CodeSetType}
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+
+            <template if:false={existingEffects}>
+                <p class="slds-p-around_small slds-text-color_weak">No Labour Effects found.</p>
+            </template>
+
+            <!-- Add New Records -->
+            <div class="slds-m-top_large">
+                <div class="slds-grid slds-gutters slds-wrap">
+                    <!-- Record Picker -->
+                    <div class="slds-col slds-size_1-of-3">
+                        <lightning-record-picker label="Select Labour Code" object-api-name="CodeSet"
+                            onchange={handleLabourSelect}>
+                        </lightning-record-picker>
+                    </div>
+
+                    <!-- Save Button -->
+                    <div class="slds-col slds-size_1-of-3 slds-align-bottom">
+                        <lightning-button label="Save Labour Effects" variant="brand" disabled={disableHandleSave}
+                            onclick={handleSave}>
+                        </lightning-button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </lightning-card>
+</template>

@@ -35,16 +35,16 @@ public without sharing class WorkOrderLineItemController {
             }
             
             // Fetch TFR_Part_Effect__c
-            List<TFR_Part_Effect__c> partEffectList = [
-                SELECT Id, Comments__c, Consequence__c, Product__c, Root_Cause__c, TFR__c, Name 
-                FROM TFR_Part_Effect__c 
-                WHERE Product__c = :productId AND TFR__r.Is_Active__c = TRUE 
-                LIMIT 1
-            ];
+            // List<TFR_Part_Effect__c> partEffectList = [
+            //     SELECT Id, Comments__c, Consequence__c, Product__c, Root_Cause__c, TFR__c, Name 
+            //     FROM TFR_Part_Effect__c 
+            //     WHERE Product__c = :productId AND TFR__r.Is_Active__c = TRUE 
+            //     LIMIT 1
+            // ];
             
-            if (!partEffectList.isEmpty()) {
-                prepareData.EffectedParts = partEffectList[0];
-            }
+            // if (!partEffectList.isEmpty()) {
+            //     prepareData.EffectedParts = partEffectList[0];
+            // }
             
             System.debug('prepareData----' + prepareData);
             return prepareData;

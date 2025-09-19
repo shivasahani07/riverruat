@@ -1,0 +1,161 @@
+<template>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header slds-page-header slds-page-header_record-home">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <lightning-icon icon-name="standard:product_required" size="medium"
+                                alternative-text="Labour Codes" class="slds-icon-standard-product-required">
+                            </lightning-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <h1 class="slds-page-header__title slds-truncate">Labour Codes Management</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-page-header__col-actions">
+                    <lightning-button variant="brand" label="Add Labour Codes" onclick={toggleTemplates}
+                        disabled={addMoreDis} icon-name="utility:add">
+                    </lightning-button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Existing Work Plans Table -->
+        <template if:true={existingWorkPlans}>
+            <div class="slds-card slds-m-top_medium">
+                <div class="slds-card__header slds-grid">
+                    <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                        <div class="slds-media__body">
+                            <h2 class="slds-card__header-title">
+                                <span class="slds-text-heading_small">Existing Labour Codes</span>
+                            </h2>
+                        </div>
+                        <div class="slds-media__figure">
+                            <lightning-button-icon icon-name="utility:refresh" alternative-text="Refresh"
+                                onclick={refreshData}></lightning-button-icon>
+                        </div>
+                    </header>
+                </div>
+                <div class="slds-card__body">
+                    <lightning-datatable key-field="Id" data={existingWorkPlans} columns={columns} hide-checkbox-column
+                        onrowaction={handleRowAction} loading={isLoading} default-sort-direction={defaultSortDirection}
+                        sorted-direction={sortDirection} sorted-by={sortedBy} onsort={onHandleSort} resizable-columns>
+                    </lightning-datatable>
+                </div>
+            </div>
+        </template>
+
+        <!-- Add New Labour Codes Form -->
+        <template if:true={showRow}>
+            <div class="slds-card slds-m-top_medium">
+                <div class="slds-card__header">
+                    <h2 class="slds-text-heading_small">Add New Labour Codes</h2>
+                </div>
+                <div class="slds-card__body">
+                    <div class="slds-grid slds-grid_vertical-align-center slds-m-bottom_medium">
+                        <div class="slds-col slds-size_2-of-3">
+                            <p>Add one or more labour codes to this work order.</p>
+                        </div>
+                        <div class="slds-col slds-size_1-of-3 slds-text-align_right">
+                            <lightning-button variant="brand" label="Add Row" icon-name="utility:add"
+                                onclick={addNewRow}>
+                            </lightning-button>
+                        </div>
+                    </div>
+
+                    <template for:each={itemList} for:item="item" for:index="index">
+                        <div key={item.id} class="form-row slds-box slds-m-bottom_small {item.cssClass}">
+                            <div class="slds-grid slds-wrap slds-gutters">
+                                <!-- Labour Category -->
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-12">
+                                    <lightning-combobox name="RR_Labour_Category__c" label="Labour Category"
+                                        value={item.RR_Labour_Category__c} options={filteredReplacementTypeOptions}
+                                        onchange={handleWrarrantyType} data-id={index} required>
+                                    </lightning-combobox>
+                                </div>
+
+                                <!-- Labour Code -->
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-12">
+                                    <lightning-record-picker label="Labour Code" placeholder="Search Labour Code..."
+                                        class="productpicker" disabled={item.isDisbaledProduct}
+                                        object-api-name="CodeSet" value={item.RR_Labour_Code__c}
+                                        icon-name="standard:product" variant="label-stacked" data-id={index}
+                                        onchange={handleCodeselection} required>
+                                    </lightning-record-picker>
+                                </div>
+
+                                <!-- Failure Code (visible for River Warranty) -->
+                                <template if:true={item.isFailureCodeVisible}>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-12">
+                                        <lightning-combobox
+                                            name="failureCode"
+                                            label="Failure Code"
+                                            value={item.Failure_Code__c}
+                                            placeholder="Select Failure Code"
+                                            data-id={index}
+                                            options={item.failureCodeOptions}
+                                            onchange={handleFailureCodeChange}
+                                            required>
+                                        </lightning-combobox>
+                                    </div>
+                                </template>
+
+                                <!-- Labour Charge -->
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-12">
+                                    <lightning-input type="number" label="Labour Charge" name="LabourCharge"
+                                        value={item.LabourCharge} formatter="currency" data-id={index} disabled>
+                                    </lightning-input>
+                                </div>
+
+                                <!-- Actions -->
+                                <div
+                                    class="slds-col slds-size_1-of-1 slds-medium-size_3-of-12 slds-align_absolute-center">
+                                    <lightning-button-icon icon-name="utility:delete" alternative-text="Delete Row"
+                                        title="Delete Row" onclick={removeRow} data-id={index} variant="destructive">
+                                    </lightning-button-icon>
+                                </div>
+                            </div>
+                            
+                            <!-- Description -->
+                            <div class="slds-grid slds-wrap slds-gutters slds-m-top_small">
+                                <div class="slds-col slds-size_1-of-1">
+                                    <lightning-input label="Description" value={item.Description} disabled>
+                                    </lightning-input>
+                                </div>
+                            </div>
+                            
+                            <!-- TFR Message -->
+                            <template if:true={item.tfrMessage}>
+                                <div class="slds-m-top_x-small 
+                                            {item.Post_Vin_cutt_off__c ? 'post-vin-message' : 'pre-vin-message'}">
+                                    <lightning-icon icon-name="utility:info" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
+                                    <span>{item.tfrMessage}</span>
+                                </div>
+                            </template>
+                            
+                            <!-- Error Message -->
+                            <template if:true={item.hasError}>
+                                <div class="slds-notify slds-notify_alert slds-theme_error slds-m-top_small" role="alert">
+                                    <lightning-icon icon-name="utility:error" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                    <span>{item.errorMessage}</span>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <!-- Form Actions -->
+                    <div class="slds-align_absolute-center slds-m-top_large">
+                        <lightning-button variant="neutral" label="Cancel" onclick={toggleTemplates}
+                            class="slds-m-right_small">
+                        </lightning-button>
+                        <lightning-button variant="brand" label="Submit" onclick={handleSubmit} disabled={DisabledsubmitButtin}>
+                        </lightning-button>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+</template>

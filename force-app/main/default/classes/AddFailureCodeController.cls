@@ -215,6 +215,53 @@ insert newFC;
             LIMIT 1
         ];
     }
+
+    @AuraEnabled
+    public static List<Failure_Code__c> getFailureCodeUpdated(String productId, String newVIN){
+        
+        System.debug('productId : ' + productId);
+        /*
+        List<Failure_Code__c> lstFC = [
+            SELECT Id, Name, VIN_Cut_off_No__c, VIN_Cut_off__c, VIN_Cut_off__r.VIN_Start__c, TFR_Part_Effect__c, Product_Name__c, Product_Code__c
+            FROM Failure_Code__c
+            WHERE TFR_Part_Effect__c = :tfrPEId
+            And Is_Active__c = true
+        ];
+        */
+        List<Failure_Code__c> lstFC = [
+            SELECT Id, Name, VIN_Cut_off_No__c, VIN_Cut_off__c, VIN_Cut_off__r.VIN_Start__c, TFR_Part_Effect__c, Product_Name__c, Product_Code__c, TFR_Part_Effect__r.Product__c
+            FROM Failure_Code__c
+            WHERE TFR_Part_Effect__r.Product__c = :productId
+            AND Status__c !='Closed'
+            And Is_Active__c = true
+        ];
+
+        System.debug('lstFC : ' + lstFC);
+        System.debug('lstFC Size : ' + lstFC.size());
+        System.debug('newVIN : ' + newVIN);
+
+
+        List<Failure_Code__c> fcToReturn = new List<Failure_Code__c>();
+
+        for(Failure_Code__c fc : lstFC){
+
+            if (String.isBlank(fc.VIN_Cut_off__r.VIN_Start__c)) {
+                fcToReturn.add(fc);
+                continue;
+            }
+
+            VINCutOffManagement.ComparisonResult cResult = VINCutOffManagement.compareVINFormat(fc.VIN_Cut_off__r.VIN_Start__c, newVIN);
+            System.debug('cResult :  ' + cResult);
+
+            // if(cResult != null && (cResult.resultCode == -1 || cResult.resultCode == -99)){
+            if(cResult != null && cResult.resultCode == 1){
+                fcToReturn.add(fc);
+            }
+        }
+        System.debug('fcToReturn : ' + fcToReturn.size());
+        return fcToReturn;
+        
+    }
     
     
     @AuraEnabled
@@ -281,8 +328,6 @@ toUpdate.add(fc);
     }
     
     
-    
-    
     public static String getFailureCode(Failure_Code__c fcData, String fcName, String prodCode, String newVINCutOff, String productId){
         
         /*
@@ -298,7 +343,8 @@ LIMIT 1
         
         // Calling the VIN Comparision Method
         System.debug('Calling the VIN Comparision Method');
-        Integer comparisonResult = VINCutOffManagement.compareVINFormat(fcData.VIN_Cut_off_No__c, newVINCutOff);
+         VINCutOffManagement.ComparisonResult compResult = VINCutOffManagement.compareVINFormat(fcData.VIN_Cut_off_No__c, newVINCutOff);
+        Integer comparisonResult;
         System.debug('comparisonResult : ' + comparisonResult);
         
         if(comparisonResult == 0){
@@ -337,7 +383,8 @@ LIMIT 1
         Integer comparisonResult;
         
         if(fc != null && fc.VIN_Cut_off__c != null){
-            comparisonResult = VINCutOffManagement.compareVINFormat(fc.VIN_Cut_off_No__c, newVINCutOff);
+            VINCutOffManagement.ComparisonResult compResult = VINCutOffManagement.compareVINFormat(fcData.VIN_Cut_off_No__c, newVINCutOff);
+        
             System.debug('comparisonResult : ' + comparisonResult);
             
             if(comparisonResult == 1){
@@ -493,6 +540,8 @@ LIMIT 1
     public static void getComparisonResult(){
         
     }
+    
+
     
     
 }

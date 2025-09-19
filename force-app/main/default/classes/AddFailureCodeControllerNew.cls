@@ -20,8 +20,11 @@ public without sharing class AddFailureCodeControllerNew {
     }
     
     @AuraEnabled
-    public static OperationResult createPostVINFCPCVIN(String fcName, String productcode, String newVINCutOff) {
+    public static OperationResult createPostVINFCPCVIN(String fcName, String productcode, String newVINCutOff, Integer batchSize) {
         try {
+            System.debug('-----------------createPostVINFCPCVIN-----------------');
+            System.debug('batchSize : ' + batchSize);
+
             // Validate input parameters
             if (String.isBlank(fcName) || String.isBlank(productcode)) {
                 return new OperationResult(false, 'Failure code name, product code are required.');
@@ -64,7 +67,7 @@ public without sharing class AddFailureCodeControllerNew {
                     fcName,
                     partEffectResult.recordId,
                     tfrResult.recordId,
-                    8
+                    batchSize
                 );
                 return (fcResult != null) ? fcResult : new OperationResult(false, 'Failure code creation failed');
             }
@@ -94,7 +97,7 @@ public without sharing class AddFailureCodeControllerNew {
                     OperationResult partEffectResult = checkCausalPartEF(productcode, tfrResult.recordId);
                     if (!partEffectResult.isSuccess) return partEffectResult;
                     
-                    OperationResult fcResult = checkfailureCode(fc, fcName, partEffectResult.recordId, tfrResult.recordId, null);
+                    OperationResult fcResult = checkfailureCode(fc, fcName, partEffectResult.recordId, tfrResult.recordId, batchSize);
                     return fcResult;
                 } else if (comparisonResult == -1) {
                     return new OperationResult(false, 'New VIN is older than existing VIN cutoff.');
@@ -165,6 +168,9 @@ public without sharing class AddFailureCodeControllerNew {
     } 
     
     private static OperationResult checkfailureCode(Failure_Code__c OldFC, String fcName, String partEffectId, String tfrId, Integer batchSize) {
+        System.debug('--------------------- checkfailureCode ---------------------');
+        System.debug('batchSize : ' + batchSize);
+
         try {
             Failure_Code__c newFC = new Failure_Code__c(
                 Name = fcName,
@@ -223,8 +229,8 @@ public without sharing class AddFailureCodeControllerNew {
             }
             
             /*if (String.isBlank(newVINCutOff)) {
-return new OperationResult(false, 'VIN cutoff is required.');
-}*/
+                return new OperationResult(false, 'VIN cutoff is required.');
+            }*/
             
             // Validate VIN format
             VINCutOffManagement.ComparisonResult vinResult;
@@ -248,4 +254,37 @@ return new OperationResult(false, 'VIN cutoff is required.');
             return new OperationResult(false, 'Validation error: ' + e.getMessage());
         }
     }
+
+    @AuraEnabled(cacheable=true)
+    public static List<TFR_Labour_Effect__c> getTFRLabourEffects(Id failureCodeId) {
+        return [
+            SELECT Id, Name, Labour_Code__c, Code_Set__c, VIN_Cut_off__c, Code_Set__r.Name, Code_Set__r.Code, Code_Set__r.CodeSetType, 
+            Failure_Code__c, Failure_Code__r.Name, Active__c
+            FROM TFR_Labour_Effect__c
+            WHERE Failure_Code__c = :failureCodeId
+            AND Active__c = true
+        ];
+    }
+
+    @AuraEnabled
+    public static void CreateLabourCodeForFalireCodes(string failureCodeId, List<String> CodesetsIds){
+        try {
+            list<TFR_Labour_Effect__c> tfrLabourEffectTobeinserted = new list<TFR_Labour_Effect__c>();
+            for(string codeIds :CodesetsIds){
+                TFR_Labour_Effect__c labourEffect = new TFR_Labour_Effect__c(
+                    Code_Set__c =codeIds,
+                    Failure_Code__c = failureCodeId,
+                    Active__c = true
+                );
+                tfrLabourEffectTobeinserted.add(labourEffect);
+            }
+            if(tfrLabourEffectTobeinserted.size()>0){
+                    insert tfrLabourEffectTobeinserted;
+                }
+        } catch (Exception ex) {
+            System.debug('Error while creating TFR_Labour_Effect__c failure codes---'+ex.getMessage() +'at line ---'+ex.getLineNumber());
+        }
+        
+    }
+
 }

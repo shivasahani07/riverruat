@@ -1,0 +1,108 @@
+.wizard-container {
+    margin: 0 auto;
+    border: 1px solid #dddbda;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.16);
+}
+
+.header {
+    background-color: #1589ee;
+    color: white;
+    padding: 1rem 1.5rem;
+    text-align: center;
+}
+
+.header h1 {
+    font-weight: 700;
+}
+
+.progress-container {
+    padding: 0 1.5rem;
+}
+
+.dynamic-container {
+    border: 1px solid #dddbda;
+    border-radius: 0.25rem;
+    padding: 1.5rem;
+    margin: 1rem 1.5rem;
+    min-height: 300px;
+}
+
+.step-header {
+    border-bottom: 1px solid #dddbda;
+    padding-bottom: 1rem;
+}
+
+.step-indicators {
+    padding: 0.5rem 0;
+    border-top: 1px solid #dddbda;
+}
+
+.step-indicator lightning-icon {
+    fill: #dddbda;
+    transition: fill 0.3s ease;
+}
+
+.step-indicator lightning-icon:hover {
+    fill: #706e6b;
+}
+
+.slds-current-step lightning-icon {
+    fill: #1589ee;
+}
+
+.navigation {
+    padding: 0 1.5rem;
+}
+
+/* Custom progress bar styles */
+.slds-progress-bar {
+    height: 0.5rem;
+    border-radius: 1rem;
+    background-color: #dddbda;
+}
+
+.slds-progress-bar__value {
+    background-color: #4bc076;
+    border-radius: 1rem;
+    transition: width 0.5s ease;
+}
+
+/* Animation for step transitions */
+.step-component {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 48em) {
+    .wizard-container {
+        margin: 0.5rem;
+    }
+    
+    .header, .progress-container, .dynamic-container, .navigation {
+        padding: 1rem;
+    }
+    
+    .navigation {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .navigation > div {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+}

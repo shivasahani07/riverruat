@@ -94,15 +94,20 @@ public class JobCardComponentHelper {
                 Contact conObj= new contact();
                 contactDetails condetails = new contactDetails();
                 
-               List<Vehicle> vehcileRec =  [ Select id,VehicleIdentificationNumber, (Select id,stage,Name,MilestoneDate  from AssetMilestones where stage = 'Tentative' limit 1 ) from Vehicle where VehicleIdentificationNumber =:vehicleDetails.VehicleIdentificationNumber];
-
+               List<Vehicle> vehcileRec =  [ Select id,VehicleIdentificationNumber, (Select id,stage,Name,MilestoneDate  from AssetMilestones where stage = 'Tentative' limit 1 ) from Vehicle where VehicleIdentificationNumber =:vehicleDetails.VehicleIdentificationNumber OR VehicleRegistrationNumber =:vehicleDetails.VehicleRegistrationNumber];
+               List<Appointment__c> appointmentList = [Select id,Service_Appointment__r.Vehicle__c,Appointment_Date__c  From  Appointment__c where Service_Appointment__r.Vehicle__r.VehicleRegistrationNumber  =: vehicleDetails.VehicleIdentificationNumber OR Service_Appointment__r.Vehicle__r.VehicleRegistrationNumber =:vehicleDetails.VehicleRegistrationNumber];
                 Date milestoneDate;
                 String milestonName;
+                Date appointmentDate;
                 if (!vehcileRec.isEmpty() && !vehcileRec[0].AssetMilestones.isEmpty()) {
                 milestoneDate = vehcileRec[0].AssetMilestones[0].MilestoneDate;
                 milestonName = vehcileRec[0].AssetMilestones[0].Name; 
                 condetails.furtureMilestoneDate = milestoneDate;
-                condetails.currentMilestoneName = milestonName;
+                condetails.currentMilestoneName  = milestonName;
+               }
+               if (!appointmentList.isEmpty()  ) {
+                appointmentDate = appointmentList[0].Appointment_Date__c;
+                condetails.currentAppointmentDate  = appointmentDate;
                }
                 condetails.isPrimary = false;
                 condetails.isSecondaryPresent = false;
@@ -304,7 +309,7 @@ public class JobCardComponentHelper {
             // }//commented by Aniket on 26/04/2025
             
             If(jobCardDetails.TypeOfJob == 'Periodic Maintenance'){ 
-            AssetMilestone assetRec = [Select id,Stage from AssetMilestone where VehicleId=:jobCardDetails.vehicle.Id AND MilestoneType  =:jobCardDetails.subType  ];
+            AssetMilestone assetRec = [Select id,Stage,Name from AssetMilestone where VehicleId=:jobCardDetails.vehicle.Id AND MilestoneType  =:jobCardDetails.subType  ];
     
             if(assetRec.Stage == 'Tentative' ){
                insert jobCard;
@@ -316,14 +321,55 @@ public class JobCardComponentHelper {
             updatworkOrder.Id = jobCard.Id;
             updatworkOrder.Asset_Milestone__c = assetRecord.Id;
             Update updatworkOrder;
+            System.debug('updatworkOrder'+updatworkOrder);
+            if(updatworkOrder != null){
+                System.debug('SerachAppointment');
+                    WorkOrder jobRec = [Select id, Vehicle_Registration_Number__c  From WorkOrder WHere ID =:updatworkOrder.ID];
+                    System.debug('jobRec'+jobRec);
+                    if(jobRec.Vehicle_Registration_Number__c != null){
+
+                    
+                    Appointment__c appointmentRecRod = [Select Id,VRN__c,Status__c From Appointment__c where VRN__c =:jobRec.Vehicle_Registration_Number__c limit 1  ];
+                    System.debug('appointmentRecRod'+appointmentRecRod);
+                    appointmentRecRod.Status__c = 'Cancel';
+                    appointmentRecRod.Cancellation_Reason__c = 'For this appointment Schedule Service already Done';
+                   update appointmentRecRod;
+
+                   if(appointmentRecRod != null){
+                    List<Task> tasklist= [Select id ,Status,WhatId From Task where WhatId =:appointmentRecRod.Id];
+                    System.debug('tasklist'+tasklist);
+                     list<Task> updatedTasklist = new list<Task>();
+                   
+                    if(!tasklist.IsEmpty()){
+                         for(Task taskRec :tasklist){
+                            taskRec.Status = 'Completed';
+                            updatedTasklist.add(taskRec);
+                        }
+                    }
+
+                    if(!updatedTasklist.IsEmpty()){
+                        System.debug('updatedTasklist'+updatedTasklist);
+                        update updatedTasklist;
+                    }
+                     
+                   }
+
+                }
+           }
            }
            
-           }}else{
+           }
+           }else{
                   jobdetails.message = 'failed';
+                  jobdetails.lapseMileston = assetRec.Name;
            }
             }else{
                 insert jobCard;
                jobdetails.jobcardId = jobCard.Id; 
+                
+                
+
+
                 List<RR_Customer_Voice__c> voiceList = new List<RR_Customer_Voice__c>();
             System.debug('jobCardDetails'+jobCardDetails);
             System.debug('jobCardDetails'+jobCardDetails.concernNoList);
@@ -378,6 +424,8 @@ update vh;*/
         public String jobcardId { get; set; }
         @AuraEnabled
         public String message { get; set; } 
+        @AuraEnabled
+        public String lapseMileston { get; set; }
  
     }
     
@@ -393,7 +441,10 @@ update vh;*/
         @AuraEnabled
         public Date furtureMilestoneDate { get; set; } 
         @AuraEnabled
-        public String currentMilestoneName { get; set; }
+        public String currentMilestoneName { get; set; } 
+         @AuraEnabled
+        public Date currentAppointmentDate { get; set; } 
+         
 
     }
     

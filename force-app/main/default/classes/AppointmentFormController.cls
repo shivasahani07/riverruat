@@ -169,9 +169,7 @@ public without  sharing class AppointmentFormController {
         update ticketRec;
     }
     
-    /* ===============================================================
-AppointmentFormController.cls  •  Updated create‑method
-=============================================================== */
+     
     @AuraEnabled
     public static String createAppointmentforServiceAppointment(
         Id   serviceAppId,     // could be SA, Ticket, or Task
@@ -211,9 +209,7 @@ AppointmentFormController.cls  •  Updated create‑method
             throw new AuraHandledException('Unsupported parent record.');
         }
         
-        /*--------------------------------------------------------------
-* 2. Create Appointment__c
-*------------------------------------------------------------*/
+        
         Appointment__c newApp = new Appointment__c();
         newApp.Service_Center__c   = accountId;
         newApp.VRN__c              = vrn;
@@ -234,20 +230,17 @@ AppointmentFormController.cls  •  Updated create‑method
         insert newApp;
         String newAppId = newApp.Id;  // ← capture Id
         
-        /*--------------------------------------------------------------
-* 3. Tie slot & slot‑item to the new appointment
-*------------------------------------------------------------*/
         Appointment_Slot__c slotRec = [
             SELECT Id, Appointment__c
             FROM   Appointment_Slot__c
             WHERE  Id = :slotId
             LIMIT  1
         ];
-        // slotRec.Appointment__c = newApp.Id;
+         
         update slotRec;
         
         Appointment_Slot_Item__c slotItemRec = [
-            SELECT Id, Booking_Status__c
+            SELECT Id, Booking_Status__c,Start_Time__c,End_Time__c
             FROM   Appointment_Slot_Item__c
             WHERE  Id = :slotItemId
             LIMIT  1
@@ -256,12 +249,10 @@ AppointmentFormController.cls  •  Updated create‑method
         slotItemRec.Appointment__c = newApp.Id;
         update slotItemRec;
         
-        /*--------------------------------------------------------------
-* 4. Update ServiceAppointment status (if applicable)
-*------------------------------------------------------------*/
+       
         if (isServiceAppt) {
             ServiceAppointment sa = [
-                SELECT Id, Call_Status__c,Account.Email__c,Account.Name
+                SELECT Id, Call_Status__c,Account.Email__c,Account.Name,Asset_Milestone__r.MilestoneDate,Service_Centre__r.Name
                 FROM   ServiceAppointment
                 WHERE  Id = :parentId
                 LIMIT  1
@@ -272,19 +263,22 @@ AppointmentFormController.cls  •  Updated create‑method
             OrgWideEmailAddress owea = [SELECT Id, Address, DisplayName FROM OrgWideEmailAddress WHERE DisplayName = 'River Mobility' LIMIT 1 ];
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
             mail.setToAddresses(new String[] { sa.Account.Email__c });
-            mail.setSubject('Your Service Appointment is Cancelled');
-            String body = 'Hey ' + sa.Account.Name + 
-                  ',\n\nYour appointment has been cancelled. ' +
-                  'For more info, please contact our Service Advisor.\n\nThank you.';
+            mail.setSubject('Your Service Appointment is Confirmed');
+            String body = 'Hey ' + sa.Account.Name + ',' +
+              '\n\nYour service appointment has been successfully booked!' +
+              '\n\n📅 Date: ' + sa.Asset_Milestone__r.MilestoneDate +
+              '\n🕒 Time: ' + slotItemRec.Start_Time__c +'to' + slotItemRec.End_Time__c +
+              
+              '\n🏢 Service Center: ' + sa.Service_Centre__r.Name +
+              '\n\nFor any changes or assistance, please contact our Service Advisor.' +
+              '\n\nThank you for choosing us!';
            mail.setPlainTextBody(body);
            mail.setOrgWideEmailAddressId(owea.Id);
            Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
            system.debug('Mail sent Successfully to customer ');
         }
         
-        /*--------------------------------------------------------------
-* 5. Complete open tasks under the parent (SA or Ticket)
-*------------------------------------------------------------*/
+        
         List<Task> openTasks = [
             SELECT Id, Status,Sub_status__c
             FROM   Task
@@ -299,9 +293,7 @@ AppointmentFormController.cls  •  Updated create‑method
         }
         if (!openTasks.isEmpty()) update openTasks;
         
-        /*--------------------------------------------------------------
-* 6. Create reminder task under the Appointment
-*------------------------------------------------------------*/
+         
 
         /*
         Ticket__c appointmentTicket = [
@@ -343,7 +335,7 @@ AppointmentFormController.cls  •  Updated create‑method
     
     @AuraEnabled(cacheable=true)
     public static List<Appointment_Slot__c> getAvailableSlots(Id appointmentId) {
-        // Customize filter logic as needed
+         
         return [  SELECT Id, Name  FROM Appointment_Slot__c  WHERE Service_Center__c != NULL ORDER BY Name ];
     }
     

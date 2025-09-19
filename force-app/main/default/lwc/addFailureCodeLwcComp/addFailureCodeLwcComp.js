@@ -13,10 +13,16 @@ export default class AddFailureCodeLwcComp extends LightningElement {
         isDuplicate: false,
         rowClass: ''
     };
+    @track failureCodeRecordId = null
     @track DisabledhandleSave = true;
     @track messages = {};
     @track hasResults = false;
     @track isLoading = false;
+    @track isShowLaborCodeComponent = false;
+
+    get isSaveDisabled() {
+        return this.isLoading || !this.failureCode.failureCode || !this.failureCode.causalProductCode;
+    }
 
     handleInputChange(event) {
         const field = event.target.dataset.field;
@@ -65,12 +71,15 @@ export default class AddFailureCodeLwcComp extends LightningElement {
                 newVINCutOff: this.failureCode.vinCutoff
             });
 
+            console.log(JSON.stringify('validationResult', validationResult));
             this.messages = validationResult;
             this.hasResults = true;
 
             if (validationResult.isSuccess) {
                 this.showNotification('Validation Success', validationResult.message, 'success');
+
                 this.DisabledhandleSave = false;
+
             } else {
                 this.showNotification('Validation Error', validationResult.message, 'error');
             }
@@ -82,6 +91,7 @@ export default class AddFailureCodeLwcComp extends LightningElement {
     }
 
     async handleSave() {
+        debugger;
         // Validate inputs first
         const inputs = this.template.querySelectorAll('lightning-input');
         let allValid = true;
@@ -104,16 +114,25 @@ export default class AddFailureCodeLwcComp extends LightningElement {
             const result = await createPostVINFCPCVIN({
                 fcName: this.failureCode.failureCode,
                 productcode: this.failureCode.causalProductCode,
-                newVINCutOff: this.failureCode.vinCutoff
+                newVINCutOff: this.failureCode.vinCutoff,
+                batchSize: this.failureCode.batchSize
             });
 
             this.messages = result;
             this.hasResults = true;
 
             if (result.isSuccess) {
+                console.log(JSON.stringify('result', result));
                 this.showNotification('Success', result.message, 'success');
-                this.resetForm();
+                if (result.recordId) {
+                    this.failureCodeRecordId = result.recordId;
+                    alert(result.recordId);
+                }
+                // this.resetForm();
+                this.hasResults = false;
+                this.isShowLaborCodeComponent = true;
             } else {
+                console.log(JSON.stringify('result', result));
                 this.showNotification('Error', result.message, 'error');
             }
         } catch (error) {
@@ -148,5 +167,9 @@ export default class AddFailureCodeLwcComp extends LightningElement {
                 variant: variant
             })
         );
+    }
+
+    get notificationClass() {
+        return `${this.messages.isSuccess ? 'slds-theme_success slds-theme_alert-texture slds-box' : 'slds-theme_warning slds-theme_alert-texture slds-box'}`;
     }
 }

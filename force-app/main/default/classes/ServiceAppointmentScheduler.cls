@@ -5,12 +5,14 @@ global class ServiceAppointmentScheduler implements Database.Batchable<sObject>,
 System.debug('targetDate: ' + targetDate);
 
 return Database.getQueryLocator([
-    SELECT Id, Name, MilestoneDate, Stage, AssetId, VehicleId,Vehicle.Dealer__c, Vehicle.CurrentOwnerId FROM AssetMilestone WHERE MilestoneDate != NULL   AND MilestoneDate <= :targetDate AND Stage = 'Tentative' limit 3
+    SELECT Id, Name, MilestoneDate, Stage, AssetId, VehicleId,Vehicle.Dealer__c, Vehicle.CurrentOwnerId FROM AssetMilestone WHERE MilestoneDate != NULL AND MilestoneDate > TODAY  AND MilestoneDate <= :targetDate AND Stage = 'Tentative'  
 ]);
           
     }
     global void execute(Database.BatchableContext bc, List<AssetMilestone> scope) {
-        system.debug('scope'+scope);
+
+        try{
+           system.debug('scope'+scope);
         List<ServiceAppointment> appointmentsToInsert = new List<ServiceAppointment>();
         Map<Id, AssetMilestone> milestoneToAppointmentMap = new Map<Id, AssetMilestone>();
         
@@ -24,6 +26,7 @@ return Database.getQueryLocator([
             sa.DueDate = milestone.MilestoneDate;
             sa.Description = 'Auto-created Service Appointment for milestone ' + milestone.Name;
             sa.Vehicle__c = milestone.VehicleId;
+            sa.Call_Status__c  = 'Pending';
             sa.Service_Centre__c = milestone.Vehicle.Dealer__c;
             sa.ParentRecordId = milestone.Vehicle.CurrentOwnerId;  
             appointmentsToInsert.add(sa);
@@ -34,45 +37,66 @@ return Database.getQueryLocator([
             system.debug('SA Is Inseterted==='+appointmentsToInsert);
             
             set<Id> vehiclId = new Set<Id>();
+            Set<Id> SAids = new Set<Id>();
             for(ServiceAppointment SARec : appointmentsToInsert){
                 vehiclId.add(SARec.Vehicle__c);
+                SAids.add(SARec.Id);
             }
+             system.debug('vehiclId==='+vehiclId);
             List<Task> tasksToInsert = new List<Task>();
-            List<Vehicle> vehicleList = [select id,Account__c,Account__r.Phone from Vehicle where Account__r.Type = 'Customer' AND ID IN:vehiclId];
+            IF(vehiclId != NULL){
+              List<Vehicle> vehicleList = [select id,Account__c,CurrentOwner.Phone,Dealer__c from Vehicle where CurrentOwner.Type = 'Customer' AND ID IN:vehiclId];
+            system.debug('vehicleList==='+vehicleList);
+            
+
             Map<Id,Vehicle> mapAccountOnVehicelId = new Map<Id,Vehicle>();
             Set<Id> accIds = new Set<ID>();
+            
             For(Vehicle vehiclRec :vehicleList){
-                accIds.add(vehiclRec.Account__c);
+                accIds.add(vehiclRec.Dealer__c);
                 mapAccountOnVehicelId.put(vehiclRec.id,vehiclRec);
             }
-            
+            system.debug('accIds==='+accIds);
             List<Contact> contactList = [Select id From Contact Where Designation__c = 'CRE' AND AccountID IN:accIds];
+            system.debug('contactList==='+contactList);
             Set<Id> conIds = new Set<Id>();
             
             For(Contact conRec :contactList ){
                 conIds.add(conRec.Id);
             }                             
             List<User> userList = [select  id,ContactId,Contact.AccountId from user where ContactId IN:conIds];
+            system.debug('userList==='+userList);
             Map<Id,User> mapAccountOnUser = new Map<Id,User>();
             
             for(User userRec : userList){
                 mapAccountOnUser.put(userRec.Contact.AccountId,userRec);
             }
-            for (ServiceAppointment sa : appointmentsToInsert) {
+            if(SAids != null){
+                 List<ServiceAppointment> serviceAppointmentList = [Select id,AppointmentNumber,Service_Centre__c,Appointment_Date__c,Vehicle__c,ParentRecordId,Vehicle__r.CurrentOwnerId,Vehicle__r.CurrentOwner.Phone,Vehicle__r.CurrentOwner.Email__c from ServiceAppointment where ID IN:SAids];
+                 system.debug('serviceAppointmentList===='+serviceAppointmentList);
+                string custome = serviceAppointmentList[0].Vehicle__r.CurrentOwnerId;
+                 system.debug('custome===='+custome);
+                string customerPhone = serviceAppointmentList[0].Vehicle__r.CurrentOwner.Phone;
+                string customerEmail = serviceAppointmentList[0].Vehicle__r.CurrentOwner.Email__c;
+                 system.debug('customerPhone===='+customerPhone);
+            for (ServiceAppointment sa : serviceAppointmentList) {
                 Task t = new Task();
                 RecordType recid =[Select id from RecordType where SobjectType ='Task' AND DeveloperName = 'Task_Reminder'];
-                t.Subject = 'Follow-up for Service Appointment';
+                t.Subject =   sa.AppointmentNumber +  '- Call_N10';
                 t.WhatId = sa.Id;   
                 t.ActivityDate = sa.Appointment_Date__c.addDays(-10);
-                t.Appointment_Date__c = sa.Appointment_Date__c.addDays(-10);
-                     if (mapAccountOnVehicelId.containsKey(sa.Vehicle__c)) {
+                t.Customer__c = custome;
+                t.Phone_number__c =  customerPhone;
+                t.Customer_Email__c = customerEmail;
+                t.Appointment_Date__c = sa.Appointment_Date__c;
+                    /* if (mapAccountOnVehicelId.containsKey(sa.Vehicle__c)) {
                         t.Customer__c = mapAccountOnVehicelId.get(sa.Vehicle__c).Account__c;
-                        t.Phone_number__c = mapAccountOnVehicelId.get(sa.Vehicle__c).Account__r.Phone;           
-                    }    
+                       // t.Phone_number__c = mapAccountOnVehicelId.get(sa.Vehicle__c).Account__r.Phone;           
+                    } */   
                 t.RecordTypeId = recid.Id;    
                 t.Vehicle__c = sa.Vehicle__c;    
                 if (sa.ParentRecordId != null) {
-                    User mappedUser = mapAccountOnUser.get(sa.ParentRecordId);
+                    User mappedUser = mapAccountOnUser.get(sa.Service_Centre__c);
                     if (mappedUser != null) {
                         t.OwnerId = mappedUser.Id;
                     }
@@ -86,7 +110,14 @@ return Database.getQueryLocator([
                 insert tasksToInsert;
                 system.debug('Task Is Inseterted==='+tasksToInsert);
             }
+            }
+                
+            }
         }
+        }catch (Exception e){
+            System.debug('Error Message ==>' + e.getMessage() + ' && Error Line == >' + e.getLineNumber());
+        }   
+        
     }
 
      global void finish(Database.BatchableContext bc) {

@@ -1,0 +1,31 @@
+.post-vin-row {
+    border-left: 4px solid #c23934;
+    background-color: #fef6f6;
+}
+
+.pre-vin-row {
+    border-left: 4px solid #027e46;
+    background-color: #f1f8f6;
+}
+
+.post-vin-message {
+    color: #c23934;
+    font-weight: bold;
+    font-size: 0.75rem;
+}
+
+.pre-vin-message {
+    color: #027e46;
+    font-weight: bold;
+    font-size: 0.75rem;
+}
+
+.post-vin-status {
+    color: #c23934;
+    font-weight: bold;
+}
+
+.pre-vin-status {
+    color: #027e46;
+    font-weight: bold;
+}

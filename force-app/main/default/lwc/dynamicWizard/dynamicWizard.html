@@ -1,0 +1,123 @@
+<template>
+    <div class="wizard-container slds-box slds-theme_default">
+        <!-- Header -->
+        <div class="header slds-box slds-theme_inverse">
+            <!-- <h1 class="slds-text-heading_medium">Dynamic Form Wizard</h1> -->
+            <p class="slds-text-title slds-m-top_x-small">
+                Complete your process in {componentsLength} simple steps
+            </p>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="progress-container slds-m-around_medium">
+            <!-- <div class="slds-progress-bar slds-progress-bar_circular" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100" 
+                 aria-valuenow={progressValue}>
+                <div class="slds-progress-bar__value" style={progressStyle}></div>
+            </div> -->
+            <div class="slds-grid slds-grid_align-spread slds-m-top_small">
+                <!-- <span class="slds-text-title">Step {currentStepNumber} of {componentsLength}</span> -->
+                <!-- <span class="slds-text-title">{progressValue}% Complete</span> -->
+            </div>
+            
+            <lightning-progress-indicator 
+                current-step={currentStepName}
+                type="base"
+                variant="base"
+                class="slds-m-top_large">
+                
+                <template for:each={components} for:item="cmp">
+                    <lightning-progress-step 
+                        key={cmp.name}
+                        label={cmpLabel}
+                        value={cmp.name}>
+                    </lightning-progress-step>
+                </template>
+            </lightning-progress-indicator>
+        </div>
+
+        <!-- Dynamic Component -->
+        <div class="dynamic-container slds-box slds-theme_shade">
+            <div class="step-header slds-m-bottom_medium">
+                <h2 class="slds-text-heading_small">{currentComponentLabel}</h2>
+                <p class="slds-text-title slds-text-color_weak">
+                    Please provide the required information for this step
+                </p>
+            </div>
+            
+            <template if:true={componentConstructor}>
+                <lwc:component 
+                    lwc:is={componentConstructor} 
+                    lwc:spread={childProps}
+                    data-id="currentStepComponent"
+                    onstepchange={handleStepChange}
+                    class="step-component">
+                </lwc:component>
+            </template>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation slds-grid slds-grid_align-spread slds-m-top_large">
+            <lightning-button
+                label="Previous"
+                onclick={handlePrevious}
+                disabled={isFirst}
+                variant="neutral"
+                icon-name="utility:left"
+                icon-position="left">
+            </lightning-button>
+            
+            <div>
+                <lightning-button
+                    label="Save Progress"
+                    onclick={handleSave}
+                    variant="neutral"
+                    class="slds-m-right_small">
+                </lightning-button>
+                
+                <template if:false={isLast}>
+                    <lightning-button
+                        label="Next"
+                        onclick={handleNext}
+                        variant="brand"
+                        icon-name="utility:right"
+                        icon-position="right"
+                        disabled={nextDisabled}>
+                    </lightning-button>
+                </template>
+                
+                <template if:true={isLast}>
+                    <lightning-button
+                        label="Finish"
+                        onclick={handleFinish}
+                        variant="success"
+                        icon-name="utility:check"
+                        icon-position="right"
+                        disabled={finishDisabled}>
+                    </lightning-button>
+                </template>
+            </div>
+        </div>
+        
+        <!-- Step Indicators -->
+        <div class="step-indicators slds-grid slds-grid_align-center slds-m-top_large">
+            <template for:each={components} for:item="cmp" for:index="index">
+                <div key={cmp.name} class="step-indicator slds-m-horizontal_xx-small">
+                    <button
+                        class="slds-button slds-button_icon"
+                        onclick={handleStepIndicatorClick}
+                        data-index={index}
+                        title={stepIndicatorTitle}>
+                        <lightning-icon
+                            icon-name="utility:dot"
+                            size="small"
+                            alternative-text={stepIndicatorAltText}
+                            class={stepIndicatorClass}>
+                        </lightning-icon>
+                    </button>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>

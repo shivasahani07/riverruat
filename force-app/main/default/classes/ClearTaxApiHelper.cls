@@ -81,8 +81,18 @@ public with sharing class ClearTaxApiHelper {
             if (response.getStatusCode() == 200) {
                 System.debug('Response == > ' + response.getBody());
                 
+                
                 List<Object> responseList = (List<Object>) JSON.deserializeUntyped(response.getBody());
                 List<Object> payloadList = (List<Object>) JSON.deserializeUntyped(payload);
+
+                    if (!responseList.isEmpty()) {
+                        Map<String, Object> firstItem = (Map<String, Object>) responseList[0];
+                        String documentStatus = (String) firstItem.get('document_status');
+
+                        if (documentStatus == 'IRN_CANCELLED') {
+                            return 'IRN for this invoice is cancelled. Please use a new invoice number to generate a fresh IRN.';
+                        }
+                    }
                 
                 if (!responseList.isEmpty()) {
                     Map<String, String> irnMap = new Map<String, String>();

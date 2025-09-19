@@ -55,6 +55,18 @@
         <div class="Section" width="100%">
 
             <div class="slds-grid slds-wrap " style="padding:10px;">
+                <template if:true={showMilestoneMessage}>
+                                     <p class="custom-success-text animate-message">
+                                      🎉{assetMilestoneNam} is due on {FUTUREMilstoneDate} ({taskduedate})
+                                      </p>
+                                       </template>
+                 <template if:true={showAppointmentMessage}>
+                                     <p class="custom-success-text animate-message">
+                                      🎉 Service appointment is already scheduled for this vehicle .
+                                           Please review before creating a new Job Card!
+                                      </p>
+                                       </template>   
+                                                          
                 <div class="slds-col slds-large-size_12-of-12">
                     <div class="slds-grid slds-wrap ">
                         <div class="slds-col slds-large-size_8-of-24">
@@ -79,18 +91,9 @@
                                        required
                                     ></lightning-input>
 
-                                    <template if:true={showMilestoneMessage}>
-                                     <p class="slds-text-color_success">
-                                      🎉A next {assetMilestoneNam} appointment is already scheduled for this vehicle .
- Please review before creating a new Job Card!
-                                      </p>
-                                       </template>
-                                       <template if:true={showerrorMessage}>
-    <div class="slds-text-color_error slds-m-top_small">
-        {errorMessage}
-    </div>
-</template>
-        
+                                    
+                                      
+         
                                     <div if:true={showAdvisorList} class="slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid"
                                         role="listbox" style="max-width: 99%;">
                                         <ul class="slds-listbox slds-listbox_vertical" role="presentation">
@@ -725,6 +728,12 @@
     </div>
     
         <div class="Section">
+             <template if:true={showerrorMessage}>
+                                        <p class="milestone-error animate-message">
+    👉 This milestone ({lapseMilestoneName}) has already been completed!!
+</p>
+
+                                 </template> 
             <lightning-button class="buttonGroup" style="padding:10px;" variant="success" label="Submit" onclick={handleSubmit} disabled={disableSave}></lightning-button>
         </div>
     </template>

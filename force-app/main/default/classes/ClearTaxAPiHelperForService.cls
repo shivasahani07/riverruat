@@ -90,6 +90,18 @@ try {
     if (response.getStatusCode() == 200) {
         System.debug('Response == > ' + response.getBody());
 
+        List<Object> jsonResponseList = (List<Object>) JSON.deserializeUntyped(response.getBody());
+
+        if (!jsonResponseList.isEmpty()) {
+            Map<String, Object> firstItem = (Map<String, Object>) jsonResponseList[0];
+            String documentStatus = (String) firstItem.get('document_status');
+
+            if (documentStatus == 'IRN_CANCELLED') {
+                return 'IRN for this invoice is cancelled. Please use a new invoice number to generate a fresh IRN.';
+            }
+        }
+        
+
         List<Object> responseList = (List<Object>) JSON.deserializeUntyped(response.getBody());
         List<Object> payloadList = (List<Object>) JSON.deserializeUntyped(payload);
 
@@ -257,7 +269,7 @@ Map<String, Object> tranDtls = new Map<String, Object>{
 };
 Map<String, Object> docDtls = new Map<String, Object>{
     'Typ' => 'INV',
-    'No' => 'Kvv'+ wo.Invoice_No__c,
+    'No' => 'tvv'+ wo.Invoice_No__c,
     'Dt' => now.format('dd/MM/yyyy')
 };
 
@@ -454,18 +466,6 @@ return JSON.serialize(payloadList);
 private static Decimal round2(Decimal d) {
 return d == null ? null : d.setScale(2);
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // =============================================================================================================================================================================================================

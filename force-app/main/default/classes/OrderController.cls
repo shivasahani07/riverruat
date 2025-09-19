@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 05-13-2025
+ * @last modified on  : 09-16-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public class OrderController {
@@ -204,7 +204,7 @@ public class OrderController {
                     orderIds.add(oi.OrderId);
                 }
                 List<Order> relatedOrders = [SELECT Id, Assigned_Vehicle__c, RecordTypeId FROM Order WHERE Id IN :orderIds];
-                eWAndRSAAfterOTC(relatedOrders);
+                //eWAndRSAAfterOTC(relatedOrders);//commented by Aniket on 26/09/2025
                 createSalesConsumptionAndUpdateInventory(recordsToInsert);//added by Aniket on 28/05/2025   
                 //upto this
                 System.debug('Successfully Inserted Order Items: ' + recordsToInsert);
@@ -417,7 +417,7 @@ public static String createOrderRecord(String shipmentType, Integer additonal, S
             System.debug('orderIdsToProcessWhenAssignedVehicle==>'+orderIdsToProcessWhenAssignedVehicle);
                 }
                 if(!orderIdsToProcessWhenAssignedVehicle.isEmpty()){
-                    System.enqueueJob(new QueueableForOTCEWIntegration(orderIdsToProcessWhenAssignedVehicle,mapWhenAssignedVehicle));
+                   // System.enqueueJob(new QueueableForOTCEWIntegration(orderIdsToProcessWhenAssignedVehicle,mapWhenAssignedVehicle));
                 }
                 if(!finalOrderList.isEmpty()){
                     System.debug('RSA Method Is Called By Aniket 2');

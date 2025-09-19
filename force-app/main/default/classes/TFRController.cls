@@ -374,14 +374,19 @@ public without sharing class TFRController {
     }
     
     
-      @AuraEnabled(cacheable=true)
+   @AuraEnabled(cacheable=true)
     public static List<Failure_Code__c> getFailureCodes() {
         return [
-            SELECT Id, Name, Batch_Size__c, Sample_Collected__c, Is_Active__c, TFR_Part_Effect__c,
-                   TFR_Part_Effect__r.Product__r.Name, TFR_Part_Effect__r.Product__r.ProductCode,
-                   VIN_Cut_off__c, VIN_Cut_off__r.Is_Active__c, VIN_Cut_off__r.VIN_Start__c,CreatedBy.Name,Createddate,FPV_Validation__c
+            SELECT Id, Name, Batch_Size__c, Sample_Collected__c, Is_Active__c, 
+                   TFR_Part_Effect__c, TFR_Part_Effect__r.Product__r.Name, 
+                   TFR_Part_Effect__r.Product__r.ProductCode, TFR_Labour_Effect__c,
+                   TFR_Labour_Effect__r.Code_Set__r.Name, TFR_Labour_Effect__r.Code_Set__r.Code,
+                   VIN_Cut_off__c, VIN_Cut_off__r.Is_Active__c, VIN_Cut_off__r.VIN_Start__c,
+                   CreatedBy.Name, CreatedDate, FPV_Validation__c, Type__c
             FROM Failure_Code__c
-            LIMIT 100
+            WHERE (TFR_Part_Effect__c != NULL OR TFR_Labour_Effect__c != NULL)
+            ORDER BY CreatedDate DESC
+            LIMIT 1000
         ];
     }
     

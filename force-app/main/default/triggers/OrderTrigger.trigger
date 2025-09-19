@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 07-16-2025
+ * @last modified on  : 09-16-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 // /**
@@ -103,6 +103,9 @@ trigger OrderTrigger on Order (
         if(TriggerInstance.isActive__c == true){
             StatusUpdateOnWebsite.afterUpdate(Trigger.new,Trigger.oldMap);//added by Aniket on 02/07/2025
         }
+        
+        OrderInvoiceGenerationOTCController.eWAndRSACallout(Trigger.new, Trigger.oldMap);
+    //added by Aniket on 16/09/2025
 
         // Process each order
         for (Order ord : Trigger.new) {

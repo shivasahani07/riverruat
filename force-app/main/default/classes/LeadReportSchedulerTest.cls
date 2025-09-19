@@ -7,16 +7,28 @@ public class LeadReportSchedulerTest {
         
         insert acc;
         
-        Report r = [SELECT Id,DeveloperName,Name FROM Report WHERE Name = 'Daily lead updates' LIMIT 1];
+        Report r = [SELECT Id,DeveloperName,Name FROM Report WHERE Name = 'Leads report' LIMIT 1];
   
         LeadReportScheduler scheduler = new LeadReportScheduler();
 
         Test.startTest();
         
-        String cronExpression = '0 0 0 1 1 ?';
+        scheduler.executeWithHour(19);
         
-        System.schedule('Lead Scheduler Test Class', cronExpression, new LeadReportScheduler());
         
+        /*String cronExpression = '0 0 0 1 1 ?';
+        
+        System.schedule('Lead Scheduler Test Class', cronExpression, new LeadReportScheduler().executeWithHour(19));*/
+        
+        Test.stopTest();
+    }
+    @isTest
+    static void testSendReportEmailAt7AM() {
+        // covers morning path
+        LeadReportScheduler scheduler = new LeadReportScheduler();
+
+        Test.startTest();
+        scheduler.executeWithHour(7);
         Test.stopTest();
     }
 }

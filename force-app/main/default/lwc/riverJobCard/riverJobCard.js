@@ -105,8 +105,12 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
     @track EstimatedDeliveryTime;
     @track enableFetchButton = true;
     @track FUTUREMilstoneDate;
+    @track taskduedate;
+    @track currentAppointmentDate;
     @track assetMilestoneNam;
+    @track lapseMilestoneName;
     @track showMilestoneMessage = false;
+    @track showAppointmentMessage = false;
     @track showerrorMessage  = false;
 
     error;
@@ -556,7 +560,14 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
                     this.showToastMessage('Success', 'OTP verified successfully', 'success');
                     this.tile1 = !this.tile1;
 
-                    this.FUTUREMilstoneDate = result.furtureMilestoneDate;
+                    let milestoneDate = new Date(result.furtureMilestoneDate);
+
+                    // Subtract 10 days
+                     milestoneDate.setDate(milestoneDate.getDate() - 10);
+
+                    // Assign values back
+                     this.FUTUREMilstoneDate = result.furtureMilestoneDate; // original date
+                     this.taskduedate = milestoneDate.toISOString().split('T')[0];
 
 if (this.FUTUREMilstoneDate) {
     // Convert to Date object
@@ -578,6 +589,22 @@ if (this.FUTUREMilstoneDate) {
 }
  else {
     this.showMilestoneMessage = false;
+}
+if (this.currentAppointmentDate) {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+
+            // Convert both to YYYY-MM-DD for comparison
+            const formattedTomorrow = tomorrow.toISOString().split('T')[0];
+            const formattedAppointment = new Date(this.currentAppointmentDate)
+                .toISOString()
+                .split('T')[0];
+
+            // If appointment date is tomorrow, show the message
+            this.showAppointmentMessage = formattedAppointment === formattedTomorrow;
+        }else {
+    this.showAppointmentMessage = false;
 }
 
                 })
@@ -961,8 +988,9 @@ if (this.FUTUREMilstoneDate) {
                     if (result.message === 'failed') {
             // Show custom error message in HTML
             this.showerrorMessage = true;
-            this.errorMessage = 'There is already Job Card for the same milestone';
-            this.showToastMessage('Error', this.errorMessage, 'error');
+            this.lapseMilestoneName = result.lapseMileston;
+            //this.errorMessage = 'There is already Job Card for the same milestone';
+           // this.showToastMessage('Error', this.errorMessage, 'error');
             this.disableSave = false;
         } else {
                     this.showToastMessage('Success', 'JobCard created successfully', 'success');

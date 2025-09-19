@@ -52,7 +52,7 @@ public class QueueableForOTCEWIntegrationTest {
         insert o;
         
         List<Id> orderIds = new List<Id>{oldOrder.Id};
-         OrderController.wrapperForEWIntegration ww = new OrderController.wrapperForEWIntegration();
+         OrderInvoiceGenerationOTCController.wrapperForEWIntegration ww = new OrderInvoiceGenerationOTCController.wrapperForEWIntegration();
                             ww.vehicleId = testVehicle.Id;
                             ww.dealerCode = testAccount.Center_Code__c;
                             ww.purchaseDate = testVehicle.Purchased_Date__c;
@@ -61,7 +61,7 @@ public class QueueableForOTCEWIntegrationTest {
                             ww.battery = testVehicle.RR_Battery_Number__c;
                             ww.engineNumber = testVehicle.EngineNumber;
                             ww.charger = testVehicle.Charger_PC_Number__c;
-        Map<Id,OrderController.wrapperForEWIntegration> wrapperValues = new Map<Id,OrderController.wrapperForEWIntegration>();
+        Map<Id,OrderInvoiceGenerationOTCController.wrapperForEWIntegration> wrapperValues = new Map<Id,OrderInvoiceGenerationOTCController.wrapperForEWIntegration>();
         wrapperValues.put(oldOrder.Id,ww);
         
         Test.setMock(HttpCalloutMock.class, new HttpCalloutMockImplEW());  
@@ -142,7 +142,7 @@ public class QueueableForOTCEWIntegrationTest {
         insert o;
         
         List<Id> orderIds = new List<Id>{oldOrder.Id};
-         OrderController.wrapperForEWIntegration ww = new OrderController.wrapperForEWIntegration();
+         OrderInvoiceGenerationOTCController.wrapperForEWIntegration ww = new OrderInvoiceGenerationOTCController.wrapperForEWIntegration();
                             ww.vehicleId = testVehicle.Id;
                             ww.dealerCode = testAccount.Center_Code__c;
                             ww.purchaseDate = testVehicle.Purchased_Date__c;
@@ -151,7 +151,7 @@ public class QueueableForOTCEWIntegrationTest {
                             ww.battery = testVehicle.RR_Battery_Number__c;
                             ww.engineNumber = testVehicle.EngineNumber;
                             ww.charger = testVehicle.Charger_PC_Number__c;
-        Map<Id,OrderController.wrapperForEWIntegration> wrapperValues = new Map<Id,OrderController.wrapperForEWIntegration>();
+        Map<Id,OrderInvoiceGenerationOTCController.wrapperForEWIntegration> wrapperValues = new Map<Id,OrderInvoiceGenerationOTCController.wrapperForEWIntegration>();
         wrapperValues.put(oldOrder.Id,ww);
         
         Test.setMock(HttpCalloutMock.class, new HttpCalloutMockImplEWFprfailure());  
