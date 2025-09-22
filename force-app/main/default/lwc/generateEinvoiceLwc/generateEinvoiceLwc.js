@@ -65,7 +65,7 @@ export default class GenerateEinvoiceLwc extends LightningElement {
              updateRecord({ fields: { Id: this.recordId }})
              setTimeout(() => {
                 this.handleSave();
-             }, 2000);
+             }, 5000);
             }else{
                 this.showToast('ERROR', result, 'error');
             }

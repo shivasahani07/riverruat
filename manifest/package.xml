@@ -12,10 +12,7 @@
         <members>*</members>
         <name>ApexPage</name>
     </types>
-    <types>
-        <members>*</members>
-        <name>ApexTestSuite</name>
-    </types>
+    
     <types>
         <members>*</members>
         <name>ApexTrigger</name> 
@@ -28,10 +25,7 @@
         <members>*</members>
         <name>LightningComponentBundle</name>
     </types>
-    <types>
-        <members>*</members>
-        <name>StaticResource</name>
-    </types>
+    
     <types>
     <members>*</members>
         <name>CustomObject</name>

@@ -1,18 +1,16 @@
-@IsTest
-public class OrderInvoiceGenerationOTCControllerTest {
+@isTest
+public class ExtendedWarrantyForVehicleOrderTest {
     @IsTest
-    static void testCoverageMethod(){
+    static void coverMethods(){
         Account testAccount = new Account(Name = 'Test Account',Center_Code__c = '291002',Email__c = 'test@example.com',Phone='0987654321');
         insert testAccount;
-        Product2 testProduct = new Product2(Name = 'Test Product', ProductCode = 'RV-EW001', IsActive = true, HSN_Code__c = '12345', Type__c= 'Accessories');
+        Product2 testProduct = new Product2(Name = 'Test Product', ProductCode = 'RV-EW-001', IsActive = true, HSN_Code__c = '12345', Type__c= 'Accessories');
         insert testProduct;
-        
-        Product2 rsaProduct = new Product2(Name = 'Road Side Assistance', ProductCode = 'RSA-G2', IsActive = true, HSN_Code__c = '12345', Type__c= 'Accessories');
-        insert rsaProduct;
+       
         
         RecordType otcRecordType = [
             SELECT Id FROM RecordType
-            WHERE DeveloperName = 'OTC' AND SObjectType = 'Order'
+            WHERE DeveloperName = 'Vehicle' AND SObjectType = 'Order'
             LIMIT 1
         ];
         Asset testAsset = new Asset(Name='Test Asset 1',AccountId=testAccount.Id,	Product2Id=testProduct.Id);
@@ -45,15 +43,7 @@ public class OrderInvoiceGenerationOTCControllerTest {
             IsActive = true
         );
         insert pbe;
-        
-        PricebookEntry pbeRSA = new PricebookEntry(
-            Pricebook2Id = Test.getStandardPricebookId(),
-            Product2Id = rsaProduct.Id,
-            UnitPrice = 999,
-            IsActive = true
-        );
-        insert pbeRSA;
-        
+         
         OrderItem orderItem = new OrderItem(
             OrderId = order.Id,
             Product2Id = testProduct.Id,
@@ -64,15 +54,7 @@ public class OrderInvoiceGenerationOTCControllerTest {
         );
         insert orderItem;
         
-        OrderItem rsaItem = new OrderItem(
-            OrderId = order.Id,
-            Product2Id = rsaProduct.Id,
-            Quantity = 1,
-            UnitPrice = 999,
-            PricebookEntryId = pbeRSA.id,
-            Type__c = 'Accessories'
-        );
-        insert rsaItem;
+        
         
         Order_Invoice__c o1 = new Order_Invoice__c();
         o1.Name='Accessories Invoice';
@@ -87,12 +69,26 @@ public class OrderInvoiceGenerationOTCControllerTest {
         
         Test.setCreatedDate(orderItem.Id,mockCreatedDate);
         
-        Test.setCreatedDate(rsaItem.Id,mockCreatedDate);
+        
+        Website_Creds__c rwd = new Website_Creds__c(Name='Website Creds', BaseURL__c='https://dummywebsite.com');
+        insert rwd;
+
+        
+        Test.setMock(HttpCalloutMock.class, new MockRiverCreateOrderCallout());
         
         Test.startTest();
-        order.Status='Invoice Generation';
+        order.Status='RTO Registration';
         update order;
         Test.stopTest();
+    }
+    public class MockRiverCreateOrderCallout implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            HttpResponse res = new HttpResponse();
+            res.setHeader('Content-Type', 'application/json');
+            res.setBody('{\"code\":200,\"success\":true,\"data\":{\"order_id\":\"d95a36f4-f2c4-4252-89ed-8c8632db661f\",\"order_item\":[{\"id\":\"34cc9a9e-43ba-4101-87f0-084e04266ee1\",\"sku\":\"RINDIE-MB-9\",\"product_type\":\"Vehicle\"}]}}');
+            res.setStatusCode(200);
+            return res;
+        }
     }
 
 }

@@ -107,6 +107,7 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
     @track FUTUREMilstoneDate;
     @track taskduedate;
     @track currentAppointmentDate;
+    @track daysDifference;
     @track assetMilestoneNam;
     @track lapseMilestoneName;
     @track showMilestoneMessage = false;
@@ -522,6 +523,7 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
         this.otpSent = '';
     }
 
+    
     verifyOTP() {
         // Validate phone number format (10 digits and only numbers)
         debugger;
@@ -568,6 +570,27 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
                     // Assign values back
                      this.FUTUREMilstoneDate = result.furtureMilestoneDate; // original date
                      this.taskduedate = milestoneDate.toISOString().split('T')[0];
+
+                    let milestoneDatecount = new Date(this.FUTUREMilstoneDate);
+
+// Today's date
+let today = new Date();
+today.setHours(0, 0, 0, 0);
+
+// Due date (10 days before milestone)
+let dueDate = new Date(milestoneDatecount);
+dueDate.setDate(milestoneDatecount.getDate() - 10);
+
+// Store ISO string for taskduedate
+this.taskduedate = dueDate.toISOString().split('T')[0];
+
+// Calculate day difference (milestone - today)
+let diffTime = milestoneDatecount.getTime() - today.getTime();
+let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+console.log('Days difference: ' + diffDays);
+this.daysDifference = diffDays;
+
 
 if (this.FUTUREMilstoneDate) {
     // Convert to Date object

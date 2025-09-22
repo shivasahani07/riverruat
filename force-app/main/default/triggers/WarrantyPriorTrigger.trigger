@@ -10,6 +10,7 @@ trigger WarrantyPriorTrigger on Warranty_Prior__c (before update,after update, b
         //WarrantyPriorTriggerHandler.creatClaimLineItemPartJobsAdded(Trigger.new, Trigger.oldMap);//Commented by Aniket To Test
         //WarrantyPriorTriggerHandler.handleWarrantyApproval(Trigger.new, Trigger.oldMap);//Commented By Aniket To Test
         WarrantyPriorTriggerHandler.createClaimAndClaimItem(Trigger.new, Trigger.oldMap);
+        DMLLogger.logChanges(Trigger.oldMap, Trigger.newMap, 'UPDATE', 'Warranty_Prior__c');
         
         // WarrantyPriorTriggerHandler.sendNotificationToDealer(Trigger.new,Trigger.oldMap);
     }
@@ -27,6 +28,9 @@ trigger WarrantyPriorTrigger on Warranty_Prior__c (before update,after update, b
     //Added By Ram 24/06/2025
     if(trigger.IsBefore && trigger.IsDelete){
         JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.old);
+        DMLLogger.logChanges(Trigger.oldMap, null, 'DELETE', 'Warranty_Prior__c');
     }
+    
+    
     
 }

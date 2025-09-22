@@ -282,10 +282,14 @@ public static String generatePayloadForIRN(Id orderId) {
             }
         }
 
+        Set<String> excludedProducts = new Set<String>{'Road Side Assistance', 'River Extended Warranty'};
+
         Decimal totalGross = 0;
         for (OrderItem oi : items) {
-            Decimal grossAmount = (oi.UnitPrice != null ? oi.UnitPrice : 0) * (oi.Quantity != null ? oi.Quantity : 0);
-            totalGross += grossAmount;
+            if (!excludedProducts.CONTAINS(oi.Product2.Name)) {
+                Decimal grossAmount = (oi.UnitPrice != null ? oi.UnitPrice : 0) * (oi.Quantity != null ? oi.Quantity : 0);
+                totalGross += grossAmount;
+            }
         }
 
         for (OrderItem item : items) {
@@ -301,7 +305,7 @@ public static String generatePayloadForIRN(Id orderId) {
             }
 
             // Prorate order-level ONLY over gross, no "eligible value" logic
-            if (orderLevelDiscount > 0 && totalGross > 0) {
+            if (orderLevelDiscount > 0 && totalGross > 0 && !excludedProducts.CONTAINS(item.Product2.Name)) {
                 Decimal itemShare = (grossAmount / totalGross) * orderLevelDiscount;
                 perItemTotalDiscount += itemShare;
             }

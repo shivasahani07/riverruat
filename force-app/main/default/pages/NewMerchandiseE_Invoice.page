@@ -139,8 +139,8 @@
                 <th colspan="2" style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal;">IGST</th>
                 <th colspan="2" style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal;">CGST</th>
                 <th colspan="2" style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal;">SGST</th>
-                <th rowspan="2" style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal;">Post <br/>GST <br/> Discount</th>
-                <th rowspan="2" style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal;">Total <br/>Amount</th>
+              <!--  <th rowspan="2" style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal;">Post <br/>GST <br/> Discount</th> -->
+                <th rowspan="2" colspan="2" style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal;">Total <br/>Amount</th>
             </tr>
             <tr>
                 <th style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal;">%</th>
@@ -201,8 +201,8 @@
                     <td style="padding:10px 5px 0 8px;border-right:1px solid;border-left:1px solid;vertical-align:top;">
                         <apex:outputText value="{!IF(sameState, TEXT(row.oi.Product_SGST_Amount__c), '-')}" />
                     </td>
-                    <td style="padding-top:10px;padding-right:5px;padding-left:8px;border-right:1px solid;border-left:1px solid;vertical-align:top;">0</td>
-                    <td style="padding-top:10px;padding-right:5px;padding-left:8px;border-right:1px solid;border-left:1px solid;vertical-align:top;">
+                   <!-- <td style="padding-top:10px;padding-right:5px;padding-left:8px;border-right:1px solid;border-left:1px solid;vertical-align:top;">0</td> -->
+                    <td colspan="2" style="padding-top:10px;padding-right:5px;padding-left:8px;border-right:1px solid;border-left:1px solid;vertical-align:top;">
                         <apex:outputText value="{0, number, #,##,##0}">
                             <apex:param value="{!row.oi.Product_Total_Amount__c}"/>
                         </apex:outputText>

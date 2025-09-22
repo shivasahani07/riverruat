@@ -7,80 +7,87 @@
 **/
 public class OrderItemTriggerHandler {
     
-        public static void handleAfterInsert(List<OrderItem> orderItems) {
+    public static void handleAfterInsert(List<OrderItem> orderItems) {
         if (orderItems == null || orderItems.isEmpty()) {
             System.debug('No OrderItems found in Trigger.new');
             return;
         }
-    
+        
         Set<Id> orderIds = new Set<Id>();
-    
+        
         for (OrderItem oi : orderItems) {
             if (oi.OrderId != null) {
                 orderIds.add(oi.OrderId);
             }
         }
-    
+        
         if (orderIds.isEmpty()) {
             System.debug('No valid Order IDs found.');
             return;
         }
-    
+        
         Map<Id, Decimal> totalVehicleRollup = new Map<Id, Decimal>();
         Map<Id, Decimal> totalAccessoriesRollup = new Map<Id, Decimal>();
         Map<Id, Decimal> totalMerchandiseRollup = new Map<Id, Decimal>();
-    
+        
         Map<Id, Decimal> accessoriesUnitPriceMap = new Map<Id, Decimal>();
         Map<Id, Decimal> merchandiseUnitPriceMap = new Map<Id, Decimal>();
-    
+        
         List<OrderItem> orderItemsToUpdate = new List<OrderItem>();
         List<OrderItem> allOrderItems = [
-            SELECT Id, OrderId, Type__c, Vehicle_Roll_Up__c, Accessories_Roll_Up__c, Merchandise_Disccount__c,
-                   Product_Total_Amount__c, UnitPrice, Quantity, Total_Pre_GST_Discount__c
+            SELECT Id, OrderId, Type__c, Vehicle_Roll_Up__c, Accessories_Roll_Up__c, Merchandise_Disccount__c, Product2.Name,
+            Product_Total_Amount__c, UnitPrice, Quantity, Total_Pre_GST_Discount__c
             FROM OrderItem 
             WHERE OrderId IN :orderIds
         ];
-    	
-         Decimal TotalPreGSTDis = 0;
+        
+        Decimal TotalPreGSTDis = 0;
         for (OrderItem oi : allOrderItems) {
             Decimal rollupValue = oi.Product_Total_Amount__c != null ? oi.Product_Total_Amount__c : 0;
             Decimal unitTotal = (oi.UnitPrice != null && oi.Quantity != null) ? oi.UnitPrice * oi.Quantity : 0;
             System.debug('Total_Pre_GST_Discount__c====> ' + oi.Total_Pre_GST_Discount__c);
             System.debug('oi.Product_Total_Amount__c ==>'+ oi.Product_Total_Amount__c);
             
-             TotalPreGSTDis += (oi.Total_Pre_GST_Discount__c != null ? oi.Total_Pre_GST_Discount__c : 0);
+            TotalPreGSTDis += (oi.Total_Pre_GST_Discount__c != null ? oi.Total_Pre_GST_Discount__c : 0);
             System.debug('Total_Pre_GST_Discount__c====> ' + TotalPreGSTDis);
-    
+            
             if (oi.Type__c == 'Vehicle') {
                 totalVehicleRollup.put(oi.OrderId,
-                    totalVehicleRollup.containsKey(oi.OrderId) ? totalVehicleRollup.get(oi.OrderId) + rollupValue : rollupValue);
-            } else if (oi.Type__c == 'Accessories' || oi.Type__c == 'Parts') {
+                                       totalVehicleRollup.containsKey(oi.OrderId) ? totalVehicleRollup.get(oi.OrderId) + rollupValue : rollupValue);
+            } else if ((oi.Type__c == 'Accessories' || oi.Type__c == 'Parts')) {
                 totalAccessoriesRollup.put(oi.OrderId,
-                    totalAccessoriesRollup.containsKey(oi.OrderId) ? totalAccessoriesRollup.get(oi.OrderId) + rollupValue : rollupValue);
-                accessoriesUnitPriceMap.put(oi.OrderId,
-                    accessoriesUnitPriceMap.containsKey(oi.OrderId) ? accessoriesUnitPriceMap.get(oi.OrderId) + unitTotal : unitTotal);
+                                           totalAccessoriesRollup.containsKey(oi.OrderId) ? totalAccessoriesRollup.get(oi.OrderId) + rollupValue : rollupValue);
+                
+                // Exclude "Road Side Assistance" and "River Extended Warranty"
+                if (
+                    oi.Product2.Name != 'Road Side Assistance' &&
+                    !oi.Product2.Name.contains('River Extended Warranty')
+                ) {
+                    accessoriesUnitPriceMap.put(oi.OrderId,
+                                                accessoriesUnitPriceMap.containsKey(oi.OrderId) ? accessoriesUnitPriceMap.get(oi.OrderId) + unitTotal : unitTotal);
+                }
             } else if (oi.Type__c == 'Merchandise') {
                 totalMerchandiseRollup.put(oi.OrderId,
-                    totalMerchandiseRollup.containsKey(oi.OrderId) ? totalMerchandiseRollup.get(oi.OrderId) + rollupValue : rollupValue);
+                                           totalMerchandiseRollup.containsKey(oi.OrderId) ? totalMerchandiseRollup.get(oi.OrderId) + rollupValue : rollupValue);
                 merchandiseUnitPriceMap.put(oi.OrderId,
-                    merchandiseUnitPriceMap.containsKey(oi.OrderId) ? merchandiseUnitPriceMap.get(oi.OrderId) + unitTotal : unitTotal);
+                                            merchandiseUnitPriceMap.containsKey(oi.OrderId) ? merchandiseUnitPriceMap.get(oi.OrderId) + unitTotal : unitTotal);
             }
             if(trigger.isAfter && Trigger.isInsert){
-                 orderItemsToUpdate.add(oi);
+                orderItemsToUpdate.add(oi);
                 System.debug('orderItemsToUpdate ==>'+orderItemsToUpdate);
             }
-           
+            
         }
-    
+        
         System.debug('Total Vehicle Rollups: ' + totalVehicleRollup);
         System.debug('Total Accessories Rollups: ' + totalAccessoriesRollup);
         System.debug('Total Merchandise Rollups: ' + totalMerchandiseRollup);
         System.debug('Accessories Unit Price Rollups: ' + accessoriesUnitPriceMap);
         System.debug('Merchandise Unit Price Rollups: ' + merchandiseUnitPriceMap);
         
-    
+        
         List<Order> ordersToUpdate = new List<Order>();
-    
+        
         for (Id orderId : orderIds) {
             Decimal vehicleTotal = totalVehicleRollup.containsKey(orderId) ? totalVehicleRollup.get(orderId) : 0;
             Decimal accessoriesTotal = totalAccessoriesRollup.containsKey(orderId) ? totalAccessoriesRollup.get(orderId) : 0;
@@ -88,7 +95,7 @@ public class OrderItemTriggerHandler {
             
             Decimal accessoriesUnitTotal = accessoriesUnitPriceMap.containsKey(orderId) ? accessoriesUnitPriceMap.get(orderId) : 0;
             Decimal merchandiseUnitTotal = merchandiseUnitPriceMap.containsKey(orderId) ? merchandiseUnitPriceMap.get(orderId) : 0;
-    
+            
             Order updatedOrder = new Order(
                 Id = orderId,
                 Total_Vehicle_Rollup__c = vehicleTotal.round(),
@@ -100,7 +107,7 @@ public class OrderItemTriggerHandler {
             );
             ordersToUpdate.add(updatedOrder);
         }
-    
+        
         if (!ordersToUpdate.isEmpty()) {
             try {
                 update ordersToUpdate;
@@ -110,8 +117,8 @@ public class OrderItemTriggerHandler {
                 System.debug('Error updating Orders: ' + e.getMessage());
             }
         }
-		
-           if (!orderItemsToUpdate.isEmpty()) {
+        
+        if (!orderItemsToUpdate.isEmpty()) {
             try {
                 update orderItemsToUpdate;
                 System.debug('ordersItemToUpdate ==>'+orderItemsToUpdate);
@@ -297,11 +304,6 @@ public static void inventoryUpdateAfterOTCProductDeletion(List<OrderItem> delete
                 Sales_Consumption__c sales = salesConsumptionList[0];
                 delete sales;
             }
-            
-        
-            
-           
-
     }catch(Exception e){
         System.debug('Error Occured==>'+e.getMessage());
         System.debug('Error Line Number Is ==>'+e.getLineNumber());

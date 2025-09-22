@@ -42,6 +42,8 @@ export default class AddFailureCodeLwcComp extends LightningElement {
                 event.target.setCustomValidity("");
             }
             event.target.reportValidity();
+
+            
         }
 
         // Clear previous results when user starts editing
@@ -109,6 +111,10 @@ export default class AddFailureCodeLwcComp extends LightningElement {
         }
 
         this.isLoading = true;
+
+        if(this.failureCode.vinCutoff.length !=17){
+            this.failureCode.batchSize=null;
+        }
 
         try {
             const result = await createPostVINFCPCVIN({

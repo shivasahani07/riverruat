@@ -1,9 +1,9 @@
 /**
- * @description       : 
- * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
- * @group             : 
- * @last modified on  : 09-16-2025
- * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+* @description       : 
+* @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+* @group             : 
+* @last modified on  : 09-16-2025
+* @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 // /**
 //  * @description       :
@@ -13,7 +13,6 @@
 //  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 //  **/
 // Trigger OrderTrigger on Order (before insert, after update, after insert, before update) {
- 
 //     if (Trigger.isBefore && (Trigger.isInsert || Trigger.isUpdate)) {
 //         System.debug('Inside Order Insert or Updadte Trigger');
 //             OrderTriggerHandler.maintainOrderCounter(Trigger.new);
@@ -40,12 +39,10 @@
 //         }
 //     }
 //     }
- 
 //     if(Trigger.isAfter && Trigger.isInsert){
 //         //OrderTriggerHandler.sendWhatsAppAfterOrderCreation(Trigger.new);
 //     }
 // }
- 
 trigger OrderTrigger on Order (
     before insert, 
     before update, 
@@ -79,7 +76,7 @@ trigger OrderTrigger on Order (
         // Vehicle and order status updates
         OrderStatusHandler.updateVehicle(Trigger.new, Trigger.oldMap);
         OrderStatusHandler.updateVehicle01(Trigger.new, Trigger.oldMap);
-
+ 
         //OTC Sale Invoice
         OTCInvoicePdfGenerator.handleOrderUpdate(Trigger.new, Trigger.oldMap);
          CouponCodeService.cancelCouponsIfOrderCancelled(Trigger.new, Trigger.oldMap);
@@ -94,7 +91,6 @@ trigger OrderTrigger on Order (
         OrderTriggerHandler.createProductTransferForBackOrder(Trigger.oldMap, Trigger.newMap);
         OrderTriggerHandler.afterUpdate(Trigger.new, Trigger.oldMap);
         form22Controller.handleOrderUpdate(Trigger.new, Trigger.oldMap);
-        
         OrderTriggerHandler.sendPDFAfterRTO(Trigger.new, Trigger.oldMap);
         //for feedbacks
         OverallExpereinceController.generateFeedbackUrl(Trigger.new, Trigger.oldMap);
@@ -103,10 +99,10 @@ trigger OrderTrigger on Order (
         if(TriggerInstance.isActive__c == true){
             StatusUpdateOnWebsite.afterUpdate(Trigger.new,Trigger.oldMap);//added by Aniket on 02/07/2025
         }
-        
         OrderInvoiceGenerationOTCController.eWAndRSACallout(Trigger.new, Trigger.oldMap);
+        ExtendedWarrantyForVehicleOrder.punchOTCMethod(Trigger.new,Trigger.oldMap);
     //added by Aniket on 16/09/2025
-
+ 
         // Process each order
         for (Order ord : Trigger.new) {
             Order oldOrder = Trigger.oldMap.get(ord.Id);

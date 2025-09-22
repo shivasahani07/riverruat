@@ -145,8 +145,8 @@
                 <th colspan="2" style="padding:5px;border:1px solid;border-collapse:collapse; font-weight: normal;">IGST</th>
                 <th colspan="2" style="padding:5px;border:1px solid;border-collapse:collapse; font-weight: normal;">CGST</th>
                 <th colspan="2" style="padding:5px;border:1px solid;border-collapse:collapse; font-weight: normal;">SGST</th>
-                <th rowspan="2" style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal;" >Post <br />GST <br /> Discount</th>
-                <th rowspan="2" style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal;" >Total <br />Amount</th>
+               <!-- <th rowspan="2" style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal;" >Post <br />GST <br /> Discount</th> -->
+                <th rowspan="2" colspan="2" style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal;" >Total <br />Amount</th>
                 
             </tr>
             
@@ -232,12 +232,12 @@
                     </td>
                     
                     <!--Post GST Discount -->
-                    <td style="padding-top:10px;padding-right:5px;padding-left:8px;border-collapse: collapse;border-right:1px solid;border-left:1px solid;border-collapse:collapse;vertical-align: top;">
-                        <!--{!discountInvoice}-->
-                    </td>     
+                 <!--   <td style="padding-top:10px;padding-right:5px;padding-left:8px;border-collapse: collapse;border-right:1px solid;border-left:1px solid;border-collapse:collapse;vertical-align: top;"> 
+                        <!--{!discountInvoice
+                    </td> -->     
                     
                     <!--Total Amount -->
-                    <td style="padding-top:10px;padding-right:5px;padding-left:8px;border-collapse: collapse;border-right:1px solid;border-left:1px solid;border-collapse:collapse;vertical-align: top;">
+                    <td colspan="2" style="padding-top:10px;padding-right:5px;padding-left:8px;border-collapse: collapse;border-right:1px solid;border-left:1px solid;border-collapse:collapse;vertical-align: top;">
                          <apex:outputText value="{0, number, #,##,##0}">
                         <apex:param value="{!OrderItem.Product_Total_Amount__c}"/>
                     </apex:outputText>

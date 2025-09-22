@@ -151,7 +151,7 @@ public with sharing class NewAccessoriesInvoicePDFController {
 
             Decimal totalEligibleUnitPrice = 0;
             for (OrderItem oi : orderItemList) {
-                if (oi.Product2.Type__c == 'Accessories' || oi.Product2.Type__c == 'Parts') {
+                if ((oi.Product2.Type__c == 'Accessories' || oi.Product2.Type__c == 'Parts')  && oi.Product2.Name != 'Road Side Assistance'  && !oi.Product2.Name.contains('River Extended Warranty')) {
                     Decimal unitPrice = oi.UnitPrice != null ? oi.UnitPrice : 0;
                     Decimal quantity = oi.Quantity != null ? oi.Quantity : 0;
                     totalEligibleUnitPrice += unitPrice * quantity;
@@ -167,7 +167,7 @@ public with sharing class NewAccessoriesInvoicePDFController {
                 Decimal itemTotalDiscount = itemDiscount;
                 Decimal itemEligibleAmount = unitPrice * quantity;
 
-                if (oi.Product2.Type__c == 'Accessories' || oi.Product2.Type__c == 'Parts') {
+                if ((oi.Product2.Type__c == 'Accessories' || oi.Product2.Type__c == 'Parts')  && oi.Product2.Name != 'Road Side Assistance'  && !oi.Product2.Name.contains('River Extended Warranty')) {
                     if (totalEligibleUnitPrice > 0) {
                         Decimal accessoriesDiscountShare = (itemEligibleAmount / totalEligibleUnitPrice) * AccessoriesDiscountAmountOnOrder;
                         itemTotalDiscount += accessoriesDiscountShare;

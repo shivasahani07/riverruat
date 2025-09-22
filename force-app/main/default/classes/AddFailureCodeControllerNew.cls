@@ -244,7 +244,7 @@ public without sharing class AddFailureCodeControllerNew {
             }
             
             // Check if product exists
-            List<Product2> products = [SELECT Id FROM Product2 WHERE ProductCode = :productcode LIMIT 1];
+            List<Product2> products = [SELECT Id FROM Product2 WHERE ProductCode = :productcode and IsActive =true LIMIT 1];
             if (products.isEmpty()) {
                 return new OperationResult(false, 'Product code not found: ' + productcode);
             }
