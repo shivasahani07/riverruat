@@ -18,27 +18,28 @@
 
                     <!-- Title -->
                     <div class="slds-text-align_center slds-text-heading_medium" style="width: 34%;">
-                        <b>Appointment Slots</b>
+                        <b>WM Appointments Visibility</b>
                     </div>
 
                     <!-- Create Slots Button -->
                     <div class="slds-text-align_right" style="width: 33%;">
                         <template if:false={showForm}>
                             <lightning-button 
-                                label="Create Slots" 
+                                label="Bay Release" 
                                 onclick={toggleForm}>
                             </lightning-button>
                         </template>
 
-                         <lightning-combobox
-            name="progress"
-            label="Booking Status"
-            value={value}
-            placeholder="--None--"
-            options={options}
-            onchange={statushandleChange} ></lightning-combobox>
+                        <lightning-combobox
+                            name="progress"
+                            label="Booking Status"
+                            value={selectedStatus}
+                            placeholder="--None--"
+                            options={options}
+                            onchange={statushandleChange}>
+                        </lightning-combobox>
 
-              <p> {value}</p>
+                        <p>{selectedStatus}</p>
                     </div>
                 </div>
             </div>
@@ -77,7 +78,7 @@
                                     <th>Start Time</th>
                                     <th>End Time</th>
                                     <th>Appointment Slot</th>
-                                    <th>Appointment Date</th>
+                                    <th>Bay Release Date</th>
                                     <th>Booking Status</th>
                                 </tr>
                             </thead>
@@ -108,19 +109,18 @@
                 </template>
                 <template if:false={hasSlotItems}>
                    <p class="slds-text-body_regular slds-p-around_medium">
-            <template if:true={filterApplied}>
-                No slot items found for selected date range
-            </template>
-            <template if:false={filterApplied}>
-                No slot items found
-            </template>
-        </p>
+                        <template if:true={filterApplied}>
+                            No slot items found for selected date range
+                        </template>
+                        <template if:false={filterApplied}>
+                            No slot items found
+                        </template>
+                    </p>
                 </template>
             </template>
 
-             
+            <!-- Create Slot Form -->
             <template if:true={showForm}>
-                 <template if:true={showForm}>
                 <div class="slds-col slds-size_1-of-2">
                     <lightning-input
                         type="date"
@@ -143,8 +143,6 @@
                         min={startDate}>
                     </lightning-input>
                 </div>
-                 
-            </template>
                 <div class="slds-col slds-size_1-of-2">
                     <lightning-input type="time" name="dayStart" label="Start Time" required value={dayStart} onchange={handleInput}></lightning-input>
                 </div>
@@ -161,7 +159,15 @@
                     <lightning-input label="Available Bays" type="number" value={remainingBays} disabled></lightning-input>
                 </div>
                 <div class="slds-col slds-size_1-of-2">
-                    <lightning-input label="Bays to Allocate" type="number" name="bayNumber" min="1" required value={bayNumber} onchange={handleInput}></lightning-input>
+                    <lightning-input 
+                        label="Bays to Allocate" 
+                        type="number" 
+                        name="bayNumber" 
+                        min="0"  
+                        max={remainingBays}  
+                        value={bayNumber} 
+                        onchange={handleInput}>
+                    </lightning-input>
                 </div>
 
                 <template if:true={errorMessage}>

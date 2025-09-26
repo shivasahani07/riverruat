@@ -1,4 +1,4 @@
-public class AddFailureCodeController {
+public without sharing class AddFailureCodeController {
     
     
     public class SaveFailureCodeResult {

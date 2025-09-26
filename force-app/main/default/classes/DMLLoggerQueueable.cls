@@ -5,7 +5,7 @@ public without sharing class DMLLoggerQueueable implements Queueable, Database.A
     public DMLLoggerQueueable(List<Object_DML_Log__c> logs) {
         this.logsToInsert = logs;
     }
-
+  
     public void execute(QueueableContext qc) {
         if (!logsToInsert.isEmpty()) {
             try {

@@ -77,14 +77,18 @@
                                 disabled={isLoading} class="slds-m-left_x-small">
                             </lightning-button>
 
-                            <template if:true={isLoading}>
+                            <!-- <template if:true={isLoading}>
                                 <div class="spinner-container">
                                     <lightning-spinner alternative-text="Processing" size="small"></lightning-spinner>
                                     <span class="slds-m-left_x-small">Processing...</span>
                                 </div>
-                            </template>
+                            </template> -->
                         </div>
                     </div>
+                     <footer class="slds-modal__footer">
+                            <button class="slds-button slds-button_neutral slds-right-p_small"
+                                onclick={hideModalBox}>Cancel</button>
+                        </footer>
                 </template>
                 <!-- <h2 class="slds-text-heading_medium slds-m-bottom_medium">Add New Failure Code</h2> -->
 

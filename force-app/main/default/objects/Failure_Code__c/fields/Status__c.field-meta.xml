@@ -29,6 +29,11 @@
                 <default>false</default>
                 <label>Closed</label>
             </value>
+            <value>
+                <fullName>Activate</fullName>
+                <default>false</default>
+                <label>Activate</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

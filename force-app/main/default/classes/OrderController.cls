@@ -20,6 +20,7 @@ public class OrderController {
         public String ParentId { get; set; }
         public Decimal QuantityRequested { get; set; }
         public Decimal DiscountPercent { get; set; }
+        public Decimal DiscountAmount { get; set; }    
     }
 
   /*  @AuraEnabled
@@ -101,7 +102,7 @@ public class OrderController {
             }
 
             return [
-                SELECT Id, Name,Merchandise_discount_price__c, ProductCode, Type__c ,(SELECT Product2Id,UnitPrice,IGST__c
+                SELECT Id, Name,Merchandise_discount_price__c, ProductCode, Type__c ,(SELECT Product2Id,UnitPrice,IGST_Percentage__c
                         FROM PricebookEntries where IsActive = true)
                 FROM Product2 
                 WHERE IsActive = TRUE 
@@ -182,7 +183,7 @@ public class OrderController {
                         Quantity = item.QuantityRequested,
                         PricebookEntryId = pbe.Id,
                         UnitPrice = pbe.UnitPrice != null ? pbe.UnitPrice : 0.00,
-                        OTC_Discount__c = item.DiscountPercent
+                        Merchandise_Disccount_Amount__c = item.DiscountAmount
                     );
                     recordsToInsert.add(newRecord);
                 } else {
@@ -301,7 +302,7 @@ public static String createOrderRecord(String shipmentType, Integer additonal, S
         ].Price_Book__c;
 
         Order newOrder = new Order();
-        newOrder.Status = 'New';//added by Aniket on 13/05/2025 because of new requirement
+        newOrder.Status = 'New';
         newOrder.RecordTypeId = OrderRecordTypeMerchAccess;
         newOrder.EffectiveDate = System.today();
         newOrder.Pricebook2Id = takingPb;

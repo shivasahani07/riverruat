@@ -20,7 +20,7 @@
     
     
     
-  	<c:failureCodeProductVinCom></c:failureCodeProductVinCom>
+  	<c:rideRiverWarrantyRecord recordId='0WOBh000003ncbtOAA'></c:rideRiverWarrantyRecord>
     
     
     

@@ -86,7 +86,8 @@ export default class RideRiverWarrantyRecord extends LightningElement {
         { label: 'Product Name', fieldName: 'productUrl', type: 'url', typeAttributes: { label: { fieldName: 'ProductName' }, target: '_blank' }, sortable: true },
         { label: 'Quantity', fieldName: 'Quantity', type: 'number', cellAttributes: { alignment: 'center' } },
         // { label: 'Status', fieldName: 'Status', type: 'text' },
-        { label: 'FFIR No.', fieldName: 'FFIR_Number__c', type: 'text' },
+        // { label: 'FFIR No.', fieldName: 'FFIR_Number__c', type: 'text' },
+        { label: 'TFR No.', fieldName: 'TFR_NO', type: 'text' },
         {
             label: 'FFIR Links',
             fieldName: 'FFIR_Links__c',
@@ -236,6 +237,7 @@ export default class RideRiverWarrantyRecord extends LightningElement {
     wiredWorkAddOrderLineItems(result) {
         debugger;
         this.refreshAdditionalPartSave = result;
+        console.log(JSON.stringify(result));
         if (result.data) {
 
             this.additionalPartsData = result.data.map((item) => ({
@@ -253,9 +255,12 @@ export default class RideRiverWarrantyRecord extends LightningElement {
                 disableView: !item.TFR_Required__c,
                 isDisableFFRLink: !item.TFR_Required__c,
                 TFR_Sample__c:item.TFR_Sample__c,
+                TFR_NO:item.TFR_Sample__r?.Name__c,
+                
                 // Status:item.Status
-
+                
             }));
+            console.log('this.additionalPartsData--',JSON.stringify(this.additionalPartsData));
         } else if (result.error) {
             this.error = result.error;
             this.additionalPartsData = [];

@@ -136,7 +136,7 @@ public with sharing class AppointmentSlotController {
         return totalBays - maxUsedPerDay;
     }
 
-    @AuraEnabled
+    @AuraEnabled   
     public static Id createSlot(
         Id serviceCenterId,
         Date startDate,
@@ -212,6 +212,7 @@ public with sharing class AppointmentSlotController {
             }
 
             Integer count = Math.min(serviceBaynumber, availableBayIds.size());
+            system.debug('count==='+count);
             List<Id> baysToUse = new List<Id>();
             for (Integer i = 0; i < count; i++) {
                 baysToUse.add(availableBayIds[i]);

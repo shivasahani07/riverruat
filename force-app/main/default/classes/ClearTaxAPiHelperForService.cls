@@ -269,7 +269,7 @@ Map<String, Object> tranDtls = new Map<String, Object>{
 };
 Map<String, Object> docDtls = new Map<String, Object>{
     'Typ' => 'INV',
-    'No' => 'tvv'+ wo.Invoice_No__c,
+    'No' => 'RC' + wo.Service_Center__r.Center_Code__c + '25' + wo.Invoice_No__c,
     'Dt' => now.format('dd/MM/yyyy')
 };
 

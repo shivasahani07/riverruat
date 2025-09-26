@@ -26,4 +26,14 @@ public class TriggerOnFailureCodeHelper {
         
         //update beforeInsertFC;
     }
+
+    public static void validateDataBeforeInsertUdate(map<id,Failure_Code__c> oldmap ,List<Failure_Code__c> newList){
+
+        for(Failure_Code__c newObject :newList){
+            Failure_Code__c oldObject =oldmap.get(newObject.id);
+            if(newObject.FPV_Key__c != oldObject.FPV_Key__c){
+                 newObject.addError('well tried but you can not edit this value');
+            }
+        }
+    }
 }

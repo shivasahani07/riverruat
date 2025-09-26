@@ -106,7 +106,7 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
     @track enableFetchButton = true;
     @track FUTUREMilstoneDate;
     @track taskduedate;
-    @track currentAppointmentDate;
+    @track futurAppointmentDate;
     @track daysDifference;
     @track assetMilestoneNam;
     @track lapseMilestoneName;
@@ -557,6 +557,7 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
 
                     this.address.province = result.secondarycon.MailingState;
                     this.assetMilestoneNam = result.currentMilestoneName;
+                    this.futurAppointmentDate =  result.currentAppointmentDate;
     
                     // Do something with the contact object returned
                     this.showToastMessage('Success', 'OTP verified successfully', 'success');
@@ -613,19 +614,20 @@ if (this.FUTUREMilstoneDate) {
  else {
     this.showMilestoneMessage = false;
 }
-if (this.currentAppointmentDate) {
+if (this.futurAppointmentDate) {
             const today = new Date();
             const tomorrow = new Date(today);
             tomorrow.setDate(today.getDate() + 1);
 
             // Convert both to YYYY-MM-DD for comparison
             const formattedTomorrow = tomorrow.toISOString().split('T')[0];
-            const formattedAppointment = new Date(this.currentAppointmentDate)
+            const formattedAppointment = new Date(this.futurAppointmentDate)
                 .toISOString()
                 .split('T')[0];
 
             // If appointment date is tomorrow, show the message
             this.showAppointmentMessage = formattedAppointment === formattedTomorrow;
+            this.showMilestoneMessage = false;
         }else {
     this.showAppointmentMessage = false;
 }

@@ -9,25 +9,27 @@
                     <lightning-input-field field-name="Name__c" disabled></lightning-input-field>
                     <lightning-input-field field-name="Customer_Account__c"  disabled={isTFRRecordDisabled}></lightning-input-field>
                     <lightning-input-field field-name="Customer_Contact__c" disabled={isTFRRecordDisabled}></lightning-input-field>
-                    <lightning-input-field field-name="Date_of_Complaint__c" disabled={isTFRRecordDisabled}></lightning-input-field>
+                    <lightning-input-field field-name="Date_of_Complaint__c" disabled={isTFRRecordDisabled} required="true"></lightning-input-field>
                     <lightning-input-field field-name="Date_of_Sale__c" disabled={isTFRRecordDisabled}></lightning-input-field>
                     <lightning-input-field field-name="Date_of_Repair__c" disabled={isTFRRecordDisabled}></lightning-input-field>
                     <lightning-input-field field-name="Part__c" value={inputObject.Id} disabled={inputObject.Id}></lightning-input-field>
                     <lightning-input-field field-name="Failure_Code__c" value={inputObject.Failure_Code__c} disabled={inputObject.Failure_Code__c}></lightning-input-field>
                     <lightning-input-field field-name="Job_Card__c" value={inputObject.WorkOrderId} disabled={inputObject.WorkOrderId}></lightning-input-field>
+                    <lightning-input-field field-name="Actions_Taken__c" required="true"></lightning-input-field>
                     
                 </div>
                 <div class="slds-col slds-size_1-of-2">
-                    <lightning-input-field field-name="Issue_Severity__c" disabled={isTFRRecordDisabled}></lightning-input-field>
-                    <lightning-input-field field-name="Media__c" disabled={isTFRRecordDisabled}></lightning-input-field>
-                    <lightning-input-field field-name="Observations__c" disabled={isTFRRecordDisabled}></lightning-input-field>
+                    <lightning-input-field field-name="Issue_Severity__c" disabled={isTFRRecordDisabled} required="true"></lightning-input-field>
+                    <lightning-input-field field-name="Media__c" disabled={isTFRRecordDisabled} required="true"></lightning-input-field>
+                    <lightning-input-field field-name="Observations__c" disabled={isTFRRecordDisabled} required="true"></lightning-input-field>
                     <lightning-input-field field-name="Odometer_Reading__c" disabled={isTFRRecordDisabled}></lightning-input-field> 
-                    <lightning-input-field field-name="VOC__c" disabled={isTFRRecordDisabled}></lightning-input-field>
+                    <lightning-input-field field-name="VOC__c" disabled={isTFRRecordDisabled} required="true"></lightning-input-field>
                     <lightning-input-field field-name="Warranty_Claim_Number__c" disabled={isTFRRecordDisabled}></lightning-input-field>
                     <lightning-input-field field-name="Approved_by__c" disabled={isTFRRecordDisabled}></lightning-input-field>
                     <lightning-input-field field-name="VIN_No__c" disabled={isTFRRecordDisabled}></lightning-input-field>
                     <lightning-input-field field-name="Service_Center__c" disabled={inputObject.WorkOrder.Service_Center__c} value={inputObject.WorkOrder.Service_Center__c}></lightning-input-field>
                     <lightning-input-field field-name="TFR_Post_Vin_Cutt_off__c" disabled  value={inputObject.Post_Vin_cutt_off__c}></lightning-input-field>
+                    
                 </div>
             </div>
 
@@ -39,3 +41,12 @@
         </lightning-record-edit-form>
     </lightning-card>
 </template>
+
+<!-- 
+- Issue Severity (Pick List)
+- Date of Complaint (Calendar View)
+- VOC
+- Observation
+- Actions taken
+- Media ( validation for Only URL)
+ -->

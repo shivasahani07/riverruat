@@ -1,6 +1,6 @@
-public without  sharing class AppointmentFormController {
-    
-    public class ServiceCenterWrapper {
+public class RescheduleAppointmentFormController {
+
+	public class ServiceCenterWrapper {
         @AuraEnabled public String accountId;
         @AuraEnabled public String accountName;
         @AuraEnabled public List<Appointment_Slot_Item__c> asiList;
@@ -68,10 +68,10 @@ public without  sharing class AppointmentFormController {
     }
     
     @AuraEnabled
-    public static Vehicle  getvehicleRecord(String sourceIdStr) {
+    public static AppointmentWrapper  getvehicleRecord(String sourceIdStr) {
         System.debug('---------- getvehicleRecord ---------------');
         System.debug('sourceIdStr : ' + sourceIdStr);
-
+         AppointmentWrapper apppointRec = new AppointmentWrapper();   
         if (String.isBlank(sourceIdStr)) return null;
         
         // ------------------------------------------------------------------
@@ -127,7 +127,8 @@ public without  sharing class AppointmentFormController {
                 LIMIT  1
             ];
             vehicleId = tk.Service_Appointment__r.Vehicle__c;
-            
+            appointmentDate = tk.Appointment_Date__c;
+			apppointRec.appointmentDATE = appointmentDate;
             System.debug('Inside Else If : ' + tk);
         }   
         /*else if (objectApi == 'Appointment__c') {
@@ -158,7 +159,14 @@ public without  sharing class AppointmentFormController {
             LIMIT  1
         ];
         System.debug('vehicleRec : ' + vehicleRec);
-        return vehicleRec ;
+		apppointRec.vehicleRecord = vehicleRec;
+        return apppointRec ;
+    }
+
+	public class AppointmentWrapper {
+        @AuraEnabled public Vehicle vehicleRecord {get;set;}
+        @AuraEnabled public Date appointmentDATE {get;set;}
+        
     }
     
     
@@ -478,6 +486,5 @@ return  AppSlotItemList;
 
         return picklistValues;
     }
-    
-    
+ 
 }

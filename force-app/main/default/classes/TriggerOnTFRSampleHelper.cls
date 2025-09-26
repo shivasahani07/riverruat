@@ -90,7 +90,7 @@ public class TriggerOnTFRSampleHelper {
         
         // Step 1: Collect related Failure_Code__c IDs from inserted samples
         for (TFR_Sample__c sample : insertedSamples) {
-            if (sample.Failure_Code__c != null) {
+            if (sample.Failure_Code__c != null && sample.jc_Status__c =='Completed') {
                 failureCodeIds.add(sample.Failure_Code__c);
             }
         }

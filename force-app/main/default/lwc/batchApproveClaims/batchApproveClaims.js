@@ -1,16 +1,16 @@
 import { LightningElement,api,wire,track } from 'lwc';
-import updateClaimItemsApprovedQuantityAndReason from '@salesforce/apex/clainAndShipmentItemController.updateClaimItemsApprovedQuantityAndReason';
+import updateClaimItemsApprovedQuantityAndReason from '@salesforce/apex/clainAndShipmentItemControlle.updateClaimItemsApprovedQuantityAndReason';
 //import getAllClaimItems from '@salesforce/apex/clainAndShipmentItemController.getAllClaimItems';
-import getBatchClaims from '@salesforce/apex/clainAndShipmentItemController.getBatchClaims';
+import getBatchClaims from '@salesforce/apex/clainAndShipmentItemControlle.getBatchClaims';
 
-import getPartItems from '@salesforce/apex/clainAndShipmentItemController.getPartItems';
-import getLabourItems from '@salesforce/apex/clainAndShipmentItemController.getLabourItems';
+import getPartItems from '@salesforce/apex/clainAndShipmentItemControlle.getPartItems';
+import getLabourItems from '@salesforce/apex/clainAndShipmentItemControlle.getLabourItems';
 
 //import getBatchLabour from '@salesforce/apex/clainAndShipmentItemController.getBatchLabour';
 
 import { CloseActionScreenEvent } from 'lightning/actions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import createClaimItem from '@salesforce/apex/clainAndShipmentItemController.createClaimItem';
+import createClaimItem from '@salesforce/apex/clainAndShipmentItemControlle.createClaimItem';
 
 import { refreshApex } from '@salesforce/apex';
 

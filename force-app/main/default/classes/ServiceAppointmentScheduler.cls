@@ -86,9 +86,9 @@ global class ServiceAppointmentScheduler implements Database.Batchable<sObject>,
                                 t.Subject =   sa.AppointmentNumber +  '- Call_N10';
                                 t.WhatId = sa.Id;   
                                 t.ActivityDate = sa.Appointment_Date__c.addDays(-10);
-                                t.Customer__c = custome;
-                                t.Phone_number__c =  customerPhone;
-                                t.Customer_Email__c = customerEmail;
+                                t.Customer__c       = sa.Vehicle__r.CurrentOwnerId;
+                                t.Phone_number__c   = sa.Vehicle__r.CurrentOwner.Phone;
+                                t.Customer_Email__c = sa.Vehicle__r.CurrentOwner.Email__c;
                                 t.Appointment_Date__c = sa.Appointment_Date__c;
                                 t.RecordTypeId = recid.Id;    
                                 t.Vehicle__c = sa.Vehicle__c;    

@@ -112,9 +112,11 @@ export default class AddFailureCodeLwcComp extends LightningElement {
 
         this.isLoading = true;
 
-        if(this.failureCode.vinCutoff.length !=17){
-            this.failureCode.batchSize=null;
+       
+        if(this.failureCode.batchSize==''){
+            this.failureCode.batchSize=null
         }
+
 
         try {
             const result = await createPostVINFCPCVIN({

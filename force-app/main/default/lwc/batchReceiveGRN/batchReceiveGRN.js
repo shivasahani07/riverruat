@@ -1,6 +1,6 @@
 //import getAllClaimItems from '@salesforce/apex/clainAndShipmentItemController.getAllClaimItems';
-import getAllClaimItemsApproved from '@salesforce/apex/clainAndShipmentItemController.getAllClaimItemsApproved';
-import updateClaimItems from '@salesforce/apex/clainAndShipmentItemController.updateClaimItems';
+import getAllClaimItemsApproved from '@salesforce/apex/clainAndShipmentItemControlle.getAllClaimItemsApproved';
+import updateClaimItems from '@salesforce/apex/clainAndShipmentItemControlle.updateClaimItems';
 import { CloseActionScreenEvent } from 'lightning/actions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { LightningElement, api, wire } from 'lwc';

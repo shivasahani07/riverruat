@@ -96,8 +96,8 @@
                     Invoice No: <span style="white-space: nowrap;">{!invoiceId}</span><br /><br />
                     Order Id: <span style="white-space: nowrap;">{!order.Website_Order_Id__c}</span><br /><br />
                     Hypothecation: &nbsp;
-                    <apex:outputText value="{!IF(order.Approval_Status__c, 'Yes', 'No')}" /> 
-                    <apex:outputText value="{!IF(order.Approval_Status__c, 'Bank Name: ' + order.Finance__r.Name, '')}" /> <br /><br />
+                    <apex:outputText value="{!IF(order.Approval_Status__c, 'Yes', 'No')}" /> <br/> <br/>
+                    <apex:outputText value="{!IF(order.Approval_Status__c, '  Bank Name: ' + order.Finance__r.Name, '')}" /> <br /><br />
                     Place of Supply: <span style="white-space: nowrap;">{!order.Dealer__r.BillingState}</span> 
                 </td>
                 

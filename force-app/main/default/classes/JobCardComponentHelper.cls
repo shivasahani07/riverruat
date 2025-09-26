@@ -95,7 +95,8 @@ public class JobCardComponentHelper {
                 contactDetails condetails = new contactDetails();
                 
                List<Vehicle> vehcileRec =  [ Select id,VehicleIdentificationNumber, (Select id,stage,Name,MilestoneDate  from AssetMilestones where stage = 'Tentative' limit 1 ) from Vehicle where VehicleIdentificationNumber =:vehicleDetails.VehicleIdentificationNumber OR VehicleRegistrationNumber =:vehicleDetails.VehicleRegistrationNumber];
-               List<Appointment__c> appointmentList = [Select id,Service_Appointment__r.Vehicle__c,Appointment_Date__c  From  Appointment__c where Service_Appointment__r.Vehicle__r.VehicleRegistrationNumber  =: vehicleDetails.VehicleIdentificationNumber OR Service_Appointment__r.Vehicle__r.VehicleRegistrationNumber =:vehicleDetails.VehicleRegistrationNumber];
+               List<Appointment__c> appointmentList = [Select id,Service_Appointment__r.Vehicle__c,Appointment_Date__c,Status__c  From  Appointment__c where  (Service_Appointment__r.Vehicle__r.VehicleRegistrationNumber  =: vehicleDetails.VehicleIdentificationNumber OR Service_Appointment__r.Vehicle__r.VehicleRegistrationNumber =:vehicleDetails.VehicleRegistrationNumber) AND Status__c = 'Open'];
+                System.debug('appointmentList'+appointmentList);
                 Date milestoneDate;
                 String milestonName;
                 Date appointmentDate;
@@ -107,6 +108,7 @@ public class JobCardComponentHelper {
                }
                if (!appointmentList.isEmpty()  ) {
                 appointmentDate = appointmentList[0].Appointment_Date__c;
+                System.debug('appointmentDate'+appointmentDate);
                 condetails.currentAppointmentDate  = appointmentDate;
                }
                 condetails.isPrimary = false;

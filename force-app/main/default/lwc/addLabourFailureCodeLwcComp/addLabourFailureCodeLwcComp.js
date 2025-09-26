@@ -147,5 +147,7 @@ export default class AddLabourFailureCodeLwcComp extends LightningElement {
                 variant: variant
             })
         );
+
+        alert(message);
     }
 }

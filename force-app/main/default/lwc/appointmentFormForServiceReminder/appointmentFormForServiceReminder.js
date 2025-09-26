@@ -18,7 +18,8 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
     @track contactNumber = '';
     @track appointmentDecription = '';
 
-    @track appointmentSlotId = '';
+    // updated to handle multiple slotIds
+    @track appointmentSlotIds = [];
     @track selectedSlotItem = '';
     @track slotSearchTriggered = false;
     @track slotsAvailable = false;
@@ -42,7 +43,6 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
     connectedCallback() {
         this.loadPicklistValues();
         if (!this.recordId) {
-            
             const url = window.location.href;
             const match = url.match(/\/case\/([^/]+)/);
             if (match) {
@@ -57,9 +57,8 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
         this.setMinDate();
     }
 
-
-     loadPicklistValues() {
-        getPicklistValues({ objectApiName: 'ServiceAppointment', fieldApiName: 'Type_Of_Requested_Services__c' }) // Example: Account.Industry
+    loadPicklistValues() {
+        getPicklistValues({ objectApiName: 'ServiceAppointment', fieldApiName: 'Type_Of_Requested_Services__c' })
             .then(result => {
                 this.options = result.map(value => ({
                     label: value,
@@ -102,7 +101,7 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
         if (selectedDate >= today) {
             this.loadSlotItems();
         } else {
-            this.appointmentSlotId = '';
+            this.appointmentSlotIds = [];
             this.slotItemOptions = [];
             this.slotsAvailable = false;
             this.selectedSlotItem = '';
@@ -132,7 +131,8 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
             appointmentDate: this.appointmentDate
         })
             .then(res => {
-                this.appointmentSlotId = res.slotId;
+                // update: now storing multiple slotIds
+                this.appointmentSlotIds = res.slotIds || [];
 
                 const items = (res.slotItems || []).map(i => {
                     let start = new Date(i.Start_Time__c);
@@ -157,7 +157,7 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
                 this.selectedSlotItem = '';
             })
             .catch(err => {
-                this.appointmentSlotId = '';
+                this.appointmentSlotIds = [];
                 this.slotItemOptions = [];
                 this.slotsAvailable = false;
                 this.showToast(
@@ -182,8 +182,9 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
             vrn: this.vrn,
             appointmentDate: this.appointmentDate,
             contactNumber: this.contactNumber,
-            serviceType :this.selectedValue,
-            slotId: this.appointmentSlotId,
+            serviceType: this.selectedValue,
+            // ⚡️ choose the first slotId if multiple
+            slotId: this.appointmentSlotIds.length ? this.appointmentSlotIds[0] : null,
             slotItemId: this.selectedSlotItem,
             appointmentDecription: this.appointmentDecription
         })
@@ -215,7 +216,7 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
             this.contactNumber &&
             this.appointmentDate &&
             this.selectedSlotItem &&
-            this.appointmentSlotId;
+            this.appointmentSlotIds.length;
 
         return this.showDescriptionField
             ? !(baseFieldsFilled && this.appointmentDecription)

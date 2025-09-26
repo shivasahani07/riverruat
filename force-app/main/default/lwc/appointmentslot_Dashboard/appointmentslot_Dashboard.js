@@ -18,7 +18,7 @@ export default class CreateAppointmentSlots extends LightningElement {
     @track dayEnd;
     @track duration = 30;
     @track bayCount;
-    @track bayNumber = 1;
+    @track bayNumber = 0;   // Default 0
     @track remainingBays;
     @track showForm = false;
     @track showBackButton = false;
@@ -71,15 +71,14 @@ export default class CreateAppointmentSlots extends LightningElement {
                !this.endDate || 
                !this.dayStart || 
                !this.dayEnd || 
-               !this.duration || 
-               !this.bayNumber ||
+               !this.duration ||
                new Date(this.startDate) > new Date(this.endDate) ||
                new Date(this.startDate) < new Date(this.minStartDate) ||  
                this.dayEnd <= this.dayStart ||
                this.duration < 15 || 
                this.duration > 60 ||
-               this.bayNumber < 1 ||
-               (this.bayCount && this.bayNumber > this.bayCount);
+               this.bayNumber <= 0 || 
+               (this.remainingBays && this.bayNumber > this.remainingBays); 
     }
 
     @wire(getCurrentContactServiceCenter)
@@ -192,9 +191,11 @@ export default class CreateAppointmentSlots extends LightningElement {
 
         if (name === 'bayNumber') {
             const bays = Number(value);
-            const max = Number(this.bayCount);
-            if (max && (bays > max || bays <= 0)) {
-                event.target.setCustomValidity(`Enter a value between 1 and ${max}`);
+            const max = Number(this.remainingBays || 0);
+            if (bays > max) {
+                event.target.setCustomValidity(`Cannot allocate more than ${max} Available Bays`);
+            } else if (bays <= 0) {
+                event.target.setCustomValidity('Bays to Allocate must be greater than 0');
             } else {
                 event.target.setCustomValidity('');
             }
@@ -211,7 +212,8 @@ export default class CreateAppointmentSlots extends LightningElement {
 
         if ((name === 'dayStart' || name === 'dayEnd') && this.dayStart && this.dayEnd) {
             if (this.dayEnd <= this.dayStart) {
-                this.template.querySelector(`[name="${name}"]`).setCustomValidity('End time must be after start time');
+                this.template.querySelector(`[name="${name}"]`)
+                    .setCustomValidity('End time must be after start time');
             } else {
                 this.template.querySelector(`[name="${name}"]`).setCustomValidity('');
             }
@@ -308,7 +310,8 @@ export default class CreateAppointmentSlots extends LightningElement {
             this.showBackButton = false;
         })
         .catch(error => {
-            this.errorMessage = this.reduceError(error);
+            this.errorMessage = this.reduceError
+
             this.showToast('Error', this.errorMessage, 'error');
         });
     }
@@ -319,7 +322,7 @@ export default class CreateAppointmentSlots extends LightningElement {
         this.dayStart = null;
         this.dayEnd = null;
         this.duration = 30;
-        this.bayNumber = 1;
+        this.bayNumber = 0;
         this.remainingBays = null;
     }
 

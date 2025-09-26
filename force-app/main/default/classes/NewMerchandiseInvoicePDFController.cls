@@ -133,8 +133,8 @@ public with sharing class NewMerchandiseInvoicePDFController {
 
             // Order-level discounts (OTC or normal)
             if (order.RecordType.DeveloperName == 'OTC') {
-                MerchandiseDiscountAmountOnOrder = order.OTC_Additional_Discount_Amount__c != null
-                    ? order.OTC_Additional_Discount_Amount__c : 0;
+              //  MerchandiseDiscountAmountOnOrder = order.OTC_Additional_Discount_Amount__c != null
+                //    ? order.OTC_Additional_Discount_Amount__c : 0;
             } else {
                 MerchandiseDiscountAmountOnOrder = order.Merchandise_Additional_Discount__c != null
                     ? order.Merchandise_Additional_Discount__c : 0;
@@ -170,7 +170,7 @@ public with sharing class NewMerchandiseInvoicePDFController {
                 Decimal itemDiscount =  (oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0) + (oi.Discounted_Amount_on_Merchandise__c != null ? oi.Discounted_Amount_on_Merchandise__c : 0);
                 Decimal perItemTotalDiscount = itemDiscount;
                 Decimal itemEligibleAmount = unitPrice * quantity;
-                if (oi.Product2.Type__c == 'Merchandise') {
+                if (oi.Product2.Type__c == 'Merchandise' && order.RecordType.DeveloperName != 'OTC') {
                     if (totalEligibleUnitPrice > 0) {
                         Decimal MerchandiseDiscountShare = (itemEligibleAmount / totalEligibleUnitPrice) * MerchandiseDiscountAmountOnOrder;
                         perItemTotalDiscount += MerchandiseDiscountShare;
@@ -188,19 +188,22 @@ public with sharing class NewMerchandiseInvoicePDFController {
 
             // InvoiceId, InvoiceDate, etc
             List<Order_Invoice__c> orderInvoices = [
-                SELECT Id, Name, Invoice_Number__c, Invoice_Type__c, Invoice_Date__c 
+                SELECT Id, Name, Invoice_Number__c,Invoice_Type__c,Invoice_Date__c 
                 FROM Order_Invoice__c 
                 WHERE Order__c = :orderId AND Invoice_Type__c = 'Merchandise Invoice'
                 ORDER BY CreatedDate DESC 
                 LIMIT 1
             ];
-            String invoicesequence = System.currentPageReference().getParameters().get('sequence');
-            if(invoicesequence != null && invoicesequence != ''){
-                invoiceId = invoicesequence;
+            String invoiceSequenceVH = '';
+            if (!orderInvoices.isEmpty()) {
+                invoiceSequenceVH = orderInvoices[0].Invoice_Number__c;
+                InvoiceDate = orderInvoices[0].Invoice_Date__c;
             } else {
-                invoiceId = 'RV_INVOICE_VH';
+                invoiceSequenceVH = 'RV_INVOICE_VH';
+                InvoiceDate = System.today();
             }
-            InvoiceDate = !orderInvoices.isEmpty() ? orderInvoices[0].Invoice_Date__c : System.today();
+            invoiceId = invoiceSequenceVH;
+
             NetAmount = totalValueAfterAllTaxes;
             if(NetAmount < 0) { NetAmount = 0; }
             Integer roundedValue = Math.round(NetAmount);

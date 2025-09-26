@@ -54,7 +54,7 @@
                             <th>VIN Cut Off? Active</th>
                             <th>Created By</th>
                             <th>Created Date</th>
-                            <!-- <th style="width: 160px;">Actions</th> -->
+                            <th style="width: 160px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -78,20 +78,20 @@
                                     <lightning-formatted-date-time value={fc.CreatedDate}>
                                     </lightning-formatted-date-time>
                                 </td>
-                                <!-- <td>
+                                <td>
                                     <lightning-button-group>
                                         <lightning-button variant="brand" label="View" title="View Record"
                                             onclick={handleView} data-id={fc.Id}>
                                         </lightning-button>
-                                        <lightning-button variant="brand" label="Edit" title="Edit Record"
+                                        <!-- <lightning-button variant="brand" label="Edit" title="Edit Record"
                                             onclick={handleEdit} data-id={fc.Id}>
                                         </lightning-button>
 
                                         <lightning-button variant="brand" label="+Labour" title="Add Labour Record"
                                             onclick={addLabourCode} data-id={fc.Id}>
-                                        </lightning-button>
+                                        </lightning-button> -->
                                     </lightning-button-group>
-                                </td> -->
+                                </td>
                             </tr>
                         </template>
                     </tbody>
@@ -116,10 +116,10 @@
                                 </lwc:component>
                             </template>
                         </div>
-                        <footer class="slds-modal__footer">
+                        <!-- <footer class="slds-modal__footer">
                             <button class="slds-button slds-button_neutral slds-right-p_small"
                                 onclick={hideModalBox}>Cancel</button>
-                        </footer>
+                        </footer> -->
                     </div>
                 </section>
                 <div class="slds-backdrop slds-backdrop_open"></div>

@@ -134,7 +134,7 @@ public with sharing class NewAccessoriesInvoicePDFController {
 
             System.debug('Order Id---' + orderId);
             if (order.RecordType.DeveloperName == 'OTC') {
-                AccessoriesDiscountAmountOnOrder = order.OTC_Additional_Discount_Amount__c != null ? order.OTC_Additional_Discount_Amount__c : 0;
+               // AccessoriesDiscountAmountOnOrder = order.OTC_Additional_Discount_Amount__c != null ? order.OTC_Additional_Discount_Amount__c : 0;
             } else {
                 AccessoriesDiscountAmountOnOrder = order.Accessories_Discount_Amount__c != null ? order.Accessories_Discount_Amount__c : 0;
             }
@@ -167,7 +167,7 @@ public with sharing class NewAccessoriesInvoicePDFController {
                 Decimal itemTotalDiscount = itemDiscount;
                 Decimal itemEligibleAmount = unitPrice * quantity;
 
-                if ((oi.Product2.Type__c == 'Accessories' || oi.Product2.Type__c == 'Parts')  && oi.Product2.Name != 'Road Side Assistance'  && !oi.Product2.Name.contains('River Extended Warranty')) {
+                if ((oi.Product2.Type__c == 'Accessories' || oi.Product2.Type__c == 'Parts')  && oi.Product2.Name != 'Road Side Assistance'  && !oi.Product2.Name.contains('River Extended Warranty') && order.RecordType.DeveloperName != 'OTC') {
                     if (totalEligibleUnitPrice > 0) {
                         Decimal accessoriesDiscountShare = (itemEligibleAmount / totalEligibleUnitPrice) * AccessoriesDiscountAmountOnOrder;
                         itemTotalDiscount += accessoriesDiscountShare;
@@ -208,15 +208,16 @@ public with sharing class NewAccessoriesInvoicePDFController {
                 ORDER BY CreatedDate DESC 
                 LIMIT 1
             ];
-            string invoicesequence = System.currentPageReference().getParameters().get('sequence');
-            if (invoicesequence != null && invoicesequence != '') {
-                invoiceId = invoicesequence;
-            } else {
-                invoiceId = 'RV_INVOICE_VH';
-            }
+            String invoiceSequenceVH = '';
             if (!orderInvoices.isEmpty()) {
+                invoiceSequenceVH = orderInvoices[0].Invoice_Number__c;
                 InvoiceDate = orderInvoices[0].Invoice_Date__c;
+            } else {
+                invoiceSequenceVH = 'RV_INVOICE_VH';
+                InvoiceDate = System.today();
             }
+
+            invoiceId = invoiceSequenceVH;
             System.debug('invoiceId>>' + invoiceId);
             NetAmount = totalValueAfterAllTaxes;
             if (NetAmount < 0) { NetAmount = 0; }

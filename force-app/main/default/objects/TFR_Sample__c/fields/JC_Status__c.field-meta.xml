@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Sample_Collected__c</fullName>
+    <fullName>JC_Status__c</fullName>
     <externalId>false</externalId>
-    <label>Sample Collected</label>
-    <precision>18</precision>
+    <label>JC Status</label>
+    <length>100</length>
     <required>false</required>
-    <scale>0</scale>
     <trackTrending>false</trackTrending>
-    <type>Number</type>
+    <type>Text</type>
     <unique>false</unique>
 </CustomField>

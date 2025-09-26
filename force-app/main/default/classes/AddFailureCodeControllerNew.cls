@@ -269,6 +269,7 @@ public without sharing class AddFailureCodeControllerNew {
     @AuraEnabled
     public static void CreateLabourCodeForFalireCodes(string failureCodeId, List<String> CodesetsIds){
         try {
+            Failure_Code__c activateFC = NEW Failure_Code__c(Id=failureCodeId,Status__c='Activate');
             list<TFR_Labour_Effect__c> tfrLabourEffectTobeinserted = new list<TFR_Labour_Effect__c>();
             for(string codeIds :CodesetsIds){
                 TFR_Labour_Effect__c labourEffect = new TFR_Labour_Effect__c(
@@ -280,6 +281,7 @@ public without sharing class AddFailureCodeControllerNew {
             }
             if(tfrLabourEffectTobeinserted.size()>0){
                     insert tfrLabourEffectTobeinserted;
+                    update activateFC;
                 }
         } catch (Exception ex) {
             System.debug('Error while creating TFR_Labour_Effect__c failure codes---'+ex.getMessage() +'at line ---'+ex.getLineNumber());

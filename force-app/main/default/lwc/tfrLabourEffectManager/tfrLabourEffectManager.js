@@ -16,6 +16,7 @@ export default class TfrLabourEffectManager extends NavigationMixin(LightningEle
     @track selectedLabourCodes = [];
     @track disableHandleSave = false;
     @track refreshResultData;
+    @track selectedLabourCode = null; // bind to record-id
 
 
     columns = [
@@ -80,6 +81,10 @@ export default class TfrLabourEffectManager extends NavigationMixin(LightningEle
         }
     }
 
+    clearSelection() {
+        this.selectedLabourCode = null;
+    }
+
 
     // Save new records
     handleSave() {
@@ -89,6 +94,7 @@ export default class TfrLabourEffectManager extends NavigationMixin(LightningEle
             return;
         }
         this.disableHandleSave = true;
+        
 
         saveLabourEffects({ failureCodeId: this.recordId, CodesetsIds: this.codesetids })
 
@@ -96,6 +102,8 @@ export default class TfrLabourEffectManager extends NavigationMixin(LightningEle
                 this.selectedLabourCodes = [];
                 this.showToastMessage('Success !!', 'Labour Effects Record Created Successfully !!', 'success');
                 this.codesetids = [];
+                this.clearSelection();
+                this.handleClearSelection();
                 return refreshApex(this.refreshResultData);
 
             })
@@ -106,6 +114,14 @@ export default class TfrLabourEffectManager extends NavigationMixin(LightningEle
             });
     }
 
+    handleClearSelection() {
+        const myPicker = this.refs.myPicker;
+        if (myPicker) {
+            myPicker.clearSelection(); // Clear the visual selection
+            this.selectedLabourCode = null;
+        }
+    }
+    
     showToastMessage(title, message, variant) {
         const evt = new ShowToastEvent({
             title: title,

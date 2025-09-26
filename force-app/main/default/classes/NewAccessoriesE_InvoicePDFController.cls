@@ -141,7 +141,7 @@ public with sharing class NewAccessoriesE_InvoicePDFController {
 
             // Discount on order
             if (order.RecordType.DeveloperName == 'OTC') {
-                AccessoriesDiscountAmountOnOrder = order.OTC_Additional_Discount_Amount__c != null ? order.OTC_Additional_Discount_Amount__c : 0;
+               // AccessoriesDiscountAmountOnOrder = order.OTC_Additional_Discount_Amount__c != null ? order.OTC_Additional_Discount_Amount__c : 0;
             } else {
                 AccessoriesDiscountAmountOnOrder = order.Accessories_Discount_Amount__c != null ? order.Accessories_Discount_Amount__c : 0;
             }
@@ -179,7 +179,7 @@ public with sharing class NewAccessoriesE_InvoicePDFController {
                 Decimal itemDiscount =  (oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0) + (oi.Discounted_Amount_on_Merchandise__c != null ? oi.Discounted_Amount_on_Merchandise__c : 0);
                 Decimal itemTotalDiscountLocal = itemDiscount;
                 Decimal itemEligibleAmount = unitPrice * quantity;
-                if ((oi.Product2.Type__c == 'Accessories' || oi.Product2.Type__c == 'Parts')  && oi.Product2.Name != 'Road Side Assistance'  && !oi.Product2.Name.contains('River Extended Warranty')) {
+                if ((oi.Product2.Type__c == 'Accessories' || oi.Product2.Type__c == 'Parts')  && oi.Product2.Name != 'Road Side Assistance'  && !oi.Product2.Name.contains('River Extended Warranty') && order.RecordType.DeveloperName != 'OTC') {
                     if (totalEligibleUnitPrice > 0) {
                         Decimal accessoriesDiscountShare = (itemEligibleAmount / totalEligibleUnitPrice) * AccessoriesDiscountAmountOnOrder;
                         itemTotalDiscountLocal += accessoriesDiscountShare;

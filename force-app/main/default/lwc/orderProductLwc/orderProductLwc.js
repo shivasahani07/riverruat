@@ -110,7 +110,7 @@ export default class OrderProductLwc extends NavigationMixin(LightningElement) {
                         ProductName: res.Name,
                         ProductCode: res.ProductCode,
                         unitPirce: res.PricebookEntries[0].UnitPrice,
-                        tax: res.PricebookEntries[0].IGST__c != null ? res.PricebookEntries[0].IGST__c : 0,
+                        tax: res.PricebookEntries[0].IGST_Percentage__c != null ? res.PricebookEntries[0].IGST_Percentage__c : 0,
                        discount: res.Merchandise_discount_price__c != null ? res.Merchandise_discount_price__c : 0,
                         Type: res.Type__c,
                         AllocatedQuantity: 1,
@@ -170,70 +170,7 @@ export default class OrderProductLwc extends NavigationMixin(LightningElement) {
         this.requestLineItems = this.requestLineItems.filter(item => item.Id !== itemId);
     }
 
-    // handleDeleteSelectedItem(event) {
-    //     debugger;
-    //     const itemId = event.target.dataset.id;
-    //     const deletedItem = this.selectedItems.find(item => item.Id === itemId);
-        
-    //     if (deletedItem) {
-    //         this.selectedItems = this.selectedItems.filter(item => item.Id !== itemId);
-    //         this.selectedItems = this.selectedItems.map((item, index) => ({
-    //             ...item,
-    //             index: index + 1
-    //         }));
     
-    //         const alreadyExists = this.filteredRequestLineItems.some(item => item.Id === itemId);
-    //         if (!alreadyExists) {
-    //             this.filteredRequestLineItems.push({
-    //                 ...deletedItem,
-    //                 selected: false,
-    //                 isChargesDisabled: true
-    //             });
-    
-    //             this.filteredRequestLineItems.sort((a, b) => a.index - b.index);
-    //         }
-    
-    //         this.totalPages = Math.ceil(this.filteredRequestLineItems.length / this.recordsPerPage);
-    //     }
-    
-    //     this.updatePageData();
-    //     this.selectAllChecked = this.currentPageData.every(item => item.selected);
-    //     this.buttonVisible = this.selectedItems.length > 0;
-    // }
-    // handleDeleteSelectedItem(event) {
-    //     debugger;
-    //     const itemId = event.target.dataset.id;
-    
-    //     // Ensure correct type comparison
-    //     const deletedItem = this.selectedItems.find(item => item.Id == itemId); // use loose equality
-    
-    //     if (deletedItem) {
-    //         this.selectedItems = this.selectedItems.filter(item => item.Id != itemId); // use loose equality
-    
-    //         this.selectedItems = this.selectedItems.map((item, index) => ({
-    //             ...item,
-    //             index: index + 1
-    //         }));
-    
-    //         const alreadyExists = this.filteredRequestLineItems.some(item => item.Id == itemId); // use loose equality
-    
-    //         if (!alreadyExists) {
-    //             this.filteredRequestLineItems.push({
-    //                 ...deletedItem,
-    //                 selected: false,
-    //                 isChargesDisabled: true
-    //             });
-    
-    //             this.filteredRequestLineItems.sort((a, b) => a.index - b.index);
-    //         }
-    
-    //         this.totalPages = Math.ceil(this.filteredRequestLineItems.length / this.recordsPerPage);
-    //     }
-    
-    //     this.updatePageData();
-    //     this.selectAllChecked = this.currentPageData.every(item => item.selected);
-    //     this.buttonVisible = this.selectedItems.length > 0;
-    // }
 
     handleDeleteSelectedItem(event) {
         debugger;
@@ -296,7 +233,7 @@ export default class OrderProductLwc extends NavigationMixin(LightningElement) {
             if (item.Id === itemId) {
 
                 let totalPrice = (updatedQuantity === 0) ? 0 : (updatedQuantity ? updatedQuantity * unitPrice : unitPrice) - discount;
-                let totalBeforediscount = totalPrice ? totalPrice + (totalPrice * (tax / 100)) : 0;
+                let totalBeforediscount = totalPrice ? totalPrice  : 0;
                 let TotalAmountAfterDiscount = totalBeforediscount ? totalBeforediscount : 0;
 
                 return {
@@ -316,50 +253,58 @@ export default class OrderProductLwc extends NavigationMixin(LightningElement) {
 
     }
 
-   handleAddtionalQty(event) {
-    const itemId = event.target.dataset.id;
-    const newDiscount = parseFloat(event.target.value) || 0;
+    handleAddtionalQty(event) {
+        const itemId = event.target.dataset.id;
+        const newDiscount = parseFloat(event.target.value) || 0;
 
-    this.selectedItems = this.selectedItems.map(item => {
-        if (item.Id === itemId) {
+        this.selectedItems = this.selectedItems.map(item => {
+            if (item.Id === itemId) {
+                return {
+                    ...item,
+                    additionalDiscount: newDiscount
+                };
+            }
+            return item;
+        });
+
+        this.filteredRequestLineItems = [...this.selectedItems];
+        this.calculateFinalPayableAmount();
+    }
+
+    calculateFinalPayableAmount() {
+        let totalOrderAmount = 0;
+        let totalDiscountAmount = 0;
+
+        this.selectedItems = this.selectedItems.map(item => {
+            const additionalDiscountPercent = item.additionalDiscount || 0;
+
+            // Calculate additional discount amount on totalPrice
+            const additionalDiscountAmount = (additionalDiscountPercent / 100) * item.totalPrice;
+            
+
+            // Price after additional discount, before tax
+            const updatedTotalBeforeDiscount = item.totalPrice - additionalDiscountAmount;
+
+            // Apply tax on discounted price
+            const finalAmountRaw = updatedTotalBeforeDiscount * (1 + item.tax / 100);
+            const finalAmount = Math.round(finalAmountRaw);
+
+            totalOrderAmount += finalAmount;
+            totalDiscountAmount += additionalDiscountAmount;
+
             return {
                 ...item,
-                additionalDiscount: newDiscount
+                totalBeforediscount: updatedTotalBeforeDiscount,
+                TotalAmountAfterDiscount: finalAmount,
+                additionalDiscountAmount
             };
-        }
-        return item;
-    });
+        });
 
-    this.filteredRequestLineItems = [...this.selectedItems];
-    this.calculateFinalPayableAmount();
-}
-
-   calculateFinalPayableAmount() {
-    let totalOrderAmount = 0;
-    let totalDiscountAmount = 0;
-
-    this.selectedItems = this.selectedItems.map(item => {
-        const itemDiscount = item.additionalDiscount || 0;
-        const discountOnItem = (itemDiscount / 100) * item.totalBeforediscount;
-        const TotalAmountAfterDiscount = item.totalBeforediscount - discountOnItem;
-
-        totalOrderAmount += TotalAmountAfterDiscount;
-        totalDiscountAmount += discountOnItem;
-
-        return {
-            ...item,
-            TotalAmountAfterDiscount
-        };
-    });
-
-    this.filteredRequestLineItems = [...this.selectedItems];
-    this.OrderTotal = totalOrderAmount;
-    this.discountAmount = totalDiscountAmount;
-    this.FinalPayableAmount = totalOrderAmount;
-}
-
-
-
+        this.filteredRequestLineItems = [...this.selectedItems];
+        this.OrderTotal = totalOrderAmount;
+        this.discountAmount = Math.round(totalDiscountAmount);
+        this.FinalPayableAmount = totalOrderAmount;
+    }
 
     closeQuickAction() {
         this.dispatchEvent(new CloseActionScreenEvent());
@@ -549,8 +494,8 @@ export default class OrderProductLwc extends NavigationMixin(LightningElement) {
             QuantityRequested: parseFloat(item.AllocatedQuantity),
             Product2Id: item.Id,
             ParentId: this.PoCreatedRecordId,
-            DiscountPercent: item.additionalDiscount || 0
-        }));
+            DiscountAmount: item.additionalDiscountAmount || 0
+        }));    
         console.log('UpdatedItemss:::' + JSON.stringify(updatedItems));
 
         createOrderProductLineItems({ jsonData: JSON.stringify(updatedItems) })

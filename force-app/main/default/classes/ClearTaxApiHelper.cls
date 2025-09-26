@@ -266,16 +266,14 @@ public static String generatePayloadForIRN(Id orderId) {
         Decimal orderLevelDiscount = 0;
         if (itemTypeForInvoice == 'Accessories') {
             if (orderRecord.RecordType.DeveloperName == 'OTC') {
-                orderLevelDiscount = orderRecord.OTC_Additional_Discount_Amount__c != null
-                    ? orderRecord.OTC_Additional_Discount_Amount__c : 0;
+                orderLevelDiscount = 0;
             } else {
                 orderLevelDiscount = orderRecord.Accessories_Discount_Amount__c != null
                     ? orderRecord.Accessories_Discount_Amount__c : 0;
             }
         } else if (itemTypeForInvoice == 'Merchandise') {
             if (orderRecord.RecordType.DeveloperName == 'OTC') {
-                orderLevelDiscount = orderRecord.OTC_Additional_Discount_Amount__c != null
-                    ? orderRecord.OTC_Additional_Discount_Amount__c : 0;
+                orderLevelDiscount = 0; 
             } else {
                 orderLevelDiscount = orderRecord.Merchandise_Additional_Discount__c != null
                     ? orderRecord.Merchandise_Additional_Discount__c : 0;
@@ -305,7 +303,7 @@ public static String generatePayloadForIRN(Id orderId) {
             }
 
             // Prorate order-level ONLY over gross, no "eligible value" logic
-            if (orderLevelDiscount > 0 && totalGross > 0 && !excludedProducts.CONTAINS(item.Product2.Name)) {
+            if (orderRecord.RecordType.DeveloperName != 'OTC' && orderLevelDiscount > 0 && totalGross > 0 && !excludedProducts.CONTAINS(item.Product2.Name)) {
                 Decimal itemShare = (grossAmount / totalGross) * orderLevelDiscount;
                 perItemTotalDiscount += itemShare;
             }
@@ -349,7 +347,7 @@ public static String generatePayloadForIRN(Id orderId) {
                 'TotItemVal' => Math.round(assAmt + cgstAmt + sgstAmt + igstAmt)
             });
 
-            totalAssVal += assAmt;
+            totalAssVal += Math.round (assAmt);
         }
 
         transactionMap.put('ItemList', itemList);

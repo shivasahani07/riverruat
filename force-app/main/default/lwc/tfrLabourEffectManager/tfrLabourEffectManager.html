@@ -63,14 +63,24 @@
                 <div class="slds-grid slds-gutters slds-wrap">
                     <!-- Record Picker -->
                     <div class="slds-col slds-size_1-of-3">
-                        <lightning-record-picker label="Select Labour Code" object-api-name="CodeSet"
+                        <!-- <lightning-record-picker label="Select Labour Code" object-api-name="CodeSet"
                             onchange={handleLabourSelect}>
+                        </lightning-record-picker> -->
+
+                        <lightning-record-picker 
+                            label="Select Labour Code" 
+                            object-api-name="CodeSet"
+                            record-id={selectedLabourCode}
+                            onchange={handleLabourSelect}
+                            lwc:ref="myPicker">
+                            
                         </lightning-record-picker>
+
                     </div>
 
                     <!-- Save Button -->
                     <div class="slds-col slds-size_1-of-3 slds-align-bottom">
-                        <lightning-button label="Save Labour Effects" variant="brand" disabled={disableHandleSave}
+                        <lightning-button label="Save Labour Code" variant="brand" disabled={disableHandleSave}
                             onclick={handleSave}>
                         </lightning-button>
                     </div>

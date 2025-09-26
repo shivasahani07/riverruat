@@ -75,7 +75,7 @@ public with sharing class WarrantyPriorController {
                    PricebookEntry.Product2.ProductCode, Quantity, RR_Parts_Category__c, Status, Tax__c,WorkOrder.service_center__c,
                    Amount_per_Hour__c, CreatedDate, WorkOrder.WorkOrderNumber, PricebookEntry.Product2Id,Total_Labour_Charges__c,Total_NDP__c,Grand_Total__c,IGST_Percentage_formula__c,
                    TotalAmount__c,Labour_Code__r.Name,Labour_Code__r.RR_Labour_Charge__c ,Replacement_Type__c,Labour_Code__r.RR_Efforts_Hours__c,Hours__c,Part_Description__c,Consequential_Part__c,Electrical_Value__c,
-                    FFIR_Number__c, FFIR_Links__c
+                    FFIR_Number__c, FFIR_Links__c,TFR_Sample__r.Name__c
             FROM WorkOrderLineItem
             WHERE Warranty_Prior__c = :warrantyId AND Replacement_Type__c = 'Causal'
             ORDER BY CreatedDate ASC

@@ -28,20 +28,22 @@ global without sharing class TelematicsAPI {
             }
 
             v = vehicleList[0];
-            if(v.CurrentOwnerId == '' || v.CurrentOwnerId == null){
+            if(String.isBlank(v.CurrentOwnerId)){
               res.statusCode = 404;
               res.responseBody = responseCommonMethod('','','404','','The Vehicle Does Not Have Any Owner','failure');
               return;
-            }
-            
-            res.statusCode = 200;
-            res.responseBody = responseCommonMethod(v.CurrentOwner.Name != ''? v.CurrentOwner.Name : 'Not Found',
-                                                    v.CurrentOwner.Phone != ''? v.CurrentOwner.Phone : 'Not Found',
+            }else{
+              res.statusCode = 200;
+              res.responseBody = responseCommonMethod(v.CurrentOwner.Name != ''? v.CurrentOwner.Name : 'Not Found',
+                                                     v.CurrentOwner.Phone != ''? v.CurrentOwner.Phone : 'Not Found',
                                                     '200',
                                                     v.VehicleIdentificationNumber != '' ? v.VehicleIdentificationNumber : 'Not Found',
                                                     '','success');
+            }
             
-
+            
+            
+            
 
         }catch(Exception e){
             System.debug('Error Occured==>'+e.getMessage());
@@ -57,6 +59,7 @@ global without sharing class TelematicsAPI {
             if(typeOfResponse == 'success'){
               data.put('phone_number',phoneNumber);
               data.put('customer_name',customerName);
+              data.put('vin',VIN);
             }else{
               data.put('message',message);
             }

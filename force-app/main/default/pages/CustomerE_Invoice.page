@@ -92,7 +92,7 @@
                         <br/>
                         <div>
                             <apex:outputPanel rendered="{!IsQrGenerated == true}">
-                                <apex:image value="{!URLFOR('/servlet/servlet.FileDownload?file=' + QRAtt[0].Id)}" alt="QR Code" height="70px" width="70px" />
+                                <apex:image value="{!URLFOR('/servlet/servlet.FileDownload?file=' + QRAtt[0].Id)}" alt="QR Code" height="100px" width="100px" />
                             </apex:outputPanel>
                         </div>
                     </td>
@@ -110,7 +110,7 @@
                         <apex:param value="{!workOrderRecord.Invoice_Date__c}" />
                     </apex:outputText>
                     <br /><br />
-                    <b>Invoice No</b>: <span style="white-space: nowrap;">{!workOrderRecord.Invoice_No__c}</span><br /><br />
+                    <b>Invoice No</b>: <span class="s2">RC{!workOrderRecord.Service_Center__r.Center_Code__c}25{!workOrderRecord.Invoice_No__c}</span><br /><br />
                     <!-- <b>Job Card No.</b>: <span style="white-space: nowrap;">{!workOrderRecord.WorkOrderNumber}</span><br /><br /> -->
                     <!-- <b>VIN</b> : {!workOrderRecord.Vehicle__r.VehicleIdentificationNumber} <br /><br/> -->
                     <b>Place of Supply</b>: {!workOrderRecord.City__r.State__c}<br/><br/>

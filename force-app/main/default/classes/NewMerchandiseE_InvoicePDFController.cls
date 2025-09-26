@@ -139,7 +139,7 @@ public with sharing class NewMerchandiseE_InvoicePDFController {
             }
 
             if (order.RecordType.DeveloperName == 'OTC') {
-                MerchandiseDiscountAmountOnOrder = order.OTC_Additional_Discount_Amount__c != null ? order.OTC_Additional_Discount_Amount__c : 0;
+                //MerchandiseDiscountAmountOnOrder = order.OTC_Additional_Discount_Amount__c != null ? order.OTC_Additional_Discount_Amount__c : 0;
             } else {
                 MerchandiseDiscountAmountOnOrder = order.Merchandise_Additional_Discount__c != null ? order.Merchandise_Additional_Discount__c : 0;
             }
@@ -166,7 +166,7 @@ public with sharing class NewMerchandiseE_InvoicePDFController {
                 Decimal itemDiscount =  (oi.Merchandise_Disccount_Amount__c != null ? oi.Merchandise_Disccount_Amount__c : 0) + (oi.Discounted_Amount_on_Merchandise__c != null ? oi.Discounted_Amount_on_Merchandise__c : 0);
                 Decimal perItemTotalDiscount = itemDiscount;
                 Decimal itemEligibleAmount = unitPrice * quantity;
-                if (oi.Product2.Type__c == 'Merchandise') {
+                if (oi.Product2.Type__c == 'Merchandise' && order.RecordType.DeveloperName != 'OTC') {
                     if (totalEligibleUnitPrice > 0) {
                         Decimal merchandiseDiscountShare = (itemEligibleAmount / totalEligibleUnitPrice) * MerchandiseDiscountAmountOnOrder;
                         perItemTotalDiscount += merchandiseDiscountShare;

@@ -41,15 +41,15 @@ public class OrderItemTriggerHandler {
             WHERE OrderId IN :orderIds
         ];
         
-        Decimal TotalPreGSTDis = 0;
+       // Decimal TotalPreGSTDis = 0;
         for (OrderItem oi : allOrderItems) {
             Decimal rollupValue = oi.Product_Total_Amount__c != null ? oi.Product_Total_Amount__c : 0;
             Decimal unitTotal = (oi.UnitPrice != null && oi.Quantity != null) ? oi.UnitPrice * oi.Quantity : 0;
             System.debug('Total_Pre_GST_Discount__c====> ' + oi.Total_Pre_GST_Discount__c);
             System.debug('oi.Product_Total_Amount__c ==>'+ oi.Product_Total_Amount__c);
             
-            TotalPreGSTDis += (oi.Total_Pre_GST_Discount__c != null ? oi.Total_Pre_GST_Discount__c : 0);
-            System.debug('Total_Pre_GST_Discount__c====> ' + TotalPreGSTDis);
+          /*  TotalPreGSTDis += (oi.Total_Pre_GST_Discount__c != null ? oi.Total_Pre_GST_Discount__c : 0);
+            System.debug('Total_Pre_GST_Discount__c====> ' + TotalPreGSTDis);*/
             
             if (oi.Type__c == 'Vehicle') {
                 totalVehicleRollup.put(oi.OrderId,
@@ -102,8 +102,8 @@ public class OrderItemTriggerHandler {
                 Total_Accessories_Rollup__c = accessoriesTotal.round(),
                 Total_Merchandise_Rollup__c = merchandiseTotal.round(),
                 Total_Accessories_Unit_Price__c = accessoriesUnitTotal.round(),
-                Total_Merchandise_Unit_Price__c = merchandiseUnitTotal.round(),
-                Total_Pre_GST_Discount__c = TotalPreGSTDis
+                Total_Merchandise_Unit_Price__c = merchandiseUnitTotal.round()
+               // Total_Pre_GST_Discount__c = TotalPreGSTDis
             );
             ordersToUpdate.add(updatedOrder);
         }

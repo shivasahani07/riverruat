@@ -68,6 +68,7 @@ global class LeadCreationfromOzoneTel{
             leadToUpdate.Test_ride_end_date__c    = endDateTime;  
             leadToUpdate.Home_Test_Ride__c        = homeTestRide != null ? homeTestRide : false;  
             leadToUpdate.Instore_Test_drive__c    = instoreTestdrive != null ? instoreTestdrive : false;  
+            leadToUpdate.Verified__c              = true;//This Boolean Field Was the Culprit 
             
             // Dealer code resolution  
             Account dealerCodeAccount;  

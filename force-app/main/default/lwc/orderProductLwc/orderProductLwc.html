@@ -295,10 +295,9 @@
                                         <th scope="col">Quantity</th>
                                         <th scope="col">Pre GST Discount</th>
                                         <th scope="col">Total Price</th>
-                                        <th scope="col">Tax</th>
-                                        <th scope="col">Sub Total</th>
-                                        
                                         <th scope="col">Additional Discount %</th>
+                                        <th scope="col">Sub Total</th>
+                                        <th scope="col">Tax</th>
                                         <th scope="col">Payable amount</th>
                                         <th scope="col">Actions</th>
                                     </tr>
@@ -320,18 +319,16 @@
                                                 </lightning-input></td>
                                                 <td>{item.discount}</td>
                                             <td>{item.totalPrice}</td>
-                                            <td>{item.tax}%</td>
-                                            <td>{item.totalBeforediscount}</td>
-                                            
                                             <td>
                                                     <lightning-input 
-    type="number" 
-    data-id={item.Id}
-    value={item.additionalDiscount}
-    onchange={handleAddtionalQty}>
-</lightning-input>
-
+                                                        type="number" 
+                                                        data-id={item.Id}
+                                                        value={item.additionalDiscount}
+                                                        onchange={handleAddtionalQty}>
+                                                    </lightning-input>
                                                 </td>
+                                                <td>{item.totalBeforediscount}</td>
+                                                <td>{item.tax}%</td>
                                             <td>{item.TotalAmountAfterDiscount}</td>
                                             <td> <lightning-button icon-name="utility:delete" alternative-text="Delete"
                                                     onclick={handleDeleteSelectedItem} data-id={item.Id} size="small"

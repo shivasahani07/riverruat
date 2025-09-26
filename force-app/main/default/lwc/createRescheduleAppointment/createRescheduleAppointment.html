@@ -1,16 +1,14 @@
 <template>
-    <lightning-card title="Reschedule Appointment">
+    <lightning-card title="Book Appointment">
         <div class="slds-p-around_medium">
 
-            <!-- Service Center -->
-            <lightning-combobox
-                name="selectedServiceCenter"
+            <!-- Service Center (Read-only input displaying fetched center name) -->
+            <lightning-input
+                name="serviceCenter"
                 label="Service Center"
-                placeholder="Select Service Center"
-                value={selectedServiceCenter}
-                options={serviceCenterOptions}
-                onchange={handleChange}>
-            </lightning-combobox>
+                value={serviceCenterName}
+                disabled>
+            </lightning-input>
 
             <!-- VRN (read-only) -->
             <lightning-input
@@ -18,15 +16,6 @@
                 label="Vehicle Registration Number (VRN)"
                 value={vrn}
                 disabled>
-            </lightning-input>
-
-            <!-- Appointment Date -->
-            <lightning-input
-                name="appointmentDate"
-                type="date"
-                label="Appointment Date"
-                value={appointmentDate}
-                onchange={handleChange}>
             </lightning-input>
 
             <!-- Contact Number (read-only) -->
@@ -38,12 +27,65 @@
                 disabled>
             </lightning-input>
 
+           <lightning-combobox
+        name="picklist"
+        label="Type Of Requested Services"
+        value=""
+        placeholder="Select an option"
+        options={options}
+         onchange={handleSelectServices}>
+    </lightning-combobox>
+
+            <!-- Appointment Date -->
+            <lightning-input
+                name="appointmentDate"
+                type="date"
+                label="Appointment Date"
+                value={appointmentDate}
+                min={minDate}
+                onchange={handleDateChange}>
+            </lightning-input>
+
+            <!-- Appointment Slot Item Picklist -->
+            <template if:true={slotsAvailable}>
+                <div class="slds-m-top_medium">
+                    <lightning-combobox
+                        name="selectedSlotItem"
+                        label="Available Slot Items"
+                        placeholder="Select a slot"
+                        options={slotItemOptions}
+                        value={selectedSlotItem}
+                        onchange={handleSlotItemChange}>
+                    </lightning-combobox>
+                </div>
+            </template>
+
+            <template if:true={slotSearchTriggered}>
+                <template if:false={slotsAvailable}>
+                    <div class="slds-m-top_medium slds-text-color_error">
+                        No slots are available for the selected date.
+                    </div>
+                </template>
+            </template>
+
+            <!-- Appointment Description (shown conditionally) -->
+            <template if:true={showDescriptionField}>
+                <lightning-input
+                    name="appointmentDesc"
+                    type="text"
+                    label="Appointment Description"
+                    value={appointmentDecription}
+                    onchange={handleAppointmentDesc}>
+                </lightning-input>
+            </template>
+
             <!-- Submit Button -->
             <div class="slds-m-top_medium slds-align_absolute-center">
                 <lightning-button
                     label="Submit"
                     variant="brand"
-                    onclick={handleSubmit}>
+                    onclick={handleSubmit}
+                    disabled={isSubmitDisabled}>
                 </lightning-button>
             </div>
 
