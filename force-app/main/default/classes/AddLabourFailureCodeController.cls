@@ -29,10 +29,10 @@ public without sharing class AddLabourFailureCodeController {
             
             // Find existing active failure code
             List<Failure_Code__c> fcList = [
-                SELECT Id, Name, Labour_Code__c, VIN_Cut_off_No__c, VIN_Cut_off__c, Is_Active__c
+                SELECT Id, Name, Labour_Code__c, VIN_Cut_off_No__c, VIN_Cut_off__c, Is_Active__c,CodeSetId__c
                 FROM Failure_Code__c
                 WHERE Name = :fcName
-                AND Labour_Code__c = :labourCode 
+                AND CodeSetId__c = :labourCode 
                 AND Is_Active__c = true
                 LIMIT 1
             ];
@@ -143,7 +143,7 @@ public without sharing class AddLabourFailureCodeController {
                 return new OperationResult(true, 'Labour effect already exists', leList[0].Id, null);
             }
             
-            List<CodeSet> codeSetList = [SELECT Id, Name FROM CodeSet WHERE Code = :labourCode AND IsActive = true LIMIT 1];
+            List<CodeSet> codeSetList = [SELECT Id, Name FROM CodeSet WHERE Id = :labourCode AND IsActive = true LIMIT 1];
             if (codeSetList.isEmpty()) {
                 return new OperationResult(false, 'No active Labour Code found with code: ' + labourCode);
             }
@@ -227,7 +227,7 @@ public without sharing class AddLabourFailureCodeController {
             }
             
             // Check if labour code exists in CodeSet
-            List<CodeSet> codeSets = [SELECT Id FROM CodeSet WHERE Code = :labourCode AND IsActive = true LIMIT 1];
+            List<CodeSet> codeSets = [SELECT Id FROM CodeSet WHERE Id = :labourCode AND IsActive = true LIMIT 1];
             if (codeSets.isEmpty()) {
                 return new OperationResult(false, 'Active labour code not found: ' + labourCode);
             }

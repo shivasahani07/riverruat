@@ -1,3 +1,10 @@
+/**
+ * @description       : 
+ * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @group             : 
+ * @last modified on  : 09-25-2025
+ * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+**/
 public with sharing class BatchRecordControllerPDF {
     public Create_Batch__c batchRecord { get; set; }
     public DeliveryChallanPDF__mdt dcPdf { get; set; }
@@ -55,7 +62,7 @@ public with sharing class BatchRecordControllerPDF {
     
     public void fetchPartsData() {
         try {
-            claimItems = [  SELECT Id, ClaimId, Part__r.LineItemNumber, Part__r.Part_Description__c, Part__r.RR_Product__r.HSN_Code__c, Part__r.Unit_of_Measurement__c, Part__r.ListPrice, Part__r.Quantity, Part__r.PricebookEntry.Name,   Part__r.Grand_Total__c, Part__r.NDP__c, Part__r.Total_NDP__c, Part__r.RR_Product__r.ProductCode FROM ClaimItem   WHERE Claim.Create_Batch__c = :batchId ];
+            claimItems = [  SELECT Id, ClaimId,Claim.Name, Part__r.LineItemNumber, Part__r.Part_Description__c, Part__r.RR_Product__r.HSN_Code__c, Part__r.Unit_of_Measurement__c, Part__r.ListPrice, Part__r.Quantity, Part__r.PricebookEntry.Name,   Part__r.Grand_Total__c, Part__r.NDP__c, Part__r.Total_NDP__c, Part__r.RR_Product__r.ProductCode FROM ClaimItem   WHERE Claim.Create_Batch__c = :batchId ];
             System.debug('Claim Items ==> ' + claimItems);
             parts = new List<WorkOrderLineItem>();
             totalAmount = 0;
@@ -74,7 +81,8 @@ public with sharing class BatchRecordControllerPDF {
                         item.Part__r.PricebookEntry.Name,
                         item.Part__r.Grand_Total__c,
                         item.Part__r.NDP__c,
-                        item.Part__r.Total_NDP__c
+                        item.Part__r.Total_NDP__c,
+                        item.Claim.Name
                     );
                     totalAmount += part.TotalAmount;
                     parts.add(part);
@@ -102,8 +110,9 @@ public with sharing class BatchRecordControllerPDF {
         public Decimal Grand_Total { get; set; }
         public Decimal NDP { get; set; }
         public Decimal Total_NDP { get; set; }
+        public String claimName{get;set;}
         
-        public WorkOrderLineItem(String lineItemNumber,String productCode , String description, String hsnCode, String uom, Decimal listPrice, Decimal quantity, String pricebookEntryId, Decimal claimAmount, Decimal ndp, Decimal totalNdp) {
+        public WorkOrderLineItem(String lineItemNumber,String productCode , String description, String hsnCode, String uom, Decimal listPrice, Decimal quantity, String pricebookEntryId, Decimal claimAmount, Decimal ndp, Decimal totalNdp,String claimName) {
             this.LineItemNumber = lineItemNumber;
             this.ProductCode = productCode;
             this.Part_Description = description;
@@ -119,6 +128,7 @@ public with sharing class BatchRecordControllerPDF {
             this.Grand_Total = claimAmount;
             this.NDP = ndp;
             this.Total_NDP = totalNdp;
+            this.claimName = claimName;
         }
     }
     

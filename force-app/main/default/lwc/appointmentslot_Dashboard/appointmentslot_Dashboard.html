@@ -17,9 +17,16 @@
                     </div>
 
                     <!-- Title -->
+                     <template if:false={showForm}>
                     <div class="slds-text-align_center slds-text-heading_medium" style="width: 34%;">
                         <b>WM Appointments Visibility</b>
                     </div>
+                     </template>
+                      <template if:true={showForm}>
+                    <div class="slds-text-align_center slds-text-heading_medium" style="width: 34%;">
+                        <b>Create Slots</b>
+                    </div>
+                     </template>
 
                     <!-- Create Slots Button -->
                     <div class="slds-text-align_right" style="width: 33%;">
@@ -28,9 +35,7 @@
                                 label="Bay Release" 
                                 onclick={toggleForm}>
                             </lightning-button>
-                        </template>
-
-                        <lightning-combobox
+                            <lightning-combobox
                             name="progress"
                             label="Booking Status"
                             value={selectedStatus}
@@ -38,8 +43,8 @@
                             options={options}
                             onchange={statushandleChange}>
                         </lightning-combobox>
-
-                        <p>{selectedStatus}</p>
+                        </template>
+                         
                     </div>
                 </div>
             </div>
@@ -89,7 +94,7 @@
                                         <td>{item.bayName}</td>
                                         <td>{item.formattedStart}</td>
                                         <td>{item.formattedEnd}</td>
-                                        <td><a href={item.slotUrl} target="_blank">{item.slotName}</a></td>
+                                        <td>>{item.slotName}</td><!--a href={item.slotUrl} target="_blank"</a-->
                                         <td>{item.apppointDate}</td>
                                         <td>{item.bookingstatus}</td>
                                     </tr>
@@ -121,6 +126,7 @@
 
             <!-- Create Slot Form -->
             <template if:true={showForm}>
+                
                 <div class="slds-col slds-size_1-of-2">
                     <lightning-input
                         type="date"

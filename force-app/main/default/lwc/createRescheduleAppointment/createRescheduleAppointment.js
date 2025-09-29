@@ -25,6 +25,7 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
     @track slotsAvailable = false;
     @track slotItemOptions = [];
     @track showDescriptionField = false;
+    @track previousDate; 
 
     minDate;
     serviceCenterId = '';
@@ -84,6 +85,7 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
                 if (r) {
                     this.vrn = r.vehicleRecord.VehicleRegistrationNumber || '';
                     this.contactNumber = r.vehicleRecord.CurrentOwner?.Phone || '';
+                    this.previousDate = r.appointmentDATE;
                 }
             })
             .catch(() => this.showToast('Error', 'Failed to load vehicle data', 'error'));

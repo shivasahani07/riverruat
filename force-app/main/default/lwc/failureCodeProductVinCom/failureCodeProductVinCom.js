@@ -3,6 +3,8 @@ import { NavigationMixin } from 'lightning/navigation';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getFailureCodes from '@salesforce/apex/TFRController.getFailureCodes';
 import deleteFailureCode from '@salesforce/apex/TFRController.deleteFailureCode';
+import { refreshApex } from '@salesforce/apex';
+
 
 export default class FailureCodeTable extends NavigationMixin(LightningElement) {
     @track failureCodes = [];
@@ -12,6 +14,7 @@ export default class FailureCodeTable extends NavigationMixin(LightningElement) 
     @track componentConstructor = null;
     @track childProps = {};
     @track isLoading = true;
+    @track refreshResultData;;
     
     // Filters
     @track filters = {
@@ -35,7 +38,9 @@ export default class FailureCodeTable extends NavigationMixin(LightningElement) 
     nextButtonComponent='TfrLabourEffectManager';
 
     @wire(getFailureCodes)
-    wiredCodes({ data, error }) {
+    wiredCodes(result) {
+         this.refreshResultData = result;
+         let  {data,error} = result;
         if (data) {
           debugger
             this.failureCodes = data.map(fc => {
@@ -69,7 +74,7 @@ export default class FailureCodeTable extends NavigationMixin(LightningElement) 
                     isActiveClass: `status ${isActive ? 'active' : 'inactive'}`,
                     isActiveLabel: isActive ? 'Active' : 'Inactive',
                     vinActiveClass: `status ${vinActive ? 'active' : 'inactive'}`,
-                    vinActiveLabel: vinActive ? 'Active' : 'Inactive',
+                    vinActiveLabel: vinActive ? 'Yes' : 'NO',
                     CreatedBy: fc.CreatedBy?.Name || '',
                     CreatedDate: fc.CreatedDate,
                     Combination: fc.FPV_Validation__c
@@ -102,6 +107,12 @@ export default class FailureCodeTable extends NavigationMixin(LightningElement) 
             type: 'standard__recordPage',
             attributes: { recordId, objectApiName: 'Failure_Code__c', actionName: 'edit' }
         });
+    }
+
+    apexRefresh(istrue){
+        debugger;
+        this.showToast('updated', 'data refreshed', 'success');
+        return refreshApex(this.refreshResultData);
     }
 
     handleDelete(event) {

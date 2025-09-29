@@ -226,7 +226,7 @@ List<WorkOrderLineItem> wolis = [
     SELECT Id, Quantity, UnitPrice, Discount, Subtotal, TotalPrice,
             RR_Product__r.Name, RR_Product__r.HSN_Code__c,
             IGST_Percentage_formula__c, CGST_Percentage_Formula__c, SGST_Percentage_Formula__c,
-            IGST_Amount__c, CGST_Amount__c, SGST_Amount__c,
+            IGST_Amount__c, CGST_Amount__c, SGST_Amount__c,IGST__c, CGST__c, SGST__c,List_Price_New__c,Total_NDP__c,
             RR_Parts_Category__c
     FROM WorkOrderLineItem
     WHERE WorkOrderId = :wo.Id
@@ -238,10 +238,10 @@ System.debug('Paid WOLIs size => ' + wolis.size());
 List<WorkPlan> wps = [
     SELECT Id, Name, RR_Labour_Category__c, RR_Labour_Code__r.HSN_Code__c,
             Labour_Charge__c, Discount__c, Subtotal__c,
-            IGST_Amount__c, CGST_Amount__c, SGST_Amount__c,
-            RR_Labour_Code__r.IGST_Percentage__c,
-            RR_Labour_Code__r.CGST_Percentage__c,
-            RR_Labour_Code__r.SGST_Percentage__c,
+            IGST_Amount__c, CGST_Amount__c, SGST_Amount__c, RR_Labour_Code__r.RR_Labour_Charge__c,
+            IGST__c,
+            CGST__c,
+            SGST__c,
             RR_Labour_Code__r.Code
     FROM WorkPlan
     WHERE WorkOrderId = :wo.Id
@@ -305,15 +305,15 @@ Decimal totalAssVal = 0, totalCgst = 0, totalSgst = 0, totalIgst = 0;
 // Parts lines
 for (WorkOrderLineItem li : wolis) {
     Decimal qty = (li.Quantity == null) ? 0 : li.Quantity;
-    Decimal unitPrice = (li.UnitPrice == null) ? 0 : li.UnitPrice;
+    Decimal unitPrice = (li.List_Price_New__c == null) ? 0 : li.List_Price_New__c;
     Decimal base = qty * unitPrice;
     Decimal discPct = (li.Discount == null) ? 0 : li.Discount;
     Decimal discountAmt = base * discPct / 100;
     if (discountAmt > base) discountAmt = base;
     Decimal assAmt = base - discountAmt;
-    Decimal cgstRate = (li.CGST_Percentage_Formula__c == null) ? 0 : li.CGST_Percentage_Formula__c;
-    Decimal sgstRate = (li.SGST_Percentage_Formula__c == null) ? 0 : li.SGST_Percentage_Formula__c;
-    Decimal igstRate = (li.IGST_Percentage_formula__c == null) ? 0 : li.IGST_Percentage_formula__c;
+    Decimal cgstRate = (li.CGST__c == null) ? 0 : li.CGST__c;
+    Decimal sgstRate = (li.SGST__c == null) ? 0 : li.SGST__c;
+    Decimal igstRate = (li.IGST__c == null) ? 0 : li.IGST__c;
 
     Decimal cgstAmt = 0, sgstAmt = 0, igstAmt = 0, gstRt = 0;
     if (isIntrastate) {
@@ -377,9 +377,9 @@ for (WorkPlan lp : wps) {
     if (discountAmt > base) discountAmt = base;
     Decimal assAmt = base - discountAmt;
 
-    Decimal cgstRate = (lp.RR_Labour_Code__r != null && lp.RR_Labour_Code__r.CGST_Percentage__c != null) ? lp.RR_Labour_Code__r.CGST_Percentage__c : 0;
-    Decimal sgstRate = (lp.RR_Labour_Code__r != null && lp.RR_Labour_Code__r.SGST_Percentage__c != null) ? lp.RR_Labour_Code__r.SGST_Percentage__c : 0;
-    Decimal igstRate = (lp.RR_Labour_Code__r != null && lp.RR_Labour_Code__r.IGST_Percentage__c != null) ? lp.RR_Labour_Code__r.IGST_Percentage__c : 0;
+    Decimal cgstRate = lp.CGST__c != null ? lp.CGST__c : 0;
+    Decimal sgstRate = lp.SGST__c != null ? lp.SGST__c : 0;
+    Decimal igstRate = lp.IGST__c != null ? lp.IGST__c : 0;
 
     Decimal cgstAmt = 0, sgstAmt = 0, igstAmt = 0, gstRt = 0;
     if (isIntrastate) {
@@ -418,7 +418,7 @@ for (WorkPlan lp : wps) {
         'HsnCd' => (lp.RR_Labour_Code__r.HSN_Code__c != null ? lp.RR_Labour_Code__r.HSN_Code__c : null),
         'Qty' => qty,
         'Unit' => 'OTH',
-        'UnitPrice' => round2(unitPrice),
+        'UnitPrice' => round2((lp.RR_Labour_Code__r.RR_Labour_Charge__c != null) ? round2(lp.RR_Labour_Code__r.RR_Labour_Charge__c) : null),
         'TotAmt' => round2(base),
         'Discount' => round2(discountAmt),
         'AssAmt' => round2(assAmt),

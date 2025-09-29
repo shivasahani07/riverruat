@@ -2,6 +2,8 @@ import { LightningElement, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import createPostVINFCLabourVIN from '@salesforce/apex/AddLabourFailureCodeController.createPostVINFCLabourVIN';
 import validateLabourInputs from '@salesforce/apex/AddLabourFailureCodeController.validateInputs';
+import searchlabourFailureCodes from '@salesforce/apex/AddFailureCodeControllerNew.searchlabourFailureCodes';
+
 
 export default class AddLabourFailureCodeLwcComp extends LightningElement {
     @track failureCode = {
@@ -17,8 +19,93 @@ export default class AddLabourFailureCodeLwcComp extends LightningElement {
     @track messages = {};
     @track hasResults = false;
     @track isLoading = false;
+    @track selectedProducitId = null
+    @track searchKey = '';
+    @track records;
+    @track selectedRecord;
+    @track selectedLabourcodesetid = null
+
+    handleSearch(searchKey, codesetid) {
+        debugger;
+        if (searchKey.length >= 2) { // search after 2+ chars
+            searchlabourFailureCodes({ searchKey: searchKey, codesetid: '0hsF40000004C9cIAE' })
+                .then(result => {
+                    this.records = result;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        } else {
+            this.records = null;
+        }
+    }
+    
+    get recordsGetter() {
+        debugger;
+        return this.records ? this.records.length > 0 : false;
+    }
+
+    handleSelect(event) {
+        debugger;
+        const recId = event.currentTarget.dataset.id;
+        this.selectedRecord = this.records.find(r => r.Id === recId);
+        this.searchKey = this.selectedRecord.Name;
+        this.records = null; // hide dropdown after select
+        this.failureCode.failureCode = this.searchKey;   
+    }
+
+    recordChangeHandler(event) {
+        debugger;
+        this.selectedLabourcodesetid = event.detail.recordId;
+        this.searchKey = '';
+        this.records = null; // hide dropdown after select
+        this.failureCode.labourCode=this.selectedLabourcodesetid
+    }
+
+    handleSearchChange(event) {
+        debugger;
+        let searchKey = event.target.value
+        this.searchKey = searchKey;
+        this.handleSearch(searchKey, this.selectedLabourcodesetid);
+        this.failureCode.failureCode=this.searchKey;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     handleInputChange(event) {
+        debugger
         const field = event.target.dataset.field;
         const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
 
@@ -43,12 +130,14 @@ export default class AddLabourFailureCodeLwcComp extends LightningElement {
     }
 
     validateVin(vin) {
+        debugger;
         // Allow empty OR exactly 17 alphanumeric (excluding I, O, Q as per VIN standard)
         const vinRegex = /^(?:[A-HJ-NPR-Z0-9]{17}|)$/;
         return vinRegex.test(vin);
     }
 
     async handleValidate() {
+        debugger;
         // Check required fields
         if (!this.failureCode.failureCode || !this.failureCode.labourCode) {
             this.showNotification('Validation Error', 'Failure Code and Labour Code are required', 'error');
@@ -81,6 +170,7 @@ export default class AddLabourFailureCodeLwcComp extends LightningElement {
     }
 
     async handleSave() {
+        debugger;
         // Validate inputs first
         const inputs = this.template.querySelectorAll('lightning-input');
         let allValid = true;

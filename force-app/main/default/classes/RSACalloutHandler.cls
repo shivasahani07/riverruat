@@ -1,5 +1,6 @@
 public class RSACalloutHandler {
     
+    public static string isCalleRSA= system.label.RSAflag;
     public static void getchasisnumber(list<Order> orderlist){
         try{
             System.debug('Number of SOQL queries used ==> ' + Limits.getQueries());
@@ -54,7 +55,10 @@ public class RSACalloutHandler {
                     Id OrderIdnumber=assignloop.Id;
                     // Method called RSAcalloutHelper.RsaFuthuremethod
                     System.debug('vehicleRegistrationNo == >'+vehicleRegistrationNo+' && chassisNO == >'+chassisNO+' && OrderIdnumber == >'+OrderIdnumber);
-                    RSAcalloutHelper.RsaFuthuremethod(vehicleRegistrationNo,chassisNO,OrderIdnumber);
+                    if(isCalleRSA=='True'){
+                       RSAcalloutHelper.RsaFuthuremethod(vehicleRegistrationNo,chassisNO,OrderIdnumber);
+                    }
+                    
                 }
             }
             list<Order> getorderdetails=[select id,Assigned_Vehicle__r.VehicleIdentificationNumber,Assigned_Vehicle__r.VehicleRegistrationNumber,Account.Name, Account.Phone  from Order where Id IN:orderidtogetchassisnoforsubscribation];
@@ -70,7 +74,10 @@ public class RSACalloutHandler {
                     system.debug('chassisNO == >'+chassisNO);
                     // Method called RSAcalloutHelper.RsaCreationFuthuremethod
                     system.debug('chassisNO == >'+chassisNO+' && OrderIdnumber == >'+OrderIdnumber+' && AccountName == >'+AccountName+' && AccountPhoneNo == >'+AccountPhoneNo+' && VehicleId == >'+VehicleId);
-                    RSAcalloutHelper.RsaCreationFuthuremethod(chassisNO,OrderIdnumber,AccountName,AccountPhoneNo,VehicleId);
+                     if(isCalleRSA=='True'){
+                       RSAcalloutHelper.RsaCreationFuthuremethod(chassisNO,OrderIdnumber,AccountName,AccountPhoneNo,VehicleId);
+                    }
+                    
                 }
             }
         }catch(Exception e){
@@ -145,7 +152,10 @@ public class RSACalloutHandler {
                     string AccountName=assignloop.Account.Name;
                     string AccountPhoneNo=assignloop.Account.Phone;
                     system.debug('chassisNO ## == >'+chassisNO+' && OrderIdnumber ## == >'+OrderIdnumber+' && AccountName == >'+AccountName+' && AccountPhoneNo == >'+AccountPhoneNo+' && VehicleId == >'+VehicleId);
-                    RSAcalloutHelper.RsaCreationFuthuremethod(chassisNO,OrderIdnumber,AccountName,AccountPhoneNo,VehicleId);
+                    if(isCalleRSA=='True'){
+                       RSAcalloutHelper.RsaCreationFuthuremethod(chassisNO,OrderIdnumber,AccountName,AccountPhoneNo,VehicleId);
+                    }
+                    
                 }
             }
         }catch(Exception e){

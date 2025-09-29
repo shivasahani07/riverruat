@@ -55,17 +55,23 @@
         <div class="Section" width="100%">
 
             <div class="slds-grid slds-wrap " style="padding:10px;">
-                <template if:true={showMilestoneMessage}>
+                <template if:false={showMilestoneMessage}>
                                      <p class="custom-success-text animate-message">
-                                      🎉{assetMilestoneNam} is due for {daysDifference} days!!
+                                      🎉{assetMilestoneNam} is due in {daysDifference} days!!
                                       </p>
-                                       </template></br>
-                 <template if:true={showAppointmentMessage}>
-                                     <p class="custom-success-text animate-message">
+                                      
+            </template> 
+                                       
+                                       <template if:true={showAppointmentMessage}>
+                                     
+                                      <p class="custom-success-text animate-message">
                                       🎉 Service Appointment is already scheduled for this vehicle on {futurAppointmentDate}.
                                            Please review before creating a new Job Card!
                                       </p>
-                                       </template>   
+                                       </template> 
+                 
+                                     
+                                         
                                                           
                 <div class="slds-col slds-large-size_12-of-12">
                     <div class="slds-grid slds-wrap ">
@@ -236,7 +242,7 @@
     
     <div class="Section" width="100%">
         <div class=" borderradius">
-            <Center><strong>Important Details</strong></Center>
+            <Center><strong>Important Details</strong></Center>    
             <table class="my-table">
                 
                 <tr class="row">

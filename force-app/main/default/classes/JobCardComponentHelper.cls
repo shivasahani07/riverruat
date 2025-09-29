@@ -335,7 +335,7 @@ public class JobCardComponentHelper {
                     System.debug('appointmentRecRod'+appointmentRecRod);
                     appointmentRecRod.Status__c = 'Cancel';
                     appointmentRecRod.Cancellation_Reason__c = 'For this appointment Schedule Service already Done';
-                   update appointmentRecRod;
+                  // update appointmentRecRod;
 
                    if(appointmentRecRod != null){
                     List<Task> tasklist= [Select id ,Status,WhatId From Task where WhatId =:appointmentRecRod.Id];

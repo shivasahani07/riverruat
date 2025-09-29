@@ -2,6 +2,8 @@ import { LightningElement, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import createPostVINFCPCVIN from '@salesforce/apex/AddFailureCodeControllerNew.createPostVINFCPCVIN';
 import validateInputs from '@salesforce/apex/AddFailureCodeControllerNew.validateInputs';
+import searchFailureCodes from '@salesforce/apex/AddFailureCodeControllerNew.searchFailureCodes';
+
 
 export default class AddFailureCodeLwcComp extends LightningElement {
     @track failureCode = {
@@ -19,6 +21,141 @@ export default class AddFailureCodeLwcComp extends LightningElement {
     @track hasResults = false;
     @track isLoading = false;
     @track isShowLaborCodeComponent = false;
+    @track selectedProducitId = null
+    @track searchKey = '';
+    @track records;
+    @track selectedRecord;
+
+
+    @track selectedProductId = null
+
+    handleProductSelect(event) {
+        let recordid = event.detail.recordId;
+
+    }
+
+    @track displayInfo = {
+        primaryField: 'Name',
+        additionalFields: ['ProductCode'],
+    }
+
+    pcfilter = {
+        criteria: [
+            {
+                fieldPath: 'IsActive',
+                operator: 'eq',
+                value: true,
+            }
+        ],
+    }
+
+    @track fcfilter = {
+        criteria: [
+            {
+                fieldPath: 'ProductId__c',
+                operator: 'eq',
+                value: this.selectedProducitId
+            }
+
+        ],
+    };
+
+    recordChangeHandler(event) {
+        debugger;
+        let tt = event.detail.recordId
+        this.selectedProductId = event.detail.recordId;
+        this.selectedProducitId = this.selectedProductId
+        let objectname = event.target.name;
+        if (objectname == 'product') {
+            this.failureCode.causalProductCode=tt
+        } else if (objectname == 'failurecode') {
+
+        }
+
+
+
+        console.log(JSON.stringify(this.fcfilter));
+    }
+
+    matchingInfo = {
+        primaryField: { fieldPath: 'Name' },
+        // additionalFields: [{ fieldPath: 'Productcode' }],
+    };
+
+    handleSearchChange(event){
+        debugger;
+        let searchKey = event.target.value
+        this.searchKey=searchKey;
+        this.handleSearch(searchKey,this.selectedProductId);
+    }
+
+    handleSearch(searchKey,productid) {
+       debugger;
+        if (searchKey.length >= 2) { // search after 2+ chars
+            searchFailureCodes({ searchKey:searchKey,productid:productid})
+                .then(result => {
+                    this.records = result;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        } else {
+            this.records = null;
+        }
+    }
+
+    handleSelect(event) {
+        debugger;
+        const recId = event.currentTarget.dataset.id;
+        this.selectedRecord = this.records.find(r => r.Id === recId);
+        this.searchKey=this.selectedRecord.Name;
+        this.records = null; // hide dropdown after select
+        this.failureCode.failureCode=this.searchKey;
+        
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     get isSaveDisabled() {
         return this.isLoading || !this.failureCode.failureCode || !this.failureCode.causalProductCode;
@@ -43,7 +180,7 @@ export default class AddFailureCodeLwcComp extends LightningElement {
             }
             event.target.reportValidity();
 
-            
+
         }
 
         // Clear previous results when user starts editing
@@ -112,9 +249,9 @@ export default class AddFailureCodeLwcComp extends LightningElement {
 
         this.isLoading = true;
 
-       
-        if(this.failureCode.batchSize==''){
-            this.failureCode.batchSize=null
+
+        if (this.failureCode.batchSize == '') {
+            this.failureCode.batchSize = null
         }
 
 
@@ -138,7 +275,7 @@ export default class AddFailureCodeLwcComp extends LightningElement {
                 }
                 // this.resetForm();
                 this.hasResults = false;
-                this.isShowLaborCodeComponent = true;
+                // this.isShowLaborCodeComponent = true;
             } else {
                 console.log(JSON.stringify('result', result));
                 this.showNotification('Error', result.message, 'error');

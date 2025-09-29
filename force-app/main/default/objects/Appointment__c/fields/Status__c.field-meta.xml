@@ -31,14 +31,14 @@
                 <label>Reschedule</label>
             </value>
             <value>
-                <fullName>Cancel</fullName>
-                <default>false</default>
-                <label>Cancel</label>
-            </value>
-            <value>
                 <fullName>Completed</fullName>
                 <default>false</default>
                 <label>Completed</label>
+            </value>
+            <value>
+                <fullName>Cancel</fullName>
+                <default>false</default>
+                <label>Cancel</label>
             </value>
         </valueSetDefinition>
     </valueSet>

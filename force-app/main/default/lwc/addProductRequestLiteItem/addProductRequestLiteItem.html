@@ -28,7 +28,6 @@
                                 <th scope="col">Product Name</th>
                                 <th scope="col">Product Code</th>
                                 <th scope="col">Quantity</th>
-                               
                             </tr>
                         </thead>
                         <tbody>
@@ -95,7 +94,10 @@
                                     <th>Sr No</th>
                                     <th scope="col">Product Name</th>
                                     <th scope="col">Product Code</th>
+                                    <th scope="col">Unit Price</th>
                                     <th scope="col">Quantity</th>
+                                    <th scope="col">Total</th>
+                                    <th scope="col">Qty In Hand</th>
                                     <th scope="col">Actions</th>
                                 </tr>
                             </thead>
@@ -106,6 +108,7 @@
                                         
                                         <td>{item.ProductName}</td>
                                         <td>{item.ProductCode}</td>
+                                        <td>{item.UnitPrice}</td>
                                         <td><lightning-input
                                             type="number"
                                             data-id={item.Id}
@@ -113,6 +116,8 @@
                                             onchange={handleQuantityChange}
                                             style="margin-bottom:14px">
                                         </lightning-input></td>
+                                        <td>{item.TotalAmount}</td>
+                                        <td>{item.QtyInHand}</td>
                                         <td> <lightning-button
                                             icon-name="utility:delete"
                                             alternative-text="Delete"

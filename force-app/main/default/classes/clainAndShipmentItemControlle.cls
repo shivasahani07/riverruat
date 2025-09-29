@@ -19,7 +19,7 @@ public with sharing class clainAndShipmentItemControlle {
     
     @AuraEnabled(cacheable = true)
     public static List<ShipmentItem> getShipmentItemList(String recordId){
-        return [Select id,ShipmentItemNumber,Quantity,Quantity_Received__c,Missing_Damaged_Quantity__c,ShipmentId,Shipment.Status,Product2Id,Product2.Name from ShipmentItem where ShipmentId=:recordId];
+        return [Select id,ShipmentItemNumber,Quantity,Quantity_Received__c,Missing_Damaged_Quantity__c,ShipmentId,Shipment.Status,Product2Id,Product2.Name,Product2.ProductCode from ShipmentItem where ShipmentId=:recordId];
     }
 
     @AuraEnabled

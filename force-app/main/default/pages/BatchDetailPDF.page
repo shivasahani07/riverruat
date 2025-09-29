@@ -166,6 +166,7 @@
                         <th style="border: 1px solid black;">Sl. No.</th>
                         <th style="border: 1px solid black;">Product Code</th>
                         <th style="border: 1px solid black;">Product Name</th>
+                        <th style="border: 1px solid black;">Claim No.</th>
                         <th style="border: 1px solid black;">HSN Code</th>
                         <th style="border: 1px solid black;">Quantity</th>
                         <th style="border: 1px solid black;">UOM</th>
@@ -182,6 +183,7 @@
                             <!--<td style="border: 1px solid black;">{!part.LineItemNumber}</td> -->
                             <td style="border: 1px solid black;">{!part.productCode}</td>
                             <td style="border: 1px solid black;">{!part.pricebookEntryId}</td>
+                            <td style="border: 1px solid black;">{!part.claimName}</td>
                             <td style="border: 1px solid black;">{!part.HSN_Code}</td>
                             <td style="border: 1px solid black;">{!part.Quantity}</td>
                             <td style="border: 1px solid black;">{!part.Unit_of_Measurement}</td>

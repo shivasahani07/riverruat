@@ -8,27 +8,59 @@
                 <div class="slds-grid slds-wrap slds-gutters">
                     <!-- Failure Code Field -->
                     <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                        <lightning-input label="Failure Code" value={failureCode.failureCode} data-field="failureCode"
-                            onchange={handleInputChange} required variant="label-stacked" class="input-field"
-                            message-when-value-missing="Failure Code is required">
-                        </lightning-input>
+                       <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                <lightning-record-picker label="Select product" object-api-name="CodeSet"
+                                     onchange={recordChangeHandler} name="CodeSet"
+                                    display-info={displayInfo} record-id={selectedrecord} lwc:ref="myPicker">
+                                </lightning-record-picker>
+                            </div>
                     </div>
 
                     <!-- Batch Size Field -->
                     <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                        <lightning-input label="Batch Size" type="number" value={failureCode.batchSize}
-                            data-field="batchSize" onchange={handleInputChange} variant="label-stacked"
-                            class="input-field" min="0">
-                        </lightning-input>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                <!-- <lightning-record-picker label="Select existing failurecode Code" object-api-name="Failure_Code__c"
+                                    filter={fcfilter}  name="failurecode"
+                                     lwc:ref="myPicker">
+                                </lightning-record-picker> -->
+
+                                <lightning-input type="search" label="Search Failure Codes" value={searchKey}
+                                    onchange={handleSearchChange}>
+                                </lightning-input>
+
+                                <template if:true={recordsGetter}>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                        <ul class="slds-listbox slds-listbox_vertical slds-dropdown">
+                                            <template for:each={records} for:item="rec">
+                                                <li key={rec.Id} class="slds-listbox__item" onclick={handleSelect}
+                                                    data-id={rec.Id}>
+                                                    <div
+                                                        class="slds-media slds-listbox__option slds-listbox__option_entity">
+                                                        <div class="slds-media__body">
+                                                            <span class="slds-truncate">
+                                                            <p>{rec.Name} ,{rec.Product_Name__c},{rec.VIN_Cut_off_No__c}</p>    
+                                                        </span>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </template>
+
+                                <template if:true={selectedRecord}>
+                                    <p>✅ Selected: {selectedRecord.Name}</p>
+                                </template>
+                            </div>
                     </div>
 
                     <!-- Labour Code Field -->
-                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                    <!-- <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
                         <lightning-input label="Labour Code" value={failureCode.labourCode}
                             data-field="labourCode" onchange={handleInputChange} required variant="label-stacked"
                             class="input-field" message-when-value-missing="Labour Code is required">
                         </lightning-input>
-                    </div>
+                    </div> -->
 
                     <!-- VIN Cutoff Field -->
                     <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
@@ -39,7 +71,7 @@
                     </div>
 
                     <!-- Active Toggle -->
-                    <div class="slds-col slds-size_1-of-1">
+                    <!-- <div class="slds-col slds-size_1-of-1">
                         <div class="slds-form-element">
                             <label class="slds-form-element__label">Status</label>
                             <div class="slds-form-element__control">
@@ -49,7 +81,7 @@
                                 </lightning-input>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
 
                 <!-- Button Group -->
@@ -65,8 +97,9 @@
 
                     <template if:true={isLoading}>
                         <div class="spinner-container">
-                            <lightning-spinner alternative-text="Processing" size="small"></lightning-spinner>
-                            <span class="slds-m-left_x-small">Processing...</span>
+                            <!-- <lightning-spinner alternative-text="Processing" size="small"></lightning-spinner>
+                            <span class="slds-m-left_x-small">Processing...</span> -->
+                            <c-loader loading={isLoading}></c-loader>
                         </div>
                     </template>
                 </div>

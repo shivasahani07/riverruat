@@ -1,5 +1,5 @@
 <template>
-    <lightning-card title="Book Appointment">
+    <lightning-card title="Reschedule Appointment">
         <div class="slds-p-around_medium">
 
             <!-- Service Center (Read-only input displaying fetched center name) -->
@@ -27,20 +27,30 @@
                 disabled>
             </lightning-input>
 
-           <lightning-combobox
-        name="picklist"
-        label="Type Of Requested Services"
-        value=""
-        placeholder="Select an option"
-        options={options}
-         onchange={handleSelectServices}>
-    </lightning-combobox>
+            <!-- Previous Date (read-only, new field) -->
+            <lightning-input
+                name="previousDate"
+                type="date"
+                label="Previous Appointment Date"
+                value={previousDate}
+                disabled>
+            </lightning-input>
+
+            <!-- Type Of Requested Services -->
+            <lightning-combobox
+                name="picklist"
+                label="Type Of Requested Services"
+                value=""
+                placeholder="Select an option"
+                options={options}
+                onchange={handleSelectServices}>
+            </lightning-combobox>
 
             <!-- Appointment Date -->
             <lightning-input
                 name="appointmentDate"
                 type="date"
-                label="Appointment Date"
+                label="New Appointment Date"
                 value={appointmentDate}
                 min={minDate}
                 onchange={handleDateChange}>

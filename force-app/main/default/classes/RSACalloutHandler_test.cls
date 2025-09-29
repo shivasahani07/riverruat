@@ -62,9 +62,10 @@ public class RSACalloutHandler_test {
         o.Status = 'Draft';
         o.EffectiveDate = Date.today();
         o.Assigned_Vehicle__c = v.Id;
+        //o.RecordTypeId='012S2000004lh41IAA';
         insert o; 
         
-        list<Pricebook2> standardPricebook = [SELECT Id,IsStandard,IsActive FROM Pricebook2];
+        list<Pricebook2> standardPricebook = [SELECT Id,IsStandard,IsActive FROM Pricebook2 ];
         Id standardPricebookcostumproduct;
         for(Pricebook2 ppb:standardPricebook){
             if(ppb.IsStandard==true){
@@ -74,21 +75,21 @@ public class RSACalloutHandler_test {
                 standardPriceEntry.UnitPrice = 10000.00; // Set the standard price
                 standardPriceEntry.IsActive = true;
                 insert standardPriceEntry;
-                PricebookEntry pe = new PricebookEntry();
+               /* PricebookEntry pe = new PricebookEntry();
                 pe.IsActive = true;
                 pe.UnitPrice = 10000.00;
                 pe.Pricebook2Id =ppb.Id ;  
                 pe.Product2Id = p.Id;  
-                insert pe;
+                insert pe; */
                 OrderItem Oitem = new OrderItem();
                 Oitem.Product2Id = p.Id;
                 Oitem.OrderId = o.Id;
-                Oitem.UnitPrice = pe.UnitPrice;
-                Oitem.PricebookEntryId = pe.Id;
+                Oitem.UnitPrice =standardPriceEntry.UnitPrice;
+                Oitem.PricebookEntryId =standardPriceEntry.Id;
                 Oitem.Quantity = 1;
                 insert Oitem;
                 system.debug('Orderidtest'+o.Id);
-                standardPricebookcostumproduct=pe.Id;       
+                standardPricebookcostumproduct=standardPriceEntry.Id;       
             }
         }
         return o.Id;
@@ -168,7 +169,7 @@ public class RSACalloutHandler_test {
         insert oi;
         
         Order order = [SELECT Id, Status, RSA_Active__c FROM Order WHERE Id = :orderId];
-        order.Status = 'RTO Registration';
+        order.Status = 'Vehicle Delivered';
         order.RSA_Active__c = false;
         update order;
         

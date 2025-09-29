@@ -16,12 +16,18 @@
     
   	<c:theme></c:theme>
   <c:theme></c:theme>
+  	<c:addFailureCodeLwcComp></c:addFailureCodeLwcComp>
+
  -->
     
     
     
-  	<c:rideRiverWarrantyRecord recordId='0WOBh000003ncbtOAA'></c:rideRiverWarrantyRecord>
+	<c:createPurchaseOrderForm></c:createPurchaseOrderForm>
+    <c:addProductRequestLiteItem></c:addProductRequestLiteItem>
     
-    
+    <c:addProductRequestLiteItem
+    record-id="0TSF40000004GRvOAM" 
+    product-type="service">
+    </c:addProductRequestLiteItem>
     
 </aura:application>

@@ -1,3 +1,10 @@
+/**
+ * @description       : 
+ * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @group             : 
+ * @last modified on  : 09-28-2025
+ * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+**/
 public class QueueableForVehicleEWIntegration implements Queueable, Database.allowsCallouts{
     private List<Id> orderIdsToProcess;
     private Map<Id,ExtendedWarrantyForVehicleOrder.wrapperForEWIntegration> wrapperValues;
@@ -37,6 +44,20 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,ExtendedWarrantyForVe
             
             String dealerCodeFor = c.get(currentOrderId).dealerCode;
 
+            OrderItem orderProd;
+            List<OrderItem> orderProductList = [SELECT Id,OrderId,Product2Id,Product2.Name,Product2.ProductCode FROM OrderItem WHERE OrderId=:currentOrderId AND Product2.ProductCode LIKE '%RV-EW%' LIMIT 1];
+            if(!orderProductList.isEmpty()){
+                orderProd = orderProductList[0];
+            }
+
+            String ewPlan;
+            if(orderProd.Product2.ProductCode == 'RV-EW-1' || orderProd.Product2.ProductCode == 'RV-EW-2' || orderProd.Product2.ProductCode == 'RV-EW-3'){
+                ewPlan = '5 Years or 50,000Kms';
+            }
+            if(orderProd.Product2.ProductCode == 'RV-EW-4' || orderProd.Product2.ProductCode == 'RV-EW-5' || orderProd.Product2.ProductCode == 'RV-EW-6' || orderProd.Product2.ProductCode == 'RV-EW-7'){
+                ewPlan = '8 Years or 80,000Kms';
+            }
+
             Account a = [SELECT Id,Center_Code__c,Type FROM Account WHERE Center_Code__c=:dealerCodeFor LIMIT 1];
             Map<String,Object> payLoad = new Map<String,Object>();
             payLoad.put('username',c.get(currentOrderId).dealerCode);
@@ -48,6 +69,7 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,ExtendedWarrantyForVe
             payLoad.put('Charger',c.get(currentOrderId).charger);
             payLoad.put('WarrantyType','Extended Warranty');
             payLoad.put('SoldFrom',a.Type == 'Dealer' ? 'Showroom' : a.Type == 'Service Center' ? 'Workshop' : 'Nothing' );
+            payLoad.put('EWPlan',ewPlan);
             String reqBody = JSON.serialize(payLoad);
             System.debug('Request body=>'+JSON.serializePretty(payLoad));
 
@@ -122,12 +144,13 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,ExtendedWarrantyForVe
                         }
 
                     Vehicle v = [Select Id,Policy_Number__c,EW_Start_Date__c,EW_Expire_Date__c,Dealer_Amount__c,Customer_Amount__c,EW_Submitted__c from Vehicle WHERE Id =:c.get(currentOrderId).vehicleId LIMIT 1];
-                    v.Policy_Number__c = (String) responseMap.get('Policy No');
+                    v.EW_Policy_Number__c = (String) responseMap.get('Policy No');
                     v.EW_Start_Date__c= ewStartDate;
                     v.EW_Expire_Date__c = ewExpireDate;
                     v.Dealer_Amount__c = dealerAmount;
                     v.Customer_Amount__c = customerAmount;
-                    v.EW_Submitted__c=true;                  
+                    v.EW_Submitted__c=true;     
+                    v.EW_Plan__c=(String) responseMap.get('EWPlan');             
                     update v;
                     System.debug('Updated Vehicle==>'+v);
                 

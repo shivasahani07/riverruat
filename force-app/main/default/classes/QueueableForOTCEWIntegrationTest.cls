@@ -15,7 +15,7 @@ public class QueueableForOTCEWIntegrationTest {
         Contact con = new Contact(LastName ='Dinesh',Phone = '7834878789',AccountId = testAccount.id);
         insert con;
         
-        Product2 testProduct = new Product2(Name = 'Test Product', IsActive = true,ProductCode='abcd',HSN_Code__c='abcd',Type__c='Vehicle',Colour__c='Black');
+        Product2 testProduct = new Product2(Name = 'Test Product', IsActive = true,ProductCode='RV-EW-1',HSN_Code__c='abcd',Type__c='Vehicle',Colour__c='Black');
         insert testProduct;
         
         Id stdPrBk = Test.getStandardPricebookId();
@@ -105,7 +105,7 @@ public class QueueableForOTCEWIntegrationTest {
         Contact con = new Contact(LastName ='Dinesh',Phone = '7834878789',AccountId = testAccount.id);
         insert con;
         
-        Product2 testProduct = new Product2(Name = 'Test Product', IsActive = true,ProductCode='abcd',HSN_Code__c='abcd',Type__c='Vehicle',Colour__c='Black');
+        Product2 testProduct = new Product2(Name = 'Test Product', IsActive = true,ProductCode='RV-EW-1',HSN_Code__c='abcd',Type__c='Vehicle',Colour__c='Black');
         insert testProduct;
         
         Id stdPrBk = Test.getStandardPricebookId();

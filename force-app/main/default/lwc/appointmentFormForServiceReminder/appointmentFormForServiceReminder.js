@@ -25,6 +25,7 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
     @track slotsAvailable = false;
     @track slotItemOptions = [];
     @track showDescriptionField = false;
+    @track isLoading = false;
 
     minDate;
     serviceCenterId = '';
@@ -175,7 +176,7 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
                 'warning');
             return;
         }
-
+       this.isLoading = true;
         createAppointmentforServiceAppointment({
             serviceAppId: this.recordId,
             accountId: this.serviceCenterId,
@@ -191,7 +192,7 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
             .then(appointmentId => {
                 this.showToast('Success', 'Appointment created successfully.', 'success');
                 this.dispatchEvent(new CloseActionScreenEvent());
-
+                this.isLoading = false;
                 this[NavigationMixin.Navigate]({
                     type: 'standard__recordPage',
                     attributes: {
@@ -204,6 +205,7 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
             .catch(err => this.showToast('Error',
                 err?.body?.message || 'Error creating appointment.',
                 'error'));
+                 this.isLoading = false;
     }
 
     showToast(title, msg, variant) {

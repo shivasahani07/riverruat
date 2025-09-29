@@ -1,3 +1,10 @@
+<!--
+  @description       : 
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             : 
+  @last modified on  : 09-24-2025
+  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+-->
 <template>
 
     <lightning-quick-action-panel header="">
@@ -14,6 +21,7 @@
                                 <tr>
                                     <th scope="col">Shipment Item Number</th>
                                     <th scope="col">Product Name</th>
+                                    <th scope="col">Product Code</th>
                                     <th scope="col">Shipped Quantity</th>
                                     <th scope="col">Quantity Received</th>
                                     <th scope="col">Missing/Damaged Quantity</th>
@@ -24,6 +32,7 @@
                                     <tr key={item.Id}>
                                         <td>{item.ShipmentItemNumber}</td>
                                         <td>{item.Product2.Name}</td>
+                                        <td>{item.Product2.ProductCode}</td>
                                         <td>{item.Quantity}</td>
                                         <td><lightning-input type="text" data-id={item.Id} data-field='Quantity_Received__c' value={item.Quantity_Received__c} onchange={handleInputChange} ></lightning-input></td>
                                         <td>

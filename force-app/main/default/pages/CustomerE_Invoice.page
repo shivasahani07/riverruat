@@ -92,7 +92,7 @@
                         <br/>
                         <div>
                             <apex:outputPanel rendered="{!IsQrGenerated == true}">
-                                <apex:image value="{!URLFOR('/servlet/servlet.FileDownload?file=' + QRAtt[0].Id)}" alt="QR Code" height="100px" width="100px" />
+                                <apex:image value="{!URLFOR('/servlet/servlet.FileDownload?file=' + QRAtt[0].Id)}" alt="QR Code" height="150px" width="150px" />
                             </apex:outputPanel>
                         </div>
                     </td>
@@ -269,21 +269,21 @@
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{!item.Quantity}"/></p>
                     </td>
                     <td style="width:38pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.UnitPrice}"/></apex:outputText></p>
+                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.List_Price_New__c}"/></apex:outputText></p>
                     </td>
                     <td style="width:40pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Subtotal * item.Discount/100}"/></apex:outputText></p>
                     </td>
                     <td style="width:46pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.TotalPrice}"/></apex:outputText></p>
+                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Total_NDP__c}"/></apex:outputText></p>
                     </td>
                     
                     <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <apex:outputpanel rendered="{!workOrderRecord.Same_State__c == true}">
-                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.RR_Product__r.CGST_Percentage__c + item.RR_Product__r.SGST_Percentage__c}"/></apex:outputText></p>
+                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.CGST__c + item.SGST__c}"/></apex:outputText></p>
                         </apex:outputpanel>
                         <apex:outputpanel rendered="{!workOrderRecord.Same_State__c == false}">
-                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.RR_Product__r.IGST_Percentage__c}"/></apex:outputText></p>
+                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.IGST__c}"/></apex:outputText></p>
                         </apex:outputpanel>
                     </td>
                     <td style="width:52pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
@@ -339,7 +339,7 @@
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Duration_Hour__c + (item.Duration_Min__c/60)}"/></apex:outputText></p>
                     </td>
                     <td style="width:38pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.RR_Labour_Code__r.RR_Labour_Charge__c}"/></apex:outputText></p>
+                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Labour_Charge_CodeSet_New__c}"/></apex:outputText></p>
                     </td>
                     <td style="width:40pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Discount__c*item.Labour_Charge__c/100}"/></apex:outputText></p>
@@ -349,10 +349,10 @@
                     </td>
                     <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <apex:outputpanel rendered="{!workOrderRecord.Same_State__c == true}">
-                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.RR_Labour_Code__r.CGST_Percentage__c + item.RR_Labour_Code__r.SGST_Percentage__c}"/></apex:outputText></p>
+                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.CGST__c + item.SGST__c}"/></apex:outputText></p>
                         </apex:outputpanel>
                         <apex:outputpanel rendered="{!workOrderRecord.Same_State__c == false}">
-                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.RR_Labour_Code__r.IGST_Percentage__c}"/></apex:outputText></p>
+                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.IGST__c}"/></apex:outputText></p>
                         </apex:outputpanel>
                     </td>
                     <td style="width:52pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">

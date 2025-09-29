@@ -262,7 +262,7 @@ public without  sharing class AppointmentFormController {
         slotItemRec.Appointment__c = newApp.Id;
         update slotItemRec;
         
-       
+        Date milestoneDate;
         if (isServiceAppt) {
             ServiceAppointment sa = [
                 SELECT Id, Call_Status__c,Account.Email__c,Account.Name,Asset_Milestone__r.MilestoneDate,Service_Centre__r.Name
@@ -274,6 +274,8 @@ public without  sharing class AppointmentFormController {
             system.debug('Account.Email__c '+Account.Email__c);
             sa.Call_Status__c = 'Appointment Booked';
             update sa;
+
+            milestoneDate = sa.Asset_Milestone__r.MilestoneDate;
             system.debug('UpdatedServiceAppointment '+sa);
             ServiceAppointment serviceupdate = [
                 SELECT Id, Call_Status__c,Account.Email__c,Account.Name,Asset_Milestone__r.MilestoneDate,Service_Centre__r.Name
@@ -348,6 +350,7 @@ public without  sharing class AppointmentFormController {
         reminder.Customer__c                    = vehicleRec.CurrentOwnerId != null ?  vehicleRec.CurrentOwnerId : null;
         reminder.Call_To_c__c                   = vehicleRec.CurrentOwner.Name != null ? vehicleRec.CurrentOwner.Name : null;
         reminder.Appointment_Date__c            = appointmentDate;
+        reminder.Appointment_Date__c            = milestoneDate;
         reminder.Appointment_Description__c     = appointmentDecription;
         insert reminder;
         System.debug('newAppId==='+newAppId);

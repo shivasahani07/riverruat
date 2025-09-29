@@ -87,7 +87,7 @@
                         <br/>
                         <div>
                             <apex:outputPanel rendered="{!IsQrGenerated == true}">
-                                <apex:image value="{!URLFOR('/servlet/servlet.FileDownload?file=' + QRAtt[0].Id)}" alt="QR Code" height="100px" width="100px" />
+                                <apex:image value="{!URLFOR('/servlet/servlet.FileDownload?file=' + QRAtt[0].Id)}" alt="QR Code" height="150px" width="150px" />
                             </apex:outputPanel>
                         </div>
                     </td>

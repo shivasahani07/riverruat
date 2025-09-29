@@ -160,6 +160,7 @@ public class RescheduleAppointmentFormController {
         ];
         System.debug('vehicleRec : ' + vehicleRec);
 		apppointRec.vehicleRecord = vehicleRec;
+		system.debug('vehicleRec==='+vehicleRec);
         return apppointRec ;
     }
 
@@ -225,30 +226,20 @@ public class RescheduleAppointmentFormController {
         
         Boolean isServiceAppt = (parentType == 'ServiceAppointment');
         Boolean isTicket      = (parentType == 'Ticket__c');
-        
-        if (!isServiceAppt && !isTicket) {
+        Boolean isAppointment = (parentType == 'Appointment__c'); 
+        /*if (!isServiceAppt && !isTicket) {
             throw new AuraHandledException('Unsupported parent record.');
-        }
+        }*/
         
         
         Appointment__c newApp = new Appointment__c();
-        newApp.Service_Center__c   = accountId;
-        newApp.VRN__c              = vrn;
-        newApp.Status__c           = 'Open';
+        newApp.Id   = parentId;
         newApp.Appointment_Date__c = appointmentDate;
-        newApp.Contact_Number__c   = contactNumber;
-        newApp.Mode_of_Reception__c = 'Appointment';
         newApp.Additional_Information__c = appointmentDecription;
         newApp.Type_Of_Requested_Services__c = serviceType;
         
-        if (isServiceAppt) {
-            newApp.Service_Appointment__c = parentId;
-        } else {
-            newApp.Ticket__c = parentId;
-            
-            
-        }
-        insert newApp;
+         
+        Update newApp;
         String newAppId = newApp.Id;  // ← capture Id
         
         Appointment_Slot__c slotRec = [
@@ -269,13 +260,24 @@ public class RescheduleAppointmentFormController {
         slotItemRec.Booking_Status__c = 'Booked';
         slotItemRec.Appointment__c = newApp.Id;
         update slotItemRec;
+
+		 Appointment_Slot_Item__c slotItemRecord = [
+            SELECT Id, Booking_Status__c,Start_Time__c,End_Time__c
+            FROM   Appointment_Slot_Item__c
+            WHERE Appointment__c =: parentId  
+            LIMIT  1
+        ];
         
+		delete slotItemRecord;
+
+        Appointment__c appointRec = [Select id ,Service_Appointment__c from Appointment__c where Id =:parentId];
+		Id saId = appointRec.Service_Appointment__c;
        
-        if (isServiceAppt) {
+        if (isAppointment) {
             ServiceAppointment sa = [
                 SELECT Id, Call_Status__c,Account.Email__c,Account.Name,Asset_Milestone__r.MilestoneDate,Service_Centre__r.Name
                 FROM   ServiceAppointment
-                WHERE  Id = :parentId
+                WHERE  Id = :saId
                 LIMIT  1
             ];
             system.debug('beforeUpdatesa '+sa);
@@ -286,18 +288,18 @@ public class RescheduleAppointmentFormController {
             ServiceAppointment serviceupdate = [
                 SELECT Id, Call_Status__c,Account.Email__c,Account.Name,Asset_Milestone__r.MilestoneDate,Service_Centre__r.Name
                 FROM   ServiceAppointment
-                WHERE  Id = :parentId
+                WHERE  Id = :saId
                 LIMIT  1
             ];
             system.debug('serviceupdate '+serviceupdate.Account.Email__c);
             OrgWideEmailAddress owea = [SELECT Id, Address, DisplayName FROM OrgWideEmailAddress WHERE DisplayName = 'River Mobility' LIMIT 1 ];
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
             mail.setToAddresses(new String[] { serviceupdate.Account.Email__c });
-            mail.setSubject('Your Service Appointment is Confirmed');
+            mail.setSubject('Your Service Appointment is Rescheduled');
             String body = 'Hey ' + sa.Account.Name + ',' +
               '\n\nYour service appointment has been successfully booked!' +
-              '\n\n📅 Date: ' + sa.Asset_Milestone__r.MilestoneDate +
-              '\n🕒 Time: ' + slotItemRec.Start_Time__c +'to' + slotItemRec.End_Time__c +
+              '\n\n📅Reschedule Date: ' + sa.Asset_Milestone__r.MilestoneDate +
+              '\n🕒n📅Reschedule Time: ' + slotItemRec.Start_Time__c +'to' + slotItemRec.End_Time__c +
               
               '\n🏢 Service Center: ' + sa.Service_Centre__r.Name +
               '\n\nFor any changes or assistance, please contact our Service Advisor.' +
@@ -357,7 +359,7 @@ public class RescheduleAppointmentFormController {
         reminder.Call_To_c__c                   = vehicleRec.CurrentOwner.Name != null ? vehicleRec.CurrentOwner.Name : null;
         reminder.Appointment_Date__c            = appointmentDate;
         reminder.Appointment_Description__c     = appointmentDecription;
-        insert reminder;
+       // insert reminder;
         System.debug('newAppId==='+newAppId);
         return newAppId;
     }

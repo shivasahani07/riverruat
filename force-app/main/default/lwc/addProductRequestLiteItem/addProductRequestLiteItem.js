@@ -59,14 +59,17 @@ export default class AddProductRequestLiteItem extends LightningElement {
         const startTime = new Date().getTime();
         getLogedInUserRelatedLocationPOLI({ loggedInUserId: this.currentUserId, productTypeFilter: this.productType  })
             .then((data) => {
+                console.log('data : ' + JSON.stringify(data));
                 if (data) {
                     this.requestLineItems = data.map((res) => ({
-                        Id: res.Id,
-                        ProductName: res.Name,
-                        ProductCode: res.ProductCode,
+                        Id: res.productId,
+                        ProductName: res.name,
+                        ProductCode: res.productCode,
                         AllocatedQuantity: 0,
                         selected: false,
-                        isChargesDisabled: true,
+                        isChargesDisabled: true, 
+                        UnitPrice: res.unitPrice,
+                        QtyInHand: res.quantityInHand
                     }));
                     this.filteredRequestLineItems = [];
                     this.error = undefined;
@@ -162,10 +165,11 @@ export default class AddProductRequestLiteItem extends LightningElement {
     handleQuantityChange(event) {
         debugger;
         const itemId = event.target.dataset.id;
-        const updatedQuantity = parseFloat(event.target.value);
+        const updatedQuantity = parseFloat(event.target.value) || 0;
         this.selectedItems = this.selectedItems.map(item => {
             if (item.Id === itemId) {
                 item.AllocatedQuantity = updatedQuantity;
+                item.TotalAmount = (item.UnitPrice || 0) * updatedQuantity;
             }
             return item;
         });

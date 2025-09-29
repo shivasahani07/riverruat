@@ -35,7 +35,7 @@ public without sharing class AddFailureCodeControllerNew {
                 SELECT Id, Name, Product_Code__c, VIN_Cut_off_No__c, VIN_Cut_off__c, Is_Active__c
                 FROM Failure_Code__c
                 WHERE Name = :fcName
-                AND Product_Code__c = :productcode 
+                AND (Product_Code__c = :productcode OR Productid__c = :productcode ) 
                 AND Is_Active__c = true
                 LIMIT 1
             ];
@@ -143,7 +143,7 @@ public without sharing class AddFailureCodeControllerNew {
             List<TFR_Part_Effect__c> peList = [
                 SELECT Id, Name, Product_Code__c 
                 FROM TFR_Part_Effect__c 
-                WHERE TFR__c = :tfrId AND Product_Code__c = :productcode 
+                WHERE TFR__c = :tfrId AND Product__c = :productcode 
                 LIMIT 1
             ];
             
@@ -151,7 +151,7 @@ public without sharing class AddFailureCodeControllerNew {
                 return new OperationResult(true, 'Part effect already exists', peList[0].Id, null);
             }
             
-            List<Product2> prodList = [SELECT Id, Name FROM Product2 WHERE ProductCode = :productcode LIMIT 1];
+            List<Product2> prodList = [SELECT Id, Name FROM Product2 WHERE id = :productcode LIMIT 1];
             if (prodList.isEmpty()) {
                 return new OperationResult(false, 'No Product found with code: ' + productcode);
             }
@@ -244,7 +244,7 @@ public without sharing class AddFailureCodeControllerNew {
             }
             
             // Check if product exists
-            List<Product2> products = [SELECT Id FROM Product2 WHERE ProductCode = :productcode and IsActive =true LIMIT 1];
+            List<Product2> products = [SELECT Id FROM Product2 WHERE Id = :productcode and IsActive =true LIMIT 1];
             if (products.isEmpty()) {
                 return new OperationResult(false, 'Product code not found: ' + productcode);
             }
@@ -288,5 +288,28 @@ public without sharing class AddFailureCodeControllerNew {
         }
         
     }
+
+    @AuraEnabled
+    public static List<Failure_Code__c> searchFailureCodes(String searchKey,String productid) {
+        return [
+            SELECT Id,ProductId__c,Product_Name__c,VIN_Cut_off_No__c,Name
+            FROM Failure_Code__c
+            WHERE Name LIKE :('%' + searchKey + '%')
+            AND productid__c =:productid
+            LIMIT 10
+        ];
+    }
+
+    @AuraEnabled
+    public static List<Failure_Code__c> searchlabourFailureCodes(String searchKey,String codesetid) {
+        return [
+            SELECT Id,ProductId__c,Product_Name__c,VIN_Cut_off_No__c,Name,CodeSetId__c
+            FROM Failure_Code__c
+            WHERE Name LIKE :('%' + searchKey + '%')
+            AND CodeSetId__c =:codesetid
+            LIMIT 10
+        ];
+    }
+
 
 }

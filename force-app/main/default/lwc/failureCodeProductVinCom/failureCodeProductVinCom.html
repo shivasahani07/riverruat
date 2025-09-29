@@ -20,18 +20,25 @@
                                     label="Search by VIN code" value={filters.VINCutoff}>
                                 </lightning-input>
                             </th>
-                            <!-- <th>
+                            <th>
                                 <lightning-combobox name="typeFilter" label="Filter by Type" value={filters.typeFilter}
                                     options={typeOptions} onchange={filterOnchage}>
                                 </lightning-combobox>
-                            </th> -->
+                            </th>
+                            <th>
+                                <!-- <lightning-button-icon icon-name="utility:settings"  alternative-text="Settings" title="Settings" onclick={apexRefresh}></lightning-button-icon> -->
+                                <span style="margin-top:10px">
+                                     <lightning-icon icon-name='utility:refresh' alternative-text='refresh' variant='warning' size='medium' title='refresh'  onclick={apexRefresh} label="refresh"></lightning-icon>
+
+                                </span>
+                            </th>
                             <th class="slds-m-top_large" style="padding-top: 30px;">
                                 <lightning-button-menu alternative-text="Add Failure Code" variant="success"
                                     onselect={handleAddFailureCode} menu-alignment="auto">
                                     <lightning-menu-item label="Add Product Failure Code" value="product">
                                     </lightning-menu-item>
-                                    <!-- <lightning-menu-item label="Add Labour Failure Code" value="labour">
-                                    </lightning-menu-item> -->
+                                    <lightning-menu-item label="Add Labour Failure Code" value="labour">
+                                    </lightning-menu-item>
                                 </lightning-button-menu>
                             </th>
                         </tr>
@@ -44,14 +51,14 @@
                     <thead>
                         <tr>
                             <th>Title</th>
-                            <!-- <th>Type</th> -->
+                            <th>Type</th>
                             <th>Required Sample</th>
                             <th>Sample Collected</th>
                             <th>Active?</th>
                             <th>Causal Item Name</th>
                             <th>Causal Item Code</th>
                             <th>VIN Cut Off</th>
-                            <th>VIN Cut Off? Active</th>
+                            <th>VIN Cut Off Attached</th>
                             <th>Created By</th>
                             <th>Created Date</th>
                             <th style="width: 160px;">Actions</th>
@@ -61,7 +68,7 @@
                         <template for:each={failureCodes} for:item="fc">
                             <tr key={fc.Id}>
                                 <td>{fc.Name}</td>
-                                <!-- <td>{fc.Type}</td> -->
+                                <td>{fc.Type}</td>
                                 <td>{fc.BatchSize}</td>
                                 <td>{fc.SampleCollected}</td>
                                 <td>
@@ -116,10 +123,10 @@
                                 </lwc:component>
                             </template>
                         </div>
-                        <!-- <footer class="slds-modal__footer">
+                        <footer class="slds-modal__footer">
                             <button class="slds-button slds-button_neutral slds-right-p_small"
                                 onclick={hideModalBox}>Cancel</button>
-                        </footer> -->
+                        </footer>
                     </div>
                 </section>
                 <div class="slds-backdrop slds-backdrop_open"></div>

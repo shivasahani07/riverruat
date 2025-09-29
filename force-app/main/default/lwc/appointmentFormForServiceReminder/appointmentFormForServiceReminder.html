@@ -78,6 +78,10 @@
                     onchange={handleAppointmentDesc}>
                 </lightning-input>
             </template>
+<!--c-loader loading={isLoading}></c-loader-->
+            <template if:true={isLoading}>
+      <lightning-spinner alternative-text="Loading accounts" size="medium"></lightning-spinner>
+    </template>
 
             <!-- Submit Button -->
             <div class="slds-m-top_medium slds-align_absolute-center">

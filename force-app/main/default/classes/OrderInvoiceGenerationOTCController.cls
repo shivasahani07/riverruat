@@ -89,7 +89,7 @@ public without sharing class OrderInvoiceGenerationOTCController {
                         string AccountPhoneNo=oo.Account.Phone;
                         system.debug('chassisNO == >'+chassisNO+' && OrderIdnumber == >'+OrderIdnumber+' && AccountName == >'+AccountName+' && AccountPhoneNo == >'+AccountPhoneNo+' && VehicleId == >'+VehicleId);
                         if(chassisNO != null || chassisNO != ''){
-                            RSAcalloutHelper.RsaCreationFuthuremethod(chassisNO,OrderIdnumber,AccountName,AccountPhoneNo,VehicleId);
+                            //RSAcalloutHelper.RsaCreationFuthuremethod(chassisNO,OrderIdnumber,AccountName,AccountPhoneNo,VehicleId);
                         }else{
                             system.debug('Method Not Called  RsaCreationFuthuremethod ** /  chassisNO is not Found == >');
                         }
