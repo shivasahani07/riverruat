@@ -29,6 +29,7 @@ export default class BatchDeliveryChallan extends NavigationMixin(LightningEleme
     }
 
     generatePdfUrl() {
+        debugger;
         if (this.currectRecordId) {
             this.pdfUrl = `/autocloudSite/apex/BatchDetailPDF?Id=${this.currectRecordId}`;
             console.log('Not Working URL : ', this.pdfUrl);

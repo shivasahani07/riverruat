@@ -48,6 +48,9 @@
             word-wrap: break-word;
             white-space: normal;
         	}
+            .page-break {
+            page-break-after: always;
+            }
         </style>
     </head>
     
@@ -283,5 +286,33 @@
                 Thank You for Choosing River
             </p>
         </div>        
+         <div style="clear: both;"></div>
+        <!--<div style="page-break-before: always;"></div>-->
+        
+        <br/><br/><br/><br/><br/><br/><br/><br/>
+        <div style="text-align: center; width: 100%;">
+            <table style="margin: 50px auto; text-align: center; font-family: Arial, Helvetica, sans-serif; font-weight: bold;" width="70%">
+                <tr>
+                    <td><strong>TERMS AND CONDITIONS</strong></td>
+                </tr>
+            </table>
+            <table style="display: inline-table; text-align: center; margin: 5px auto; font-family: Arial, Helvetica, sans-serif;" width="70%">
+                <tr>          
+                    <td width="100%" style="vertical-align: top; text-align: left;">
+                        <ol>
+                            <li>E &amp; O.E.</li>
+                            <li>Accessories once sold and invoiced will not be returned or exchanged under any circumstances, except in the case of proven manufacturing defects.</li>
+                            <li>I have verified compatibility of the accessories with my vehicle before purchase. The Company will not be responsible for issues arising from incorrect selection or usage.</li>
+                            <li>Product images shown on the website, catalogues, or advertisements are for illustrative purposes only. Actual products may vary slightly in colour, finish, or design due to production processes.</li>
+                            <li>Warranty (if applicable) covers only manufacturing defects and excludes damage from misuse, improper installation, negligence, or normal wear and tear.</li>
+                            <li>Installation, if required, is to be arranged at my own risk and cost unless expressly provided by the Company.</li>
+                            <li>Prices are exclusive of taxes unless otherwise mentioned. Any applicable taxes, duties, or levies will be borne by me.</li>
+                            <li>By purchasing, I acknowledge and consent to River’s Terms of Use and Privacy Policy.</li>
+                            <li>All disputes arising out of or in connection with the sale of merchandise shall be subject to the exclusive jurisdiction of the courts at Bengaluru, India.</li>
+                        </ol>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </body>
 </apex:page>

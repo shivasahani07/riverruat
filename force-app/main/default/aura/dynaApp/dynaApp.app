@@ -13,11 +13,12 @@
 <c:bulkInsertJCProductsCustomNew  recordId='0WOBh000003k3VpOAI'></c:bulkInsertJCProductsCustomNew>
     <c:bulkInsertJCProductsCustomNew  recordId='0WO5j000004EZVgGAO'></c:bulkInsertJCProductsCustomNew>
     <c:dynamicWizard components="['AddFailureCodeLwcComp','AddLabourFailureCodeLwcComp','bulkInsertJCProducts','rideRiverWarrantyRecord']"></c:dynamicWizard>
- 
+     <c:addLabourFailureCodeLwcComp></c:addLabourFailureCodeLwcComp>
+
  -->
     
-        <c:addLabourFailureCodeLwcComp></c:addLabourFailureCodeLwcComp>
+    
+        <c:bulkInsertWorkPlansCustom recordId='0WOBh000003oTwLOAU'></c:bulkInsertWorkPlansCustom>
 
     
-        
 </aura:application>

@@ -37,6 +37,9 @@
                 word-wrap: break-word;
                 white-space: normal;
             }
+            .page-break {
+            page-break-after: always;
+            }
         </style>
     </head>
     
@@ -272,6 +275,34 @@
             <p style="float:right; width:60%;text-align:left; width:25%">
                 Thank You for Choosing River 
             </p>
+        </div>
+        <div style="clear: both;"></div>
+        <!--<div style="page-break-before: always;"></div>-->
+        
+        <br/><br/><br/><br/><br/><br/><br/><br/>
+        <div style="text-align: center; width: 100%;">
+            <table style="margin: 50px auto; text-align: center; font-family: Arial, Helvetica, sans-serif; font-weight: bold;" width="70%">
+                <tr>
+                    <td><strong>TERMS AND CONDITIONS</strong></td>
+                </tr>
+            </table>
+            <table style="display: inline-table; text-align: center; margin: 5px auto; font-family: Arial, Helvetica, sans-serif;" width="70%">
+                <tr>          
+                    <td width="100%" style="vertical-align: top; text-align: left;">
+                        <ol>
+                            <li>E &amp; O.E.</li>
+                            <li>Merchandise once sold and invoiced will not be returned or exchanged under any circumstances, except in the case of proven manufacturing defects.</li>
+                            <li>Customers are responsible for verifying size, colour, and specifications of merchandise at the time of purchase. No claims will be entertained thereafter.</li>
+                            <li>Product images shown on the website, catalogues, or advertisements are for illustrative purposes only. Actual products may vary slightly in colour, finish, or design due to production processes.</li>
+                            <li>All risk of loss, damage, or theft passes to the customer upon delivery/handing over of merchandise.</li>
+                            <li>Prices are exclusive of taxes, levies, or duties unless otherwise stated in the invoice. Any additional charges imposed by statutory authorities will be borne by the customer.</li>
+                            <li>Promotional offers, discounts, coupons, or schemes, if any, are subject to terms defined by the Company and may be withdrawn or modified at any time without prior notice.</li>
+                            <li>I acknowledge and give consent to the River Terms of Use and Privacy Policy.</li>
+                            <li>All disputes arising out of or in connection with the sale of merchandise shall be subject to the exclusive jurisdiction of the courts at Bengaluru, India.</li>
+                        </ol>
+                    </td>
+                </tr>
+            </table>
         </div>
     </body>
 </apex:page>

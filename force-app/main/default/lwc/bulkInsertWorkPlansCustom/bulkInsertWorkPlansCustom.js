@@ -9,6 +9,19 @@ import VeripartWithActionWithPlanApex from '@salesforce/apex/TFRController.Verip
 import getFailureCode from '@salesforce/apex/AddFailureCodeController.getFailureCode';
 import checkTFRValidation from '@salesforce/apex/TFRController.checkTFRValidation';
 
+import { getRecord } from "lightning/uiRecordApi";
+import getFailureCodeUpdated from '@salesforce/apex/AddFailureCodeController.getFailureCodeUpdated';
+const STATUS_FIELD = 'WorkOrder.Status';
+const VIN_FIELD = 'WorkOrder.Vehicle_Identification_Number__c';
+const BLOCKED_STATUSES = new Set([
+    'Ready for Delivery',
+    'Submit For Approval',
+    'Cancellation Requested',
+    'Canceled',
+    'Completed'
+]);
+const EDITABLE_STATUSES = new Set(['New', 'In Progress', 'Re work']);
+const WARRANTY_PRIOR_APPLICABLE = new Set(['River Warranty', 'Paid', 'Parts Warranty']);
 export default class BulkInsertWorkPlansCustom extends LightningElement {
     @api recordId;
     @track existingWorkPlans = [];
@@ -99,6 +112,17 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
         { label: 'Goodwill Warranty', value: 'Goodwill Warranty' }
     ];
 
+
+      @wire(getRecord, { recordId: "$recordId", fields: [STATUS_FIELD, VIN_FIELD] })
+        wiredWorkOrder({ error, data }) {
+            if (data) {
+                const status = data.fields.Status.value;
+                this.currentVinNo = data.fields.Vehicle_Identification_Number__c.value;
+                this.showAll = EDITABLE_STATUSES.has(status) && !BLOCKED_STATUSES.has(status);
+            }
+            if (error) this.handleError('Error loading work order status', error);
+        }
+
     // Wire service to get existing work plans
     @wire(getRelatedWorkPlans, { workOrderId: '$recordId' })
     wiredWorkPlans(result) {
@@ -141,20 +165,10 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
 
     connectedCallback() {
         this.VeripartWithActionWithPlan(this.recordId);
-        // Get the VIN from the work order (you'll need to implement this)
-        this.getWorkOrderVIN();
+       
     }
 
-    // Get VIN from work order
-    async getWorkOrderVIN() {
-        // Implement this method to get VIN from work order
-        // Example: 
-        // const workOrder = await getWorkOrder({ workOrderId: this.recordId });
-        // this.currentVinNo = workOrder.Vehicle_Identification_Number__c;
-        this.currentVinNo = 'TESTVIN1234567890'; // Placeholder
-    }
-
-    // Refresh data
+        // Refresh data
     refreshData() {
         this.isLoading = true;
         refreshApex(this.refreshResultData)
@@ -233,6 +247,7 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
 
     // Handle labour code selection
     handleCodeselection(event) {
+        debugger;
         const index = event.target.dataset.id;
         const value = event.detail.recordId;
 
@@ -263,9 +278,10 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
                 this.itemList[index].Name = result.Name || 'Not Updated';
                 
                 // Check if this labour code requires TFR validation
-                if (this.itemList[index].RR_Labour_Category__c === 'River Warranty' && result.requiresTFR) {
+                if (this.itemList[index].RR_Labour_Category__c === 'River Warranty') {
                     this.itemList[index].isFailureCodeVisible = true;
-                    this.getFailureCodes(result.tfrEffectId, index);
+                    // this.getFailureCodes(result.tfrEffectId, index);
+                    this.getFailureCodes(value,index);
                 }
                 
                 this.itemList = [...this.itemList];
@@ -301,6 +317,7 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
 
     // Get failure codes for a TFR effect
     async getFailureCodes(tfrEffectId, index) {
+        debugger;
         try {
             const data = await getFailureCode({ tfrPEId: tfrEffectId, isLabour: true });
 
@@ -315,6 +332,7 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
 
     // Handle failure code selection
     async handleFailureCodeChange(event) {
+        debugger;
         const index = event.target.dataset.id;
         const value = event.detail.value;
         
@@ -506,5 +524,22 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
             }
         }
         return duplicates;
+    }
+
+    // NEW 
+     async getFailureCodes(tfrPEId, index) {
+        try {
+            console.log('tfrPEId : ' + tfrPEId);
+            
+            //const data = await getFailureCode({ tfrPEId:tfrPEId });
+            const data = await getFailureCodeUpdated({ productId:tfrPEId, newVIN: this.currentVinNo }); // this.currentVinNo
+
+            this.itemList[index].failureCodeOptions = data.map(item => ({
+                label: item.Name,
+                value: item.Id
+            }));
+        } catch (error) {
+            console.error('Error fetching failure codes: ', error);
+        }
     }
 }

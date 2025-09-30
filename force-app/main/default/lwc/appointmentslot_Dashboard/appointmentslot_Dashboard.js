@@ -18,7 +18,7 @@ export default class CreateAppointmentSlots extends LightningElement {
     @track dayEnd;
     @track duration = 30;
     @track bayCount;
-    @track bayNumber = 0;   // Default 0
+    @track bayNumber = 0;
     @track remainingBays;
     @track showForm = false;
     @track showBackButton = false;
@@ -26,6 +26,7 @@ export default class CreateAppointmentSlots extends LightningElement {
     @track filterStartDate;
     @track filterEndDate;
     @track selectedStatus = '';
+    @track isLoading = false;   // NEW Spinner flag
     @api recordId;
 
     currentPage = 1;
@@ -281,11 +282,14 @@ export default class CreateAppointmentSlots extends LightningElement {
         .then(count => {
             this.remainingBays = count;
         })
+         
+
         .catch(error => this.handleError(error, 'Failed to check available bays'));
     }
 
     createSlot() {
         this.errorMessage = '';
+         this.isLoading = true;
         createSlot({
             serviceCenterId: this.serviceCenterId,
             startDate: this.startDate,
@@ -295,6 +299,7 @@ export default class CreateAppointmentSlots extends LightningElement {
             serviceBaynumber: Number(this.bayNumber),
             slotDurationMins: Number(this.duration)
         })
+        
         .then(() => {
             this.showToast('Success', 'Appointment slots created successfully', 'success');
             this.resetForm();
@@ -302,7 +307,7 @@ export default class CreateAppointmentSlots extends LightningElement {
         })
         .then(({ data }) => {
             if (data) {
-                this.fullSlotItems = this.processSlotItems(data.asiList || []);
+               this.fullSlotItems = this.processSlotItems(data.asiList);
                 this.currentPage = 1;
                 this.updatePaginatedItems();
             }
@@ -313,7 +318,10 @@ export default class CreateAppointmentSlots extends LightningElement {
             this.errorMessage = this.reduceError
 
             this.showToast('Error', this.errorMessage, 'error');
-        });
+        })
+         .finally(() => {
+        this.isLoading = false; // 🔹 hide spinner
+    });
     }
 
     resetForm() {

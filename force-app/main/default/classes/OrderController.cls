@@ -241,6 +241,8 @@ public static String createOrderRecord(String shipmentType, Integer additonal, S
                     if(String.valueof(ewProductCode) != 'RV-EW-7'){
                         throw new AuraHandledException('5 Years Warranty Is Present , If you want to Upgrade it to 8 years please Proceed with RV-EW-7 Product');
                     }
+                }if(v.EW_Plan__c == '8 Years or 80,000Kms'){
+                    throw new AuraHandledException('8 Years Warranty Is Present , You canot add further Extended Warranty');
                 }
                 //throw new AuraHandledException('Extended Warranty is Already there.You Can Ugrade it to Extended Warranty – 8 Years Upgrade (Special Oct’25 Scheme). But for Upgradation to 8 years Warranty, Aniket Needs One API To Override the Existing Extended Warranty.   Regards Marc Benioff');
 
@@ -259,10 +261,12 @@ public static String createOrderRecord(String shipmentType, Integer additonal, S
                     throw new AuraHandledException('You are not eligible to add Extended Warranty 3');
                  }else if(String.valueof(ewProductCode) == 'RV-EW-4' && eligibilityMonth>6){
                     throw new AuraHandledException('You are not eligible to add Extended Warranty – 8 Years (0–6M Direct)');
-                }else if(String.valueof(ewProductCode) == 'RV-EW-5' && (eligibilityMonth>9 || eligibilityMonth<7)){
+                }else if(String.valueof(ewProductCode) == 'RV-EW-5' && (eligibilityMonth>9 /*|| eligibilityMonth<7*/)){
                     throw new AuraHandledException('You are not eligible to add Extended Warranty – 8 Years Upgrade (7–9M)');
                 }else if(String.valueof(ewProductCode) == 'RV-EW-6' && (eligibilityMonth>12 || eligibilityMonth<10)){
                     throw new AuraHandledException('You are not eligible to add Extended Warranty – 8 Years Upgrade (10–12M)');
+                }else if(eligibilityMonth>=12){
+                    throw new AuraHandledException('You are not eligible to add any Extended Warranty Product');
                 }
                 
                 

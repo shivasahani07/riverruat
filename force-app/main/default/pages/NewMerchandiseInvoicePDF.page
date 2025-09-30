@@ -3,39 +3,39 @@
         <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
         <style type="text/css">
             @page {
-                size: 10.5in 11.5in; 
-                margin-left: 0.5cm;
-                margin-right: 0.5cm;
-                margin-top: 0.5cm;
-                margin-bottom: 0.5cm;
+            size: 10.5in 11.5in; 
+            margin-left: 0.5cm;
+            margin-right: 0.5cm;
+            margin-top: 0.5cm;
+            margin-bottom: 0.5cm;
             }
             .data_Table {
-                border: 1px solid black;
-                margin-top: 100px;
-                text-align: center; 
-                border-top: 0;
-                border-right: 0;
+            border: 1px solid black;
+            margin-top: 100px;
+            text-align: center; 
+            border-top: 0;
+            border-right: 0;
             }
             .totals {
-                border: 1px solid black;
-                color: grey !important;
-                border-top: 0;
-                border-right: 0; 
+            border: 1px solid black;
+            color: grey !important;
+            border-top: 0;
+            border-right: 0; 
             }
             .rectangle {
-                width: 10px;
-                height: 10px;
-                border: 1px solid #000;
-                display: inline-block;
-                margin-right: 30px;
-                margin-left: 5px;
+            width: 10px;
+            height: 10px;
+            border: 1px solid #000;
+            display: inline-block;
+            margin-right: 30px;
+            margin-left: 5px;
             }
             .page-break {
-                page-break-after: always;
+            page-break-after: always;
             }
             td {
-                word-wrap: break-word;
-                white-space: normal;
+            word-wrap: break-word;
+            white-space: normal;
             }
         </style>
     </head>
@@ -78,7 +78,7 @@
         </div>
         
         <hr />
-
+        
         <table style="vertical-align: top; border-collapse:true; float:left; text-align:left; font-family: Arial, Helvetica, sans-serif;margin-top:4px;font-size:12px;" width="100%">
             <tr>
                 <td>
@@ -119,7 +119,7 @@
                 </td>
             </tr>
         </table>
-
+        
         <table style="vertical-align: top;display:inline-table;margin-top:5px; float:left;text-align:center; font-family: Helvetica, sans-serif; border-top:1px solid; border-bottom:1px solid; border-collapse:collapse;page-break-inside:auto" width="100%" >
             <tr>
                 <th rowspan="2" style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal; min-width: 130px;width:130px !important;">Item description</th>
@@ -130,7 +130,7 @@
                 <th colspan="2" style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal;">IGST</th>
                 <th colspan="2" style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal;">CGST</th>
                 <th colspan="2" style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal;">SGST</th>
-               <!-- <th rowspan="2" style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal;">Post <br/>GST <br/> Discount</th> -->
+                <!-- <th rowspan="2" style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal;">Post <br/>GST <br/> Discount</th> -->
                 <th rowspan="2" colspan="2" style="padding:5px;border:1px solid;border-collapse:collapse;font-weight: normal;">Total <br/>Amount</th>
             </tr>
             <tr>
@@ -192,7 +192,7 @@
                     <td style="padding:10px 5px 0 8px;border-right:1px solid;border-left:1px solid;vertical-align:top;">
                         <apex:outputText value="{!IF(sameState, TEXT(row.oi.Product_SGST_Amount__c), '-')}" />
                     </td>
-                  <!--  <td style="padding-top:10px;padding-right:5px;padding-left:8px;border-right:1px solid;border-left:1px solid;vertical-align:top;">0</td> -->
+                    <!--  <td style="padding-top:10px;padding-right:5px;padding-left:8px;border-right:1px solid;border-left:1px solid;vertical-align:top;">0</td> -->
                     <td colspan="2" style="padding-top:10px;padding-right:5px;padding-left:8px;border-right:1px solid;border-left:1px solid;vertical-align:top;">
                         <apex:outputText value="{0, number, #,##,##0}">
                             <apex:param value="{!row.oi.Product_Total_Amount__c}"/>
@@ -201,7 +201,7 @@
                 </tr>
                 <apex:variable value="{!rowNumber + 1}" var="rowNumber" />
             </apex:repeat>
-
+            
             <tr>
                 <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">
                     Total Value After GST
@@ -212,26 +212,26 @@
                     </apex:outputText>
                 </td>
             </tr>
-           <!-- <tr>
-                <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">
-                    <apex:outputText value="{!IF(order.RecordType.DeveloperName = 'OTC', 'Less: Total Product Discount', 'Less: Offer Amount')}" />
-                </td>
-                <td colspan="1" style="border-bottom:1px solid;border-top:1px solid; border-right:1px solid; border-collapse:collapse;" width="17%">
-                    <apex:outputText value="{0, number, #,##,##0}">
-                        <apex:param value="{!merchandiseDiscountAmount}"/>
-                    </apex:outputText>
-                </td>
-            </tr> --->
-        <!--    <tr>
-                <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">
-                    <apex:outputText value="{!IF(order.RecordType.DeveloperName = 'OTC', 'Applied Coupon (incl.)', 'Applied Coupon (incl.)')}" />
-                </td>
-                <td colspan="1" style="border-bottom:1px solid;border-top:1px solid; border-right:1px solid; border-collapse:collapse;" width="17%">
-                    <apex:outputText value="{0}">
-                        <apex:param value="{!Coupon_Code}" />
-                    </apex:outputText>
-                </td>
-            </tr> -->
+            <!-- <tr>
+<td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">
+<apex:outputText value="{!IF(order.RecordType.DeveloperName = 'OTC', 'Less: Total Product Discount', 'Less: Offer Amount')}" />
+</td>
+<td colspan="1" style="border-bottom:1px solid;border-top:1px solid; border-right:1px solid; border-collapse:collapse;" width="17%">
+<apex:outputText value="{0, number, #,##,##0}">
+<apex:param value="{!merchandiseDiscountAmount}"/>
+</apex:outputText>
+</td>
+</tr> --->
+            <!--    <tr>
+<td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">
+<apex:outputText value="{!IF(order.RecordType.DeveloperName = 'OTC', 'Applied Coupon (incl.)', 'Applied Coupon (incl.)')}" />
+</td>
+<td colspan="1" style="border-bottom:1px solid;border-top:1px solid; border-right:1px solid; border-collapse:collapse;" width="17%">
+<apex:outputText value="{0}">
+<apex:param value="{!Coupon_Code}" />
+</apex:outputText>
+</td>
+</tr> -->
             <tr>
                 <td colspan="12" style="text-align:right;border:1px solid;border-collapse:collapse;padding-right:12px; padding:7px;">
                     Net to be collected from Customer
@@ -243,7 +243,7 @@
                 </td>
             </tr>
         </table>
-
+        
         <div style="margin-top:15px;float:left;width:100%;font-family: Helvetica, sans-serif;">
             <span>Amount In Words: {!inWords}</span>
             <hr style="margin: 5px 0; border: 1px solid black;" />
@@ -265,6 +265,34 @@
             <p style="float:right; width:60%;text-align:left; width:25%">
                 Thank You for Choosing River 
             </p>
+        </div>
+        <div style="clear: both;"></div>
+        <!--<div style="page-break-before: always;"></div>-->
+        
+        <br/><br/><br/><br/><br/><br/><br/><br/>
+        <div style="text-align: center; width: 100%;">
+            <table style="margin: 50px auto; text-align: center; font-family: Arial, Helvetica, sans-serif; font-weight: bold;" width="70%">
+                <tr>
+                    <td><strong>TERMS AND CONDITIONS</strong></td>
+                </tr>
+            </table>
+            <table style="display: inline-table; text-align: center; margin: 5px auto; font-family: Arial, Helvetica, sans-serif;" width="70%">
+                <tr>          
+                    <td width="100%" style="vertical-align: top; text-align: left;">
+                        <ol>
+                            <li>E &amp; O.E.</li>
+                            <li>Merchandise once sold and invoiced will not be returned or exchanged under any circumstances, except in the case of proven manufacturing defects.</li>
+                            <li>Customers are responsible for verifying size, colour, and specifications of merchandise at the time of purchase. No claims will be entertained thereafter.</li>
+                            <li>Product images shown on the website, catalogues, or advertisements are for illustrative purposes only. Actual products may vary slightly in colour, finish, or design due to production processes.</li>
+                            <li>All risk of loss, damage, or theft passes to the customer upon delivery/handing over of merchandise.</li>
+                            <li>Prices are exclusive of taxes, levies, or duties unless otherwise stated in the invoice. Any additional charges imposed by statutory authorities will be borne by the customer.</li>
+                            <li>Promotional offers, discounts, coupons, or schemes, if any, are subject to terms defined by the Company and may be withdrawn or modified at any time without prior notice.</li>
+                            <li>I acknowledge and give consent to the River Terms of Use and Privacy Policy.</li>
+                            <li>All disputes arising out of or in connection with the sale of merchandise shall be subject to the exclusive jurisdiction of the courts at Bengaluru, India.</li>
+                        </ol>
+                    </td>
+                </tr>
+            </table>
         </div>
     </body>
 </apex:page>

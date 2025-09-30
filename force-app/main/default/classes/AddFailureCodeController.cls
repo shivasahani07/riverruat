@@ -229,9 +229,10 @@ insert newFC;
         ];
         */
         List<Failure_Code__c> lstFC = [
-            SELECT Id, Name, VIN_Cut_off_No__c, VIN_Cut_off__c, VIN_Cut_off__r.VIN_Start__c, TFR_Part_Effect__c, Product_Name__c, Product_Code__c, TFR_Part_Effect__r.Product__c
+            SELECT Id, Name, VIN_Cut_off_No__c, VIN_Cut_off__c, VIN_Cut_off__r.VIN_Start__c, TFR_Part_Effect__c, Product_Name__c, Product_Code__c,
+            TFR_Part_Effect__r.Product__c,ProductId__c,CodesetId__c
             FROM Failure_Code__c
-            WHERE TFR_Part_Effect__r.Product__c = :productId
+            WHERE (ProductId__c =:productId OR CodesetId__c =:productId)
             AND Status__c !='Closed'
             And Is_Active__c = true
         ];

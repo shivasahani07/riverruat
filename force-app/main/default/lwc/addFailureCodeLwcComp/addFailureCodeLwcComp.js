@@ -87,6 +87,7 @@ export default class AddFailureCodeLwcComp extends LightningElement {
         let searchKey = event.target.value
         this.searchKey=searchKey;
         this.handleSearch(searchKey,this.selectedProductId);
+        this.failureCode.failureCode=this.searchKey;
     }
 
     handleSearch(searchKey,productid) {
@@ -108,8 +109,10 @@ export default class AddFailureCodeLwcComp extends LightningElement {
         debugger;
         const recId = event.currentTarget.dataset.id;
         this.selectedRecord = this.records.find(r => r.Id === recId);
-        this.searchKey=this.selectedRecord.Name;
         this.records = null; // hide dropdown after select
+        if(this.selectedRecord.Name.length>3){
+            this.searchKey=this.selectedRecord.Name;
+        }
         this.failureCode.failureCode=this.searchKey;
         
     }

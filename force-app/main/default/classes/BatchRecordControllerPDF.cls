@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 09-25-2025
+ * @last modified on  : 09-29-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public with sharing class BatchRecordControllerPDF {
@@ -62,7 +62,7 @@ public with sharing class BatchRecordControllerPDF {
     
     public void fetchPartsData() {
         try {
-            claimItems = [  SELECT Id, ClaimId,Claim.Name, Part__r.LineItemNumber, Part__r.Part_Description__c, Part__r.RR_Product__r.HSN_Code__c, Part__r.Unit_of_Measurement__c, Part__r.ListPrice, Part__r.Quantity, Part__r.PricebookEntry.Name,   Part__r.Grand_Total__c, Part__r.NDP__c, Part__r.Total_NDP__c, Part__r.RR_Product__r.ProductCode FROM ClaimItem   WHERE Claim.Create_Batch__c = :batchId ];
+            claimItems = [  SELECT Id, ClaimId,Claim.Name, Part__r.LineItemNumber, Part__r.Part_Description__c, Part__r.RR_Product__r.HSN_Code__c, Part__r.Unit_of_Measurement__c, Part__r.ListPrice, Part__r.Quantity, Part__r.PricebookEntry.Name,   Part__r.Grand_Total__c, Part__r.NDP__c, Part__r.Total_NDP__c, Part__r.RR_Product__r.ProductCode,Part__c FROM ClaimItem   WHERE Claim.Create_Batch__c = :batchId ];
             System.debug('Claim Items ==> ' + claimItems);
             parts = new List<WorkOrderLineItem>();
             totalAmount = 0;
@@ -123,7 +123,7 @@ public with sharing class BatchRecordControllerPDF {
             this.Quantity = quantity;
             //this.TotalAmount = unitPrice * quantity;
             //this.TotalAmount = (listPrice * quantity).setScale(2, RoundingMode.HALF_UP);
-            this.TotalAmount = (totalNdp).setScale(2, RoundingMode.HALF_UP);
+            this.TotalAmount = (totalNdp != null ? totalNdp : 0).setScale(2, RoundingMode.HALF_UP);
             this.PricebookEntryId = pricebookEntryId;
             this.Grand_Total = claimAmount;
             this.NDP = ndp;

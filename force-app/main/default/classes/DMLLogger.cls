@@ -93,9 +93,11 @@ public without sharing class DMLLogger {
         public void execute(QueueableContext qc) {
             if (!logsToInsert.isEmpty()) {
                 try {
+                    System.debug('logsToInsert' +logsToInsert);
                     insert logsToInsert;
                 } catch (Exception e) {
                     System.debug('❌ Failed to insert logs: ' + e.getMessage());
+                    System.debug('❌ Failed to insert logs at line  ' + e.getLineNumber());
                     // (Optional) fallback: publish a Platform Event here
                 }
             }

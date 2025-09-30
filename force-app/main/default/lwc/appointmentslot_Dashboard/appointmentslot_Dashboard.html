@@ -17,16 +17,16 @@
                     </div>
 
                     <!-- Title -->
-                     <template if:false={showForm}>
-                    <div class="slds-text-align_center slds-text-heading_medium" style="width: 34%;">
-                        <b>WM Appointments Visibility</b>
-                    </div>
-                     </template>
-                      <template if:true={showForm}>
-                    <div class="slds-text-align_center slds-text-heading_medium" style="width: 34%;">
-                        <b>Create Slots</b>
-                    </div>
-                     </template>
+                    <template if:false={showForm}>
+                        <div class="slds-text-align_center slds-text-heading_medium" style="width: 34%;">
+                            <b>WM Appointments Visibility</b>
+                        </div>
+                    </template>
+                    <template if:true={showForm}>
+                        <div class="slds-text-align_center slds-text-heading_medium" style="width: 34%;">
+                            <b>Create Slots</b>
+                        </div>
+                    </template>
 
                     <!-- Create Slots Button -->
                     <div class="slds-text-align_right" style="width: 33%;">
@@ -36,15 +36,14 @@
                                 onclick={toggleForm}>
                             </lightning-button>
                             <lightning-combobox
-                            name="progress"
-                            label="Booking Status"
-                            value={selectedStatus}
-                            placeholder="--None--"
-                            options={options}
-                            onchange={statushandleChange}>
-                        </lightning-combobox>
+                                name="progress"
+                                label="Booking Status"
+                                value={selectedStatus}
+                                placeholder="--None--"
+                                options={options}
+                                onchange={statushandleChange}>
+                            </lightning-combobox>
                         </template>
-                         
                     </div>
                 </div>
             </div>
@@ -94,7 +93,7 @@
                                         <td>{item.bayName}</td>
                                         <td>{item.formattedStart}</td>
                                         <td>{item.formattedEnd}</td>
-                                        <td>>{item.slotName}</td><!--a href={item.slotUrl} target="_blank"</a-->
+                                        <td>{item.slotName}</td>
                                         <td>{item.apppointDate}</td>
                                         <td>{item.bookingstatus}</td>
                                     </tr>
@@ -113,7 +112,7 @@
                     </div>
                 </template>
                 <template if:false={hasSlotItems}>
-                   <p class="slds-text-body_regular slds-p-around_medium">
+                    <p class="slds-text-body_regular slds-p-around_medium">
                         <template if:true={filterApplied}>
                             No slot items found for selected date range
                         </template>
@@ -126,7 +125,6 @@
 
             <!-- Create Slot Form -->
             <template if:true={showForm}>
-                
                 <div class="slds-col slds-size_1-of-2">
                     <lightning-input
                         type="date"
@@ -176,6 +174,7 @@
                     </lightning-input>
                 </div>
 
+                <!-- Error -->
                 <template if:true={errorMessage}>
                     <div class="slds-col slds-size_1-of-1">
                         <div class="slds-notify slds-notify_alert slds-theme_error" role="alert">
@@ -185,6 +184,13 @@
                             </span>
                             {errorMessage}
                         </div>
+                    </div>
+                </template>
+
+                <!-- Spinner -->
+                <template if:true={isLoading}>
+                    <div class="slds-col slds-size_1-of-1 slds-align_absolute-center">
+                        <lightning-spinner alternative-text="Processing..." size="medium"></lightning-spinner>
                     </div>
                 </template>
 

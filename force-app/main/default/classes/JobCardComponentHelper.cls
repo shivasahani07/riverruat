@@ -1,9 +1,9 @@
 /**
- * @description       : 
- * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
- * @group             : 
- * @last modified on  : 07-31-2025
- * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+* @description       : 
+* @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+* @group             : 
+* @last modified on  : 07-31-2025
+* @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public class JobCardComponentHelper {  
     
@@ -94,23 +94,23 @@ public class JobCardComponentHelper {
                 Contact conObj= new contact();
                 contactDetails condetails = new contactDetails();
                 
-               List<Vehicle> vehcileRec =  [ Select id,VehicleIdentificationNumber, (Select id,stage,Name,MilestoneDate  from AssetMilestones where stage = 'Tentative' limit 1 ) from Vehicle where VehicleIdentificationNumber =:vehicleDetails.VehicleIdentificationNumber OR VehicleRegistrationNumber =:vehicleDetails.VehicleRegistrationNumber];
-               List<Appointment__c> appointmentList = [Select id,Service_Appointment__r.Vehicle__c,Appointment_Date__c,Status__c  From  Appointment__c where  (Service_Appointment__r.Vehicle__r.VehicleRegistrationNumber  =: vehicleDetails.VehicleIdentificationNumber OR Service_Appointment__r.Vehicle__r.VehicleRegistrationNumber =:vehicleDetails.VehicleRegistrationNumber) AND Status__c = 'Open'];
+                List<Vehicle> vehcileRec =  [ Select id,VehicleIdentificationNumber, (Select id,stage,Name,MilestoneDate  from AssetMilestones where stage = 'Tentative' limit 1 ) from Vehicle where VehicleIdentificationNumber =:vehicleDetails.VehicleIdentificationNumber OR VehicleRegistrationNumber =:vehicleDetails.VehicleRegistrationNumber];
+                List<Appointment__c> appointmentList = [Select id,Service_Appointment__r.Vehicle__c,Appointment_Date__c,Status__c  From  Appointment__c where  (Service_Appointment__r.Vehicle__r.VehicleRegistrationNumber  =: vehicleDetails.VehicleIdentificationNumber OR Service_Appointment__r.Vehicle__r.VehicleRegistrationNumber =:vehicleDetails.VehicleRegistrationNumber) AND Status__c = 'Open'];
                 System.debug('appointmentList'+appointmentList);
                 Date milestoneDate;
                 String milestonName;
                 Date appointmentDate;
                 if (!vehcileRec.isEmpty() && !vehcileRec[0].AssetMilestones.isEmpty()) {
-                milestoneDate = vehcileRec[0].AssetMilestones[0].MilestoneDate;
-                milestonName = vehcileRec[0].AssetMilestones[0].Name; 
-                condetails.furtureMilestoneDate = milestoneDate;
-                condetails.currentMilestoneName  = milestonName;
-               }
-               if (!appointmentList.isEmpty()  ) {
-                appointmentDate = appointmentList[0].Appointment_Date__c;
-                System.debug('appointmentDate'+appointmentDate);
-                condetails.currentAppointmentDate  = appointmentDate;
-               }
+                    milestoneDate = vehcileRec[0].AssetMilestones[0].MilestoneDate;
+                    milestonName = vehcileRec[0].AssetMilestones[0].Name; 
+                    condetails.furtureMilestoneDate = milestoneDate;
+                    condetails.currentMilestoneName  = milestonName;
+                }
+                if (!appointmentList.isEmpty()  ) {
+                    appointmentDate = appointmentList[0].Appointment_Date__c;
+                    System.debug('appointmentDate'+appointmentDate);
+                    condetails.currentAppointmentDate  = appointmentDate;
+                }
                 condetails.isPrimary = false;
                 condetails.isSecondaryPresent = false;
                 
@@ -237,7 +237,7 @@ public class JobCardComponentHelper {
     public static WrapperjobCardDetails saveCardDetails(JobCardDetails jobCardDetails) {
         
         try{
-
+            
             WrapperjobCardDetails jobdetails = new WrapperjobCardDetails();
             Contact conObj = new Contact();
             conObj.LastName = jobCardDetails.contactName;
@@ -258,7 +258,7 @@ public class JobCardComponentHelper {
             }else{
                 insert conObj;
             }
-
+            
             WorkOrder jobCard = new WorkOrder();
             jobCard.Vehicle__c = jobCardDetails.vehicle.Id;
             jobCard.ContactId = conObj.Id;
@@ -311,91 +311,96 @@ public class JobCardComponentHelper {
             // }//commented by Aniket on 26/04/2025
             
             If(jobCardDetails.TypeOfJob == 'Periodic Maintenance'){ 
-            AssetMilestone assetRec = [Select id,Stage,Name from AssetMilestone where VehicleId=:jobCardDetails.vehicle.Id AND MilestoneType  =:jobCardDetails.subType  ];
-    
-            if(assetRec.Stage == 'Tentative' ){
-               insert jobCard;
-               jobdetails.jobcardId = jobCard.Id;  
-               if(jobCardDetails.TypeOfJob == 'Periodic Maintenance') {
-           AssetMilestone assetRecord = [Select id,Stage from AssetMilestone where VehicleId=:jobCard.Vehicle__c AND MilestoneType  =:jobCard.RR_Periodic_Maintenance_Type__c AND Stage = 'Tentative'];
-           if(assetRecord.Stage == 'Tentative'){
-            WorkOrder updatworkOrder = new WorkOrder();
-            updatworkOrder.Id = jobCard.Id;
-            updatworkOrder.Asset_Milestone__c = assetRecord.Id;
-            Update updatworkOrder;
-            System.debug('updatworkOrder'+updatworkOrder);
-            if(updatworkOrder != null){
-                System.debug('SerachAppointment');
-                    WorkOrder jobRec = [Select id, Vehicle_Registration_Number__c  From WorkOrder WHere ID =:updatworkOrder.ID];
-                    System.debug('jobRec'+jobRec);
-                    if(jobRec.Vehicle_Registration_Number__c != null){
-
-                    
-                    Appointment__c appointmentRecRod = [Select Id,VRN__c,Status__c From Appointment__c where VRN__c =:jobRec.Vehicle_Registration_Number__c limit 1  ];
-                    System.debug('appointmentRecRod'+appointmentRecRod);
-                    appointmentRecRod.Status__c = 'Cancel';
-                    appointmentRecRod.Cancellation_Reason__c = 'For this appointment Schedule Service already Done';
-                  // update appointmentRecRod;
-
-                   if(appointmentRecRod != null){
-                    List<Task> tasklist= [Select id ,Status,WhatId From Task where WhatId =:appointmentRecRod.Id];
-                    System.debug('tasklist'+tasklist);
-                     list<Task> updatedTasklist = new list<Task>();
-                   
-                    if(!tasklist.IsEmpty()){
-                         for(Task taskRec :tasklist){
-                            taskRec.Status = 'Completed';
-                            updatedTasklist.add(taskRec);
+                AssetMilestone assetRec = [Select id,Stage,Name from AssetMilestone where VehicleId=:jobCardDetails.vehicle.Id AND MilestoneType  =:jobCardDetails.subType  ];
+                
+                if(assetRec.Stage == 'Tentative' ){
+                    insert jobCard;
+                    jobdetails.jobcardId = jobCard.Id;  
+                    if(jobCardDetails.TypeOfJob == 'Periodic Maintenance') {
+                        AssetMilestone assetRecord = [Select id,Stage from AssetMilestone where VehicleId=:jobCard.Vehicle__c AND MilestoneType  =:jobCard.RR_Periodic_Maintenance_Type__c AND Stage = 'Tentative'];
+                        if(assetRecord.Stage == 'Tentative'){
+                            WorkOrder updatworkOrder = new WorkOrder();
+                            updatworkOrder.Id = jobCard.Id;
+                            updatworkOrder.Asset_Milestone__c = assetRecord.Id;
+                            Update updatworkOrder;
+                            System.debug('updatworkOrder'+updatworkOrder);
+                            if(updatworkOrder != null){
+                                System.debug('SerachAppointment');
+                                WorkOrder jobRec = [Select id, Vehicle_Registration_Number__c  From WorkOrder WHere ID =:updatworkOrder.ID];
+                                System.debug('jobRec'+jobRec);
+                                if(jobRec.Vehicle_Registration_Number__c != null){
+                                    
+                                    
+                                    Appointment__c appointmentRecRod = [Select Id,VRN__c,Status__c From Appointment__c where VRN__c =:jobRec.Vehicle_Registration_Number__c limit 1  ];
+                                    System.debug('appointmentRecRod'+appointmentRecRod);
+                                    appointmentRecRod.Status__c = 'Cancel';
+                                    appointmentRecRod.Cancellation_Reason__c = 'For this appointment Schedule Service already Done';
+                                    // update appointmentRecRod;
+                                    
+                                    if(appointmentRecRod != null){
+                                        List<Task> tasklist= [Select id ,Status,WhatId From Task where WhatId =:appointmentRecRod.Id];
+                                        System.debug('tasklist'+tasklist);
+                                        list<Task> updatedTasklist = new list<Task>();
+                                        
+                                        if(!tasklist.IsEmpty()){
+                                            for(Task taskRec :tasklist){
+                                                taskRec.Status = 'Completed';
+                                                updatedTasklist.add(taskRec);
+                                            }
+                                        }
+                                        
+                                        if(!updatedTasklist.IsEmpty()){
+                                            System.debug('updatedTasklist'+updatedTasklist);
+                                            update updatedTasklist;
+                                        }
+                                        
+                                    }
+                                    
+                                }
+                            }
                         }
+                        
                     }
-
-                    if(!updatedTasklist.IsEmpty()){
-                        System.debug('updatedTasklist'+updatedTasklist);
-                        update updatedTasklist;
-                    }
-                     
-                   }
+                }else if(assetRec.Stage == 'Expired' ){
+                    jobdetails.message = 'expired';
+                    jobdetails.lapseMileston = assetRec.Name;
 
                 }
-           }
-           }
-           
-           }
-           }else{
-                  jobdetails.message = 'failed';
-                  jobdetails.lapseMileston = assetRec.Name;
-           }
+                else{
+                    jobdetails.message = 'failed';
+                    jobdetails.lapseMileston = assetRec.Name;
+                }
             }else{
                 insert jobCard;
-               jobdetails.jobcardId = jobCard.Id; 
+                jobdetails.jobcardId = jobCard.Id; 
                 
                 
-
-
+                
+                
                 List<RR_Customer_Voice__c> voiceList = new List<RR_Customer_Voice__c>();
-            System.debug('jobCardDetails'+jobCardDetails);
-            System.debug('jobCardDetails'+jobCardDetails.concernNoList);
-            
-            for (ConcernWrapper item : jobCardDetails.concernNoList) {
-                RR_Customer_Voice__c voice = new RR_Customer_Voice__c();
-                voice.RR_Work_Order__c = jobCard.Id;
-                voice.RR_Concern_Category__c = item.RRConcernCategory;
-                voice.RR_Sub_Category__c = item.RRSubCategory;
-                voice.RR_Description__c = item.RRDescription;
+                System.debug('jobCardDetails'+jobCardDetails);
+                System.debug('jobCardDetails'+jobCardDetails.concernNoList);
                 
-                voiceList.add(voice);
+                for (ConcernWrapper item : jobCardDetails.concernNoList) {
+                    RR_Customer_Voice__c voice = new RR_Customer_Voice__c();
+                    voice.RR_Work_Order__c = jobCard.Id;
+                    voice.RR_Concern_Category__c = item.RRConcernCategory;
+                    voice.RR_Sub_Category__c = item.RRSubCategory;
+                    voice.RR_Description__c = item.RRDescription;
+                    
+                    voiceList.add(voice);
+                }
+                
+                if (!voiceList.isEmpty()) {
+                    System.debug('voice list ==>'+voiceList);
+                    insert voiceList;
+                    System.debug('voice list ==>'+voiceList);
+                }
             }
             
-            if (!voiceList.isEmpty()) {
-                System.debug('voice list ==>'+voiceList);
-                insert voiceList;
-                System.debug('voice list ==>'+voiceList);
-            }
-            }
             
-           
-             
-
+            
+            
             
             //update vehicle odometer reading
             /* Vehicle vh = new Vehicle();
@@ -407,11 +412,11 @@ update vh;*/
             //insert Customer voices
             
             
-           
             
             
             
-
+            
+            
             return jobdetails;
         }catch (Exception e) {
             System.debug('Error Message Is ==>'+e.getMessage() + 'Error Line Number ==>'+e.getLineNumber());
@@ -420,15 +425,15 @@ update vh;*/
         }
         
     }
-
-     public class WrapperjobCardDetails {
+    
+    public class WrapperjobCardDetails {
         @AuraEnabled
         public String jobcardId { get; set; }
         @AuraEnabled
         public String message { get; set; } 
         @AuraEnabled
         public String lapseMileston { get; set; }
- 
+        
     }
     
     public class contactDetails {
@@ -444,10 +449,10 @@ update vh;*/
         public Date furtureMilestoneDate { get; set; } 
         @AuraEnabled
         public String currentMilestoneName { get; set; } 
-         @AuraEnabled
+        @AuraEnabled
         public Date currentAppointmentDate { get; set; } 
-         
-
+        
+        
     }
     
     public class JobCardDetails {

@@ -287,7 +287,7 @@ public without  sharing class AppointmentFormController {
             OrgWideEmailAddress owea = [SELECT Id, Address, DisplayName FROM OrgWideEmailAddress WHERE DisplayName = 'River Mobility' LIMIT 1 ];
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
             mail.setToAddresses(new String[] { serviceupdate.Account.Email__c });
-            mail.setSubject('Your Service Appointment is Confirmed');
+            mail.setSubject(  + sa.Account.Name + ':' + sa.Asset_Milestone__r.MilestoneDate + 'Your Service Appointment is Confirmed');
             String body = 'Hey ' + sa.Account.Name + ',' +
               '\n\nYour service appointment has been successfully booked!' +
               '\n\n📅 Date: ' + sa.Asset_Milestone__r.MilestoneDate +

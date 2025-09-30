@@ -24,7 +24,7 @@ const BLOCKED_STATUSES = new Set([
     'Completed'
 ]);
 const EDITABLE_STATUSES = new Set(['New', 'In Progress', 'Re work']);
-const WARRANTY_PRIOR_APPLICABLE = new Set(['River Warranty', 'EW(Extended Warranty)', 'Goodwill Warranty', 'Parts Warranty']);
+const WARRANTY_PRIOR_APPLICABLE = new Set(['River Warranty', 'Paid', 'Parts Warranty']);
 
 export default class BulkInsertJCProductsCustomNew extends NavigationMixin(LightningElement) {
     @api recordId;
@@ -148,6 +148,7 @@ export default class BulkInsertJCProductsCustomNew extends NavigationMixin(Light
     }
 
     addChildProduct(event) {
+        debugger;
         const parentIndex = parseInt(event.target.dataset.id, 10);
         const parentItem = this.itemList[parentIndex];
 
@@ -429,7 +430,7 @@ export default class BulkInsertJCProductsCustomNew extends NavigationMixin(Light
 
         if (fieldName === 'Replacement_Type__c') {
             this.itemList[index].isElectricalValueRequired = value === 'Causal';
-            this.itemList[index].isDisableaddChildProduct = (!this.itemList[index].isElectricalValueRequired || this.itemList[index].RR_Parts_Category__c != 'River Warranty')
+            this.itemList[index].isDisableaddChildProduct = (!this.itemList[index].isElectricalValueRequired || !WARRANTY_PRIOR_APPLICABLE.has(this.itemList[index].RR_Parts_Category__c))
             //this.itemList[index].isFailureCodeVisible = (value == 'Causal');
             this.itemList[index].isFailureCodeVisible = value == 'Causal';
             if (this.itemList[index].isFailureCodeVisible) {

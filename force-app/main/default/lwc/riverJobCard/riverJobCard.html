@@ -734,9 +734,14 @@
     </div>
     
         <div class="Section">
-             <template if:true={showerrorMessage}>
+             <template if:true={showerrorMessage}>  
                                         <p class="milestone-error animate-message">
     👉 This milestone ({lapseMilestoneName}) has already been completed!!
+</p>
+             </template>
+ <template if:true={showMiletoneExpireMessage}>  showMiletoneExpireMessage
+                                        <p class="milestone-error animate-message">
+    👉 This milestone ({lapseMilestoneName}) has already Expired ..please get approval from ASM!!
 </p>
 
                                  </template> 

@@ -2,13 +2,14 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 08-14-2025
+ * @last modified on  : 09-29-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 trigger OrderItemTrigger on OrderItem (before insert, after insert, after delete, after update, before update,before delete) {
     
     if (Trigger.isBefore && Trigger.isInsert) {
       //  OrderItemTriggerHandler.calculateRollupValues(Trigger.new);
+      ValidationOfEWForVehicleOrder.preventEWForCertainCriteria(Trigger.new);
     }
     
     if (Trigger.isBefore && Trigger.IsUpdate) {

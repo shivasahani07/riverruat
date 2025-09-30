@@ -113,6 +113,7 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
     @track showMilestoneMessage = false;
     @track showAppointmentMessage = false;
     @track showerrorMessage = false;
+    @track showMiletoneExpireMessage = false;
 
     error;
     @track jobtypes;
@@ -1024,7 +1025,11 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
                         //this.errorMessage = 'There is already Job Card for the same milestone';
                         // this.showToastMessage('Error', this.errorMessage, 'error');
                         this.disableSave = false;
-                    } else {
+                    } else if(result.message === 'expired'){
+                        this.showMiletoneExpireMessage = true;
+                        this.lapseMilestoneName = result.lapseMileston;
+                         this.disableSave = false;
+                        }else {
                         this.showToastMessage('Success', 'JobCard created successfully', 'success');
 
                         const recordId = result.jobcardId;
