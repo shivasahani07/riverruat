@@ -26,7 +26,7 @@
     
     
     
-    <c:bulkInsertJCProductsCustomNew recordId='0WOBh000003oTwLOAU'></c:bulkInsertJCProductsCustomNew>
+    <c:rideRiverWarrantyRecord recordId='0WOBh000003oTwLOAU'></c:rideRiverWarrantyRecord>
     
     
 </aura:application>

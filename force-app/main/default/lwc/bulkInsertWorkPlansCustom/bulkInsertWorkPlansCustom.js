@@ -7,7 +7,7 @@ import insertWorkPlans from '@salesforce/apex/WorkPlanController.insertWorkPlans
 import getLabourCode from '@salesforce/apex/AdditionalJobsRecommendedController.getLabourCode';
 import VeripartWithActionWithPlanApex from '@salesforce/apex/TFRController.VeripartWithActionWithPlanApex';
 import getFailureCode from '@salesforce/apex/AddFailureCodeController.getFailureCode';
-import checkTFRValidation from '@salesforce/apex/TFRController.checkTFRValidation';
+import checkTFRValidation from '@salesforce/apex/TFRControllerNew.checkTFRValidation';
 
 import { getRecord } from "lightning/uiRecordApi";
 import getFailureCodeUpdated from '@salesforce/apex/AddFailureCodeController.getFailureCodeUpdated';
@@ -48,12 +48,12 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
             type: 'text',
             sortable: true
         },
-        {
-            label: 'Failure Code',
-            fieldName: 'Failure_Code__c',
-            type: 'text',
-            sortable: true
-        },
+        // {
+        //     label: 'Failure Code',
+        //     fieldName: 'Failure_Code__c',
+        //     type: 'text',
+        //     sortable: true
+        // },
         {
             label: 'Efforts (Hours)',
             fieldName: 'RR_Efforts_Hours__c',
@@ -366,6 +366,7 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
             
             this.itemList[index].TFR_Required__c = returndata.isTFRApplicable;
             this.itemList[index].Post_Vin_cutt_off__c = returndata.isPostVinCuttoff;
+            // {"isPostVinCuttoff":true,"isTFRApplicable":true,"message":"Post VIN year is newer"}'
             
             // Update UI based on TFR requirements
             this.updateTFRUI(index, returndata);
@@ -380,6 +381,7 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
 
     // Update UI based on TFR validation
     updateTFRUI(index, tfrData) {
+        debugger;
         const item = this.itemList[index];
         
         if (tfrData.isTFRApplicable) {
@@ -401,6 +403,7 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
     // Handle form submission
     handleSubmit() {
         // Validate form
+        debugger;
         let isValid = true;
         const inputs = this.template.querySelectorAll('lightning-combobox, lightning-record-picker');
         inputs.forEach(input => {
@@ -476,6 +479,7 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
             variant: variant
         });
         this.dispatchEvent(event);
+        alert(message);
     }
 
     VeripartWithActionWithPlan(workOrderId) {

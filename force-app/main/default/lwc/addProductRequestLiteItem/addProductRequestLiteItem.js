@@ -69,7 +69,10 @@ export default class AddProductRequestLiteItem extends LightningElement {
                         selected: false,
                         isChargesDisabled: true, 
                         UnitPrice: res.unitPrice,
-                        QtyInHand: res.quantityInHand
+                        QtyInHand: res.quantityInHand,
+                        IGSTPercentage: res.igstPercentage ? res.igstPercentage : 0,
+                        TotalAmount: 0,
+                        TaxableAmount: 0
                     }));
                     this.filteredRequestLineItems = [];
                     this.error = undefined;
@@ -159,7 +162,7 @@ export default class AddProductRequestLiteItem extends LightningElement {
     
         this.updatePageData();
         this.selectAllChecked = this.currentPageData.every(item => item.selected);
-        this.buttonVisible = this.selectedItems.length > 0;
+        this.buttonVisible = this.selectedItems.length > 0 || this.selectAllChecked.length > 0;
     }
 
     handleQuantityChange(event) {
@@ -169,7 +172,20 @@ export default class AddProductRequestLiteItem extends LightningElement {
         this.selectedItems = this.selectedItems.map(item => {
             if (item.Id === itemId) {
                 item.AllocatedQuantity = updatedQuantity;
-                item.TotalAmount = (item.UnitPrice || 0) * updatedQuantity;
+
+                // base total
+                const baseTotal = (item.UnitPrice || 0) * updatedQuantity;
+
+                // Apply IGST percentage (if available)
+                const taxPercent = item.IGSTPercentage || 0;
+                const taxAmount = (baseTotal * taxPercent) / 100;
+
+                item.TaxableAmount = Math.round((taxAmount) * 100) / 100;
+                
+                //item.TotalAmount = baseTotal + taxAmount;
+                item.TotalAmount = Math.round((baseTotal + taxAmount) * 100) / 100;
+
+                
             }
             return item;
         });
@@ -189,6 +205,7 @@ export default class AddProductRequestLiteItem extends LightningElement {
     }
 
     handleSelectAll(event) {
+        debugger;
         const isChecked = event.target.checked;
         this.selectAllChecked = isChecked;
         this.currentPageData = this.currentPageData.map(item => {
@@ -200,6 +217,7 @@ export default class AddProductRequestLiteItem extends LightningElement {
             if (isChecked) {
                 if (!this.selectedItems.find(i => i.Id === item.Id)) {
                     this.selectedItems = [...this.selectedItems, updatedItem];
+                    this.buttonVisible = true; // CODE ADDED
                 }
             } else {
                 this.selectedItems = this.selectedItems.filter(i => i.Id !== item.Id);
@@ -214,6 +232,7 @@ export default class AddProductRequestLiteItem extends LightningElement {
     
     
     handleCheckboxChange(event) {
+        debugger;
         const itemId = event.target.dataset.id;
         const isChecked = event.target.checked;
     
@@ -435,7 +454,15 @@ export default class AddProductRequestLiteItem extends LightningElement {
         return hasZeroQuantity;
     }
     disconnectedCallback() {
-    this.removeEventListener('filterchange', this.handleFilterChange);
-}
+        this.removeEventListener('filterchange', this.handleFilterChange);
+    }
+
+    get grandTotal() {
+        const total = this.selectedItems.reduce((sum, item) => {
+            return sum + (item.TotalAmount ? item.TotalAmount : 0);
+        }, 0);
+
+        return total.toFixed(2); // returns string like "123.45"
+    }
 
 }

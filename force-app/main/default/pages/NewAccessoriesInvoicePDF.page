@@ -287,7 +287,18 @@
                             <li>Warranty (if applicable) covers only manufacturing defects and excludes damage from misuse, improper installation, negligence, or normal wear and tear.</li>
                             <li>Installation, if required, is to be arranged at my own risk and cost unless expressly provided by the Company.</li>
                             <li>Prices are exclusive of taxes unless otherwise mentioned. Any applicable taxes, duties, or levies will be borne by me.</li>
-                            <li>By purchasing, I acknowledge and consent to River’s Terms of Use and Privacy Policy.</li>
+                            <li>
+                                <label>
+                                    By Purchasing, I acknowledge and give consent to the River's
+                                    <a href="{!termsOfUseURL}" target="_blank">
+                                        Terms of Use
+                                    </a>
+                                    and 
+                                    <a href="{!privacypolicy}" target="_blank">
+                                        Privacy Policy
+                                    </a>.
+                                </label>
+                            </li>
                             <li>All disputes arising out of or in connection with the sale of merchandise shall be subject to the exclusive jurisdiction of the courts at Bengaluru, India.</li>
                         </ol>
                     </td>

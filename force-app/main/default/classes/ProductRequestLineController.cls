@@ -288,11 +288,13 @@ public Without Sharing class ProductRequestLineController {
                 if (Product2IdIdSet.size() > 0) {
                     System.debug('Product2IdIdSet ==>'+Product2IdIdSet);
                     
-                    getLocationRelatedPRLI = [SELECT Id, Name, ProductCode, IsActive, Type__c FROM Product2 WHERE Id IN :Product2IdIdSet AND IsActive = true AND Type__c NOT IN :ProductTypeNotToShow];
+                    getLocationRelatedPRLI = [SELECT Id, Name, ProductCode, IsActive, Type__c, IGST_Percentage__c, CGST_Percentage__c, SGST_Percentage__c
+                        FROM Product2 WHERE Id IN :Product2IdIdSet AND IsActive = true AND Type__c NOT IN :ProductTypeNotToShow];
                     
-                                    List<ProductItem> inventoryList= [SELECT Id,LocationId,Product2Id,Quantity_In_Hand__c FROM ProductItem WHERE Product2Id IN:Product2IdIdSet AND LocationId =:logedUser.Contact.Location__c];
-                                    System.debug('inventoryList==>'+inventoryList);
-                                     Map<Id, Decimal> productQtyMap = new Map<Id, Decimal>();
+                    List<ProductItem> inventoryList= [SELECT Id,LocationId,Product2Id,Quantity_In_Hand__c FROM ProductItem WHERE Product2Id IN:Product2IdIdSet AND LocationId =:logedUser.Contact.Location__c];
+                    System.debug('inventoryList==>'+inventoryList);
+                    Map<Id, Decimal> productQtyMap = new Map<Id, Decimal>();
+
                     for (ProductItem pi : inventoryList) {
                         productQtyMap.put(pi.Product2Id, pi.Quantity_In_Hand__c);
                     }
@@ -306,6 +308,7 @@ public Without Sharing class ProductRequestLineController {
                         pwq.typeOfProduct = p.Type__c;
                         pwq.unitPrice = uniTPriceMap.containsKey(p.Id) ? uniTPriceMap.get(p.Id) : 0;
                         pwq.quantityInHand = productQtyMap.containsKey(p.Id) ? productQtyMap.get(p.Id) : 0;
+                        pwq.igstPercentage = p.IGST_Percentage__c != null ? p.IGST_Percentage__c : null;
                         result.add(pwq);
                     }
                     
@@ -344,6 +347,7 @@ public Without Sharing class ProductRequestLineController {
     @AuraEnabled public String typeOfProduct { get; set; }
     @AuraEnabled public Decimal unitPrice { get; set; }    
     @AuraEnabled public Decimal quantityInHand { get; set; }
+    @AuraEnabled public Decimal igstPercentage {get; set;}
 }
     
     // Method for Creation Bulk RLI Records

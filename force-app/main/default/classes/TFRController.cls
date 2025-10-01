@@ -72,42 +72,100 @@ public without sharing class TFRController {
     
     @AuraEnabled(cacheable=true)
     public static TFRWrapperSample verifyExistingTFR(String partId) {
-        WorkOrderLineItem workOrderLineItemRec = null;
+        object workOrderLineItemRec = null;
         TFR_Sample__c tfrSampleRecord = null;
-        
-        // Null-safe query for WorkOrderLineItem
-        List<WorkOrderLineItem> woliList = [
-            SELECT Id, LineItemNumber, PricebookEntryId, Warranty_Prior__c, PricebookEntry.Product2.Name, TFR_Required__c,Warranty_Prior__r.Status__c,
-            Failure_Code__c, PricebookEntry.Product2.ProductCode, Quantity, RR_Parts_Category__c, Status, Tax__c,
-            Amount_per_Hour__c, CreatedDate, WorkOrder.WorkOrderNumber, PricebookEntry.Product2Id,
-            Total_Labour_Charges__c, Total_NDP__c, Grand_Total__c, IGST_Percentage_formula__c,WorkOrder.Status,
-            TotalAmount__c, Labour_Code__r.Name, Labour_Code__r.RR_Labour_Charge__c, Replacement_Type__c,
-            Labour_Code__r.RR_Efforts_Hours__c, Hours__c, Part_Description__c, Consequential_Part__c, Electrical_Value__c,
-            FFIR_Number__c, FFIR_Links__c
-            FROM WorkOrderLineItem
-            WHERE Id = :partId
-            LIMIT 1
-        ];
-        if (!woliList.isEmpty()) {
-            workOrderLineItemRec = woliList[0];
+
+        String objectApiName = getObjectApiNameFromRecordId(partId);
+
+        if(objectApiName == 'WorkPlan') {
+            // Query WorkPlan
+            List<WorkPlan> workplans = [
+                SELECT Id, Name, RR_Labour_Code__r.Code, Status__c, Duration_Hour__c, Labour_Charge__c, CreatedDate,
+                    RR_Labour_Code__c, RR_Labour_Category__c, WorkOrder.Status, RR_Labour_Code__r.Name,
+                    Failure_code__c, Failure_code__r.Name, Amount_per_Hour__c, Labour_Charge_CodeSet__c,
+                    Total_Labour_Cost__c, RR_Labour_Code__r.Labour_Charges__c, RR_Labour_Code__r.RR_Labour_Charge__c,Warranty_Prior__r.Status__c,Warranty_Prior__c,
+                    RR_Labour_Code__r.RR_Efforts_Hours__c, RR_Labour_Code__r.RR_Efforts_Minutes__c,workOrder.Service_Center__c,workOrderId
+                FROM WorkPlan
+                WHERE Id = :partId
+                ORDER BY CreatedDate ASC
+                LIMIT 1
+            ];
+
+            if(!workplans.isEmpty()) {
+                workOrderLineItemRec = workplans[0];
+
+                // Query TFR_Sample__c based on Labour Code
+                List<TFR_Sample__c> tfrList = [
+                    SELECT Actions_Taken__c, Approved_by__c, CreatedById, CreatedDate, Customer_Account__c, 
+                        Customer_Contact__c, Job_card__r.Status, Date_of_Complaint__c, Date_of_Repair__c, 
+                        Date_of_Sale__c, Failure_Code__c, Id, IsDeleted, Issue_Severity__c, Job_Card__c, 
+                        LastModifiedById, LastModifiedDate, LastViewedDate, Media__c, Name, Name__c, 
+                        Observations__c, Odometer_Reading__c, OwnerId, Part__c, Service_Center__c, SystemModstamp, 
+                        TFR__c, VIN_No__c, VOC__c, Warranty_Claim_Number__c, Labour_Code__c
+                    FROM TFR_Sample__c
+                    WHERE Labour_Code__c = :partId
+                    LIMIT 1
+                ];
+                if(!tfrList.isEmpty()) {
+                    tfrSampleRecord = tfrList[0];
+                }
+            }
         }
-        
-        // Null-safe query for TFR_Sample__c
-        List<TFR_Sample__c> tfrList = [
-            SELECT Actions_Taken__c, Approved_by__c, CreatedById, CreatedDate, Customer_Account__c, Customer_Contact__c,Job_card__r.Status,
-            Date_of_Complaint__c, Date_of_Repair__c, Date_of_Sale__c, Failure_Code__c, Id, IsDeleted,
-            Issue_Severity__c, Job_Card__c, LastModifiedById, LastModifiedDate,
-            LastViewedDate, Media__c, Name, Name__c, Observations__c, Odometer_Reading__c, OwnerId,
-            Part__c, Service_Center__c, SystemModstamp, TFR__c, VIN_No__c, VOC__c, Warranty_Claim_Number__c
-            FROM TFR_Sample__c
-            WHERE Part__c = :partId
-            LIMIT 1
-        ];
-        if (!tfrList.isEmpty()) {
-            tfrSampleRecord = tfrList[0];
+        else if(objectApiName == 'WorkOrderLineItem') {
+            // Query WorkOrderLineItem
+            List<WorkOrderLineItem> woliList = [
+                SELECT Id, LineItemNumber, PricebookEntryId, Warranty_Prior__c, PricebookEntry.Product2.Name, 
+                    TFR_Required__c, Warranty_Prior__r.Status__c, Failure_Code__c, PricebookEntry.Product2.ProductCode, 
+                    Quantity, RR_Parts_Category__c, Status, Tax__c, Amount_per_Hour__c, CreatedDate, 
+                    WorkOrder.WorkOrderNumber, PricebookEntry.Product2Id, Total_Labour_Charges__c, Total_NDP__c, 
+                    Grand_Total__c, IGST_Percentage_formula__c, WorkOrder.Status, TotalAmount__c, Labour_Code__r.Name, 
+                    Labour_Code__r.RR_Labour_Charge__c, Replacement_Type__c, Labour_Code__r.RR_Efforts_Hours__c, 
+                    Hours__c, Part_Description__c, Consequential_Part__c, Electrical_Value__c, FFIR_Number__c, 
+                    FFIR_Links__c
+                FROM WorkOrderLineItem
+                WHERE Id = :partId
+                LIMIT 1
+            ];
+            if(!woliList.isEmpty()) {
+                workOrderLineItemRec = woliList[0];
+
+                // Query TFR_Sample__c based on Part
+                List<TFR_Sample__c> tfrList = [
+                    SELECT Actions_Taken__c, Approved_by__c, CreatedById, CreatedDate, Customer_Account__c, 
+                        Customer_Contact__c, Job_card__r.Status, Date_of_Complaint__c, Date_of_Repair__c, 
+                        Date_of_Sale__c, Failure_Code__c, Id, IsDeleted, Issue_Severity__c, Job_Card__c, 
+                        LastModifiedById, LastModifiedDate, LastViewedDate, Media__c, Name, Name__c, 
+                        Observations__c, Odometer_Reading__c, OwnerId, Part__c, Service_Center__c, SystemModstamp, 
+                        TFR__c, VIN_No__c, VOC__c, Warranty_Claim_Number__c, Labour_Code__c
+                    FROM TFR_Sample__c
+                    WHERE Part__c = :partId
+                    LIMIT 1
+                ];
+                if(!tfrList.isEmpty()) {
+                    tfrSampleRecord = tfrList[0];
+                }
+            }
         }
-        
+
         return new TFRWrapperSample(workOrderLineItemRec, tfrSampleRecord);
+    }
+
+
+    public static String getObjectApiNameFromRecordId(Id recordId) {
+        String objectApiName = '';
+        try {
+            // Get the SObjectType token from the record ID
+            Schema.SObjectType sobjectType = recordId.getSObjectType();
+
+            // Get the describe information for the SObject
+            Schema.DescribeSObjectResult describeResult = sobjectType.getDescribe();
+
+            // Get the API name of the object
+            objectApiName = describeResult.getName();
+        } catch (Exception e) {
+            System.debug('Error getting object API name: ' + e.getMessage());
+        }
+        return objectApiName;
     }
     
     @AuraEnabled
@@ -355,10 +413,10 @@ public without sharing class TFRController {
     }
     
     public class TFRWrapperSample {
-        @AuraEnabled public WorkOrderLineItem workOrderLineItemRec { get; set; }
+        @AuraEnabled public object workOrderLineItemRec { get; set; }
         @AuraEnabled public TFR_Sample__c tfrSampleRecord { get; set; }
         
-        public TFRWrapperSample(WorkOrderLineItem woli, TFR_Sample__c tfr) {
+        public TFRWrapperSample(object woli, TFR_Sample__c tfr) {
             this.workOrderLineItemRec = woli;
             this.tfrSampleRecord = tfr;
         }

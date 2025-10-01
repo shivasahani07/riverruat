@@ -41,9 +41,10 @@
                 </div>
                 <div class="slds-card__body">
                     <lightning-datatable key-field="Id" data={existingWorkPlans} columns={columns} hide-checkbox-column
-                        onrowaction={handleRowAction} loading={isLoading} default-sort-direction={defaultSortDirection}
-                        sorted-direction={sortDirection} sorted-by={sortedBy} onsort={onHandleSort} resizable-columns>
+                        onrowaction={handleRowAction} loading={isLoading}  resizable-columns>
                     </lightning-datatable>
+                    <!-- default-sort-direction={defaultSortDirection}
+                        sorted-direction={sortDirection} sorted-by={sortedBy} onsort={onHandleSort} -->
                 </div>
             </div>
         </template>
@@ -68,6 +69,11 @@
 
                     <template for:each={itemList} for:item="item" for:index="index">
                         <div key={item.id} class="form-row slds-box slds-m-bottom_small {item.cssClass}">
+                            <div>
+                                <lightning-button-icon icon-name="utility:delete" alternative-text="Delete Row" label="Delete" style="margin-bottom:-20px;"
+                                        title="Delete Row" onclick={removeRow} data-id={index} variant="destructive">
+                                    </lightning-button-icon>
+                            </div>
                             <div class="slds-grid slds-wrap slds-gutters">
                                 <!-- Labour Category -->
                                 <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-12">
@@ -78,7 +84,7 @@
                                 </div>
 
                                 <!-- Labour Code -->
-                                <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-12">
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-12">
                                     <lightning-record-picker label="Labour Code" placeholder="Search Labour Code..."
                                         class="productpicker" disabled={item.isDisbaledProduct}
                                         object-api-name="CodeSet" value={item.RR_Labour_Code__c}
@@ -90,56 +96,54 @@
                                 <!-- Failure Code (visible for River Warranty) -->
                                 <template if:true={item.isFailureCodeVisible}>
                                     <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-12">
-                                        <lightning-combobox
-                                            name="failureCode"
-                                            label="Failure Code"
-                                            value={item.Failure_Code__c}
-                                            placeholder="Select Failure Code"
-                                            data-id={index}
-                                            options={item.failureCodeOptions}
-                                            onchange={handleFailureCodeChange}
-                                            required>
+                                        <lightning-combobox name="failureCode" label="Failure Code"
+                                            value={item.Failure_Code__c} placeholder="Select Failure Code"
+                                            data-id={index} options={item.failureCodeOptions}
+                                            onchange={handleFailureCodeChange} required>
                                         </lightning-combobox>
                                     </div>
                                 </template>
 
                                 <!-- Labour Charge -->
-                                <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-12">
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-12">
                                     <lightning-input type="number" label="Labour Charge" name="LabourCharge"
                                         value={item.LabourCharge} formatter="currency" data-id={index} disabled>
                                     </lightning-input>
                                 </div>
-
                                 <!-- Actions -->
                                 <div
-                                    class="slds-col slds-size_1-of-1 slds-medium-size_3-of-12 slds-align_absolute-center">
-                                    <lightning-button-icon icon-name="utility:delete" alternative-text="Delete Row"
-                                        title="Delete Row" onclick={removeRow} data-id={index} variant="destructive">
-                                    </lightning-button-icon>
+                                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-12">
+                                    <!-- <span class="">
+                                        Delete 
+                                    </span> -->
+                                    
                                 </div>
                             </div>
-                            
+                            <!-- slds-align_absolute-center -->
                             <!-- Description -->
-                            <div class="slds-grid slds-wrap slds-gutters slds-m-top_small">
+                            <!-- <div class="slds-grid slds-wrap slds-gutters slds-m-top_small">
                                 <div class="slds-col slds-size_1-of-1">
                                     <lightning-input label="Description" value={item.Description} disabled>
                                     </lightning-input>
                                 </div>
-                            </div>
-                            
+                            </div> -->
+
                             <!-- TFR Message -->
                             <template if:true={item.tfrMessage}>
                                 <div class="slds-m-top_x-small 
                                             {item.Post_Vin_cutt_off__c ? 'post-vin-message' : 'pre-vin-message'}">
-                                    <lightning-icon icon-name="utility:info" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
+                                    <lightning-icon icon-name="utility:info" size="xx-small"
+                                        class="slds-m-right_xx-small"></lightning-icon>
                                     <span>{item.tfrMessage}</span>
                                 </div>
                             </template>
-                            
+
                             <!-- Error Message -->
                             <template if:true={item.hasError}>
-                                <div class="slds-notify slds-notify_alert slds-theme_error slds-m-top_small" role="alert">
-                                    <lightning-icon icon-name="utility:error" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                <div class="slds-notify slds-notify_alert slds-theme_error slds-m-top_small"
+                                    role="alert">
+                                    <lightning-icon icon-name="utility:error" size="x-small"
+                                        class="slds-m-right_x-small"></lightning-icon>
                                     <span>{item.errorMessage}</span>
                                 </div>
                             </template>
@@ -151,7 +155,8 @@
                         <lightning-button variant="neutral" label="Cancel" onclick={toggleTemplates}
                             class="slds-m-right_small">
                         </lightning-button>
-                        <lightning-button variant="brand" label="Submit" onclick={handleSubmit} disabled={DisabledsubmitButtin}>
+                        <lightning-button variant="brand" label="Submit" onclick={handleSubmit}
+                            disabled={DisabledsubmitButtin}>
                         </lightning-button>
                     </div>
                 </div>

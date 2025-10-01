@@ -33,10 +33,11 @@ export default class TfrSampleForm extends LightningElement {
         debugger;
         if (data) {
             const wireData = data;
+             console.log('wired data tfr form',JSON.stringify(data));
             this.relatedPart = wireData?.workOrderLineItemRec;
             this.tfrSampleRecord = wireData?.tfrSampleRecord;
             this.recordId = wireData?.tfrSampleRecord?.Id;
-            if (this.relatedPart.WorkOrder.Status == 'Completed' || this.relatedPart.WorkOrder.Status == 'Ready for Delivery' || this.relatedPart.WorkOrder.Status == 'Sumbit for Approval') {
+            if (this.relatedPart?.WorkOrder.Status == 'Completed' || this.relatedPart?.WorkOrder.Status == 'Ready for Delivery' || this.relatedPart.WorkOrder?.Status == 'Sumbit for Approval') {
                 this.isTFRRecordDisabled = true;
             } else if (this.relatedPart?.Warranty_Prior__r?.Status__c) {
                 let status = this.relatedPart?.Warranty_Prior__r?.Status__c

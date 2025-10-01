@@ -26,6 +26,8 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
     @track slotItemOptions = [];
     @track showDescriptionField = false;
     @track previousDate; 
+    @track isLoading = false;
+
 
     minDate;
     serviceCenterId = '';
@@ -171,6 +173,7 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
     }
 
     handleSubmit() {
+        this.isLoading = true;
         if (this.isSubmitDisabled) {
             this.showToast('Missing Fields',
                 'Please fill all fields including slot item.',
@@ -205,7 +208,10 @@ export default class AppointmentForm extends NavigationMixin(LightningElement) {
             })
             .catch(err => this.showToast('Error',
                 err?.body?.message || 'Error creating appointment.',
-                'error'));
+                'error'))
+                 .finally(() => {
+        this.isLoading = false; // hide spinner only after Apex call finishes
+    });
     }
 
     showToast(title, msg, variant) {

@@ -60,7 +60,20 @@ export default class RideRiverWarrantyRecord extends LightningElement {
         { label: 'Amount/hr', fieldName: 'Labour_Charge_CodeSet__c', type: 'currency', editable: true, cellAttributes: { alignment: 'left' } },
         { label: 'Status', fieldName: 'Status', type: 'text' },
         { label: 'Tax %', fieldName: 'Code_Set_Tax__c', type: 'number', editable: true, cellAttributes: { alignment: 'left' } },
-        { label: 'Total Amount', fieldName: 'Total_Labour_Cost__c', type: 'currency', cellAttributes: { alignment: 'centre' } }
+        { label: 'Total Amount', fieldName: 'Total_Labour_Cost__c', type: 'currency', cellAttributes: { alignment: 'centre' } },
+         {
+
+            type: "button", label: 'TFR+', initialWidth: 130, typeAttributes: {
+                label: 'Add/View',
+                name: 'view',
+                title: 'view',
+                value: 'view',
+                iconPosition: 'left',
+                iconName: 'utility:preview',
+                variant: 'Brand',
+                disabled: { fieldName: 'disableView' }
+            }
+        },
     ];
 
     partsColumns = [
@@ -166,6 +179,7 @@ export default class RideRiverWarrantyRecord extends LightningElement {
         this.refreshLabours = result;
         if (result.data) {
             this.labourData = result.data.map((item) => ({
+                ...item,
                 Id: item.Id,
                 jobUrl: `/${item.Id}`,
                 codeUrl: item.RR_Labour_Code__r ? `/${item.RR_Labour_Code__r.Id}` : '',
@@ -174,8 +188,13 @@ export default class RideRiverWarrantyRecord extends LightningElement {
                 Labour_Charge_CodeSet__c: item.Labour_Charge_CodeSet__c || 0,
                 Code_Set_Tax__c: item.Code_Set_Tax__c || 0,
                 Total_Labour_Cost__c: item.Total_Labour_Cost__c || 0,
-                Status: item.Status__c
+                disableView: !item.TFR_Required__c,
+                Status: item.Status__c,
+                TFR_Sample__c:item.TFR_Sample__c,
+                TFR_NO:item.TFR_Sample__r?.Name__c,
             }));
+
+            console.log(JSON.stringify(this.labourData,2,'/'))
         } else if (result.error) {
             this.error = result.error;
             this.labourData = [];
@@ -662,10 +681,25 @@ export default class RideRiverWarrantyRecord extends LightningElement {
         this.dispatchEvent(event);
     }
 
+    handleRowActionLabour(event){
+        debugger;
+        const actionName = event.detail.action.name;
+        let row = event.detail.row;
+        row={...row, IsLabour:true}
+
+        switch (actionName) {
+            case 'view':
+                this.handleView(row);
+                break;
+            // add more actions if needed
+        }
+    }
+
     handleRowAction(event) {
         debugger;
         const actionName = event.detail.action.name;
-        const row = event.detail.row;
+        let row = event.detail.row;
+        row={...row, IsPart:true}
 
         switch (actionName) {
             case 'view':

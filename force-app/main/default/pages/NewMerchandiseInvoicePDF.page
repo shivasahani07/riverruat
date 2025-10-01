@@ -287,7 +287,18 @@
                             <li>All risk of loss, damage, or theft passes to the customer upon delivery/handing over of merchandise.</li>
                             <li>Prices are exclusive of taxes, levies, or duties unless otherwise stated in the invoice. Any additional charges imposed by statutory authorities will be borne by the customer.</li>
                             <li>Promotional offers, discounts, coupons, or schemes, if any, are subject to terms defined by the Company and may be withdrawn or modified at any time without prior notice.</li>
-                            <li>I acknowledge and give consent to the River Terms of Use and Privacy Policy.</li>
+                            <li>
+                                <label>
+                                    I acknowledge and give consent to the River's
+                                    <a href="{!termsOfUseURL}" target="_blank">
+                                        Terms of Use
+                                    </a>
+                                    and 
+                                    <a href="{!privacypolicy}" target="_blank">
+                                        Privacy Policy
+                                    </a>.
+                                </label>
+                            </li>
                             <li>All disputes arising out of or in connection with the sale of merchandise shall be subject to the exclusive jurisdiction of the courts at Bengaluru, India.</li>
                         </ol>
                     </td>

@@ -130,6 +130,11 @@
                 <default>false</default>
                 <label>Website</label>
             </value>
+            <value>
+                <fullName>Lead Creation - GupShup</fullName>
+                <default>false</default>
+                <label>Lead Creation - GupShup</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

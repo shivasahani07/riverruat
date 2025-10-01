@@ -48,14 +48,16 @@ public without sharing class ValidationOfEWForVehicleOrder {
                     
                     String productCode = productMap.get(oi.Product2Id).ProductCode;
 
-                    
-                    if (productCode != 'RV-EW-1' && productCode != 'RV-EW-4') {
+                    if (productCode != null && productCode.contains('RV-EW')) {
+                        if (productCode != 'RV-EW-1' && productCode != 'RV-EW-4') {
                         oi.addError('Only RV-EW-1 and RV-EW-4 can be added to Vehicle Orders.');
                     }
 
                     if (existingEWByOrder.containsKey(oi.OrderId) && existingEWByOrder.get(oi.OrderId).size() > 0) {
                         oi.addError('Extended Warranty is already present for this Order.');
                     }
+                    }
+                    
                 }
             }
         } catch (Exception e) {

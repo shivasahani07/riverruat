@@ -56,7 +56,7 @@ global class LeadCreationAPIGupshup {
                 }
             }
 
-            if (isDuplicateRecent) {
+           /* if (isDuplicateRecent) {
                 // Block and log duplicate
                 Integration_Log__c logObj = new Integration_Log__c(
                     Integration_Type__c = 'Lead Creation - GupShup',
@@ -64,13 +64,13 @@ global class LeadCreationAPIGupshup {
                     Request_Payload__c = JSON.serializePretty(requestBodyMap),
                     Response_Payload__c = 'Duplicate Lead Found within 90 days: ' + leadToUpdate.Id,
                     Lead__c = leadToUpdate.Id,
-                    Status__c = 'Conflict' // Confirm 'Conflict' picklist value exists
+                    Status__c = 'Failed' // Confirm 'Conflict' picklist value exists
                 );
                 insert logObj;
 
                 res.statusCode = 409;
                 return 'Duplicate Lead Found within 90 days: ' + leadToUpdate.Id;
-            }
+            } */
 
             if (leadToUpdate == null) {
                 leadToUpdate = new Lead();

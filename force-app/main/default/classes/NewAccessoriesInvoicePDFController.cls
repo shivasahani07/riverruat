@@ -43,6 +43,8 @@ public with sharing class NewAccessoriesInvoicePDFController {
     public Decimal AccessoriesDiscountAmountOnOrder { get; set; }
     public Decimal merchandiseDiscountAmount { get; set; }
     public String Coupon_Code { get; set; }
+    public String termsOfUseURL { get; set; }
+    public String privacypolicy { get; set; }
 
     // --- Wrapper class for VF Table ---
     public class OrderItemDiscountWrapper {
@@ -78,6 +80,12 @@ public with sharing class NewAccessoriesInvoicePDFController {
             Id orderId = controller.getId();
             system.debug('orderId==>' + orderId);
             compDetails = [SELECT Id, DeveloperName, Account_Number__c, Bank_Name__c, Beneficiary_Name__c, CIN__c, Contact__c, Email__c, GST__c, IFSC__c, PAN__c, Swift_Code__c FROM Company_Details__mdt WHERE DeveloperName='River_Mobility_Private_Limited' LIMIT 1];
+            
+            Legal_Links__mdt links = [SELECT TermsOfUseURL__c FROM Legal_Links__mdt WHERE DeveloperName = 'DefaultLegalLink'  LIMIT 1 ];
+                     termsOfUseURL = links.TermsOfUseURL__c;
+
+		    Legal_Links__mdt privacy = [SELECT TermsOfUseURL__c FROM Legal_Links__mdt WHERE DeveloperName = 'Privacy_Policy' LIMIT 1];
+                 privacypolicy = privacy.TermsOfUseURL__c;
 
             order = [SELECT Id, AccountId, OrderNumber, BillingCity, BillingCountry, Dealer__c, BillingPostalCode, BillingState, BillingStreet, ShippingCity, Website_Order_Id__c, Approval_Status__c,
                            ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, RTO_Charges__c, Handling_Charges__c, Insurance_Amount__c, Warranty_Amount__c,

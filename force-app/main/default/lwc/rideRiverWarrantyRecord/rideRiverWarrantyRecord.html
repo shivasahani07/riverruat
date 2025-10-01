@@ -57,7 +57,8 @@
     <div class="section">
       <lightning-card title="Labour Details" icon-name="utility:people">
         <lightning-datatable key-field="Id" data={labourData} columns={labourColumns} hide-checkbox-column
-          draft-values={draftValuesLabours} oncellchange={handleCellChange} onsave={handleLaboursSave}>
+          draft-values={draftValuesLabours} oncellchange={handleCellChange} onsave={handleLaboursSave} 
+          onrowaction={handleRowActionLabour}>
         </lightning-datatable>
       </lightning-card>
     </div>

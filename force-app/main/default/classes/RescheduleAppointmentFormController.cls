@@ -270,9 +270,9 @@ public class RescheduleAppointmentFormController {
         
 		delete slotItemRecord;
 
-        Appointment__c appointRec = [Select id ,Service_Appointment__c from Appointment__c where Id =:parentId];
+        Appointment__c appointRec = [Select id ,Service_Appointment__c,Appointment_Date__c from Appointment__c where Id =:parentId];
 		Id saId = appointRec.Service_Appointment__c;
-       
+        Date rescheduleappointmentDate = appointRec.Appointment_Date__c;
         if (isAppointment) {
             ServiceAppointment sa = [
                 SELECT Id, Call_Status__c,Account.Email__c,Account.Name,Asset_Milestone__r.MilestoneDate,Service_Centre__r.Name
@@ -295,15 +295,35 @@ public class RescheduleAppointmentFormController {
             OrgWideEmailAddress owea = [SELECT Id, Address, DisplayName FROM OrgWideEmailAddress WHERE DisplayName = 'River Mobility' LIMIT 1 ];
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
             mail.setToAddresses(new String[] { serviceupdate.Account.Email__c });
-            mail.setSubject('Your Service Appointment is Rescheduled');
-            String body = 'Hey ' + sa.Account.Name + ',' +
-              '\n\nYour service appointment has been successfully booked!' +
-              '\n\n📅Reschedule Date: ' + sa.Asset_Milestone__r.MilestoneDate +
-              '\n🕒n📅Reschedule Time: ' + slotItemRec.Start_Time__c +'to' + slotItemRec.End_Time__c +
-              
-              '\n🏢 Service Center: ' + sa.Service_Centre__r.Name +
-              '\n\nFor any changes or assistance, please contact our Service Advisor.' +
-              '\n\nThank you for choosing us!';
+            
+
+               //appointmentDate = sa.Asset_Milestone__r.MilestoneDate;
+Datetime milestoneDT = Datetime.newInstance(rescheduleappointmentDate, Time.newInstance(0,0,0,0));
+String milestoneDateStr = milestoneDT.format('dd MMM yyyy');
+
+// Convert time fields
+Time startTime = slotItemRec.Start_Time__c;
+Time endTime   = slotItemRec.End_Time__c;
+
+Datetime startDT = Datetime.newInstance(Date.today(), startTime);
+Datetime endDT   = Datetime.newInstance(Date.today(), endTime);
+
+String startTimeStr = startDT.format('hh:mm a');
+String endTimeStr   = endDT.format('hh:mm a');
+
+// Subject + Body
+mail.setSubject(
+    sa.Account.Name + ': ' + milestoneDateStr + 'Your Service Appointment is Rescheduled'
+);
+
+String body = 'Hey ' + sa.Account.Name + ',' +
+    '\n\nYour service appointment has been successfully booked!' +
+    '\n\n📅 Reschedule Date: ' + milestoneDateStr +
+    '\n🕒 Reschedule Time: ' + startTimeStr + ' to ' + endTimeStr +
+    '\n🏢 Service Center: ' + sa.Service_Centre__r.Name +
+    '\n\nFor any changes or assistance, please contact our Service Advisor.' +
+    '\n\nThank you for choosing us!';
+ 
            mail.setPlainTextBody(body);
            mail.setOrgWideEmailAddressId(owea.Id);
            Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });

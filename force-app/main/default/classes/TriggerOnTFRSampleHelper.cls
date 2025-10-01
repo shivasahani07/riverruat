@@ -56,9 +56,9 @@ public class TriggerOnTFRSampleHelper {
         );
 
         // Get today’s existing count for sequence calculation
-        Integer sequence = (Integer) [SELECT COUNT() 
-                                      FROM TFR_Sample__c 
-                                      WHERE CreatedDate = TODAY];
+        // Integer sequence = (Integer) [SELECT COUNT() 
+        //                               FROM TFR_Sample__c 
+        //                               WHERE CreatedDate = TODAY AND Dealer_contact__r.Dealer_Code__c];
 
         // Loop through new records and assign Name__c
         for (TFR_Sample__c tfrsm : newSamples) {
@@ -66,6 +66,8 @@ public class TriggerOnTFRSampleHelper {
             if (jobCardMap.containsKey(tfrsm.Job_Card__c)) {
                 dealerCode = jobCardMap.get(tfrsm.Job_Card__c).Dealer_contact__r.Dealer_Code__c;
             }
+
+            Integer sequence = (Integer) [SELECT COUNT() FROM TFR_Sample__c WHERE  Service_Center__r.Center_Code__c =: dealerCode];
 
             // Build MMYY
             String mm = String.valueOf(System.today().month());

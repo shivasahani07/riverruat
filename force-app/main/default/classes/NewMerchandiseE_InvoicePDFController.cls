@@ -38,6 +38,8 @@ public with sharing class NewMerchandiseE_InvoicePDFController {
     public String Coupon_Code {get;set;}
     public Decimal itemTotalDiscount {get;set;}
     public Decimal MerchandiseDiscountAmountOnOrder {get;set;}
+    public String termsOfUseURL { get; set; }
+    public String privacypolicy { get; set; }
 
     // --- Wrapper for VF Table Use ---
     public class OrderItemDiscountWrapper {
@@ -55,7 +57,8 @@ public with sharing class NewMerchandiseE_InvoicePDFController {
     public String getFormattedAccountBillingStreet() {
         return order.Account.BillingStreet != null ? order.Account.BillingStreet.replace('\n', '<br/>') : '';
     }
-
+    
+    
     public NewMerchandiseE_InvoicePDFController(ApexPages.StandardController controller) {
         try {
             dcPdf = [SELECT Id, CIN__c, Company_Email__c, Company_Phone__c, Company_Website__c, CompanyName__c, Factory_Address__c, Former_Address__c, GST__c, Registered_Office__c,  Bill_From__c, Bill_To__c, PartA__c, Small_CName__c FROM DeliveryChallanPDF__mdt];
@@ -64,6 +67,16 @@ public with sharing class NewMerchandiseE_InvoicePDFController {
 
             Id orderId = controller.getId();
             compDetails = [SELECT Id, DeveloperName, Account_Number__c, Bank_Name__c, Beneficiary_Name__c, CIN__c, Contact__c, Email__c, GST__c, IFSC__c, PAN__c,  Swift_Code__c FROM Company_Details__mdt WHERE DeveloperName='River_Mobility_Private_Limited' LIMIT 1];
+	
+            
+            Legal_Links__mdt links = [SELECT TermsOfUseURL__c FROM Legal_Links__mdt WHERE DeveloperName = 'DefaultLegalLink'  LIMIT 1 ];
+                     termsOfUseURL = links.TermsOfUseURL__c;
+
+		    Legal_Links__mdt privacy = [SELECT TermsOfUseURL__c FROM Legal_Links__mdt WHERE DeveloperName = 'Privacy_Policy' LIMIT 1];
+                 privacypolicy = privacy.TermsOfUseURL__c;
+            
+            
+            
 
             order = [SELECT Id,AccountId, OrderNumber, BillingCity, BillingCountry, Dealer__c, BillingPostalCode, BillingState, BillingStreet, ShippingCity,Website_Order_Id__c,Approval_Status__c,
                 ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, RTO_Charges__c, Handling_Charges__c, Insurance_Amount__c, Warranty_Amount__c,

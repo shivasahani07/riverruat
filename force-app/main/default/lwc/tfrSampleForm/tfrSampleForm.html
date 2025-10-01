@@ -12,11 +12,15 @@
                     <lightning-input-field field-name="Date_of_Complaint__c" disabled={isTFRRecordDisabled} required="true"></lightning-input-field>
                     <lightning-input-field field-name="Date_of_Sale__c" disabled={isTFRRecordDisabled}></lightning-input-field>
                     <lightning-input-field field-name="Date_of_Repair__c" disabled={isTFRRecordDisabled}></lightning-input-field>
-                    <lightning-input-field field-name="Part__c" value={inputObject.Id} disabled={inputObject.Id}></lightning-input-field>
+                    <template if:true={inputObject.IsPart}>
+                        <lightning-input-field field-name="Part__c" value={inputObject.Id} disabled={inputObject.Id}></lightning-input-field>
+                    </template>
+                    <template if:true={inputObject.IsLabour}>
+                        <lightning-input-field field-name="Labour_Code__c" value={inputObject.Id} disabled={inputObject.Id}></lightning-input-field>
+                    </template>
                     <lightning-input-field field-name="Failure_Code__c" value={inputObject.Failure_Code__c} disabled={inputObject.Failure_Code__c}></lightning-input-field>
                     <lightning-input-field field-name="Job_Card__c" value={inputObject.WorkOrderId} disabled={inputObject.WorkOrderId}></lightning-input-field>
                     <lightning-input-field field-name="Actions_Taken__c" required="true"></lightning-input-field>
-                    
                 </div>
                 <div class="slds-col slds-size_1-of-2">
                     <lightning-input-field field-name="Issue_Severity__c" disabled={isTFRRecordDisabled} required="true"></lightning-input-field>

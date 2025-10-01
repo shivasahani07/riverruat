@@ -262,7 +262,11 @@ public without  sharing class AppointmentFormController {
         slotItemRec.Appointment__c = newApp.Id;
         update slotItemRec;
         
-        Date milestoneDate;
+       
+        Appointment__c appointRec = [Select id ,Service_Appointment__c,Appointment_Date__c from Appointment__c where Id =:newAppId];
+		 
+        Date bookedappointmentDate = appointRec.Appointment_Date__c;
+
         if (isServiceAppt) {
             ServiceAppointment sa = [
                 SELECT Id, Call_Status__c,Account.Email__c,Account.Name,Asset_Milestone__r.MilestoneDate,Service_Centre__r.Name
@@ -275,7 +279,7 @@ public without  sharing class AppointmentFormController {
             sa.Call_Status__c = 'Appointment Booked';
             update sa;
 
-            milestoneDate = sa.Asset_Milestone__r.MilestoneDate;
+           // milestoneDate = sa.Asset_Milestone__r.MilestoneDate;
             system.debug('UpdatedServiceAppointment '+sa);
             ServiceAppointment serviceupdate = [
                 SELECT Id, Call_Status__c,Account.Email__c,Account.Name,Asset_Milestone__r.MilestoneDate,Service_Centre__r.Name
@@ -287,15 +291,37 @@ public without  sharing class AppointmentFormController {
             OrgWideEmailAddress owea = [SELECT Id, Address, DisplayName FROM OrgWideEmailAddress WHERE DisplayName = 'River Mobility' LIMIT 1 ];
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
             mail.setToAddresses(new String[] { serviceupdate.Account.Email__c });
-            mail.setSubject(  + sa.Account.Name + ':' + sa.Asset_Milestone__r.MilestoneDate + 'Your Service Appointment is Confirmed');
-            String body = 'Hey ' + sa.Account.Name + ',' +
-              '\n\nYour service appointment has been successfully booked!' +
-              '\n\n📅 Date: ' + sa.Asset_Milestone__r.MilestoneDate +
-              '\n🕒 Time: ' + slotItemRec.Start_Time__c +'to' + slotItemRec.End_Time__c +
-              
-              '\n🏢 Service Center: ' + sa.Service_Centre__r.Name +
-              '\n\nFor any changes or assistance, please contact our Service Advisor.' +
-              '\n\nThank you for choosing us!';
+          // Format milestone date
+// Convert milestone date
+  //milestoneDate = sa.Asset_Milestone__r.MilestoneDate;
+Datetime milestoneDT = Datetime.newInstance(bookedappointmentDate, Time.newInstance(0,0,0,0));
+String milestoneDateStr = milestoneDT.format('dd MMM yyyy');
+
+// Convert time fields
+Time startTime = slotItemRec.Start_Time__c;
+Time endTime   = slotItemRec.End_Time__c;
+
+Datetime startDT = Datetime.newInstance(Date.today(), startTime);
+Datetime endDT   = Datetime.newInstance(Date.today(), endTime);
+
+String startTimeStr = startDT.format('hh:mm a');
+String endTimeStr   = endDT.format('hh:mm a');
+
+// Subject + Body
+mail.setSubject(
+    sa.Account.Name + ': ' + milestoneDateStr + ' Your Service Appointment is Confirmed'
+);
+
+String body = 'Hey ' + sa.Account.Name + ',' +
+    '\n\nYour service appointment has been successfully booked!' +
+    '\n\n📅 Date: ' + milestoneDateStr +
+    '\n🕒 Time: ' + startTimeStr + ' to ' + endTimeStr +
+    '\n🏢 Service Center: ' + sa.Service_Centre__r.Name +
+    '\n\nFor any changes or assistance, please contact our Service Advisor.' +
+    '\n\nThank you for choosing us!';
+
+
+
            mail.setPlainTextBody(body);
            mail.setOrgWideEmailAddressId(owea.Id);
            Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
@@ -349,8 +375,8 @@ public without  sharing class AppointmentFormController {
         reminder.Phone_Number__c                = contactNumber;
         reminder.Customer__c                    = vehicleRec.CurrentOwnerId != null ?  vehicleRec.CurrentOwnerId : null;
         reminder.Call_To_c__c                   = vehicleRec.CurrentOwner.Name != null ? vehicleRec.CurrentOwner.Name : null;
-        reminder.Appointment_Date__c            = appointmentDate;
-        reminder.Appointment_Date__c            = milestoneDate;
+        reminder.Appointment_Date__c            = bookedappointmentDate;
+       // reminder.Appointment_Date__c            = milestoneDate;
         reminder.Appointment_Description__c     = appointmentDecription;
         insert reminder;
         System.debug('newAppId==='+newAppId);
