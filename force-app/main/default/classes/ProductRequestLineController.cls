@@ -275,13 +275,13 @@ public Without Sharing class ProductRequestLineController {
                 
             }
             
-            getProdItemList = [SELECT Id, Product2.Name, Product2Id,UnitPrice FROM PricebookEntry WHERE Pricebook2Id = :loggedInUserContactRecord.Location__r.Price_Book__c];
+            getProdItemList = [SELECT Id, Product2.Name, Product2Id,UnitPrice, Dealer_List_Price__c FROM PricebookEntry WHERE Pricebook2Id = :loggedInUserContactRecord.Location__r.Price_Book__c];
             Map<Id,Decimal> uniTPriceMap = new Map<Id,Decimal>();
             if (getProdItemList.size() > 0) {
                 for (PricebookEntry prod : getProdItemList) {
                     if (prod.Product2Id != null) {
                         Product2IdIdSet.add(prod.Product2Id);
-                        uniTPriceMap.put(prod.Product2Id,prod.UnitPrice);
+                        uniTPriceMap.put(prod.Product2Id, prod.Dealer_List_Price__c != null ? prod.Dealer_List_Price__c : 0);
                     }
                 }
                 

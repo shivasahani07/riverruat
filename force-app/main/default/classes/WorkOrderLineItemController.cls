@@ -61,12 +61,81 @@ public without sharing class WorkOrderLineItemController {
         try {
             system.debug('lineItems---'+lineItems);
             insert lineItems;
+            InsertRelatedLabourCodefromPartFailureCode(lineItems);
         } catch (DmlException ex) {
             throw new AuraHandledException('Error inserting Work Order Line Items: ' + ex.getMessage());
         } catch (Exception ex) {
             throw new AuraHandledException('Unexpected error: ' + ex.getMessage());
         }
     }
+    
+   
+    public static void InsertRelatedLabourCodefromPartFailureCode(List<WorkOrderLineItem> lineItems) {
+        List<WorkPlan> wpinsert = new List<WorkPlan>();
+        Set<Id> fcids = new Set<Id>();
+        
+        // Map FailureCode -> WorkOrderLineItem (so we can fetch category from part)
+        Map<Id, WorkOrderLineItem> fcToWoli = new Map<Id, WorkOrderLineItem>();
+        
+        for (WorkOrderLineItem workOrderLineItemRec : lineItems) {
+            if (workOrderLineItemRec.Failure_Code__c != null) {
+                fcids.add(workOrderLineItemRec.Failure_Code__c);
+                // store reference so we can get category later
+                fcToWoli.put(workOrderLineItemRec.Failure_Code__c, workOrderLineItemRec);
+            } else {
+                System.debug('No failure code found for part --- ' + workOrderLineItemRec);
+            }
+        }
+        
+        if (fcids.isEmpty()) {
+            System.debug('No Failure Codes found. Skipping WorkPlan creation.');
+            return;
+        }
+        
+        // Map: Failure_Code__c -> List of TFR_Labour_Effect__c
+        Map<Id, List<TFR_Labour_Effect__c>> tfreBYfc = new Map<Id, List<TFR_Labour_Effect__c>>();
+        
+        // Fetch all labour effect records for these failure codes
+        List<TFR_Labour_Effect__c> leList = [
+            SELECT Id, Name, Labour_Code__c, Failure_Code__c, Code_Set__r.Name
+            FROM TFR_Labour_Effect__c
+            WHERE Failure_Code__c IN :fcids
+        ];
+        
+        for (TFR_Labour_Effect__c tpe : leList) {
+            if (!tfreBYfc.containsKey(tpe.Failure_Code__c)) {
+                tfreBYfc.put(tpe.Failure_Code__c, new List<TFR_Labour_Effect__c>());
+            }
+            tfreBYfc.get(tpe.Failure_Code__c).add(tpe);
+        }
+        
+        // Create WorkPlan records per Failure_Code
+        for (Id fcId : tfreBYfc.keySet()) {
+            List<TFR_Labour_Effect__c> labourEffects = tfreBYfc.get(fcId);
+            
+            WorkPlan wp = new WorkPlan();
+            wp.Failure_Code__c = fcId;
+            // wp.Related_Labour_Count__c = labourEffects.size();
+            wp.name=labourEffects[0].Code_Set__c;
+            wp.ParentRecordId=fcToWoli.get(fcId).workOrderId;
+            
+            // Take first Code_Set__c for labour code (or adjust if multiple allowed)
+            wp.RR_Labour_Code__c = labourEffects[0].Code_Set__c;
+            
+            // Get Labour Category from related WorkOrderLineItem
+            if (fcToWoli.containsKey(fcId)) {
+                wp.RR_Labour_Category__c = fcToWoli.get(fcId).RR_Parts_Category__c; 
+                // 🔑 Replace "Labour_Category__c" with the actual field from WorkOrderLineItem
+            }
+            
+            wpinsert.add(wp);
+        }
+        
+        if (!wpinsert.isEmpty()) {
+            insert wpinsert;
+        }
+    }
+    
     
     @AuraEnabled
     public static void createWorkOrderLineItems(List<WorkOrderLineItem> lineItems) {
@@ -92,6 +161,7 @@ public without sharing class WorkOrderLineItemController {
             
             // Insert all items
             insert sortedItems;
+            InsertRelatedLabourCodefromPartFailureCode(lineItems);
             
             // Create a map of sequence numbers to record IDs
             Map<Decimal, Id> sequenceToId = new Map<Decimal, Id>();

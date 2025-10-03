@@ -94,7 +94,7 @@ public class JobCardComponentHelper {
                 Contact conObj= new contact();
                 contactDetails condetails = new contactDetails();
                 
-                List<Vehicle> vehcileRec =  [ Select id,VehicleIdentificationNumber, (Select id,stage,Name,MilestoneDate  from AssetMilestones where stage = 'Tentative' limit 1 ) from Vehicle where VehicleIdentificationNumber =:vehicleDetails.VehicleIdentificationNumber OR VehicleRegistrationNumber =:vehicleDetails.VehicleRegistrationNumber];
+                List<Vehicle> vehcileRec =  [ Select id,VehicleIdentificationNumber, (Select id,stage,Name,MilestoneDate  from AssetMilestones where stage = 'Tentative' and MilestoneDate >= TODAY  limit 1 ) from Vehicle where VehicleIdentificationNumber =:vehicleDetails.VehicleIdentificationNumber OR VehicleRegistrationNumber =:vehicleDetails.VehicleRegistrationNumber];
                 List<Appointment__c> appointmentList = [Select id,Service_Appointment__r.Vehicle__c,Appointment_Date__c,Status__c  From  Appointment__c where  (Service_Appointment__r.Vehicle__r.VehicleRegistrationNumber  =: vehicleDetails.VehicleIdentificationNumber OR Service_Appointment__r.Vehicle__r.VehicleRegistrationNumber =:vehicleDetails.VehicleRegistrationNumber) AND Status__c = 'Open'];
                 System.debug('appointmentList'+appointmentList);
                 Date milestoneDate;
@@ -331,14 +331,15 @@ public class JobCardComponentHelper {
                                 if(jobRec.Vehicle_Registration_Number__c != null){
                                     
                                     
-                                    Appointment__c appointmentRecRod = [Select Id,VRN__c,Status__c From Appointment__c where VRN__c =:jobRec.Vehicle_Registration_Number__c limit 1  ];
+                                    List<Appointment__c> appointmentRecRod = [Select Id,VRN__c,Status__c From Appointment__c where VRN__c =:jobRec.Vehicle_Registration_Number__c limit 1  ];
                                     System.debug('appointmentRecRod'+appointmentRecRod);
-                                    appointmentRecRod.Status__c = 'Cancel';
-                                    appointmentRecRod.Cancellation_Reason__c = 'For this appointment Schedule Service already Done';
-                                    // update appointmentRecRod;
                                     
-                                    if(appointmentRecRod != null){
-                                        List<Task> tasklist= [Select id ,Status,WhatId From Task where WhatId =:appointmentRecRod.Id];
+                                    
+                                    if(!appointmentRecRod.IsEmpty()){
+                                    //appointmentRecRod.Status__c = 'Cancel';
+                                    //appointmentRecRod.Cancellation_Reason__c = 'For this appointment Schedule Service already Done';
+                                     //update appointmentRecRod;
+                                        List<Task> tasklist= [Select id ,Status,WhatId From Task where WhatId =:appointmentRecRod[0].Id];
                                         System.debug('tasklist'+tasklist);
                                         list<Task> updatedTasklist = new list<Task>();
                                         

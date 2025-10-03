@@ -93,9 +93,9 @@ public class AssetMilestoneTriggerWorker {
         for (AssetMilestone asset : milestones) {
             vehicleID.add(asset.vehicleID);
         }
-        
+        system.debug('vehicleID==='+vehicleID);
         // Query existing AssetMilestone records
-        for (AssetMilestone existingMilestone : [SELECT VehicleId, MileStonetype FROM AssetMilestone where MilestoneType IN :milestoneTypes AND vehicleID IN :vehicleID]) {
+        for (AssetMilestone existingMilestone : [SELECT VehicleId, MileStonetype FROM AssetMilestone where MilestoneType IN :milestoneTypes AND vehicleID IN :vehicleID AND Name != 'PDI']) {
             // Construct a unique identifier for the combination of vehicle and milestone type
             String vehicleMilestoneKey = existingMilestone.VehicleId + '-' + existingMilestone.MilestoneType;
             
@@ -113,7 +113,7 @@ public class AssetMilestoneTriggerWorker {
             
             // Construct a unique identifier for the combination of vehicle and milestone type
             String newVehicleMilestoneKey = newMilestone.VehicleId + '-' + newMilestone.MilestoneType;
-            
+            system.debug('newVehicleMilestoneKey==='+newVehicleMilestoneKey);
             // Check if the combination already exists in the set
             if (existingVehicleMilestoneTypes.contains(newVehicleMilestoneKey)) {
                 // If it does, prevent the insertion of the new AssetMilestone

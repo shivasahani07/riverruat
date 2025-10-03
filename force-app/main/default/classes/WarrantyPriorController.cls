@@ -112,7 +112,7 @@ public with sharing class WarrantyPriorController {
         System.debug('Fetching related Work Plans for Warranty ID: ' + warrantyId);
         return [
             SELECT Id, Name, Warranty_Prior__c, RR_Labour_Code__r.Code, Status__c, Duration_Hour__c, Labour_Charge__c,Post_Vin_cutt_off__c,TFR_Required__c,TFR_Sample__c,Failure_Code__c,
-                   CreatedDate, RR_Labour_Code__c, Amount_per_Hour__c, Tax__c,TotalAmount__c, Labour_Charge_CodeSet__c,workOrder.Service_Center__c,workOrderId,Warranty_Prior__r.Status__c,TFR_Sample__r.Name,
+                   CreatedDate, RR_Labour_Code__c, Amount_per_Hour__c, Tax__c,TotalAmount__c, Labour_Charge_CodeSet__c,workOrder.Service_Center__c,workOrderId,Warranty_Prior__r.Status__c,TFR_Sample__r.Name,TFR_Sample__r.Name__C,
                    Code_Set_Tax__c, Total_Labour_Cost__c
             FROM WorkPlan
             WHERE Warranty_Prior__c = :warrantyId

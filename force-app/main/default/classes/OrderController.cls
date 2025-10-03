@@ -267,7 +267,7 @@ public static String createOrderRecord(String shipmentType, Integer additonal, S
                     throw new AuraHandledException('You are not eligible to add Extended Warranty – 8 Years Upgrade (10–12M)');
                 }else if(String.valueof(ewProductCode) == 'RV-EW-7'){
                     throw new AuraHandledException('Without 5 Years Warranty Present, You Canot Add Extended Warranty – 8 Years Upgrade (10–12M)');
-                }else if(eligibilityMonth>=12){
+                }else if(eligibilityMonth>12){
                     throw new AuraHandledException('You are not eligible to add any Extended Warranty Product');
                 }
                 

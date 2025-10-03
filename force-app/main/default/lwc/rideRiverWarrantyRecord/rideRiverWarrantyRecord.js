@@ -61,6 +61,7 @@ export default class RideRiverWarrantyRecord extends LightningElement {
         { label: 'Status', fieldName: 'Status', type: 'text' },
         { label: 'Tax %', fieldName: 'Code_Set_Tax__c', type: 'number', editable: true, cellAttributes: { alignment: 'left' } },
         { label: 'Total Amount', fieldName: 'Total_Labour_Cost__c', type: 'currency', cellAttributes: { alignment: 'centre' } },
+         { label: 'TFR No.', fieldName: 'TFR_NO', type: 'text' },
          {
 
             type: "button", label: 'TFR+', initialWidth: 130, typeAttributes: {

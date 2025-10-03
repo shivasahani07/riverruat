@@ -27,6 +27,7 @@
                                 <th><lightning-input type="checkbox" onchange={handleSelectAll} checked={selectAllChecked}></lightning-input></th>
                                 <th scope="col">Product Name</th>
                                 <th scope="col">Product Code</th>
+                                <th scope="col">Stock</th>
                                 <th scope="col">Unit Price</th>
                                 <th scope="col">Quantity</th>
                             </tr>
@@ -40,6 +41,7 @@
                                     </td>
                                     <td>{item.ProductName}</td>
                                     <td>{item.ProductCode}</td>
+                                    <td>{item.QtyInHand}</td>
                                     <td>{item.UnitPrice}</td>
                                     <td>
                                         <lightning-input type="number" data-id={item.Id} value={item.AllocatedQuantity} disabled={item.isChargesDisabled} style="margin-bottom:14px"></lightning-input>
@@ -97,11 +99,12 @@
                                     <th scope="col">Product Name</th>
                                     <th scope="col">Product Code</th>
                                     <th scope="col">Unit Price</th>
+                                    <th scope="col">Stock</th>
                                     <th scope="col" style="width: 150px;">Quantity</th>
                                     <th scope="col" style="padding-left: 10px;">Tax %</th>
-                                    <th scope="col">Taxable Amt</th>
+                                    <th scope="col">Tax Amount</th>
                                     <th scope="col" style="width: 150px; padding-left: 15px;">Total</th>
-                                    <th scope="col">Qty In Hand</th>
+                                    
                                     <th scope="col" style="text-align: center;">Actions</th>
                                 </tr>
                             </thead>
@@ -113,6 +116,7 @@
                                         <td>{item.ProductName}</td>
                                         <td>{item.ProductCode}</td>
                                         <td>{item.UnitPrice}</td>
+                                        <td>{item.QtyInHand}</td>
                                         <td style="width: 150px;">
                                             <lightning-input
                                                 type="number"
@@ -125,7 +129,7 @@
                                         <td style="padding-left: 15px;">{item.IGSTPercentage}% </td>
                                         <td>{item.TaxableAmount}</td>
                                         <td style="width: 150px; padding-left: 10px;">{item.TotalAmount}</td>
-                                        <td>{item.QtyInHand}</td>
+                                        
                                         <td style="text-align: center;"> 
                                             <lightning-button
                                                 icon-name="utility:delete"
@@ -144,9 +148,9 @@
                             
                             <tfoot>
                                 <tr>
-                                    <td colspan="7" class="slds-text-align_right" style="padding-top: 15px; border-top: 1px solid grey; font-size: 17px;"><b>Grand Total:</b></td>
+                                    <td colspan="8" class="slds-text-align_right" style="padding-top: 15px; border-top: 1px solid grey; font-size: 17px;"><b>Grand Total:</b></td>
                                     <td style="padding-top: 15px; border-top: 1px solid grey; font-size: 17px;"><b>{grandTotal}</b></td>
-                                    <td colspan="3" style="padding-top: 15px; border-top: 1px solid grey; font-size: 17px;"></td>
+                                    <td colspan="2" style="padding-top: 15px; border-top: 1px solid grey; font-size: 17px;"></td>
                                 </tr>
                             </tfoot>
                         </table>
