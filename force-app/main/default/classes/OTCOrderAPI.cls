@@ -2,126 +2,126 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 09-23-2025
+ * @last modified on  : 10-03-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 @RestResource(urlMapping='/createOTCOrder')
 global without sharing class OTCOrderAPI {
-    @HttpPost
+   @HttpPost
     global static void createOTCOrderFromWebsite(){
-         set<string> orderPicklistValues = new set<string>(); 
-        set<string> paymentTypePicklistValues = new set<string>();
+        List<String> productSKUList = new List<String>();
+        Map<Id,Product2> IdToProductMap = new Map<Id,Product2>();
+        Map<String,Id> skuToProductIdMap = new Map<String,Id>();
+        Map<String,Double> productUnitPriceMap = new Map<String,Double>();
+        Map<Id,Id> pricebookEntryProductMap = new Map<Id,Id>();
+        Set<String> skus = new Set<String>();
+
+        Account dealerAcccount;
+        Account customerAccount;
         
+        City__c c;
+        Id priceBookForOrder; 
+
         List<OrderItem> orderItems = new List<OrderItem>();
-        List<string> productSkuIds = new List<string>();
-        
-        Map<string,string> mapSkuToProdId = new Map<string,string>();
-        Map<Id,Product2> mapIdToProduct = new Map<Id,Product2>();
-        Map<String, Object> response = new Map<String, Object>();
-        Map<Id,Double> mapProdIdToPrice = new Map<Id,Double>();
-        Map<Id,Id> mapProdIdToPEntryId = new Map<Id,Id>();
-        
-        
-        RestResponse res = RestContext.response;
-        res.addHeader('Content-Type', 'application/json');
-        
+
+        List<String> paymentTypePicklistValues = new List<String>();
+
+
         RestRequest req = RestContext.request;
-        String requestBody = req.requestBody.toString();
-        
-        
-        // Deserialize the JSON request body into a map
-        Map<String, Object> requestMap = (Map<String, Object>)JSON.deserializeUntyped(requestBody);
-        Map<String, Object> billing_address = (Map<String, Object>)requestMap.get('billing_address') != null? (Map<String, Object>)requestMap.get('billing_address'):null;
-        Map<String, Object> shipping_address = (Map<String, Object>)requestMap.get('shipping_address') != null? (Map<String, Object>)requestMap.get('shipping_address'):null;
-        Map<String, Object> PaymentDetails = (Map<String, Object>)requestMap.get('payment_info') != null? (Map<String, Object>)requestMap.get('payment_info'):null;            
-        
-        Map<String, Object> payGwyInfo = new Map<String, Object>(); 
-        If(PaymentDetails != null)
-            payGwyInfo = (Map<String, Object>)PaymentDetails.get('pay_gwy_info') != null? (Map<String, Object>)PaymentDetails.get('pay_gwy_info'):null;
-        
-        Map<String, Object> loanDetails = (Map<String, Object>)requestMap.get('loan_info') != null? (Map<String, Object>)requestMap.get('loan_info'):null;
-        Map<String, Object> insuranceDetails = (Map<String, Object>)requestMap.get('insurance_info') != null? (Map<String, Object>)requestMap.get('insurance_info'):null;
-        Map<String, Object> subsidyDetails = (Map<String, Object>)requestMap.get('subsidy_info') != null? (Map<String, Object>)requestMap.get('subsidy_info'):null;
-        Map<String, Object> offerDetails = (Map<String, Object>)requestMap.get('offer_info') != null? (Map<String, Object>)requestMap.get('offer_info'):null;
-        Map<String, Object> warrantyDetails = (Map<String, Object>)requestMap.get('warranty_info') != null? (Map<String, Object>)requestMap.get('warranty_info'):null;
-        
-        List<Object> OrderProducts = (List<Object>)requestMap.get('products') != null? (List<Object>)requestMap.get('products'):null;
-        
+        RestResponse res = RestContext.response;
+
         Savepoint sp = Database.setSavepoint();
         try{
-            If(requestMap.get('seller_code') == null || requestMap.get('seller_code') == ''){
-                throw new CustomException('Required field missing: seller_code');
+            String reqBody = req.requestBody != null ? req.requestBody.toString() : '';
+            System.debug('Request Body ==> ' + reqBody);
+
+            Map<String, Object> requestMap = (reqBody != '') ?  (Map<String, Object>) JSON.deserializeUntyped(reqBody) : new Map<String,Object>();
+            System.debug('Request Map ==>' + requestMap);
+
+            String sellerCode = requestMap.containsKey('seller_code') ? (String)requestMap.get('seller_code') : 'Not Found';
+            String crmAccId = requestMap.containsKey('crm_account_id') ? (String)requestMap.get('crm_account_id') : 'Not Found';
+            List<Account> dealerAccList = [SELECT Id,Center_Code__c FROM Account WHERE Center_Code__c =:sellerCode LIMIT 1];
+            if(dealerAccList.isEmpty()){
+                Database.rollback(sp);
+                res.statuscode=404;
+                res.responseBody = responseUtility('No Dealer Was Found with that Seller Code','404',false);
+                return;
+            }
+            dealerAcccount = dealerAccList[0];
+
+            List<Account> customerAccList = [SELECT Id FROM Account WHERE Id=:crmAccId LIMIT 1];
+            if(customerAccList.isEmpty()){
+                Database.rollback(sp);
+                res.statuscode=404;
+                res.responseBody = responseUtility('No Customer Was Found with that crm_account_id','404',false);
+                return;
+            }
+            customerAccount = customerAccList[0];
+
+            List<Object> OrderProducts = (List<Object>)requestMap.get('products') != null? (List<Object>)requestMap.get('products'):null;
+            if(OrderProducts.isEmpty()){
+                Database.rollback(sp);
+                res.statuscode=404;
+                res.responseBody = responseUtility('Order Product List Is Empty','404',false);
+                return;
+            }
+            for(Object o : OrderProducts){
+                Map<String,Object> skuMap = (Map<String,Object>)o;
+                productSKUList.add((String)skuMap.get('product_sku_id'));
+            }
+            if(!requestMap.containsKey('city')){
+                Database.rollback(sp);
+                res.statuscode=404;
+                res.responseBody = responseUtility('City is a required field','404',false);
+            }
+            String cityIdentifier = (String)requestMap.get('city');
+            List<City__c> cityList = [SELECT Id, Price_Book__c, City_Masking_Name__c, Price_Book__r.IsActive FROM City__c WHERE City_Masking_Name__c =: cityIdentifier OR City_Pincode__c =: cityIdentifier LIMIT 1];
+            if(cityList.isEmpty()){
+                Database.rollback(sp);
+                res.responseBody = responseUtility('No City was Found with the Provided Name ' + cityIdentifier ,'404',false);
+                return; 
+            }
+            c = cityList[0];
+            if(String.isBlank(c.Price_Book__c)){
+                Database.rollback(sp);
+                res.statuscode=404;
+                res.responseBody = responseUtility('No Proicebook was Found for the City ' + cityIdentifier ,'404',false);
+                return; 
+            }
+            priceBookForOrder = c.Price_Book__c;
+            String orderStatus = requestMap.containsKey('order_status') ? (String)requestMap.get('order_status') : 'Blank Status';
+            
+            List<String> orderPickListValueForOTC = new List<String>{'Draft','Pre Invoice','Invoice Generation','Completed','Order Cancelled'};
+            if(!orderPickListValueForOTC.contains(orderStatus)){
+                String availableValue = String.join(orderPickListValueForOTC,', ');
+                Database.rollback(sp);
+                res.statuscode=404;
+                res.responseBody = responseUtility('Bad Value For Order Status, Available Values Are  ' + availableValue ,'404',false);
+                return;
             }
             
-            List<Account> customer = new List<Account>();
-            List<Account> seller = new List<Account>();
-            
-            List<Account> sellerAndCustomer = [SELECT Id, Type, Center_Code__c FROM Account WHERE (Center_Code__c = :(String)requestMap.get('seller_code') AND (Type = 'Dealer' OR Type = 'COCO Store')) OR Id = :(String)requestMap.get('crm_account_id')];
-            
-            For(Account acc: sellerAndCustomer){
-                If(acc.Id == (String)requestMap.get('crm_account_id')){
-                    customer.add(acc);
-                }else If(acc.Center_Code__c == (String)requestMap.get('seller_code') && (acc.Type == 'Dealer' || acc.Type == 'COCO Store')){
-                    seller.add(acc);
-                }
+            Map<String, Object> billing_address = (Map<String, Object>)requestMap.get('billing_address') != null? (Map<String, Object>)requestMap.get('billing_address'):null;
+            Map<String, Object> shipping_address = (Map<String, Object>)requestMap.get('shipping_address') != null? (Map<String, Object>)requestMap.get('shipping_address'):null;
+
+            String orderId = (String)requestMap.get('order_id');
+            Id otcRecordType = SObjectType.Order.getRecordTypeInfosByDeveloperName().get('OTC').getRecordTypeId();
+            List<Order> existingOrder = [SELECT Id,Website_Order_Id__c FROM Order WHERE Website_Order_Id__c=:orderId LIMIT 1];
+            if(!existingOrder.isEmpty()){
+                Database.rollback(sp);
+                res.statuscode=404;
+                res.responseBody = responseUtility('Order Already Exists With Order Id ' + orderId ,'404',false);
+                return;
             }
-            
-            If(seller.size() == 0){
-                throw new CustomException('Dealer not found! Please check the seller_code');
-            }
-            
-            If(customer.size() == 0){
-                throw new CustomException('Customer account not found! Please check the crm_account_id');
-            }
-            /*list<User>ActiveUser =[Select id, AccountId, IsActive, ContactId, Profile.name from user where AccountId =:seller.id AND Profile.Name = 'Sales Manager (Partner)'AND IsActive= true];
-            if(ActiveUser.size()==0)
-            {
-               throw new CustomException('Active user for Dealer is Found!');  
-            }*/
-            
-            If(!OrderProducts.isempty()){
-                For(Object product : OrderProducts){
-                    Map<string, Object> prodMap = (Map<string, Object>) product;
-                    productSkuIds.add((string)prodMap.get('product_sku_id'));
-                }
-            }
-            
-            //Get the city pricebook
-            If(!requestMap.containsKey('city')){
-                throw new CustomException('Required field missing: city');
-            }
-            
-            string cityIdentifier = (String)requestMap.get('city');     
-			List<City__c> cities = [SELECT Id, Price_Book__c, City_Masking_Name__c, Price_Book__r.IsActive FROM City__c WHERE City_Masking_Name__c =: cityIdentifier OR City_Pincode__c =: cityIdentifier];
-            
-            If(cities.size()<=0){
-                throw new CustomException('City not found with identifier: '+(String)requestMap.get('city'));
-            }else If(cities[0].Price_Book__c == null){
-                throw new CustomException('No Price Book is associated with the selected city. Please ensure the Price Book is associated before proceeding.');
-            }else If(!cities[0].Price_Book__r.IsActive){
-                throw new CustomException('The Price Book associated with the selected city is not active. Please ensure the Price Book is active before proceeding.');
-            }
-            
-            Pricebook2 Pricebook = new Pricebook2();
-            //Fetch standard pricebook
-            if(!test.isRunningTest()){
-                Pricebook = [SELECT Id FROM Pricebook2 WHERE Id = :cities[0].Price_Book__c];
-            }
-            else {
-                Pricebook = [SELECT Id FROM Pricebook2 LIMIT 1];
-            }
-            
-            
-            // Create a Standard Order record
-            Order standardOrder = new Order(
+
+            Order oTCOrder = new Order(
                 recordTypeid = SObjectType.Order.getRecordTypeInfosByDeveloperName().get('OTC').getRecordTypeId(),
-                AccountId = (String)requestMap.get('crm_account_id'),
-                Dealer__c = seller[0].Id,
+                AccountId = customerAccount.Id,
+                Dealer__c = dealerAcccount.Id,
                 Website_Order_Id__c = (String)requestMap.get('order_id'),
                 EffectiveDate = Date.today(),
                 Status = (String)requestMap.get('order_status') != null?(String)requestMap.get('order_status'):'Activated', 
                 Description = (String)requestMap.get('delivery_timeline_description') != null? (String)requestMap.get('delivery_timeline_description'):'',
-                pricebook2Id = Pricebook.Id,
+                pricebook2Id = priceBookForOrder,
                 Notify_By_SMS__c = (Boolean)requestMap.get('notify_by_sms') != null?(Boolean)requestMap.get('notify_by_sms'):false,
                 Notify_By_Email__c = (Boolean)requestMap.get('notify_by_email') != null?(Boolean)requestMap.get('notify_by_email'):false,
                 BillingStreet = ((String)billing_address.get('address_1') != null ? (String)billing_address.get('address_1') : '') +' '+ ((String)billing_address.get('address_2') != null ? (String)billing_address.get('address_2') : ''),
@@ -134,94 +134,77 @@ global without sharing class OTCOrderAPI {
                 ShippingState = (String)shipping_address.get('state') != null ? (String)shipping_address.get('state') : '',
                 ShippingPostalCode = (String)shipping_address.get('pincode') != null ? (String)shipping_address.get('pincode') : '',
                 ShippingCountry = (String)shipping_address.get('country') != null ? (String)shipping_address.get('country') : 'India',
-                City__c = cities[0].Id,
+                City__c = c.Id,
                 Order_Source__c='Website'
-                
             );
-            
-            
-             //Get the picklist values from the org
-            List<Schema.PicklistEntry> picklistValuez = Order.Status.getDescribe().getPicklistValues();
-            for (Schema.PicklistEntry picklistValue : picklistValuez){
-                orderPicklistValues.add(picklistValue.getValue());
-            }    
-            //Update the order status
-            If(requestMap.get('order_status') != null){
-                String orderStatus = (String)requestMap.get('order_status');
-                If(!orderPicklistValues.contains((String)requestMap.get('order_status'))){
-                    String availableValues = String.join(orderPicklistValues, ', ');
-                    throw new CustomException('Sorry! Unsupported value for Order Status. Please choose one of the following: ' + availableValues + '.'+ 'Order status values : '+orderStatus);
-                }else{
-                    standardOrder.status = (String)requestMap.get('order_status');
-                }
-            }         
-            
-            //insert order
-            try{
-                insert standardOrder;
-            }catch (exception e){
-                throw new CustomException('Error while inserting Order: '+e.getmessage()); 
-            }            
-            
-            //Fetch products
-            For(Product2 prod: [SELECT Id, Name,StockKeepingUnit FROM Product2 WHERE StockKeepingUnit IN :productSkuIds]){
-                
-                mapIdToProduct.Put(prod.Id,prod);
-                mapSkuToProdId.Put(prod.StockKeepingUnit, prod.Id);
+
+         
+        insert oTCOrder;
+          
+        
+         List<Product2> productList = [SELECT Id, Name,StockKeepingUnit FROM Product2 WHERE StockKeepingUnit IN :productSKUList];
+         if(!productList.isEmpty()){
+            for(Product2 p : productList){
+                skuToProductIdMap.put(p.StockKeepingUnit,p.Id);
+                IdToProductMap.put(p.Id,p);
             }
-            
-            //Fetch Pricebook entries for the selected products
-            For(PriceBookEntry pre: [SELECT Id, Product2Id, PriceBook2Id, UnitPrice FROM PriceBookEntry WHERE Product2Id IN :mapIdToProduct.keySet() AND PriceBook2Id =:Pricebook.Id]){
-                
-                mapProdIdToPrice.Put(pre.Product2Id,pre.UnitPrice);
-                mapProdIdToPEntryId.put(pre.Product2Id,pre.Id);
+         }
+         List<PriceBookEntry> priceBookEntryList = [SELECT Id, Product2Id, PriceBook2Id, UnitPrice FROM PriceBookEntry WHERE Product2Id IN :IdToProductMap.keySet() AND PriceBook2Id =:priceBookForOrder];
+         if(!priceBookEntryList.isEmpty()){
+            for(PricebookEntry pb : priceBookEntryList){
+                productUnitPriceMap.put(pb.Product2Id,pb.UnitPrice);
+                pricebookEntryProductMap.put(pb.Product2Id,pb.Id);
             }
-            
-            // Create Order Items using the provided product SKU IDs
-            If(!OrderProducts.isempty()){
+         }
+
+         if(!OrderProducts.isempty()){
                 For(Object product : OrderProducts){
                     Map<string, Object> productmap = (Map<string, Object>) product;
                     
-                    If(mapSkuToProdId.get((string)productmap.get('product_sku_id')) == null){
-                        throw new CustomException('Product is not available with SKU '+(string)productmap.get('product_sku_id'));
-                    }else if(mapProdIdToPEntryId.get(mapSkuToProdId.get((string)productmap.get('product_sku_id'))) == null){
-                        throw new CustomException('Price is not defined for the product with SKU '+(string)productmap.get('product_sku_id'));
+                    If(skuToProductIdMap.get((string)productmap.get('product_sku_id')) == null){
+                        Database.rollback(sp);
+                        res.statuscode=404;
+                        res.responseBody = responseUtility('Product is not available with SKU '+(string)productmap.get('product_sku_id'),'404',false);
+                        return;
+                    }else if(pricebookEntryProductMap.get(skuToProductIdMap.get((string)productmap.get('product_sku_id'))) == null){
+                        Database.rollback(sp);
+                        res.statuscode=404;
+                        res.responseBody = responseUtility('Price is not defined for the product with SKU '+(string)productmap.get('product_sku_id'),'404',false);
+                        return;
+                    }else if((string)productmap.get('product_type') == 'vehicle' || (string)productmap.get('product_type') == 'Vehicle'){
+                        Database.rollback(sp);
+                        res.statuscode=404;
+                        res.responseBody = responseUtility('Vehicle is not allowed in OTC Order','404',false);
+                        return;
                     }
                     
                     OrderItem orderItem = new OrderItem(
-                        OrderId = standardOrder.Id,
-                        PricebookEntryId = mapProdIdToPEntryId.get(mapSkuToProdId.get((string)productmap.get('product_sku_id'))),
-                        Product2Id = mapSkuToProdId.get((string)productmap.get('product_sku_id')),
-                        Quantity = (Integer)productmap.get('product_qty'), 
-                        UnitPrice = mapProdIdToPrice.get(mapSkuToProdId.get((string)productmap.get('product_sku_id'))),
-                        Order_Item_Id__c = (string)productmap.get('order_item_id'),
-                        Status__c = (string)productmap.get('product_order_status') != null ? (string)productmap.get('product_order_status'):'',
-                        Offer_Amount__c = (double)productmap.get('offer_amount') != null? (double)productmap.get('offer_amount'):0,
-                        Offer_Description__c = (string)productmap.get('offer_description') != null? (string)productmap.get('offer_description'):''
-                    );
+                    OrderId = oTCOrder.Id,
+                    PricebookEntryId = pricebookEntryProductMap.get(skuToProductIdMap.get((String)productmap.get('product_sku_id'))),
+                    Product2Id = skuToProductIdMap.get((String)productmap.get('product_sku_id')),
+                    Quantity = (Integer)productmap.get('product_qty'), 
+                    UnitPrice = productUnitPriceMap.get(skuToProductIdMap.get((String)productmap.get('product_sku_id'))),
+                    Order_Item_Id__c = (String)productmap.get('order_item_id'),
+                    Status__c = (productmap.containsKey('product_order_status') && productmap.get('product_order_status') != null) ? (String)productmap.get('product_order_status') : '',
+                    Offer_Amount__c = (productmap.containsKey('offer_amount') && productmap.get('offer_amount') != null) ? (Double)productmap.get('offer_amount') : 0,
+                    Offer_Description__c = (productmap.containsKey('offer_description') && productmap.get('offer_description') != null) ? (String)productmap.get('offer_description') : ''
+                );
+
                     
                     orderItems.add(orderItem);
                 }
             }
-            
-            // Insert the Order Items
-            try{
+            if(!orderItems.isEmpty()){
+                
                 insert orderItems;
-            }catch(exception e){
-                throw new CustomException('Error while creating order products: '+e.getMessage());
+                
             }
             
-            //Update Order
-                      
-            //standardOrder = addOrderDetails(requestMap, standardOrder);
-            try{
-                Update standardOrder; 
-            }catch(exception e){
-                throw new CustomException('Error while updating order: '+e.getMessage());
-            }
-                       
-            
-            //Create Payments record
+            Map<String, Object> PaymentDetails = (Map<String, Object>)requestMap.get('payment_info') != null? (Map<String, Object>)requestMap.get('payment_info'):null;            
+        
+            Map<String, Object> payGwyInfo = new Map<String, Object>(); 
+            payGwyInfo = (Map<String, Object>)PaymentDetails.get('pay_gwy_info') != null? (Map<String, Object>)PaymentDetails.get('pay_gwy_info'):null;
+
             Payment__c newPayment = new Payment__c();
             newPayment.Amount__c = (Decimal) PaymentDetails.get('payment_amount') != null?(Decimal) PaymentDetails.get('payment_amount'):0 ;
             newPayment.Bank_Reference_Number__c = (String) payGwyInfo.get('bank_ref_no') != null? (String) payGwyInfo.get('bank_ref_no'):'';
@@ -232,20 +215,23 @@ global without sharing class OTCOrderAPI {
             newPayment.Description__c = (String) payGwyInfo.get('failure_message') != null? (String) payGwyInfo.get('failure_message'):''; 
             newPayment.Transaction_Id__c = (String) PaymentDetails.get('payment_id') != null?(String) PaymentDetails.get('payment_id'):'';
             
-            try{
-                insert newPayment;
-            }catch(exception e){
-                throw new CustomException('Error while creating Payment: '+e.getMessage());
-            }  
             
-            //Create Order Payment
+            insert newPayment;
+            
+                
+
             Order_Payment__c orderPayment = new Order_Payment__c();
-            orderPayment.Order__c = standardOrder.Id;
+            orderPayment.Order__c = oTCOrder.Id;
             orderPayment.Payments__c = newPayment.Id;
             
-            //Check the payment type
+           
             If(PaymentDetails.get('payment_type') == null || PaymentDetails.get('payment_type') == ''){
-                throw new CustomException('Required field missing: payment_type');
+                Database.rollback(sp);
+                res.statuscode=404;
+                res.responseBody = responseUtility('Required field missing: payment_type','404',false);
+                return;
+                
+
             }
             
             List<Schema.PicklistEntry> picklistValues = Order_Payment__c.Type__c.getDescribe().getPicklistValues();
@@ -255,132 +241,46 @@ global without sharing class OTCOrderAPI {
             
             If(!paymentTypePicklistValues.contains((String)PaymentDetails.get('payment_type'))){
                 String availableValues = String.join(paymentTypePicklistValues, ', ');
-                throw new CustomException('Sorry! Unsupported value for payment type (payment_type). Please choose one of the following: ' + availableValues + '.');
+                
+                Database.rollback(sp);
+                res.statuscode=404;
+                res.responseBody = responseUtility('Sorry! Unsupported value for payment type (payment_type). Please choose one of the following: ' + availableValues,'404',false);
+                return;
+                
             }else{
                 orderPayment.Type__c = (String) PaymentDetails.get('payment_type');
             }
             
-            try{
-                insert orderPayment;
-            }catch(exception e){
-                throw new CustomException('Error while creating Order payments: '+e.getMessage());
-            }
             
-            
-            // Prepare the response
-            response.put('status', 'Success');            
-            response.put('order_id', standardOrder.Id);
-            res.statusCode = 200;
-            res.responseBody = Blob.valueOf(JSON.serialize(response));
-            
-            //Log Obj creation
-            createLogRecord('Order Creation', requestMap, 'Success',response );
+            insert orderPayment;
+           
+         res.statuscode=201;
+         res.responseBody = responseUtility('OTC Order Is Successfully Created with Salesforce Order Id ' + oTCOrder.Id,'201',true);   
+
 
         }catch(Exception e){
-            system.debug('erorr>>>>'+e);
-            
-            // An exception occurred, so rollback to the savepoint
             Database.rollback(sp);
-            
-            // Handle exceptions and prepare an error response
-            if (res != null) {
-                handleException(res, e, 'Order Creation', requestMap);
-            }
+            res.statuscode=404;
+            res.responseBody = responseUtility('Error In Creating OTC Order' + e.getMessage(),'404',true);  
             System.debug('Error Occured==>'+e.getMessage());
             System.debug('Error Line Number Is ==>'+e.getLineNumber());
         }
     }
-    private static void createLogRecord(String integrationType, Map<String, Object> request, String status, Map<String, Object> response) {
-        
-        Integration_log__c logObj = new Integration_log__c();
-        logObj.Integration_Type__c = integrationType;
-        logObj.Request_Payload__c = JSON.serializePretty(request);
-        logObj.Response_Payload__c = JSON.seriaLizePretty(response);
-        logObj.Status__c = status;
-        insert logObj;
-    }
-     private static void handleException(RestResponse res, Exception e, String integrationType, Map<String, Object> requestMap) {
-        if (res != null) {
-            Map<String, Object> response = new Map<String, Object>();
-            response.put('status', 'Error');
-            response.put('message', e.getMessage());
-            res.statusCode = 500;
-            res.responseBody = Blob.valueOf(JSON.serialize(response));
-            
-            //Log Obj creation
-            createLogRecord('Order Update', requestMap, 'Failed',response );
-            
+    public static Blob responseUtility(String message,String statusCode, Boolean isSuccess){
+        try{
+            Map<String,Object> responseBody = new Map<String,Object>();
+            Map<String,Object> data = new Map<String,Object>();
+            data.put('success', isSuccess);
+            data.put('message', message);
+            responseBody.put('data', data);
+            responseBody.put('status_code', statusCode);
+
+            return Blob.valueOf(JSON.serializePretty(responseBody));
+
+        }catch(Exception e){
+            System.debug('Error Occured ==>'+e.getMessage());
+            System.debug('Error Line Number Is ==>'+e.getLineNumber());
+            return null;
         }
     }
-    
-    /***************************************************************************************************************************************************/
-    
-    Public static order addOrderDetails(Map<String, Object> requestMap, Order standardOrder){
-        
-        Map<String, Object> loanDetails = (Map<String, Object>)requestMap.get('loan_info') != null? (Map<String, Object>)requestMap.get('loan_info'):null;
-        Map<String, Object> insuranceDetails = (Map<String, Object>)requestMap.get('insurance_info') != null? (Map<String, Object>)requestMap.get('insurance_info'):null;
-        Map<String, Object> subsidyDetails = (Map<String, Object>)requestMap.get('subsidy_info') != null? (Map<String, Object>)requestMap.get('subsidy_info'):null;
-        Map<String, Object> offerDetails = (Map<String, Object>)requestMap.get('offer_info') != null? (Map<String, Object>)requestMap.get('offer_info'):null;
-        Map<String, Object> warrantyDetails = (Map<String, Object>)requestMap.get('warranty_info') != null? (Map<String, Object>)requestMap.get('warranty_info'):null;
-        
-        
-        //Loan Info
-        If(LoanDetails != null && (String)LoanDetails.get('finance_code') != null){
-            //Fectch finance
-            List<Finance__c> finance =[SELECT id, Name From Finance__c WHERE Finance_Code__c = : (String)LoanDetails.get('finance_code') LIMIT 1];
-            
-            If(finance.size() == 0 ){throw new CustomException('Sorry! No Finace provider record found');}
-            Else{
-                standardOrder.Finance__c = finance[0].Id;
-                standardOrder.Financed_Amount__c = (double)LoanDetails.get('amount') != null? (double)LoanDetails.get('amount'):0;
-                standardOrder.Tenure__c = (double)LoanDetails.get('tenure') != null? (double)LoanDetails.get('tenure'):0;
-                standardOrder.Tenure_Type__c = (string)LoanDetails.get('tenure_type') != null? (string)LoanDetails.get('tenure_type'):'Year';
-                standardOrder.Approval_Status__c = true;
-                standardOrder.Loan_Start_Date__c = system.today();
-                standardOrder.EMI_Amount__c = (double)LoanDetails.get('emi_amount') != null? (double)LoanDetails.get('emi_amount'):0;
-            }  
-        }
-        
-        //Insurance Info
-        If(insuranceDetails != null && (String)insuranceDetails.get('insurer_code') != null){
-            //Fectch Insurance
-            List<Insurance__c> insurance =[SELECT id, Name From Insurance__c WHERE Insurer_Code__c = : (String)insuranceDetails.get('insurer_code') LIMIT 1];
-            
-            If(insurance.size() == 0 ){ 
-                throw new CustomException('Sorry! No Insurance provider record found');
-            } Else{
-                standardOrder.Insurance__c = insurance[0].Id;
-                standardOrder.Insurance_Amount__c = (double)insuranceDetails.get('amount') != null? (double)insuranceDetails.get('amount'):0;
-            }
-        }
-        
-        //Subsidy Info
-        If(subsidyDetails != null && (boolean)subsidyDetails.get('eligible_for_subsidy') != null && (boolean)subsidyDetails.get('eligible_for_subsidy') != false){
-            //Fectch Insurance
-            List<Subsidy__c> subsidies =[SELECT id, Name From Subsidy__c WHERE Subsidy_Code__c = : (String)subsidyDetails.get('subsidy_code') LIMIT 1];
-            
-            If(subsidies.size() == 0 ){throw new CustomException('Sorry! No subidy details found');}
-            Else{
-                standardOrder.Subsidy__c = subsidies[0].Id;
-                standardOrder.Subsidy_Amount__c = (double)subsidyDetails.get('amount') != null? (double)subsidyDetails.get('amount'):0;
-                
-                standardOrder.Eligible_For_Subsidy__c = (boolean)subsidyDetails.get('eligible_for_subsidy') != null? (boolean)subsidyDetails.get('eligible_for_subsidy'):false;
-            }
-        }
-        
-        //Offers Info
-        If(OfferDetails != null && (Double)OfferDetails.get('offer_amount') != null){                
-            standardOrder.Offers_Amount__c = (Double)OfferDetails.get('offer_amount') != null? (Double)OfferDetails.get('offer_amount'):0;  
-            standardOrder.Offer_description__c  = (string)OfferDetails.get('offer_description') != null? (string)OfferDetails.get('offer_description'):'';
-        } 
-        
-        //Warranty Info
-        If(warrantyDetails != null && (Double)warrantyDetails.get('warranty_amount') != null){                
-            standardOrder.Warranty_Amount__c = (Double)warrantyDetails.get('warranty_amount') != null? (Double)warrantyDetails.get('warranty_amount'):0;  
-            standardOrder.Extended_Warranty__c  = (boolean)warrantyDetails.get('is_extended') != null? (boolean)warrantyDetails.get('is_extended'):false;
-        }
-        
-        return standardOrder;
-    }
-    public class CustomException extends Exception {}
 }

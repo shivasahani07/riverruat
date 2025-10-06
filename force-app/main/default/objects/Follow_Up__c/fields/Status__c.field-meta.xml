@@ -11,14 +11,14 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Not Started</fullName>
-                <default>true</default>
-                <label>Not Started</label>
+                <fullName>New</fullName>
+                <default>false</default>
+                <label>New</label>
             </value>
             <value>
-                <fullName>In Progress</fullName>
+                <fullName>Test Ride</fullName>
                 <default>false</default>
-                <label>In Progress</label>
+                <label>Test Ride</label>
             </value>
             <value>
                 <fullName>Completed</fullName>
@@ -26,8 +26,41 @@
                 <label>Completed</label>
             </value>
             <value>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+                <label>Cancelled</label>
+            </value>
+            <value>
+                <fullName>Needs More Time</fullName>
+                <default>false</default>
+                <label>Needs More Time</label>
+            </value>
+            <value>
+                <fullName>Customer Needs More Information</fullName>
+                <default>false</default>
+                <label>Customer Needs More Information</label>
+            </value>
+            <value>
+                <fullName>RNR</fullName>
+                <default>false</default>
+                <label>RNR</label>
+            </value>
+            <value>
+                <fullName>In Progress</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>In Progress</label>
+            </value>
+            <value>
+                <fullName>Not Started</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Not Started</label>
+            </value>
+            <value>
                 <fullName>Waiting for someone else</fullName>
                 <default>false</default>
+                <isActive>false</isActive>
                 <label>Waiting for someone else</label>
             </value>
         </valueSetDefinition>

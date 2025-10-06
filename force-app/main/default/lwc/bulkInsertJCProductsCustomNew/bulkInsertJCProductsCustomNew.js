@@ -290,6 +290,13 @@ export default class BulkInsertJCProductsCustomNew extends NavigationMixin(Light
         const productId = event.detail.recordId;
         const indexed = this.itemList[index];
 
+
+         if(this.checkActionPlansWithProducts(productId).length>0){
+           this.showError(index, `same part found in Action Plans Please check and update`);
+           return;
+        }
+
+
         if (this.itemList[index].RR_Parts_Category__c == '' || this.itemList[index].RR_Parts_Category__c == null) {
             setTimeout(() => {
                 const inputEl = this.template.querySelector(`lightning-record-picker[data-id="${index}"]`);
@@ -422,7 +429,7 @@ export default class BulkInsertJCProductsCustomNew extends NavigationMixin(Light
         this.itemList[index][fieldName] = value;
 
         if (fieldName === 'RR_Parts_Category__c') {
-            this.itemList[index].showAdditionalFields = value !== 'Paid';
+            this.itemList[index].showAdditionalFields = value !== 'Paidddd';
             this.itemList[index].isElectricalValueRequired = false;
             this.itemList[index]['partsCategory'] = this.itemList[index]['RR_Parts_Category__c']
             this.itemList[index].isDisbaledProduct = false;
@@ -730,7 +737,8 @@ export default class BulkInsertJCProductsCustomNew extends NavigationMixin(Light
     }
 
     checkActionPlansWithProducts(productId) {
-        const isProductfoundInAP = this.ActionPlanProducts.map(item => item.Product__c == productId);
+        debugger;
+        const isProductfoundInAP = this.ActionPlanProducts.map(item => item.Product__c === productId);
         return isProductfoundInAP;
     }
 }

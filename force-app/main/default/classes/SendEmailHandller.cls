@@ -1,24 +1,11 @@
-/**
-* @author Dinesh Baddawar
-* @email dinesh.butilitarianlab@gmail.com
-* @create date 2025-04-15 10:18:10
-* @modify date 2025-04-15 10:18:10
-* @desc [Email and Attachment sending when Order Stage is RTO Registration]
-*/
-
-
 public class SendEmailHandller {        
     
-    public static void SendEmailHandllerMethod1(list<order> lstOrder, map<id,List<Attachment>> mapOrderIdToAttachments) {
-        System.debug('mapOrderIdToAttachments == >'+mapOrderIdToAttachments);
+    public static void SendEmailHandller(list<order> lstOrder, map<id,List<Attachment>> mapOrderIdToAttachments) {
         Set<Id> setAccount = new Set<Id>();
         Set<Id> eligibleOrderIds = new Set<Id>();
-        Boolean isEmailSendOnRTO;
-        List<Order> orderListToSendEmail = [SELECT Id, AccountId, RecordType.Name,Is_Email_Send_on_RTO__c,Website_Order_Id__c FROM Order WHERE Id IN :lstOrder];
-        for (Order objOrder : orderListToSendEmail) {
+        for (Order objOrder : [SELECT Id, AccountId, RecordType.Name FROM Order WHERE Id IN :lstOrder]) {
             if (objOrder.AccountId != null && objOrder.RecordType.Name == 'Vehicle') {
-                setAccount.add(objOrder.AccountId);    
-                isEmailSendOnRTO = objOrder.Is_Email_Send_on_RTO__c;            
+                setAccount.add(objOrder.AccountId);                
             }
         }
         List<OrderItem> lstOrderItems = [ SELECT Id, OrderId, Type__c FROM OrderItem WHERE OrderId IN :lstOrder AND Type__c = 'Vehicle' ];
@@ -26,7 +13,7 @@ public class SendEmailHandller {
             eligibleOrderIds.add(oi.OrderId);
         }
         
-        System.debug('setAccount==>'+setAccount + ' && eligibleOrderIds==>'+eligibleOrderIds + 'isEmailSendOnRTO == >'+isEmailSendOnRTO);
+        System.debug('setAccount==>'+setAccount + ' && eligibleOrderIds==>'+eligibleOrderIds);
         if(setAccount.size()>0 && eligibleOrderIds.size()>0){
             OrgWideEmailAddress orgWideEmailAddresses = [SELECT Id, Address, DisplayName FROM OrgWideEmailAddress WHERE Address='support@rideriver.com'];
             string senderEmail = orgWideEmailAddresses.Address; 
@@ -50,7 +37,7 @@ public class SendEmailHandller {
             
             system.debug('mapAccIdToConEmails==>'+mapAccIdToConEmails);
             List<Messaging.SingleEmailMessage> Emails = new List<Messaging.SingleEmailMessage>();
-            For(order order:orderListToSendEmail){
+            For(order order:lstOrder){
                 if (mapAccIdToConEmails.get(order.AccountId) != null && mapAccIdToConEmails.get(order.AccountId).size()>0) {
                     For(Contact objContact : mapAccIdToConEmails.get(order.AccountId)){
                         List<Messaging.EmailFileAttachment> emailAttachments = new List<Messaging.EmailFileAttachment>();
@@ -88,28 +75,19 @@ public class SendEmailHandller {
             }
             
             try {
-                if(orderListToSendEmail[0].Is_Email_Send_on_RTO__c == false){
-                    Messaging.sendEmail(Emails);
-                    System.debug('Email sent successfully # SendEmailHandllerMethod1');
-                    for(Order objOrder : orderListToSendEmail){
-                        objOrder.Is_Email_Send_on_RTO__c = true;
-                    }
-                    update orderListToSendEmail;
-                    System.debug('Order Email Flag Updated Successfully == >'+orderListToSendEmail[0].Id);
-                }else{
-                    System.debug('Email Already Sent for this Order :: '+orderListToSendEmail[0].Id);
-                }
+                Messaging.sendEmail(Emails);
+                System.debug('Email sent successfully # SendEmailHandller');
             } catch(Exception e) {
                 System.debug('Error Message ==>'+e.getMessage()+' && Error Line == >'+e.getLineNumber());
             }
         }else{
-            System.debug('Order is Not Vehicle Type OR No OrderItem Type Vehicle Found');
+            System.debug('Order is Not Vehicle Type');
         }
     }
     
     //====================================================================================================================================================================
     
-    public static void SendEmailHandllerMethod2(list<order>lstOrder, List<Attachment> attachmentsToInsert) {
+    public static void SendEmailHandller2(list<order>lstOrder, List<Attachment> attachmentsToInsert) {
         Set<Id> setAccount = new Set<Id>();
         for (Order objOrder : lstOrder) {
             if (objOrder.AccountId != null) {
@@ -152,7 +130,7 @@ public class SendEmailHandller {
         }
         try {
             Messaging.sendEmail(Emails);
-            System.debug('Email sent successfully # SendEmailHandllerMethod2');
+            System.debug('Email sent successfully # SendEmailHandller2');
         } catch(Exception e) {
             System.debug('Exception>>' + e);
         }

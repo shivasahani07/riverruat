@@ -1,0 +1,20 @@
+<template>
+    <div class="pagination-container">
+        <!-- Page Size Selector -->
+        <div class="page-size">
+            <label for="pageSize">Records per page:</label>
+            <select id="pageSize" onchange={handlePageSizeChange}>
+                <template for:each={pageSizeOptions} for:item="opt">
+                    <option key={opt} value={opt} selected={pageSize}>{opt}</option>
+                </template>
+            </select>
+        </div>
+        {pageSize}
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <button class="btn" onclick={handlePrev} disabled={disablePrev}>Prev</button>
+            <span>Page {pageNumber} of {totalPages}</span>
+            <button class="btn" onclick={handleNext} disabled={disableNext}>Next</button>
+        </div>
+    </div>
+</template>

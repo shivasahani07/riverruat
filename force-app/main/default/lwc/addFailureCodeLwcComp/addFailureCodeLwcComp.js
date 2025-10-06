@@ -4,7 +4,6 @@ import createPostVINFCPCVIN from '@salesforce/apex/AddFailureCodeControllerNew.c
 import validateInputs from '@salesforce/apex/AddFailureCodeControllerNew.validateInputs';
 import searchFailureCodes from '@salesforce/apex/AddFailureCodeControllerNew.searchFailureCodes';
 
-
 export default class AddFailureCodeLwcComp extends LightningElement {
     @track failureCode = {
         failureCode: '',
@@ -25,6 +24,7 @@ export default class AddFailureCodeLwcComp extends LightningElement {
     @track searchKey = '';
     @track records;
     @track selectedRecord;
+    @track isDisabledFC=true;
 
 
     @track selectedProductId = null
@@ -68,13 +68,13 @@ export default class AddFailureCodeLwcComp extends LightningElement {
         let objectname = event.target.name;
         if (objectname == 'product') {
             this.failureCode.causalProductCode=tt
+            this.isDisabledFC=false
+            this.isDisabledFC=(tt=='' || tt == undefined || tt == null);
         } else if (objectname == 'failurecode') {
 
         }
 
-
-
-        console.log(JSON.stringify(this.fcfilter));
+       console.log(JSON.stringify(this.fcfilter));
     }
 
     matchingInfo = {
@@ -116,50 +116,6 @@ export default class AddFailureCodeLwcComp extends LightningElement {
         this.failureCode.failureCode=this.searchKey;
         
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     get isSaveDisabled() {
         return this.isLoading || !this.failureCode.failureCode || !this.failureCode.causalProductCode;
     }
@@ -182,8 +138,6 @@ export default class AddFailureCodeLwcComp extends LightningElement {
                 event.target.setCustomValidity("");
             }
             event.target.reportValidity();
-
-
         }
 
         // Clear previous results when user starts editing
@@ -203,9 +157,7 @@ export default class AddFailureCodeLwcComp extends LightningElement {
             this.showNotification('Validation Error', 'Failure Code and Causal Product Code are required', 'error');
             return;
         }
-
         this.isLoading = true;
-
         try {
             const validationResult = await validateInputs({
                 fcName: this.failureCode.failureCode,
@@ -251,12 +203,9 @@ export default class AddFailureCodeLwcComp extends LightningElement {
         }
 
         this.isLoading = true;
-
-
         if (this.failureCode.batchSize == '') {
             this.failureCode.batchSize = null
         }
-
 
         try {
             const result = await createPostVINFCPCVIN({

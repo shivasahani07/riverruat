@@ -1,10 +1,10 @@
 /**
-* @author Dinesh Baddawar
-* @email dinesh.butilitarianlab@gmail.com
-* @create date 2025-04-01 14:28:07
-* @modify date 2025-04-01 14:28:07
-* @desc [Invoice and Receipt Generation]
-*/
+ * @author Dinesh Baddawar
+ * @email dinesh.butilitarianlab@gmail.com
+ * @create date 2025-04-01 14:28:07
+ * @modify date 2025-04-01 14:28:07
+ * @desc [Invoice and Receipt Generation]
+ */
 
 public class AttachmentHandlerClass {
     
@@ -27,7 +27,7 @@ public class AttachmentHandlerClass {
         system.debug('orders==>'+orders);
         
         //mappring the invoice IDs
-        For(Order_Invoice__c orderInvoice:[SELECT Id, Invoice_Number__c, Invoice_Type__c, Name, Order__c,Order__r.Finance_Name__c, Invoice_date__c  FROM Order_Invoice__c WHERE Order__c IN :orderIds]){
+        For(Order_Invoice__c orderInvoice:[SELECT Id, Invoice_Number__c, Invoice_Type__c, Name, Order__c,Order__r.Finance__c, Invoice_date__c  FROM Order_Invoice__c WHERE Order__c IN :orderIds]){
             If(!orderIdToInvTypeToInvNoMap.containskey(orderInvoice.Order__c)){
                 orderIdToInvTypeToInvNoMap.Put(orderInvoice.Order__c, new Map<string,string>{orderInvoice.Invoice_Type__c => orderInvoice.Invoice_Number__c});
                 If(orderInvoice.Invoice_date__c!= null){
@@ -40,11 +40,11 @@ public class AttachmentHandlerClass {
                 orderIdToInvTypeToInvDateMap.get(orderInvoice.Order__c).Put(orderInvoice.Invoice_Type__c,orderInvoice.Invoice_date__c.format());
             }
         }
-        System.debug('orderIdToInvTypeToInvNoMap == >'+orderIdToInvTypeToInvNoMap);
-        System.debug('orderIdToInvTypeToInvDateMap == >'+orderIdToInvTypeToInvDateMap);
+        
         for (Order order : orders) {
             List<attachment> attachmentList = new List<Attachment>();
             set<string> itemTypes = orderToItemTypeMap.get(order.Id);
+            //code added for test class
             if (itemTypes == null) {
                 itemTypes = new Set<String>(); // Initialize as an empty set if it's null
             }
@@ -60,14 +60,16 @@ public class AttachmentHandlerClass {
             System.debug('result==>' + result);
             
             If(itemTypes.contains('Vehicle')){
-                
+                System.debug('OrderIdToInvTypeToInvNoMap: At line no 68 ' + orderIdToInvTypeToInvNoMap);
+                System.debug('OrderIdToInvTypeToInvNoMap: At line no 68 ' + itemTypes.contains('Vehicle'));
+                System.debug('OrderIdToInvTypeToInvNoMap: At line no 68 ' + orderIdToInvTypeToInvNoMap.get(order.Id));
+                System.debug('OrderIdToInvTypeToInvNoMap: At line no 68 ' + orderIdToInvTypeToInvNoMap.get(order.Id).containsKey('Vehicle Invoice'));
                 // Generate Vehicle Invoice
                 // If(!order.Is_Vehicle_Invoice_Generated__c && orderIdToInvTypeToInvNoMap.get(order.Id) != null && orderIdToInvTypeToInvNoMap.get(order.Id).containsKey('Vehicle Invoice')){ // commented by Dinesh on 20/02/2025 : Duplicate PDF Allow
-                If(orderIdToInvTypeToInvNoMap.get(order.Id) != null && orderIdToInvTypeToInvNoMap.get(order.Id).containsKey('Vehicle Invoice')){
+                    If(orderIdToInvTypeToInvNoMap.get(order.Id) != null && orderIdToInvTypeToInvNoMap.get(order.Id).containsKey('Vehicle Invoice')){
                     System.debug('OrderIdToInvTypeToInvNoMap: At line no 71 ' + orderIdToInvTypeToInvNoMap);
                     // Create Attachment record
                     PageReference pdfPage = Page.NewCreateReceiptVehicle; // Old PDF Name : CreateReceiptVehicle #PDF1
-                    System.debug('Vehicle # == >'+orderIdToInvTypeToInvNoMap.get(order.Id).get('Vehicle Invoice'));
                     Attachment att = createInvoicePDF(order.Id, orderIdToInvTypeToInvNoMap.get(order.Id).get('Vehicle Invoice'), 'Vehicle Tax Invoice - '+result, pdfPage, orderIdToInvTypeToInvDateMap.get(order.Id).get('Vehicle Invoice'));
                     attachmentsToInsert.add(att);       
                     attachmentList.add(att);
@@ -77,22 +79,22 @@ public class AttachmentHandlerClass {
                 }else{
                     throw new MyException('Vehicle Invoice record is not found for the order : '+order.OrderNumber);
                 }
-                
-                // Is_DC_Generated__c, Is_Vehicle_Invoice_Generated__c, Is_RTO_and_IR_Generated__c, IS_OCT_Generated__c
-                if (!order.Is_DC_Generated__c) {
-                    // Generate CreateDeliveryChallan PDF
-                    PageReference pdfPages = Page.CreateDeliveryChallan;  // #PDF2
-                    Attachment atta = createReceiptPDF(order.Id, 'Delivery Challan - ' +result, pdfPages);
-                    attachmentsToInsert.add(atta); 
-                    attachmentList.add(atta);
-                    order.Is_DC_Generated__c = true;
-                }else{
-                    System.debug('Delivery Challan Already Generated ==>'+order.Is_DC_Generated__c);
-                }
+                 
+               // Is_DC_Generated__c, Is_Vehicle_Invoice_Generated__c, Is_RTO_and_IR_Generated__c, IS_OCT_Generated__c
+               if (!order.Is_DC_Generated__c) {
+                // Generate CreateDeliveryChallan PDF
+                PageReference pdfPages = Page.CreateDeliveryChallan;  // #PDF2
+                Attachment atta = createReceiptPDF(order.Id, 'Delivery Challan - ' +result, pdfPages);
+                attachmentsToInsert.add(atta); 
+                attachmentList.add(atta);
+                order.Is_DC_Generated__c = true;
+               }else{
+                System.debug('Delivery Challan Already Generated ==>'+order.Is_DC_Generated__c);
+               }
                 
                 // Generate CreateReceiptRtoInsurance PDF
                 // if(!order.Is_RTO_and_IR_Generated__c && (order.RTO_Charges__c!=null || order.Insurance_Amount__c!=null)){
-                if(order.RTO_Charges__c!=null || order.Insurance_Amount__c!=null){    
+                    if(order.RTO_Charges__c!=null || order.Insurance_Amount__c!=null){    
                     PageReference pdfPage1 = Page.NewCreateReceiptRtoInsurance;  // #PDF3 // Old PDF Name : CreateReceiptRtoInsurance
                     Attachment att1 = createReceiptPDF(order.Id, 'RTO & Insurance Receipt - ' +result , pdfPage1);
                     System.debug('att1==>'+att1);
@@ -105,7 +107,7 @@ public class AttachmentHandlerClass {
                 
                 system.debug('handling started Other Charges Invoice ==>');
                 // if(!order.IS_OCT_Generated__c && (order.Handling_Charges__c!=null || order.Warranty_Amount__c!=null)){
-                if(order.Handling_Charges__c!=null || order.Warranty_Amount__c!=null){
+                    if(order.Handling_Charges__c!=null || order.Warranty_Amount__c!=null){
                     If(orderIdToInvTypeToInvNoMap.get(order.Id) != null && orderIdToInvTypeToInvNoMap.get(order.Id).containsKey('Other Charges Invoice')){
                         // Create Attachment 
                         PageReference pdfPage2 = Page.NewCreateReceiptOtherCharges;  // #PDF4 // Old PDF Name : CreateReceiptOtherCharges
@@ -140,30 +142,18 @@ public class AttachmentHandlerClass {
             if (itemTypes.contains('Accessories') || itemTypes.contains('Parts') || itemTypes.contains('Merchandise') ) {       
                 //Generate Accessories invoice PDF
                 // If(!order.IsAccessories_Generated__c && orderIdToInvTypeToInvNoMap.get(order.Id) != null && orderIdToInvTypeToInvNoMap.get(order.Id).containsKey('Accessories Invoice')){ // commented by Dinesh on 20/02/2025 : Duplicate PDF Allow
-               If(orderIdToInvTypeToInvNoMap.get(order.Id) != null && (orderIdToInvTypeToInvNoMap.get(order.Id).containsKey('Accessories Invoice') || orderIdToInvTypeToInvNoMap.get(order.Id).containsKey('Other Charges Invoice'))){
+                    If(orderIdToInvTypeToInvNoMap.get(order.Id) != null && orderIdToInvTypeToInvNoMap.get(order.Id).containsKey('Accessories Invoice')){
                     System.debug('Accessories Invoice==>');
                     // Create Attachment 
                     PageReference pdfPage3 = Page.NewAccessoriesInvoicePDF;  // #PDF5
-                    String invoiceKey = orderIdToInvTypeToInvNoMap.get(order.Id).containsKey('Accessories Invoice') 
-                        ? 'Accessories Invoice' 
-                        : 'Other Charge Invoice';
-                    System.debug('pdfPage3==>'+pdfPage3);
-                   System.debug('invoiceKey==>'+invoiceKey);
-                    Attachment att3 = createInvoicePDF(
-                        order.Id,
-                        orderIdToInvTypeToInvNoMap.get(order.Id).get(invoiceKey),
-                        invoiceKey + ' - ' + result,
-                        pdfPage3,
-                        orderIdToInvTypeToInvDateMap.get(order.Id).get(invoiceKey)
-                    );
-                   System.debug('att3==>'+att3);
+                    Attachment att3 = createInvoicePDF(order.Id, orderIdToInvTypeToInvNoMap.get(order.Id).get('Accessories Invoice'), 'Accessories Tax Invoice - '+result, pdfPage3, orderIdToInvTypeToInvDateMap.get(order.Id).get('Accessories Invoice'));
                     attachmentsToInsert.add(att3);
                     attachmentList.add(att3);
                     order.IsAccessories_Generated__c = true;
                 }
-                
+
                 //  if (!order.IsMerchandise_Generated__c && orderIdToInvTypeToInvNoMap.get(order.Id) != null && orderIdToInvTypeToInvNoMap.get(order.Id).containsKey('Merchandise Invoice')){ // commented by Dinesh on 20/02/2025 : Duplicate PDF Allow
-                if ( orderIdToInvTypeToInvNoMap.get(order.Id) != null && orderIdToInvTypeToInvNoMap.get(order.Id).containsKey('Merchandise Invoice')){
+                     if ( orderIdToInvTypeToInvNoMap.get(order.Id) != null && orderIdToInvTypeToInvNoMap.get(order.Id).containsKey('Merchandise Invoice')){
                     System.debug('Merchandise Invoice==>');
                     // Create Attachment 
                     PageReference pdfPage4 = Page.NewMerchandiseInvoicePDF;  // #PDF6
@@ -179,11 +169,11 @@ public class AttachmentHandlerClass {
             // create map of attchments against each order Id
             mapOrderIdToAttachments.put(order.Id,attachmentList);   
         }
-        
+
         if (!orders.isEmpty()) {
             update orders;
         }
-        SendEmailHandller.SendEmailHandllerMethod1(orders,mapOrderIdToAttachments);
+        SendEmailHandller.SendEmailHandller(orders,mapOrderIdToAttachments);
         if (!attachmentsToInsert.isEmpty()) {
             insert attachmentsToInsert;
             if (attachmentsToInsert.size() > 0) {//added By Aniket on 20/02/2025
@@ -200,7 +190,6 @@ public class AttachmentHandlerClass {
     
     //Method to generate the invoice
     Public static Attachment createInvoicePDF(Id orderId, string invoiceSequence, string fileName, PageReference pdfPage, string invoiceDate){
-        System.debug('invoiceSequence == >'+invoiceSequence);
         pdfPage.getParameters().put('id', orderId);
         pdfPage.getParameters().put('sequence', invoiceSequence);
         pdfPage.getParameters().put('date', invoiceDate);
@@ -278,7 +267,7 @@ public class AttachmentHandlerClass {
             insert attachmentsToInsert;
         }
         
-        SendEmailHandller.SendEmailHandllerMethod2(orders,attachmentsToInsert);
+        SendEmailHandller.SendEmailHandller2(orders,attachmentsToInsert);
     }
     
     //================================================================================================================================================================
@@ -321,6 +310,6 @@ public class AttachmentHandlerClass {
             System.debug('Exception occurred: ' + e.getMessage());
         }   
     }
-    
+   
     Public class myexception extends exception{}
 }

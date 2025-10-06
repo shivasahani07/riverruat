@@ -4,9 +4,9 @@
             <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
                 padding="horizontal-small">
                 <div class="custom-box">
-                    <lightning-input type="date" name="dueDate" label="Due Date" onchange={handleChange}
+                    <!-- <lightning-input type="date" name="dueDate" label="Due Date" onchange={handleChange}
                         class="dueDate">
-                    </lightning-input>
+                    </lightning-input> -->
                     <lightning-combobox name="Status" label="Status" placeholder="Select Status" class="Status"
                         options={optionsCategory} required onchange={handleChange}></lightning-combobox>
                 </div>
@@ -16,7 +16,7 @@
                 padding="horizontal-small">
                 <div class="custom-box">
                     <lightning-input type="datetime" name="FollowUpDate" label="Follow Up Date" onchange={handleChange}
-                        class="FollowUpDate">
+                        class="FollowUpDate" min={minDateTime}>
                     </lightning-input>
                     <!-- <lightning-input type="datetime" name="dueDate" label="Due Date" onchange={handleChange}
                         class="dueDate">

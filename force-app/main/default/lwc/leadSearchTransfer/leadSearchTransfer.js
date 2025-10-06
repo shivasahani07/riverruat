@@ -44,7 +44,11 @@ export default class LeadSearchTransfer extends LightningElement {
 
         submitLeadForApproval({ leadId: this.lead.Id })
             .then(result => {
+                debugger;
                 if (result.includes('successfully')){
+                    console.log('this.lead.Name : ' + this.lead.Name);
+                    console.log('this.lead.Id : ' + this.lead.Id);
+                    
                     this.showToast('Success', `Lead ${this.lead.Name} transferred successfully!`, 'success');
                     window.location.href = `https://rivermobilityprivatelimited2--rruat.sandbox.my.site.com/autocloudSite/s/lead/${this.lead.Id}`;
                     this.dispatchEvent(new CloseActionScreenEvent());

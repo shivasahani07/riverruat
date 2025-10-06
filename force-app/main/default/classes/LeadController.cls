@@ -39,6 +39,8 @@ public without sharing class LeadController {
                         lead.Stores_Name__c = accList[0].Store_Name__c;
                         System.debug('### Setting Stores_Name__c: ' + accList[0].Store_Name__c);
 
+                        // Added for testing
+                        //lead.LeadSource = 'Outdoor Activation';
                         update lead;
                         System.debug('### Lead record updated successfully: ' + lead);
                     } else {

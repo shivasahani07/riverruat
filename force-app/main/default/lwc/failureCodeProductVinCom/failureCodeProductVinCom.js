@@ -15,6 +15,8 @@ export default class FailureCodeTable extends NavigationMixin(LightningElement) 
     @track childProps = {};
     @track isLoading = true;
     @track refreshResultData;;
+    @track pageData = [];
+    @track totalRecords = 0;
     
     // Filters
     @track filters = {
@@ -82,6 +84,7 @@ export default class FailureCodeTable extends NavigationMixin(LightningElement) 
             });
             this.OrignalData = this.failureCodes;
             this.error = undefined;
+            this.totalRecords = this.failureCodes.length;
         } else if (error) {
             this.error = error;
             this.failureCodes = [];
@@ -134,6 +137,7 @@ export default class FailureCodeTable extends NavigationMixin(LightningElement) 
     }
 
     filterOnchage(event) {
+        debugger;
         const name = event.target.name;
         const value = event.target.value;
         
@@ -148,7 +152,8 @@ export default class FailureCodeTable extends NavigationMixin(LightningElement) 
     }
     
     applyFilters() {
-        this.failureCodes = this.OrignalData.filter(item => {
+        debugger;
+        this.failureCodes = this.OrignalData.filter(item => {  
             const failureCodeMatch = !this.filters.failureCode || 
                 (item.Name && item.Name.toLowerCase().includes(this.filters.failureCode.toLowerCase()));
             
@@ -208,5 +213,10 @@ export default class FailureCodeTable extends NavigationMixin(LightningElement) 
          this.childProps.recordId=recordId;
         this.loadComponent('TfrLabourEffectManager');
 
+    }
+
+    handlePageChange(event) {
+        debugger;
+        this.pageData = event.detail.pageRecords;
     }
 }

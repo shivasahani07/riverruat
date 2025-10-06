@@ -1,0 +1,368 @@
+<template>
+    <lightning-card title="Create Enquiry" icon-name="standard:opportunity">
+        <!-- first show this -->
+        <template if:true={convertLead}>
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4"
+                    padding="horizontal-small">
+                    <div class="custom-box">
+
+                        <lightning-input type="Phone" name="phone" label="Phone" placeholder="Enter phone number"
+                            onchange={handleChange}></lightning-input>
+                    </div>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="2"
+                    padding="horizontal-small">
+                    <div style="margin-top: 24px;margin-left: 10px;">
+                        <lightning-button variant="brand" label="Search" onclick={handleClick}></lightning-button>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+
+            <p slot="footer">
+                <lightning-button variant="neutral" label="Back" onclick={handleBack}></lightning-button>
+                &nbsp;&nbsp;
+                <lightning-button variant="brand" label="Cancel" onclick={handleCancel}></lightning-button>
+            </p>
+        </template>
+
+        <template if:true={radioButtons}>
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4"
+                    padding="horizontal-small">
+                    <lightning-button-group>
+                        <lightning-button label="Book Now" name="CreateBooking"
+                            onclick={handleButtonClick}></lightning-button>
+                        <lightning-button label="Create New Enquiry" name="CreateEnquiry"
+                            onclick={handleButtonClick}></lightning-button>
+                        <lightning-button label="Create Test Drive" name="CreateEnquiryAndTestDrive"
+                            onclick={handleButtonClick}></lightning-button>
+                    </lightning-button-group>
+                </lightning-layout-item>
+            </lightning-layout>
+
+            <p slot="footer">
+                <lightning-button variant="brand" label="Cancel" onclick={handleCancel}></lightning-button>
+            </p>
+        </template>
+
+        <!-- Opportunity -->
+        <template if:true={createNewEnquiry}>
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="6"
+                    padding="horizontal-small">
+                    <div class="custom-box">
+                        <lightning-input type="text" label="First Name" placeholder="Enter First Name" name="fName" required
+                            onchange={handleChange}></lightning-input>
+                    </div>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                    padding="horizontal-small">
+                    <div class="custom-box">
+                        <lightning-input type="text" label="Last Name" placeholder="Enter Last Name" name="lName" required
+                            onchange={handleChange}></lightning-input>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                    padding="horizontal-small">
+                    <div class="custom-box">
+                        <lightning-input type="text" label="Phone" placeholder="Enter Phone Number" name="Newphone" required
+                            value={phoneValue} onchange={handleChange}></lightning-input>
+                    </div>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                    padding="horizontal-small">
+                    <div class="custom-box"> 
+                        <lightning-input type="text" label="Pincode" placeholder="Enter pincode" name="pincode" required
+                            onchange={handleChange}></lightning-input>
+                    </div>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                    padding="horizontal-small">
+                    <div class="custom-box">
+                        <lightning-combobox name="enquiryPrimarySource" label="Enquiry Primary Source" required
+                            placeholder="Enquiry Primary Source" options={primarySourceOptions}
+                            onchange={handlePrimarySourceChange}></lightning-combobox>
+                    </div>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                    padding="horizontal-small">
+                    <div class="custom-box">
+                        <lightning-combobox name="enquirySecondarySource" label="Enquiry Secondary Source" required
+                            placeholder="Enquiry Secondary Source" options={secondarySourceOptions}
+                            onchange={handleSecondarySourceChange}></lightning-combobox>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+            <p slot="footer">
+                <lightning-button variant="neutral" label="Cancel" onclick={handleCancel}></lightning-button>
+                &nbsp;&nbsp;
+                <lightning-button variant="brand" label="Save" onclick={handleSave}></lightning-button>
+                &nbsp;&nbsp;
+                <lightning-button variant="neutral" label="Back" onclick={handleBackToRadioGroup}></lightning-button>
+            </p>
+        </template>
+
+        <!-- Opportunity with booking -->
+        <!-- <template if:true={createNewBooking}>
+            <template if:true={ifExistingOppIsThereButNotClosedWonAndCreateNewOppLineItems}>
+                <lightning-record-edit-form object-api-name="OpportunityLineItem" onsuccess={handleLineSuccess}>
+                    <lightning-messages></lightning-messages>
+
+                    <lightning-layout multiple-rows>
+                        <lightning-layout-item size="12" medium-device-size="6" large-device-size="6"
+                            padding="horizontal-small">
+                            <div class="custom-box">
+                                <lightning-input-field field-name="Quantity"></lightning-input-field>
+                            </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" medium-device-size="6" large-device-size="6"
+                            padding="horizontal-small">
+                            <div class="custom-box">
+                                <lightning-input-field field-name="Product2Id"></lightning-input-field>
+                            </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" medium-device-size="6" large-device-size="6"
+                            padding="horizontal-small">
+                            <div class="custom-box">
+                                <lightning-input-field field-name="Payment_Method__c"></lightning-input-field>
+                            </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" medium-device-size="6" large-device-size="6"
+                            padding="horizontal-small">
+                            <div class="custom-box">
+                                <lightning-input-field field-name="OpportunityId" value={recordId}
+                                    disabled></lightning-input-field>
+                            </div>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                    <div class="slds-text-align_center">
+                        <lightning-button variant="brand" type="submit" label="Save"></lightning-button>&nbsp;&nbsp;
+                        <lightning-button variant="neutral" label="Cancel"
+                            onclick={handleCancel}></lightning-button>&nbsp;&nbsp;
+                        <lightning-button variant="neutral" label="Back"
+                            onclick={handleBackToRadioGroup}></lightning-button>
+                    </div>
+                </lightning-record-edit-form>
+
+
+            </template>
+            <template if:true={createNewOpp}>
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12"
+                        large-device-size="6" padding="horizontal-small">
+                        <div class="custom-box">
+                            <lightning-input type="text" label="First Name" placeholder="Enter First Name" name="fName"
+                                onchange={handleChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                        padding="horizontal-small">
+                        <div class="custom-box">
+                            <lightning-input type="text" label="Last Name" placeholder="Enter Last Name" name="lName"
+                                onchange={handleChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                        padding="horizontal-small">
+                        <div class="custom-box">
+                            <lightning-input type="text" label="Phone" placeholder="Enter Phone Number" name="Newphone"
+                                value={phoneValue} onchange={handleChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                        padding="horizontal-small">
+                        <div class="custom-box">
+                            <lightning-input type="text" label="Pincode" placeholder="Enter pincode" name="pincode"
+                                onchange={handleChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <p slot="footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={handleCancel}></lightning-button>
+                    &nbsp;&nbsp;
+                    <lightning-button variant="brand" label="Save" onclick={handleOppLineSave}></lightning-button>
+                    &nbsp;&nbsp;
+                    <lightning-button variant="neutral" label="Back"
+                        onclick={handleBackToRadioGroup}></lightning-button>
+                </p>
+            </template>
+        </template> -->
+
+        <!-- Opportunity with test drive-->
+        <template if:true={createNewEnquiryAndTestDrive}>
+            <template if:true={ifExistingOppIsThereButNotClosedWon}>
+                <lightning-record-edit-form object-api-name="Test_Drive__c" onsuccess={handleSuccess}>
+                    <lightning-layout multiple-rows>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12"
+                            large-device-size="6" padding="horizontal-small">
+                            <div class="custom-box">
+                                <lightning-input-field field-name="Start_Date__c"></lightning-input-field>
+                            </div>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                            large-device-size="6" padding="horizontal-small">
+                            <div class="custom-box">
+                                <lightning-input-field field-name="End_Date__c"></lightning-input-field>
+                            </div>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                            large-device-size="6" padding="horizontal-small">
+                            <div class="custom-box">
+                                <lightning-input-field field-name="Ride_Type__c"></lightning-input-field>
+                            </div>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                            large-device-size="6" padding="horizontal-small">
+                            <div class="custom-box">
+                                <lightning-input-field field-name="Test_Drive_Status__c"></lightning-input-field>
+                            </div>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                            large-device-size="6" padding="horizontal-small">
+                            <div class="custom-box">
+                                <lightning-input-field field-name="Opportunity__c" value={recordId}
+                                    disabled></lightning-input-field>
+                            </div>
+                        </lightning-layout-item>
+                    </lightning-layout>
+
+                    <div class="slds-text-align_center">
+                        <lightning-button variant="brand" type="submit" label="Save"></lightning-button> &nbsp;&nbsp;
+                        <lightning-button variant="neutral" label="Cancel" onclick={handleCancel}></lightning-button>
+                        &nbsp;&nbsp;
+                        <lightning-button variant="neutral" label="Back"
+                            onclick={handleBackToRadioGroup}></lightning-button>
+                    </div>
+                </lightning-record-edit-form>
+
+            </template>
+            <template if:true={createNewOpp}>
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12"
+                        large-device-size="6" padding="horizontal-small">
+                        <div class="custom-box">
+                            <lightning-input type="text" label="First Name" placeholder="Enter First Name" name="fName" required
+                                onchange={handleChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                        padding="horizontal-small">
+                        <div class="custom-box">
+                            <lightning-input type="text" label="Last Name" placeholder="Enter Last Name" name="lName" required
+                                onchange={handleChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                        padding="horizontal-small">
+                        <div class="custom-box">
+                            <lightning-input type="text" label="Phone" placeholder="Enter Phone Number" name="Newphone" required
+                                value={phoneValue} onchange={handleChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                        padding="horizontal-small">
+                        <div class="custom-box">
+                            <lightning-input type="text" label="Pincode" placeholder="Enter pincode" name="pincode" required
+                                onchange={handleChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                        padding="horizontal-small">
+                        <div class="custom-box">
+                            <lightning-combobox name="enquiryPrimarySource" label="Enquiry Primary Source" required
+                                placeholder="Enquiry Primary Source" options={primarySourceOptions}
+                                onchange={handlePrimarySourceChange}></lightning-combobox>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                        padding="horizontal-small">
+                        <div class="custom-box">
+                            <lightning-combobox name="enquirySecondarySource" label="Enquiry Secondary Source" required
+                                placeholder="Enquiry Secondary Source" options={secondarySourceOptions}
+                                onchange={handleSecondarySourceChange}></lightning-combobox>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <p slot="footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={handleCancel}></lightning-button>
+                    &nbsp;&nbsp;
+                    <lightning-button variant="brand" label="Save" onclick={handleOppSave}></lightning-button>
+                    &nbsp;&nbsp;
+                    <lightning-button variant="neutral" label="Back"
+                        onclick={handleBackToRadioGroup}></lightning-button>
+                </p>
+            </template>
+        </template>
+
+        <template if:true={createNewTestDriveRecord}>
+            <lightning-record-edit-form object-api-name="Test_Drive__c" onsuccess={handleSuccess}>
+                <lightning-layout multiple-rows>
+                    <!-- <lightning-layout-item size="12" small-device-size="12" medium-device-size="12"
+                        large-device-size="6" padding="horizontal-small">
+                        <div class="custom-box">
+                            <lightning-input-field field-name="Test_Drive_Date__c" ></lightning-input-field>
+                        </div>
+                    </lightning-layout-item> -->
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                        padding="horizontal-small">
+                        <div class="custom-box">
+                            <lightning-input-field field-name="Test_Drive_Date__c"></lightning-input-field>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                        padding="horizontal-small">
+                        <div class="custom-box">
+                            <lightning-input-field field-name="Ride_Type__c"></lightning-input-field>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                        padding="horizontal-small">
+                        <div class="custom-box">
+                            <lightning-input-field field-name="Test_Drive_Status__c"></lightning-input-field>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                        padding="horizontal-small">
+                        <div class="custom-box">
+                            <lightning-input-field field-name="Opportunity__c" value={recordId}
+                                disabled></lightning-input-field>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                        padding="horizontal-small">
+                        <div class="custom-box">
+                            <lightning-input-field field-name="Name" value={FirstName}
+                                disabled></lightning-input-field>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+
+                <div class="slds-text-align_center">
+                    <lightning-button variant="brand" type="submit" label="Save"></lightning-button> &nbsp;&nbsp;
+                    <lightning-button variant="neutral" label="Cancel" onclick={handleCancel}></lightning-button>
+                    &nbsp;&nbsp;
+                    <lightning-button variant="neutral" label="Back"
+                        onclick={handleBackToRadioGroup}></lightning-button>
+                </div>
+            </lightning-record-edit-form>
+
+        </template>
+
+
+    </lightning-card>
+
+
+</template>

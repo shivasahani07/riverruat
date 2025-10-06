@@ -5,5 +5,10 @@
     <columns>Dealer_Service_Center__c</columns>
     <columns>Area_Pincode__c</columns>
     <filterScope>Everything</filterScope>
+    <filters>
+        <field>Dealer_Service_Center__c</field>
+        <operation>contains</operation>
+        <value>Indira</value>
+    </filters>
     <label>All</label>
 </ListView>

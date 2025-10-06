@@ -6,5 +6,5 @@
  <c:failureCodeProductVinCom></c:failureCodeProductVinCom>
  -->
     
-    <c:bulkInsertWorkPlansCustom  recordId='0WOBh000003k3VpOAI'></c:bulkInsertWorkPlansCustom>
+    <c:failureCodeProductVinCom></c:failureCodeProductVinCom>
 </aura:application>

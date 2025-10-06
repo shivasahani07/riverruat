@@ -25,10 +25,26 @@ export default class AddLabourFailureCodeLwcComp extends LightningElement {
     @track selectedRecord;
     @track selectedLabourcodesetid = null
 
+     @track displayInfo = {
+        primaryField: 'Name',
+        additionalFields: ['Code'],
+    }
+
+    @track pcfilter = {
+        criteria: [
+            {
+                fieldPath: 'IsActive',
+                operator: 'eq',
+                value: true,
+            }
+        ],
+    }
+
+
     handleSearch(searchKey, codesetid) {
         debugger;
         if (searchKey.length >= 2) { // search after 2+ chars
-            searchlabourFailureCodes({ searchKey: searchKey, codesetid: '0hsF40000004C9cIAE' })
+            searchlabourFailureCodes({ searchKey: searchKey, codesetid:codesetid})
                 .then(result => {
                     this.records = result;
                 })

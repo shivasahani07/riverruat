@@ -192,13 +192,35 @@ export default class CreateCustomerConcern extends NavigationMixin(LightningElem
         this.department = event.detail.value;
         this.subjectDepartment = this.department;
         console.log('Department ==>', this.department);
-        if(this.department != null && this.department != undefined){
+        // if(this.department != null && this.department != undefined){
+        //     this.categoryOptions = this.getFilteredOptions(
+        //         this.allPicklists[Case_Category__c.fieldApiName],
+        //         this.department);
+         
+        if (this.department) {
+        if (this.department === 'Service') {
+            // Use Salesforce picklist dependency for Service
             this.categoryOptions = this.getFilteredOptions(
                 this.allPicklists[Case_Category__c.fieldApiName],
-                this.department);
-         
+                this.department
+            );
+        } else {
+            // Use hardcoded mapping for other departments
+            // this.categoryOptions = this.categoryOptionsMap[this.department] || [];
+
+            this.categoryOptions = this.getFilteredOptions(
+                this.allPicklists[Case_Category__c.fieldApiName],
+                this.department
+            );
+        }
+
+        
              this.showAddButton = true;
  
+            console.log('All Picklists ==>', JSON.stringify(this.allPicklists));
+        console.log('Category Picklist ==>', JSON.stringify(this.allPicklists[Case_Category__c.fieldApiName]));
+
+
          // Determine typeAsParameter based on department selection
          if (this.department === 'Sales') {
              this.typeAsParameter = 'Dealer';
@@ -438,6 +460,7 @@ export default class CreateCustomerConcern extends NavigationMixin(LightningElem
 
     
     addRow() {
+        debugger;
          if (this.customerConcerns.length >= 5) {
         this.showToast('Oops', 'You Can add upto 5 concerns', 'warning');
         return;
@@ -517,20 +540,48 @@ handleFieldChange(event) {
 
 
 getFilteredOptions(picklistField, selectedValue) {
+    debugger;
+
+    console.log('--- getFilteredOptions called ---');
+    console.log('Selected Value ==>', selectedValue);
+    console.log('Picklist Field ==>', JSON.parse(JSON.stringify(picklistField)));
+
     if (!selectedValue || !picklistField || !picklistField.controllerValues) {
         return [];
     }
 
     const controllerValues = picklistField.controllerValues || {};
+    console.log('Controller Values ==>', JSON.stringify(controllerValues));
 
-    return picklistField.values
-        .filter(item => 
-            item.validFor && 
-            controllerValues[selectedValue] !== undefined &&
-            item.validFor.includes(controllerValues[selectedValue])
-        )
-        .map(item => ({ label: item.label, value: item.value }));
+
+    // return picklistField.values
+    //     .filter(item => 
+    //         item.validFor && 
+    //         controllerValues[selectedValue] !== undefined &&
+    //         item.validFor.includes(controllerValues[selectedValue])
+    //     )
+    //     .map(item => ({ label: item.label, value: item.value }));
+
+    const filtered = picklistField.values
+        .filter(item => {
+            console.log('Checking item ==>', JSON.stringify(item));
+            return (
+                item.validFor &&
+                controllerValues[selectedValue] !== undefined &&
+                item.validFor.includes(controllerValues[selectedValue])
+            );
+        })
+        .map(item => {
+            console.log('✅ Matched Item ==>', item.label, item.value);
+            return { label: item.label, value: item.value };
+        });
+
+    console.log('Final Filtered Options ==>', JSON.stringify(filtered));
+    return filtered;
+
 }
+
+
 
 handleRemoveAll() {
     if (this.customerConcerns.length === 0) {

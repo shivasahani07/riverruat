@@ -29,6 +29,25 @@
                                 </lightning-input>
 
                                 <template if:true={recordsGetter}>
+                                    <div class="custom-list-container slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                        <ul class="slds-listbox slds-listbox_vertical slds-dropdown">
+                                            <template for:each={records} for:item="rec">
+                                                <li key={rec.Id} class="slds-listbox__item custom-list-item" 
+                                                    onclick={handleSelect} data-id={rec.Id}>
+                                                    <div class="slds-media slds-listbox__option slds-listbox__option_entity">
+                                                        <div class="slds-media__body">
+                                                            <span class="slds-truncate">
+                                                                <p class="custom-item-text">{rec.Name}, {rec.VIN_Cut_off_No__c}</p>    
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </template>
+<!-- 
+                                <template if:true={recordsGetter}>
                                     <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
                                         <ul class="slds-listbox slds-listbox_vertical slds-dropdown">
                                             <template for:each={records} for:item="rec">
@@ -38,7 +57,7 @@
                                                         class="slds-media slds-listbox__option slds-listbox__option_entity">
                                                         <div class="slds-media__body">
                                                             <span class="slds-truncate">
-                                                            <p>{rec.Name} ,{rec.Product_Name__c},{rec.VIN_Cut_off_No__c}</p>    
+                                                            <p>{rec.Name},{rec.VIN_Cut_off_No__c}</p>    
                                                         </span>
                                                         </div>
                                                     </div>
@@ -46,7 +65,7 @@
                                             </template>
                                         </ul>
                                     </div>
-                                </template>
+                                </template> -->
 
                                 <template if:true={selectedRecord}>
                                     <p>✅ Selected: {selectedRecord.Name}</p>
@@ -91,9 +110,9 @@
                     </lightning-button>
                     <lightning-button label="Save" onclick={handleSave} variant="brand" disabled={DisabledhandleSave}>
                     </lightning-button>
-                    <lightning-button label="Cancel" onclick={handleCancel} variant="neutral" disabled={isLoading}
+                    <!-- <lightning-button label="clear" onclick={handleCancel} variant="neutral" disabled={isLoading}
                         class="slds-m-left_x-small">
-                    </lightning-button>
+                    </lightning-button> -->
 
                     <template if:true={isLoading}>
                         <div class="spinner-container">

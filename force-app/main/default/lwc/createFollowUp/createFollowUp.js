@@ -8,6 +8,7 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 export default class CreateFollowUp extends LightningElement {
 
+    minDateTime;
     selectedValue;
     @track dateObj = {};
     @api recordId;
@@ -45,35 +46,52 @@ export default class CreateFollowUp extends LightningElement {
         } else {
             console.error("recordId parameter not found in the URL");
         }
+        const now = new Date();
+        const localIsoString = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+            .toISOString()
+            .slice(0, 16);
+
+        this.minDateTime = localIsoString;
+        
         this.showSpinner = false;
     }
 
     handleChange(event) {
         debugger;
-        const { name, value } = event.target;
+        const { name, value, type } = event.target;
+
+        let updatedValue = value;
+        if (event.target.type === 'datetime-local') {
+            let date = new Date(value);
+            let istOffsetInMs = 5.5 * 60 * 60 * 1000;
+            let istTime = new Date(date.getTime() + istOffsetInMs);
+            updatedValue = istTime.toISOString();
+        }
+
         this.dateObj = {
             ...this.dateObj,
-            [name]: value,
+            [name]: updatedValue,
             recordId: this.recordId
         };
-        console.log('Updated dateObj:', JSON.stringify(this.dateObj));
+
+        console.log('Updated dateObj ======>', JSON.stringify(this.dateObj));
     }
 
     handleSave() {
         let isValid = true;
         this.showSpinner = true;
-        let dueDate = this.template.querySelector('.dueDate');
+        //let dueDate = this.template.querySelector('.dueDate');
         let FollowUpDate = this.template.querySelector('.FollowUpDate');
         let Status = this.template.querySelector('.Status');
 
-        if (dueDate && !dueDate.value) {
-            dueDate.setCustomValidity('Please Provide the Due Date value');
-            isValid = false;
-            this.showSpinner = false;
-        } else {
-            dueDate.setCustomValidity('');
-        }
-        dueDate.reportValidity();
+        // if (dueDate && !dueDate.value) {
+        //     dueDate.setCustomValidity('Please Provide the Due Date value');
+        //     isValid = false;
+        //     this.showSpinner = false;
+        // } else {
+        //     dueDate.setCustomValidity('');
+        // }
+        // dueDate.reportValidity();
 
         if (Status && !Status.value) {
             Status.setCustomValidity('Please Provide the Status value');
@@ -100,16 +118,21 @@ export default class CreateFollowUp extends LightningElement {
         if (this.dateObj) {
             createFollowup({ dateObj: this.dateObj })
                 .then(result => {
-                    if (result === 'Event Scheduled Successfully') {
+                    if (result === 'Please Complete the previous Follow-Up before creating a new one.') {
+                        this.showToast('error' ? result : 'error');
+                        this.dispatchEvent(new CloseActionScreenEvent());
+                        this.showSpinner = false;
+                    }
+                    else if (result === 'Event Scheduled Successfully') {
                         this.showToast('SUCCESS' ? 'Event Scheduled Successfully' : 'success');
                         this.dispatchEvent(new CloseActionScreenEvent());
                         this.showSpinner = false;
-                    } else if (result === `Please Complete the Recent the Follow-Up`){
-                        this.showToast('Error', result, 'error');
+                    } else if (result === `Please Complete the Recent the Follow-Up`) {
+                        this.showToast('error', result, 'error');
                         this.showSpinner = false;
                     }
                     else {
-                        this.showToast('Error', result, 'error');
+                        this.showToast('error', result, 'error');
                         this.showSpinner = false;
                     }
                 })
@@ -121,15 +144,15 @@ export default class CreateFollowUp extends LightningElement {
         }
     }
 
+
     showToast(title, message, variant) {
-        this.dispatchEvent(
-            new ShowToastEvent({
-                title: title,
-                message: message,
-                variant: variant,
-                mode: 'dismissable'
-            })
-        );
+        const evt = new ShowToastEvent({
+            title: title,
+            message: message,
+            variant: variant,
+            mode: 'dismissable'
+        });
+        this.dispatchEvent(evt);
     }
 
     handleCancel() {

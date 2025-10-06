@@ -2,6 +2,32 @@
     overflow-x: auto;
 }
 
+.filterSection {
+    position: fixed;
+    /* Fixes the header to the viewport */
+    top: 0;
+    /* Positions the header at the very top of the viewport */
+    left: 0;
+    /* Positions the header at the very left of the viewport */
+    width: 100%;
+    /* Makes the header span the entire width of the viewport */
+    z-index: 1000;
+    /* Ensures the header appears above other content */
+    background-color: #f8f8f8;
+    /* Example background color */
+    /* padding: 15px; */
+    margin-bottom:30px;
+    /* Example padding */
+    /* box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); */
+    /* Optional: Adds a subtle shadow */
+}
+
+.dropdowncss{
+    position: inherit;
+    z-index: 1500;
+
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -13,7 +39,8 @@ thead {
     text-align: left;
 }
 
-th, td {
+th,
+td {
     padding: 10px;
     border-bottom: 1px solid #ddd;
 }

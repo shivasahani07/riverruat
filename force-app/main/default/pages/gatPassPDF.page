@@ -1,0 +1,141 @@
+<apex:page controller="GatePassPDFController" renderAs="pdf" applyBodyTag="false" showHeader="false" sidebar="false" applyHtmlTag="false">
+    <html>
+        <head>
+            <style>
+                @page {
+                size: 8.700in 6in; 
+                margin-left: 0.5cm;
+                margin-right: 0.5cm;
+                margin-top: 0.5cm;
+                margin-bottom: 0.5cm;
+                }
+                body {
+                    font-family: "Segoe UI", Roboto, sans-serif;
+                    font-size: 12px;
+                    margin: 20px;
+                    color: #333;
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 20px;
+                    border-bottom: 2px solid #333;
+                    padding-bottom: 10px;
+                }
+                .header h1 {
+                    font-size: 24px;
+                    margin: 0;
+                    color: #333;
+                }
+                .container {
+                    width: 100%;
+                    display: table;
+                }
+                .left-section {
+                    display: table-cell;
+                    width: 65%;
+                    vertical-align: top;
+                    padding-right: 20px;
+                }
+                .right-section {
+                    display: table-cell;
+                    width: 35%;
+                    vertical-align: top;
+                    text-align: center;
+                    border-left: 1px solid #ccc;
+                    padding-left: 20px;
+                }
+                .section {
+                    margin-bottom: 10px;
+                    padding: 5px 0;
+                }
+                .section label {
+                    font-weight: bold;
+                    display: inline-block;
+                    width: 120px;
+                }
+                .section span {
+                    display: inline-block;
+                }
+                .qr-code {
+                    margin-top: 20px;
+                    text-align: center;
+                }
+                .qr-code img {
+                    width: 150px;
+                    height: 150px;
+                    border: 1px solid #ccc;
+                }
+                .footer {
+                    margin-top: 30px;
+                    border-top: 1px solid #333;
+                    padding-top: 10px;
+                    font-size: 10px;
+                    text-align: center;
+                }
+                .timestamp {
+                    font-size: 10px;
+                    color: #666;
+                    text-align: right;
+                    margin-bottom: 10px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="timestamp">
+                Generated on: {!DAY(TODAY())}/{!MONTH(TODAY())}/{!YEAR(TODAY())}
+            </div>
+            
+            <div class="header">
+                <h1>Gate Pass</h1>
+            </div>
+            
+            <div class="container">
+                <div class="left-section">
+                    <div class="section">
+                        <label>Order Reference:</label>
+                        <span>{!ord.OrderNumber}</span>
+                    </div>
+                    <div class="section">
+                        <label>VIN/Chassis:</label>
+                        <span>{!ord.Assigned_Vehicle__r.VehicleIdentificationNumber}</span>
+                    </div>
+                    <div class="section">
+                        <label>VRN:</label>
+                        <span>{!ord.Assigned_Vehicle__r.VehicleRegistrationNumber}</span>
+                    </div>
+                    <div class="section">
+                        <label>Customer:</label>
+                        <span>{!ord.Account.Name}</span>
+                    </div>
+                    <div class="section">
+                        <label>Delivery Date:</label>
+                        <span>{!IF(ord.Delivery_Date__c != null, TEXT(ord.Delivery_Date__c), '')}</span>
+                    </div>
+                    <div class="section">
+                        <label>Dealer:</label>
+                        <span>{!ord.Dealer__r.Name}</span>
+                    </div>
+                    <div class="section">
+                        <label>Issued By:</label>
+                        <span>{!ord.Gate_Pass_Issuer__c}</span>
+                    </div>
+                    <div class="section">
+                        <label>Issue Date/Time:</label>
+                        <span>{!IF(ord.Gate_Pass_Generated_Date_Time__c != null, TEXT(ord.Gate_Pass_Generated_Date_Time__c), '')}</span>
+                    </div>
+                </div>
+                
+                <div class="right-section">
+                    <div class="qr-code">
+                        <apex:image value="{!URLFOR('/servlet/servlet.FileDownload?file=' + QRAtt[0].Id)}" alt="QR Code" height="200px" width="200px" />
+                        <div style="margin-top: 10px; font-size: 10px;">Scan to Verify</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer">
+                This gate pass is system generated and valid only with official signature and stamp.
+            </div>
+        </body>
+    </html>
+</apex:page>

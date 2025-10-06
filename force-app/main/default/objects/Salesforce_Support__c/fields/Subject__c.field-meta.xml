@@ -54,6 +54,11 @@
                 <default>false</default>
                 <label>Inventory Management</label>
             </value>
+            <value>
+                <fullName>Service Lapse Issue</fullName>
+                <default>false</default>
+                <label>Service Lapse Issue</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

@@ -20,11 +20,6 @@
                 <label>Down Payment</label>
             </value>
             <value>
-                <fullName>Full Payment</fullName>
-                <default>false</default>
-                <label>Full Payment</label>
-            </value>
-            <value>
                 <fullName>Refund</fullName>
                 <default>false</default>
                 <label>Refund</label>
@@ -48,6 +43,12 @@
                 <fullName>RSA Payment</fullName>
                 <default>false</default>
                 <label>RSA Payment</label>
+            </value>
+            <value>
+                <fullName>Full Payment</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Full Payment</label>
             </value>
         </valueSetDefinition>
     </valueSet>

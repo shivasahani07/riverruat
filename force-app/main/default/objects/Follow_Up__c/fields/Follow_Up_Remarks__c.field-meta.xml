@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Follow_Up_Remarks__c</fullName>
+    <label>Follow-Up Primary Remarks</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>Status__c</controllingField>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>RNR</fullName>
+                <default>false</default>
+                <label>RNR</label>
+            </value>
+            <value>
+                <fullName>Needs more time to decide</fullName>
+                <default>false</default>
+                <label>Needs more time to decide</label>
+            </value>
+            <value>
+                <fullName>Customer Needs More Information</fullName>
+                <default>false</default>
+                <label>Customer Needs More Information</label>
+            </value>
+            <value>
+                <fullName>Customer asked to follow up later</fullName>
+                <default>false</default>
+                <label>Customer asked to follow up later</label>
+            </value>
+            <value>
+                <fullName>Wants to compare with other brands</fullName>
+                <default>false</default>
+                <label>Wants to compare with other brands</label>
+            </value>
+            <value>
+                <fullName>Wants finance or insurance details</fullName>
+                <default>false</default>
+                <label>Wants finance or insurance details</label>
+            </value>
+            <value>
+                <fullName>Asking for additional discounts or offers</fullName>
+                <default>false</default>
+                <label>Asking for additional discounts or offers</label>
+            </value>
+            <value>
+                <fullName>Wants price list or brochure</fullName>
+                <default>false</default>
+                <label>Wants price list or brochure</label>
+            </value>
+            <value>
+                <fullName>Asking about delivery timelines</fullName>
+                <default>false</default>
+                <label>Asking about delivery timelines</label>
+            </value>
+            <value>
+                <fullName>Others</fullName>
+                <default>false</default>
+                <label>Others</label>
+            </value>
+        </valueSetDefinition>
+        <valueSettings>
+            <controllingFieldValue>Needs More Time</controllingFieldValue>
+            <valueName>Needs more time to decide</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Needs More Time</controllingFieldValue>
+            <valueName>Customer asked to follow up later</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Customer Needs More Information</controllingFieldValue>
+            <valueName>Wants to compare with other brands</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Customer Needs More Information</controllingFieldValue>
+            <valueName>Wants finance or insurance details</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Customer Needs More Information</controllingFieldValue>
+            <valueName>Asking for additional discounts or offers</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Customer Needs More Information</controllingFieldValue>
+            <valueName>Wants price list or brochure</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Customer Needs More Information</controllingFieldValue>
+            <valueName>Asking about delivery timelines</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Customer Needs More Information</controllingFieldValue>
+            <valueName>Others</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>RNR</controllingFieldValue>
+            <valueName>RNR</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>

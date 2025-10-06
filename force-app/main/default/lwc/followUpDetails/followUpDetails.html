@@ -29,13 +29,23 @@
                     </lightning-input> -->
 
                     <template if:true={closedLost}>
-                        <lightning-textarea name="LostFeedback" label="Lost Feedback" data-id="Lost_Feedback__c"
-                            onchange={handleChange} required>
-                        </lightning-textarea>
-
-                        <lightning-combobox name="LostReason" label="Lost Reason" placeholder="Select Lost Reason"
-                            options={optionsLostReason} data-id="Lost_Reason__c" required onchange={handleChange}>
+                        <lightning-combobox name="LostReason" label="Primary Lost Reason"
+                            placeholder="Select Lost Reason" options={optionsLostReason} data-id="Lost_Reason__c"
+                            required onchange={handleChange}>
                         </lightning-combobox>
+
+                        <lightning-combobox name="LostSubReason" label="Secondary Lost Reason"
+                            placeholder="Select Lost Reason" options={filteredSubReasons}
+                            data-id="Lead_Secondary_DropOut_Reasons__c" required onchange={handleChange}>
+                        </lightning-combobox>
+
+
+                        <template if:true={reason}>
+                            <lightning-textarea name="LostFeedback" label="Lost Feedback" data-id="Lost_Feedback__c"
+                                onchange={handleChange} required>
+                            </lightning-textarea>
+
+                        </template>
                     </template>
                 </div>
             </lightning-layout-item>

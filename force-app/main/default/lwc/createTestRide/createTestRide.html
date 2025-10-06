@@ -4,8 +4,8 @@
             <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
                 padding="horizontal-small">
                 <div class="custom-box">
-                    <lightning-input type="datetime" name="StartDate" label="Start Date" onchange={handleChange} required
-                        class="startDate">
+                    <lightning-input type="datetime" name="StartDate" label="Test Drive Date" onchange={handleChange}
+                        required class="startDate" min={minDateTime}>
                     </lightning-input>
                     <lightning-combobox name="Status" label="Status" placeholder="Select Status" class="Status"
                         options={optionsCategory} required onchange={handleChange}></lightning-combobox>
@@ -15,11 +15,25 @@
             <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
                 padding="horizontal-small">
                 <div class="custom-box">
-                    <lightning-input type="datetime" name="EndDate" label="End Date" onchange={handleChange}
+                    <!-- <lightning-input type="datetime" name="EndDate" label="End Date" onchange={handleChange}
                         class="endDate">
-                    </lightning-input>
+                    </lightning-input> -->
+
+                    <lightning-combobox name="rideType" label="Ride Type" placeholder="Select Ride Type"
+                        class="rideType" options={RideOptions} required onchange={handleChange}></lightning-combobox>
+
+                    <template if:true={showAddress}>
+                        <lightning-input-address address-label="address" street-label="Street" city-label="City"
+                            name="address" country-label="Country" postal-code-label="PostalCode" province-label="State"
+                            required field-level-help="Help Text for inputAddress field" onchange={handleChange}>
+                        </lightning-input-address>
+                    </template>
+
+
                 </div>
             </lightning-layout-item>
+
+
         </lightning-layout>
 
         <template if:true={showSpinner}>

@@ -1,10 +1,10 @@
 <template>
     <lightning-card title="Failure Codes" icon-name="custom:custom63">
         <div class="custom-table">
-            <div class="filterSection">
-                <table>
+            <div class="">
+                <table class="">
                     <thead>
-                        <tr>
+                        <tr class="">
                             <th>
                                 <lightning-input type="search" onchange={filterOnchage} name="failureCode"
                                     label="Search by Failure code" value={filters.failureCode}>
@@ -21,7 +21,7 @@
                                 </lightning-input>
                             </th>
                             <th>
-                                <lightning-combobox name="typeFilter" label="Filter by Type" value={filters.typeFilter}
+                                <lightning-combobox name="typeFilter" label="Filter by Type" value={filters.typeFilter} class="dropdowncss" label-stacked
                                     options={typeOptions} onchange={filterOnchage}>
                                 </lightning-combobox>
                             </th>
@@ -65,7 +65,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <template for:each={failureCodes} for:item="fc">
+                        <template for:each={pageData} for:item="fc">
                             <tr key={fc.Id}>
                                 <td>{fc.Name}</td>
                                 <td>{fc.Type}</td>
@@ -103,6 +103,12 @@
                         </template>
                     </tbody>
                 </table>
+
+                 <c-pagination
+                    records={OrignalData}
+                     total-records={totalRecords}
+                    onpagechange={handlePageChange}>
+                </c-pagination>
             </template>
 
             <template if:true={error}>

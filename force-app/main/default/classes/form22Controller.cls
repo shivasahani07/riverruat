@@ -4,7 +4,7 @@
 * @group             : 
 * @Created Date      : 19-03-2025
 * @last modified on  : 
-* @last modified by  : 
+* @last modified by  : Ram Kumar
 **/
 public class form22Controller {
     
@@ -13,7 +13,7 @@ public class form22Controller {
         
         for (Order ord : newOrders) {
             Order oldOrder = oldOrderMap.get(ord.Id);
-            if (oldOrder != null && ord.Status == 'RTO Registration' && oldOrder.Status != 'RTO Registration') {
+            if (oldOrder != null && ord.Status == 'Invoice and Insurance' && oldOrder.Status != 'Invoice and Insurance') {
                 orderIds.add(ord.Id);
             }
         }

@@ -116,7 +116,7 @@ public without sharing class WorkOrderLineItemController {
             WorkPlan wp = new WorkPlan();
             wp.Failure_Code__c = fcId;
             // wp.Related_Labour_Count__c = labourEffects.size();
-            wp.name=labourEffects[0].Code_Set__c;
+            wp.name=labourEffects[0].Code_Set__r.Name;
             wp.ParentRecordId=fcToWoli.get(fcId).workOrderId;
             
             // Take first Code_Set__c for labour code (or adjust if multiple allowed)

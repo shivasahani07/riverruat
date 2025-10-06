@@ -1,0 +1,14 @@
+<template>
+    <lightning-progress-indicator current-step={status} type="path" variant="base">
+        <template for:each={steps} for:item="step">
+            <lightning-progress-step key={step.value} label={step.label} value={step.value}>
+            </lightning-progress-step>
+        </template>
+    </lightning-progress-indicator>
+
+    <template if:true={status}>
+        <p class="slds-m-top_medium slds-text-heading_small">
+            Current Status:<span class="slds-text-color_success">{status}</span>
+        </p>
+    </template>
+</template>

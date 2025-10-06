@@ -1,0 +1,66 @@
+<template>
+    <lightning-card title="Task Completion">
+        <template if:true={task}>
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                    padding="horizontal-small">
+                    <div class="custom-box">
+                        <lightning-combobox name="Status" label="Status" placeholder="Select Status"
+                            options={statusOptions} onchange={handleStatusChange}>
+                        </lightning-combobox>
+                    </div>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                    padding="horizontal-small">
+                    <div class="custom-box">
+                        <lightning-combobox name="Sub-Status" label="Sub-Status" placeholder="Select Sub-Status"
+                            options={subStatusOptions} disabled={disabledSub} onchange={handleSubStatusChange}>
+                        </lightning-combobox>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                    padding="horizontal-small">
+                    <div class="custom-box">
+                        <template if:true={showDatePicker}>
+                            <div class="slds-m-top_small">
+                                <lightning-input type="Date" label="Follow-up Date" onchange={handleDateChange}
+                                    required>
+                                </lightning-input>
+                            </div>
+                        </template>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+
+            <template if:true={threshold}>
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6"
+                        padding="horizontal-small">
+                        <div class="custom-box">
+                            <lightning-combobox name="LostFeedback" label="Lost Feedback"
+                                placeholder="Select Lost Feedback" required class="rideType" options={optionsCategory}
+                                onchange={handleChange}>
+                            </lightning-combobox>
+
+                            <lightning-input type="text" name="LostFeedbackReason" label="Lost Feedback Reason"
+                                onchange={handleChange} placeholder="Enter Lost Feedback Reason" required
+                                class="endDate">
+                            </lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </template>
+        </template>
+
+        <p slot="footer">
+            <lightning-button label="Complete Task" variant="brand" onclick={handleComplete} class="slds-m-top_small">
+            </lightning-button>
+            &nbsp;&nbsp;
+            <lightning-button label="Cancel" variant="brand" onclick={closeModal} class="slds-m-top_small">
+            </lightning-button>
+        </p>
+    </lightning-card>
+</template>

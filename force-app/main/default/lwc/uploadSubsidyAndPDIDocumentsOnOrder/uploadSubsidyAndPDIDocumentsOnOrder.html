@@ -1,0 +1,29 @@
+<template>
+    <lightning-quick-action-panel header="Uplaod Documents">
+        <template if:true={showButtons}>
+            <lightning-radio-group name="radioGroup" label="Radio Group" options={options} value={value}
+                onchange={handleChange} type="radio"></lightning-radio-group>
+        </template>
+
+        <template if:true={uploadSubsidy}>
+            <lightning-file-upload label="Upload Subsidy Details" name="fileUploader" accept={acceptedFormats}
+                record-id={recordId} onuploadfinished={handleSubsidyUpload} >
+            </lightning-file-upload>
+        </template>
+
+        <template if:true={uploadPDI}>
+            <lightning-button variant="brand" label="Download PDI Document" title="Download PDI Document"
+                onclick={handleClick}></lightning-button>
+
+            <lightning-file-upload label="Upload PDI Details" name="fileUploader" accept={acceptedFormats}
+                record-id={recordId} onuploadfinished={handlePDIUpload} >
+            </lightning-file-upload>
+        </template>
+
+        <div slot="footer" class="slds-align_absolute-center">
+            <lightning-button variant="neutral" label="Cancel" onclick={handleCancel}></lightning-button>
+            &nbsp;&nbsp;&nbsp;
+            <lightning-button variant="brand" label="Back" onclick={handleBack}></lightning-button>
+        </div>
+    </lightning-quick-action-panel>
+</template>
