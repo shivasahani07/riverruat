@@ -3,9 +3,9 @@ import { LightningElement, api, track } from 'lwc';
 export default class Pagination extends LightningElement {
     @api records = [];       // full list of records (if parent provides all)
     @api totalRecords = 0;   // total records (if data is paged from Apex)
-    @api pageSizeOptions = [5, 10, 20, 50];
+    @api pageSizeOptions = [5, 10, 20,30, 50];
 
-    @track pageSize =5;
+    @track pageSize =30;
     @track pageNumber = 1;
 
     get totalPages() {
