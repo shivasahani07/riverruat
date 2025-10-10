@@ -85,14 +85,14 @@ public class QueueableTempWithoutParams implements Queueable, Database.allowsCal
             }else{
                 status='Failed';
             }
-            IntegrationLogHelper.IntegrationLogWrapper wrapper = new IntegrationLogHelper.IntegrationLogWrapper();
-                    wrapper.requestBody = jsonBody;
-                    wrapper.responseBody = res.getBody();
-                    wrapper.status = status;
-                    wrapper.templateName = templateName;
-                    wrapper.statusCode = String.valueof(res.getStatusCode());
+            // IntegrationLogHelper.IntegrationLogWrapper wrapper = new IntegrationLogHelper.IntegrationLogWrapper();
+            //         wrapper.requestBody = jsonBody;
+            //         wrapper.responseBody = res.getBody();
+            //         wrapper.status = status;
+            //         wrapper.templateName = templateName;
+            //         wrapper.statusCode = String.valueof(res.getStatusCode());
 
-                    IntegrationLogHelper.createIntegrationLogs(wrapper);
+            //         IntegrationLogHelper.createIntegrationLogs(wrapper);
             System.debug('Response Status: ' + res.getStatus());
             System.debug('Response Body: ' + res.getBody());
         } catch (Exception e) {

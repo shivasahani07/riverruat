@@ -5,6 +5,7 @@
 * Description : Handler for order payment trigger
 *****************************************************************************/
 public class OrderPaymentTriggerHandler {
+    public static final Id otcRecordType = Schema.SObjectType.Order.getRecordTypeInfosByName().get('OTC').getRecordTypeId();
     
     public static void insertHandler(List<Order_Payment__c> newRecords){
         Set<Id> orderIdsToUpdate = new Set<Id>();
@@ -224,6 +225,28 @@ public class OrderPaymentTriggerHandler {
         system.debug('updated Orders are>>'+orderToUpate);
                 
         Database.update(orderToUpate,false);
+        
+        // //added by Aniket on 16/07/2025
+        //         List<Order> ordersToMoveToInvoiceGeneration = [
+        //      SELECT Id,recordTypeId 
+        //     FROM Order 
+        //      WHERE Id IN :orderIdsToUpdate 
+        //      AND Status = 'Pre Invoice' 
+        //      AND RecordTypeId =:otcRecordType
+        //  ];
+
+        // // // Step 2: Prepare updates
+        //  List<Order> finalStatusUpdateList = new List<Order>();
+        //  for (Order o : ordersToMoveToInvoiceGeneration) {
+        //      Order updatedOrder = new Order(Id = o.Id);
+        //     updatedOrder.Status = 'Invoice Generation';
+        //      finalStatusUpdateList.add(updatedOrder);
+        //  }
+
+        
+        //  if (!finalStatusUpdateList.isEmpty()) {
+        //     update finalStatusUpdateList;
+        // }
     }
     
     
@@ -351,4 +374,5 @@ public class OrderPaymentTriggerHandler {
             System.debug('Error is ===>'+e.getMessage()+ 'Error Line Number===>'+e.getLineNumber());
         }
     }
+
 }

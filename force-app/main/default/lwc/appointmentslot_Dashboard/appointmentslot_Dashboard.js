@@ -6,6 +6,10 @@ import getCurrentContactServiceCenter from '@salesforce/apex/AppointmentSlotCont
 import getRemainingBays from '@salesforce/apex/AppointmentSlotController.getRemainingBayCountForRange';
 
 const PAGE_SIZE = 10;
+// Business hours & slot step
+const BUSINESS_START = '10:00'; // hh:mm (24h)
+const BUSINESS_END = '19:00';   // hh:mm (24h)
+const SLOT_STEP_MINUTES = 30;
 
 export default class CreateAppointmentSlots extends LightningElement {
     @track serviceCenterId;
@@ -66,8 +70,9 @@ export default class CreateAppointmentSlots extends LightningElement {
         return !this.showForm;
     }
 
+    // Disable save when basic validation fails OR times are outside business hours/step
     get disableSave() {
-        return !this.serviceCenterId || 
+        const basicInvalid = !this.serviceCenterId || 
                !this.startDate || 
                !this.endDate || 
                !this.dayStart || 
@@ -75,11 +80,19 @@ export default class CreateAppointmentSlots extends LightningElement {
                !this.duration ||
                new Date(this.startDate) > new Date(this.endDate) ||
                new Date(this.startDate) < new Date(this.minStartDate) ||  
-               this.dayEnd <= this.dayStart ||
                this.duration < 15 || 
                this.duration > 60 ||
                this.bayNumber <= 0 || 
-               (this.remainingBays && this.bayNumber > this.remainingBays); 
+               (this.remainingBays && this.bayNumber > this.remainingBays);
+
+        // time ordering
+        const timesInvalid = this.dayStart && this.dayEnd ? (this._minutesFromHHMM(this.dayEnd) <= this._minutesFromHHMM(this.dayStart)) : false;
+
+        // business hours & step checks
+        const withinBusiness = this._isWithinBusinessHours(this.dayStart) && this._isWithinBusinessHours(this.dayEnd);
+        const stepAligned = this._isStepAligned(this.dayStart) && this._isStepAligned(this.dayEnd);
+
+        return basicInvalid || timesInvalid || !withinBusiness || !stepAligned;
     }
 
     @wire(getCurrentContactServiceCenter)
@@ -102,7 +115,7 @@ export default class CreateAppointmentSlots extends LightningElement {
             return utcDate;
         }
 
-        return rawList.map(row => {
+        return (rawList || []).map(row => {
             const start = convertUTCToIST(row.Start_Time__c);
             const end = convertUTCToIST(row.End_Time__c);
 
@@ -190,6 +203,7 @@ export default class CreateAppointmentSlots extends LightningElement {
         const { name, value } = event.target;
         this[name] = value;
 
+        // custom validations
         if (name === 'bayNumber') {
             const bays = Number(value);
             const max = Number(this.remainingBays || 0);
@@ -211,12 +225,32 @@ export default class CreateAppointmentSlots extends LightningElement {
             }
         }
 
-        if ((name === 'dayStart' || name === 'dayEnd') && this.dayStart && this.dayEnd) {
-            if (this.dayEnd <= this.dayStart) {
-                this.template.querySelector(`[name="${name}"]`)
-                    .setCustomValidity('End time must be after start time');
+        // Time validation: business hours + 30-min steps + ordering
+        if (name === 'dayStart' || name === 'dayEnd') {
+            const inputEl = this.template.querySelector(`[name="${name}"]`);
+            // empty -> clear
+            if (!value) {
+                if (inputEl) { inputEl.setCustomValidity(''); inputEl.reportValidity(); }
             } else {
-                this.template.querySelector(`[name="${name}"]`).setCustomValidity('');
+                // within business hours?
+                if (!this._isWithinBusinessHours(value)) {
+                    inputEl.setCustomValidity(`Select time between ${this._formatTo12(BUSINESS_START)} and ${this._formatTo12(BUSINESS_END)}`);
+                } else if (!this._isStepAligned(value)) {
+                    inputEl.setCustomValidity(`Select time at ${SLOT_STEP_MINUTES}-minute intervals (e.g. 10:00, 10:30)`);
+                } else {
+                    inputEl.setCustomValidity('');
+                }
+
+                // check ordering only if both set
+                if (this.dayStart && this.dayEnd) {
+                    const startMin = this._minutesFromHHMM(this.dayStart);
+                    const endMin = this._minutesFromHHMM(this.dayEnd);
+                    if (endMin <= startMin) {
+                        // set validity on the element being changed
+                        inputEl.setCustomValidity('End time must be after start time');
+                    }
+                }
+                if (inputEl) inputEl.reportValidity();
             }
         }
 
@@ -282,14 +316,13 @@ export default class CreateAppointmentSlots extends LightningElement {
         .then(count => {
             this.remainingBays = count;
         })
-         
-
         .catch(error => this.handleError(error, 'Failed to check available bays'));
     }
 
     createSlot() {
         this.errorMessage = '';
-         this.isLoading = true;
+        this.isLoading = true;
+
         createSlot({
             serviceCenterId: this.serviceCenterId,
             startDate: this.startDate,
@@ -299,15 +332,18 @@ export default class CreateAppointmentSlots extends LightningElement {
             serviceBaynumber: Number(this.bayNumber),
             slotDurationMins: Number(this.duration)
         })
-        
         .then(() => {
             this.showToast('Success', 'Appointment slots created successfully', 'success');
             this.resetForm();
+            // refresh current slot items by calling Apex helper
             return getCurrentContactServiceCenter();
         })
-        .then(({ data }) => {
-            if (data) {
-               this.fullSlotItems = this.processSlotItems(data.asiList);
+        .then((data) => {
+            // getCurrentContactServiceCenter() might return the data object directly
+            // ensure we handle both shapes
+            const payload = data?.data ? data.data : data;
+            if (payload) {
+                this.fullSlotItems = this.processSlotItems(payload.asiList || []);
                 this.currentPage = 1;
                 this.updatePaginatedItems();
             }
@@ -315,13 +351,12 @@ export default class CreateAppointmentSlots extends LightningElement {
             this.showBackButton = false;
         })
         .catch(error => {
-            this.errorMessage = this.reduceError
-
+            this.errorMessage = this.reduceError(error);
             this.showToast('Error', this.errorMessage, 'error');
         })
-         .finally(() => {
-        this.isLoading = false; // 🔹 hide spinner
-    });
+        .finally(() => {
+            this.isLoading = false; // hide spinner
+        });
     }
 
     resetForm() {
@@ -335,6 +370,7 @@ export default class CreateAppointmentSlots extends LightningElement {
     }
 
     formatTimeForApex(timeString) {
+        // Expecting "HH:MM" => convert to "HH:MM:00.000Z" (UTC-like string expected by Apex)
         return timeString ? `${timeString}:00.000Z` : null;
     }
 
@@ -349,6 +385,7 @@ export default class CreateAppointmentSlots extends LightningElement {
     }
 
     reduceError(error) {
+        if (!error) return 'Unknown error occurred';
         if (Array.isArray(error?.body)) {
             return error.body.map(e => e.message).join(', ');
         } else if (error?.body?.message) {
@@ -357,5 +394,39 @@ export default class CreateAppointmentSlots extends LightningElement {
             return error.message;
         }
         return 'Unknown error occurred';
+    }
+
+    /* ---------- Helpers for business hours & slot step ---------- */
+
+    // Convert "HH:MM" -> total minutes
+    _minutesFromHHMM(hhmm) {
+        if (!hhmm) return null;
+        const [h, m] = hhmm.split(':').map(Number);
+        return h * 60 + m;
+    }
+
+    // Check within business hours inclusive
+    _isWithinBusinessHours(hhmm) {
+        if (!hhmm) return false;
+        const minutes = this._minutesFromHHMM(hhmm);
+        const startMin = this._minutesFromHHMM(BUSINESS_START);
+        const endMin = this._minutesFromHHMM(BUSINESS_END);
+        return minutes >= startMin && minutes <= endMin;
+    }
+
+    // Check if time aligns with step (e.g., 0 or 30 past hour)
+    _isStepAligned(hhmm) {
+        if (!hhmm) return false;
+        const minutes = this._minutesFromHHMM(hhmm);
+        return (minutes % SLOT_STEP_MINUTES) === 0;
+    }
+
+    // Convert "HH:MM" to "hh:mm AM/PM" for messages
+    _formatTo12(hhmm) {
+        if (!hhmm) return '';
+        const [h, m] = hhmm.split(':').map(Number);
+        const period = h >= 12 ? 'PM' : 'AM';
+        const hour12 = ((h + 11) % 12) + 1;
+        return `${String(hour12).padStart(2, '0')}:${String(m).padStart(2, '0')} ${period}`;
     }
 }

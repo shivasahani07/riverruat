@@ -7,7 +7,7 @@ public class GatePassQRController {
             List<Id> eligibleOrderIds = new List<Id>();
             List<Order> ordersToUpdate = new List<Order>();
 
-            String currentUserName = [SELECT Name FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1].Name;
+            String currentUserName = [SELECT Id,Name FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1].Name;
             
             System.debug('currentUserName ==>'+currentUserName);
 

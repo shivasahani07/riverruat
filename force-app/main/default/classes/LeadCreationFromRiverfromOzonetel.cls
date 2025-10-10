@@ -1,3 +1,5 @@
+// this is not used any where ----> comment by anwar
+
 @RestResource(urlMapping='/createLeadinOzonetel')  
 global class LeadCreationFromRiverfromOzonetel {
     
@@ -66,7 +68,8 @@ global class LeadCreationFromRiverfromOzonetel {
             lead.Verified__c = verified;
             lead.Home_Test_Ride__c = homeTestRide != null ? homeTestRide : false;
             lead.Instore_Test_drive__c = instoreTestdrive != null ? instoreTestdrive : false;
-            lead.LeadSource = 'OzoneTel WhatsApp';
+            lead.LeadSource = 'Online';
+            lead.Secondary_Sources__c = 'OzoneTel';
             
             // Step 3: Save lead (insert or update)
             if (isNewLead) {

@@ -1,0 +1,19 @@
+<template>
+    <lightning-card class="custom-card">
+        <div class="custom-header slds-p-horizontal_medium slds-p-vertical_small slds-theme_shade slds-text-heading_medium">
+            <lightning-icon icon-name="standard:invoice" size="small" class="slds-m-right_small"></lightning-icon>
+            E-Invoice Generator
+        </div>
+        <div class="slds-p-around_medium custom-container">
+            <template if:true={isLoading}>
+                <c-custom-spinner></c-custom-spinner>
+                <div class="loading-text">Generating Proforma, please wait...</div>
+            </template>
+            <template if:false={isLoading}>
+                <div class="iframe-container">
+                    <img src={Successinvoice} />
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>

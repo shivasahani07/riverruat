@@ -38,10 +38,10 @@ public class JobCardEstimatationController {
                                     Policy_Number__c, RR_Job_Type__c,RR_Estimated_Delivery_Time__c, (SELECT Id, Name FROM Customer_Voices__r),
                                     (SELECT Id, Labour_Charge__c, RR_Labour_Code__r.RR_Labour_Charge__c, RR_Labour_Code__r.Code, Name, Work_Type__c,RR_Labour_Code__r.IGST_Percentage__c,RR_Labour_Code__r.Name,
                                     RR_Labour_Code__r.SGST_Percentage__c, RR_Labour_Code__r.CGST_Percentage__c, IGST_Amount__c, CGST_Amount__c, SGST_Amount__c, HSN_Code__c,Amount__c, Duration_Hour__C, 
-                                    Duration_Min__c,RR_Labour_Category__c, Discount__c FROM WorkPlans WHERE RR_Labour_Category__c IN ('Paid', 'Insurance')), (SELECT Id, LineItemNumber, Quantity, UnitPrice,Discount,
+                                    Duration_Min__c,RR_Labour_Category__c, Discount__c,Labour_Charge_CodeSet_New__c, IGST__c,CGST__c,SGST__c FROM WorkPlans WHERE RR_Labour_Category__c IN ('Paid', 'Insurance')), (SELECT Id, LineItemNumber, Quantity, UnitPrice,Discount,
 									Product2.Name,PricebookEntry.Product2.Name,PricebookEntry.Product2.SGST_Percentage__c, PricebookEntry.Product2.IGST_Percentage__c, PricebookEntry.Product2.CGST_Percentage__c, Product2.HSN_Code__c,
                                     Product2.SGST_Percentage__c, Product2.CGST_Percentage__c,Product2.IGST_Percentage__c, CGST_Amount__c, SGST_Amount__c,IGST_Amount__c,
-									Amount__c,TotalPrice,HSN_Code__c,Unit_of_Measurement__c,total_amount__c,RR_Parts_Category__c,Subtotal FROM WorkOrderLineItems WHERE RR_Parts_Category__c IN ('Paid', 'Insurance'))
+									Amount__c,TotalPrice,HSN_Code__c,Unit_of_Measurement__c,total_amount__c,RR_Parts_Category__c,Subtotal, List_Price_New__c, IGST__c, CGST__c,SGST__c FROM WorkOrderLineItems WHERE RR_Parts_Category__c IN ('Paid', 'Insurance'))
                                     FROM WorkOrder WHERE Id = :workOrderId LIMIT 1];
                                         /*System.debug('Name----------------->'+workOrder.WorkOrderLineItems[0].PricebookEntry.Product2.Name);
                                         System.debug('CGST----------------->'+workOrder.WorkOrderLineItems[0].PricebookEntry.Product2.CGST_Percentage__c);

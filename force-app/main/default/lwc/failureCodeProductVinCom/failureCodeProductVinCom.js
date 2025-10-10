@@ -153,7 +153,7 @@ export default class FailureCodeTable extends NavigationMixin(LightningElement) 
     
     applyFilters() {
         debugger;
-        this.failureCodes = this.OrignalData.filter(item => {  
+        this.pageData = this.OrignalData.filter(item => {  
             const failureCodeMatch = !this.filters.failureCode || 
                 (item.Name && item.Name.toLowerCase().includes(this.filters.failureCode.toLowerCase()));
             

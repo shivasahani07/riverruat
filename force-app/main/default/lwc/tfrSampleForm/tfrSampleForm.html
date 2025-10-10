@@ -33,10 +33,21 @@
                     <lightning-input-field field-name="VIN_No__c" disabled={isTFRRecordDisabled}></lightning-input-field>
                     <lightning-input-field field-name="Service_Center__c" disabled={inputObject.WorkOrder.Service_Center__c} value={inputObject.WorkOrder.Service_Center__c}></lightning-input-field>
                     <lightning-input-field field-name="TFR_Post_Vin_Cutt_off__c" disabled  value={inputObject.Post_Vin_cutt_off__c}></lightning-input-field>
-                    
+                </div>
+                <div class="slds-col slds-size_1-of-1">
+                   <lightning-dual-listbox
+                    id="selectOptions"
+                    name="Add labour code with TFR Form"
+                    label="Add labour code with TFR Form"
+                    source-label="Available Labour Codes"
+                    selected-label="Selected Labour Codes"
+                    options={listOptions}
+                    value={defaultOptions}
+                    required-options={requiredOptions}
+                    onchange={handleChange}>
+                </lightning-dual-listbox>
                 </div>
             </div>
-
             <!-- Submit Button -->
             <div class="slds-m-top_medium slds-align_absolute-center">
                 <lightning-button class="slds-m-right_small" variant="brand" type="submit" label="Submit" disabled={isTFRRecordDisabled}>

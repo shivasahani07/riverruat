@@ -18,3 +18,37 @@
     background: white;
     z-index: 2;
 }
+:host {
+    --skeleton-bg-light: #f6f7f8;
+    --skeleton-bg-dark: #e0e0e0;
+}
+
+/* Shimmer gradient effect */
+@keyframes shimmer {
+    0% {
+        background: linear-gradient(
+            90deg,
+            var(--skeleton-bg-light) 25%,
+            var(--skeleton-bg-dark) 50%,
+            var(--skeleton-bg-light) 75%
+        );
+        background-size: 400% 100%;
+        background-position: 100% 0;
+    }
+    100% {
+        background-position: -100% 0;
+    }
+}
+
+/* Apply shimmer to cells */
+.skeleton-cell {
+    height: 20px;
+    border-radius: 4px;
+    animation: shimmer 1.5s infinite linear;
+}
+
+/* Optional table scroll */
+.table-container {
+    max-height: 65vh;
+    overflow-y: auto;
+}

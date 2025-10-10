@@ -105,15 +105,15 @@ public class QueueableForImageTemplateMsg implements Queueable, Database.allowsC
                     
                 }
                 System.debug('Calling IntegrationLogHelper.createIntegrationLogs()...');
-                IntegrationLogHelper.IntegrationLogWrapper wrapper = new IntegrationLogHelper.IntegrationLogWrapper();
-                    wrapper.requestBody = reqBody;
-                    wrapper.responseBody = response.getBody();
-                    wrapper.status = status;
-                    wrapper.templateName = templateName;
-                    wrapper.statusCode = String.valueof(response.getStatusCode());
+                // IntegrationLogHelper.IntegrationLogWrapper wrapper = new IntegrationLogHelper.IntegrationLogWrapper();
+                //     wrapper.requestBody = reqBody;
+                //     wrapper.responseBody = response.getBody();
+                //     wrapper.status = status;
+                //     wrapper.templateName = templateName;
+                //     wrapper.statusCode = String.valueof(response.getStatusCode());
 
-                    IntegrationLogHelper.createIntegrationLogs(wrapper);
-                System.debug('Successfully called IntegrationLogHelper.createIntegrationLogs()');
+                //     IntegrationLogHelper.createIntegrationLogs(wrapper);
+                // System.debug('Successfully called IntegrationLogHelper.createIntegrationLogs()');
                 
             } catch (Exception e) {
                 //ExceptionHelper.createExceptionLog(e);//for managing logException added on 24/02/2025

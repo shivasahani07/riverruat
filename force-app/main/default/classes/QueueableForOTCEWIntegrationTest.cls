@@ -12,7 +12,10 @@ public class QueueableForOTCEWIntegrationTest {
         Account testAccount = new Account(Name = 'Test Account',Type='Customer',Phone='0987654321',Center_Code__c='292001');
         insert testAccount;
         
-        Contact con = new Contact(LastName ='Dinesh',Phone = '7834878789',AccountId = testAccount.id);
+        Schema.Location testLocation = new Schema.Location(Name = 'Test Location', LocationType = 'State',State__c = 'Karnataka');
+        insert testLocation;
+        
+        Contact con = new Contact(LastName ='Dinesh',Phone = '7834878789',AccountId = testAccount.id,Location__c=testLocation.Id,Role_Type__c='Sales');
         insert con;
         
         Product2 testProduct = new Product2(Name = 'Test Product', IsActive = true,ProductCode='RV-EW-1',HSN_Code__c='abcd',Type__c='Vehicle',Colour__c='Black');
@@ -102,7 +105,10 @@ public class QueueableForOTCEWIntegrationTest {
         Account testAccount = new Account(Name = 'Test Account',Type='Customer',Phone='0987654321',Center_Code__c='292001');
         insert testAccount;
         
-        Contact con = new Contact(LastName ='Dinesh',Phone = '7834878789',AccountId = testAccount.id);
+        Schema.Location testLocation = new Schema.Location(Name = 'Test Location', LocationType = 'State',State__c = 'Karnataka');
+        insert testLocation;
+        
+        Contact con = new Contact(LastName ='Dinesh',Phone = '7834878789',AccountId = testAccount.id,Location__c=testLocation.Id,Role_Type__c='Sales');
         insert con;
         
         Product2 testProduct = new Product2(Name = 'Test Product', IsActive = true,ProductCode='RV-EW-1',HSN_Code__c='abcd',Type__c='Vehicle',Colour__c='Black');

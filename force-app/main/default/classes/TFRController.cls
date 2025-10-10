@@ -452,6 +452,30 @@ public without sharing class TFRController {
     public static void deleteFailureCode(Id recordId) {
         delete [SELECT Id FROM Failure_Code__c WHERE Id = :recordId];
     }
+
+    @AuraEnabled
+    public static list<workplan> getTFRRelatedWp(String workOrderId){
+        try {
+            list<workplan> rtfrwops=[SELECT Id,Name,TFR_Sample__c,TFR_Required__c FROM workplan WHERE WorkOrderId =:workOrderId];
+            return rtfrwops;
+        } catch (Exception e) {
+            // throw new AuraHandledException(e.getMessage());
+            
+        }
+        return null;
+    }
+
+    @AuraEnabled
+    public static string updateWorkplan(list<workplan> workplans){
+        try {
+            update workplans;
+            return 'success';
+        } catch (Exception e) {
+            System.debug('error at line Number ---'+e.getLineNumber());
+            System.debug('error ---'+e.getMessage());
+            return 'failer';
+        }
+    }
     
     
     

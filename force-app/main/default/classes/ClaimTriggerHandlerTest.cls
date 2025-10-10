@@ -84,9 +84,24 @@ public class ClaimTriggerHandlerTest {
             AccountId = acc.Id,
             Status = 'Draft'
         );
-
         insert testClaim;
+		
+        /* Additional Code */
+        Claim oldClaim = testClaim.clone(true, false, false, false);
+        System.debug('oldClaim : ' + oldClaim);
+        
+        testClaim.Status = 'Submitted';
+        update testClaim;
+        
+        Claim newClaim = [SELECT Id, Name,ClaimType,Received_Quantity__c,Credit_Note_Number__c,Vehicle__c,Status,FinalizedDate,Create_Batch__c,Warranty_Prior__c,
+                          Job_Card__c,Unit_Price__c,Shipped_Quantity__c,Total_Claimed_Amount__c,Total_Claim_Amount__c,Approved_Amount__c,Total_Approved_Amount__c	 
+                          FROM Claim WHERE Id = :testClaim.Id];
 
+        Map<Id, Claim> oldMap = new Map<Id, Claim>{ oldClaim.Id => oldClaim };
+        Map<Id, Claim> newMap = new Map<Id, Claim>{ newClaim.Id => newClaim };
+        
+        DMLLogger.logChanges(oldMap, newMap, 'UPDATE', 'Claim');
+        /* Till Here */
         
         ClaimTriggerHandler.addTest();
         ClaimTriggerHandler.addTest2();

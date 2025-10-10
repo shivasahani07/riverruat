@@ -8,9 +8,10 @@ public without sharing class DMLLogger {
 
         // Fetch tracked fields configuration for this object
         List<Important_Object_Field__mdt> fieldConfigs = [
-            SELECT Object_API__c, Field_API__c, Track_Update__c, Track_Delete__c 
+            SELECT Object_API__c, Field_API__c, Track_Update__c, Track_Delete__c, IsActive__c
             FROM Important_Object_Field__mdt 
             WHERE Object_API__c = :objectName
+            AND IsActive__c = true
         ];
 
         if (fieldConfigs.isEmpty()) {
@@ -38,8 +39,10 @@ public without sharing class DMLLogger {
         else if (operation == 'UPDATE') {
             for (Id recId : newMap.keySet()) {
                 SObject oldRec = oldMap.get(recId);
+                System.debug('oldRec : ' + oldRec);
                 SObject newRec = newMap.get(recId);
-
+				System.debug('newRec : ' + newRec);
+                
                 Map<String, Object> changes = new Map<String, Object>();
 
                 for (Important_Object_Field__mdt fieldConfig : fieldConfigs) {
@@ -49,8 +52,10 @@ public without sharing class DMLLogger {
                     
                     for (String field : fieldApiList) {
                         Object oldVal = oldRec.get(field);
+                        System.debug('oldVal : ' + oldVal);
                         Object newVal = newRec.get(field);
-
+						System.debug('newVal : ' + newVal);
+                        
                         if (oldVal != newVal) {
                             changes.put(field, new Map<String, Object>{ 
                                 'old' => oldVal, 
@@ -66,8 +71,8 @@ public without sharing class DMLLogger {
                         Record_Id__c = recId,
                         Operation__c = 'UPDATE',
                         Changed_Fields__c = String.join(new List<String>(changes.keySet()), ','),
-                        Old_Values__c = JSON.serialize(oldRec),
-                        New_Values__c = JSON.serialize(newRec),
+                        Old_Values__c = JSON.serializePretty(oldRec),
+                        New_Values__c = JSON.serializePretty(newRec),
                         Performed_By__c = UserInfo.getUserId(),
                         Performed_On__c = System.now()
                     ));

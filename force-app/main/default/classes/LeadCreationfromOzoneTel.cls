@@ -22,6 +22,7 @@ global class LeadCreationfromOzoneTel{
         String email 			 = (String) requestBodyMap.get('Email');
         String phone 			 = (String) requestBodyMap.get('Phone');
         String city 			 = (String) requestBodyMap.get('City');
+        boolean verified 		 = (Boolean) requestBodyMap.get('verified');
         String postalCode		 = String.valueOf(requestBodyMap.get('PostalCode'));
         String utm_source 		 = (String) requestBodyMap.get('utm_source');
         String normalizedPhone = phone != null ? phone.replaceAll('[^0-9]', '') : null;
@@ -46,6 +47,7 @@ global class LeadCreationfromOzoneTel{
                             StageName               = 'New',
                             CloseDate               = System.today().addDays(30),
                             Phone__c                = normalizedPhone,
+                            Verified__c             = verified,
                             LeadSource              = 'Online',
                             Lead_Secondary_Source__c= 'OzoneTel'
                         );
@@ -53,7 +55,7 @@ global class LeadCreationfromOzoneTel{
                             newOpp.OwnerId          = usr.Id;
                         }
                         insert OpportunityTriggerHandler.getOwnerFromPincodeAndAssignToOpp(new List<Opportunity>{newOpp}, postalCode);
-
+                        
                         responseMap.put('status', 'failure');
                         responseMap.put('statuscode', '401');
                         responseMap.put('opportunity Id', newOpp.Id);
@@ -88,7 +90,7 @@ global class LeadCreationfromOzoneTel{
                         responseMap.put('opportunity Id', opp.Id);
                         responseMap.put('account Id', opp.accountId);
                         responseMap.put('message', 'Duplicate Lead Found - Lead Exists');
-
+                        
                         insert new Integration_Log__c(
                             Integration_Type__c     = 'Opportunity Creation',
                             DML__c                  = 'Updated Existing Opportunity - OzoneTel',
@@ -108,40 +110,41 @@ global class LeadCreationfromOzoneTel{
                     }
                 }else{
                     Opportunity newOpp = new Opportunity(
-                            Name                    = fullName,
-                            AccountId               = acc[0].Id,
-                            StageName               = 'New',
-                            CloseDate               = System.today().addDays(30),
-                            Phone__c                = normalizedPhone,
-                            LeadSource              = 'Online',
-                            Lead_Secondary_Source__c= 'OzoneTel'
-                        );
-                        if( usr != null && usr.Id != null){
-                            newOpp.OwnerId          = usr.Id;
-                        }
-                        insert OpportunityTriggerHandler.getOwnerFromPincodeAndAssignToOpp(new List<Opportunity>{newOpp}, postalCode);
-
-                        responseMap.put('status', 'failure');
-                        responseMap.put('statuscode', '401');
-                        responseMap.put('opportunity Id', newOpp.Id);
-                        responseMap.put('account Id', newOpp.accountId);
-                        responseMap.put('message', 'Duplicate Lead Found - Lead Exists');
-
-                        insert new Integration_Log__c(
-                            Integration_Type__c = 'Opportunity Creation',
-                            DML__c              = 'New Opportunity after Closed Won - OzoneTel',
-                            Duplicate_Lead_Phone__c = normalizedPhone,
-                            Request_Payload__c  = JSON.serializePretty(requestBodyMap),
-                            Responses__c  = JSON.serializePretty(responseMap),
-                            Response_Payload__c = 'New Opportunity created: ' + newOpp.Id,
-                            Status__c           = 'Failed',
-                            Opportunity__c      = newOpp.Id,
-                            Account__c          = acc[0].Id
-                        );
-						sendResponse(responseMap);
-                        res.statusCode = 401;
-                        res.responseBody = Blob.valueOf(JSON.serializePretty(responseMap));
-                        return;    
+                        Name                    = fullName,
+                        AccountId               = acc[0].Id,
+                        StageName               = 'New',
+                        CloseDate               = System.today().addDays(30),
+                        Phone__c                = normalizedPhone,
+                        Verified__c             = verified,
+                        LeadSource              = 'Online',
+                        Lead_Secondary_Source__c= 'OzoneTel'
+                    );
+                    if( usr != null && usr.Id != null){
+                        newOpp.OwnerId          = usr.Id;
+                    }
+                    insert OpportunityTriggerHandler.getOwnerFromPincodeAndAssignToOpp(new List<Opportunity>{newOpp}, postalCode);
+                    
+                    responseMap.put('status', 'failure');
+                    responseMap.put('statuscode', '401');
+                    responseMap.put('opportunity Id', newOpp.Id);
+                    responseMap.put('account Id', newOpp.accountId);
+                    responseMap.put('message', 'Duplicate Lead Found - Lead Exists');
+                    
+                    insert new Integration_Log__c(
+                        Integration_Type__c = 'Opportunity Creation',
+                        DML__c              = 'New Opportunity after Closed Won - OzoneTel',
+                        Duplicate_Lead_Phone__c = normalizedPhone,
+                        Request_Payload__c  = JSON.serializePretty(requestBodyMap),
+                        Responses__c  = JSON.serializePretty(responseMap),
+                        Response_Payload__c = 'New Opportunity created: ' + newOpp.Id,
+                        Status__c           = 'Failed',
+                        Opportunity__c      = newOpp.Id,
+                        Account__c          = acc[0].Id
+                    );
+                    sendResponse(responseMap);
+                    res.statusCode = 401;
+                    res.responseBody = Blob.valueOf(JSON.serializePretty(responseMap));
+                    return;    
                 }
             }else if (!leadRec.isEmpty()) {
                 System.debug('leadRec==>'+leadRec);
@@ -155,6 +158,7 @@ global class LeadCreationfromOzoneTel{
                                 Name                    = fullName,
                                 AccountId               = leadRec[0].ConvertedAccountId,
                                 StageName               = 'New',
+                                Verified__c             = verified,
                                 CloseDate               = System.today().addDays(30),
                                 Phone__c                = normalizedPhone,
                                 LeadSource              = 'Online',
@@ -170,7 +174,7 @@ global class LeadCreationfromOzoneTel{
                             responseMap.put('opportunity Id', opp.Id);
                             responseMap.put('account Id', opp.accountId);
                             responseMap.put('message', 'Duplicate Lead Found - Lead Exists');
-
+                            
                             insert new Integration_Log__c(
                                 Integration_Type__c     = 'Opportunity Creation',
                                 DML__c                  = 'New Opportunity after Closed Won - OzoneTel',
@@ -199,7 +203,7 @@ global class LeadCreationfromOzoneTel{
                             responseMap.put('opportunity Id', opp.Id);
                             responseMap.put('account Id', opp.accountId);
                             responseMap.put('message', 'Duplicate Lead Found - Lead Exists');
-
+                            
                             insert new Integration_Log__c(
                                 Integration_Type__c     = 'Opportunity Creation',
                                 DML__c                  = 'Updated Opportunity from Converted Lead - OzoneTel',
@@ -221,6 +225,7 @@ global class LeadCreationfromOzoneTel{
                             Name                    = fullName,
                             AccountId               = acc[0].Id,
                             StageName               = 'New',
+                            Verified__c             = verified,
                             CloseDate               = System.today().addDays(30),
                             Phone__c                = normalizedPhone,
                             LeadSource              = 'Online',
@@ -230,13 +235,13 @@ global class LeadCreationfromOzoneTel{
                             newOpp.OwnerId          = usr.Id;
                         }
                         insert OpportunityTriggerHandler.getOwnerFromPincodeAndAssignToOpp(new List<Opportunity>{newOpp}, postalCode);
-
+                        
                         responseMap.put('status', 'failure');
                         responseMap.put('statuscode', '401');
                         responseMap.put('opportunity Id', newOpp.Id);
                         responseMap.put('account Id', newOpp.accountId);
                         responseMap.put('message', 'Duplicate Lead Found - Lead Exists');
-
+                        
                         insert new Integration_Log__c(
                             Integration_Type__c = 'Opportunity Creation',
                             DML__c              = 'New Opportunity after Closed Won - OzoneTel',
@@ -255,19 +260,19 @@ global class LeadCreationfromOzoneTel{
                     } 
                 } else {
                     leadRec[0].LastName                 = fullName;
-                    leadRec[0].Company                  = company;
+                    leadRec[0].Company                  = fullName;
                     leadRec[0].Email                    = email;
                     leadRec[0].City                     = city;
                     leadRec[0].PostalCode               = postalCode;
                     leadRec[0].Status                   = 'New';
-                    leadRec[0].Secondary_Sources__c     = 'OzoneTel';
+                    // leadRec[0].Secondary_Sources__c     = 'OzoneTel';
                     update leadRec;
                     
                     responseMap.put('status', 'failure');
                     responseMap.put('statuscode', '401');        
                     responseMap.put('Lead Id', leadRec[0].Id);
                     responseMap.put('message', 'Duplicate Lead Found - Lead Exists');
-
+                    
                     insert new Integration_Log__c(
                         Integration_Type__c     = 'Lead Creation',
                         DML__c                  = 'Updated Existing Lead - OzoneTel',
@@ -288,8 +293,9 @@ global class LeadCreationfromOzoneTel{
             }else{              
                 Lead newLead = new Lead(
                     LastName                = fullName,
-                    Company                 = company,
+                    Company                 = fullName,
                     Email                   = email,
+                    Verified__c             = verified,
                     Phone                   = normalizedPhone,
                     City                    = city,
                     PostalCode              = postalCode,
@@ -303,7 +309,7 @@ global class LeadCreationfromOzoneTel{
                 responseMap.put('statusCode', '200');
                 responseMap.put('message', 'New Lead Created');
                 responseMap.put('leadId', newLead.Id);
-
+                
                 insert new Integration_Log__c(
                     Integration_Type__c = 'Lead Creation',
                     DML__c              = 'New Lead - OzoneTel',
@@ -319,12 +325,12 @@ global class LeadCreationfromOzoneTel{
                 return;    
             }
         } catch (Exception e) {
-
+            
             responseMap.put('status', 'Error');
             responseMap.put('statusCode', '400');
             responseMap.put('message', e.getMessage());
             responseMap.put('lineNumber', e.getLineNumber());
-
+            
             insert new Integration_Log__c(
                 Integration_Type__c = 'Lead Creation',
                 Request_Payload__c  = JSON.serializePretty(requestBodyMap),

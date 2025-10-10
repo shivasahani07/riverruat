@@ -31,7 +31,7 @@ trigger OrderPaymentTrigger on Order_Payment__c (before insert, before update,be
         }
         
         If(trigger.isUpdate){
-            //OrderPaymentTriggerHandler.updateOrderOnUpdate(trigger.new, trigger.oldMap);
+            OrderPaymentTriggerHandler.updateOrderOnUpdate(trigger.new, trigger.oldMap);//Uncommented by Aniket on 09/10/2025
             OrderPaymentTriggerHandler.populatePDFInOrder(trigger.new,Trigger.oldMap);
         }
     }

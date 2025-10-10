@@ -1,5 +1,5 @@
-import getShipmentItemList from '@salesforce/apex/clainAndShipmentItemControlle.getShipmentItemList';
-import updateShipmentItemList from '@salesforce/apex/clainAndShipmentItemControlle.updateShipmentItemList';
+import getShipmentItemList from '@salesforce/apex/clainAndShipmentItemController.getShipmentItemList';
+import updateShipmentItemList from '@salesforce/apex/clainAndShipmentItemController.updateShipmentItemList';
 import { CloseActionScreenEvent } from 'lightning/actions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { LightningElement, api, wire } from 'lwc';

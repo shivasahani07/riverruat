@@ -13,6 +13,7 @@ public class NewE_invoicePDFControllerTest {
             Center_Code__c = '564757',
             Store_Type__c='DODO',
             BillingState  ='karnataka'
+           
         );
         insert seller;
         

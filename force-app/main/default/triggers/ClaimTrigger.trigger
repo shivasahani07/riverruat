@@ -20,5 +20,13 @@ trigger ClaimTrigger on Claim (after insert,after update, before insert , before
     if(trigger.IsBefore && trigger.IsInsert){
         JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.new);
     } */
+    
+    if (Trigger.isAfter && Trigger.isUpdate) {
+        DMLLogger.logChanges(Trigger.oldMap, Trigger.newMap, 'UPDATE', 'Claim');
+    }
+    
+    if(trigger.IsBefore && trigger.IsDelete){
+        DMLLogger.logChanges(Trigger.oldMap, null, 'DELETE', 'Claim');
+    }
   
 }

@@ -184,18 +184,18 @@
                         <td colspan="2">{!data.RR_Labour_Code__r.Name}</td>
                         <td>{!data.RR_Labour_Category__c}</td>
                         <td>{!data.Duration_Hour__C}H {!data.Duration_Min__C}M</td>
-                        <td>{!data.RR_Labour_Code__r.RR_Labour_Charge__c}</td>
+                        <td>{!data.Labour_Charge_CodeSet_New__c}</td>
                         <!--<td>{!data.IGST_Percentage__c}</td>
                         <td>{!data.IGST_Amount__c}</td>
                         <td>{!data.CGST_Percentage__c}</td>
                         <td>{!data.CGST_Amount__c}</td>
                         <td>{!data.SGST_Percentage__c}</td>
                         <td >{!data.SGST_Amount__c}</td>-->
-                        <td>{!IF(workOrder.Same_State__c, '0', data.RR_Labour_Code__r.IGST_Percentage__c)}</td>
+                        <td>{!IF(workOrder.Same_State__c, '0', data.IGST__c)}</td>
                         <td>{!IF(workOrder.Same_State__c, '0', data.IGST_Amount__c)}</td>
-                        <td>{!IF(workOrder.Same_State__c, data.RR_Labour_Code__r.CGST_Percentage__c, '0')}</td>
+                        <td>{!IF(workOrder.Same_State__c, data.CGST__c, '0')}</td>
                         <td>{!IF(workOrder.Same_State__c, data.CGST_Amount__c,'0')}</td>
-                        <td>{!IF(workOrder.Same_State__c, data.RR_Labour_Code__r.SGST_Percentage__c,'0')}</td>
+                        <td>{!IF(workOrder.Same_State__c, data.CGST__c,'0')}</td>
                         <td>{!IF(workOrder.Same_State__c, data.SGST_Amount__c,'0')}</td>
                         <td><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!IF(ISNULL(data.Discount__c), 0, data.Labour_Charge__c * data.Discount__c/100)}"/></apex:outputText></td>
                         <td colspan="2">{!data.Amount__c}</td>
@@ -244,16 +244,16 @@
                         <td>{!data.RR_Parts_Category__c}</td>
                         <td>{!data.Unit_of_Measurement__c}</td>
                         <td>{!data.Quantity}</td>
-                        <td>{!data.UnitPrice}</td>
+                        <td>{!data.List_Price_New__c}</td>
                         <!--<td>{!data.CGST_Percentage__c}</td>
                         <td>{!data.CGST_Amount__c}</td>
                         <td>{!data.SGST_Percentage__c}</td>
                         <td>{!data.SGST_Amount__c}</td>-->
-                        <td>{!IF(workOrder.Same_State__c, '0', data.PricebookEntry.Product2.IGST_Percentage__c)}</td>
+                        <td>{!IF(workOrder.Same_State__c, '0', data.IGST__c)}</td>
                         <td>{!IF(workOrder.Same_State__c, '0', data.IGST_Amount__c)}</td>
-                        <td>{!IF(workOrder.Same_State__c, data.PricebookEntry.Product2.CGST_Percentage__c, '0')}</td>
+                        <td>{!IF(workOrder.Same_State__c, data.CGST__c, '0')}</td>
                         <td>{!IF(workOrder.Same_State__c, data.CGST_Amount__c,'0')}</td>
-                        <td>{!IF(workOrder.Same_State__c, data.PricebookEntry.Product2.SGST_Percentage__c,'0')}</td>
+                        <td>{!IF(workOrder.Same_State__c, data.SGST__c,'0')}</td>
                         <td>{!IF(workOrder.Same_State__c, data.SGST_Amount__c,'0')}</td>
                         <td><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!IF(ISNULL(data.Discount), 0, data.Subtotal * data.Discount/100)}"/></apex:outputText></td>
                         <td>{!data.Amount__c}</td>

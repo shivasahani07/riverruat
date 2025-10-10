@@ -1,6 +1,6 @@
 //import getAllClaimItems from '@salesforce/apex/clainAndShipmentItemController.getAllClaimItems';
-import getAllClaimItemsApproved from '@salesforce/apex/clainAndShipmentItemControlle.getAllClaimItemsApproved';
-import updateClaimItems from '@salesforce/apex/clainAndShipmentItemControlle.updateClaimItems';
+import getAllClaimItemsApproved from '@salesforce/apex/clainAndShipmentItemController.getAllClaimItemsApproved';
+import updateClaimItems from '@salesforce/apex/clainAndShipmentItemController.updateClaimItems';
 import { CloseActionScreenEvent } from 'lightning/actions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { LightningElement, api, wire } from 'lwc';
@@ -13,23 +13,79 @@ export default class BatchReceiveGRN extends LightningElement {
     claimList=[];
     buttonVisibility=true;
     
-    @wire(getAllClaimItemsApproved,{recordId:'$recordId'})
-    wiredData(result){
-        this.refreshData=result;
-        debugger;
-        if(result.data){
-            this.claimList=result.data;
-            if(this.claimList[0].Claim.Create_Batch__r.Is_GRN_Received__c === true){
-                //console.log('this.claimList.Create_Batch__r.Is_GRN_Received__c===>',this.claimList[0].Claim.Create_Batch__r.Is_GRN_Received__c);
-                this.buttonVisibility=false;
-            }
+    // @wire(getAllClaimItemsApproved,{recordId:'$recordId'})
+    // wiredData(result){
+    //     this.refreshData=result;
+    //     debugger;
+    //     if(result.data){
+    //         this.claimList=result.data;
+    //         if(this.claimList[0].Claim.Create_Batch__r.Is_GRN_Received__c === true){
+    //             //console.log('this.claimList.Create_Batch__r.Is_GRN_Received__c===>',this.claimList[0].Claim.Create_Batch__r.Is_GRN_Received__c);
+    //             this.buttonVisibility=false;
+    //         }
             
-            console.log('Claim List==>',result.data);
-        }else if(result.error){
-            console.log('Error===>',result.error);
+    //         console.log('Claim List==>',result.data);
+    //     }else if(result.error){
+    //         console.log('Error===>',result.error);
+    //     }
+
+    // }
+
+     skeletonCols = Array.from({ length: 10 }, (_, i) => i + 1);
+
+    get dynamicSkeletonRows() {
+    const rowCount = this.claimList?.length > 0 ? this.claimList.length : 5;
+    return Array.from({ length: rowCount }, (_, i) => i + 1);
+}
+
+
+    connectedCallback() {
+        
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes shimmer {
+                0% { background-color: #f6f7f8; }
+                50% { background-color: #e0e0e0; }
+                100% { background-color: #f6f7f8; }
+            }
+        `;
+        this.template?.appendChild(style);
+    }
+
+    @wire(getAllClaimItemsApproved, { recordId: '$recordId' })
+wiredData(result) {
+    this.refreshData = result;
+    this.isLoading = true; 
+
+    if (result.data) {
+        
+        const startTime = Date.now();
+
+        const updateData = () => {
+            this.claimList = result.data;
+            this.isLoading = false;
+
+            if (this.claimList[0]?.Claim?.Create_Batch__r?.Is_GRN_Received__c) {
+                this.buttonVisibility = false;
+            }
+        };
+
+        const elapsed = Date.now() - startTime;
+        const delay = 2000 - elapsed; 
+
+        if (delay > 0) {
+            setTimeout(updateData, delay);
+        } else {
+            updateData();
         }
 
+    } else if (result.error) {
+        this.isLoading = false;
+        console.error('Error:', result.error);
     }
+}
+
+
     get inputDisable(){
         return this.claimList[0].Create_Batch__r.Is_GRN_Received__c === true;
     }

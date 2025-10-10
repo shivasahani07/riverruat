@@ -148,10 +148,23 @@
                     </lightning-input>
                 </div>
                 <div class="slds-col slds-size_1-of-2">
-                    <lightning-input type="time" name="dayStart" label="Start Time" required value={dayStart} onchange={handleInput}></lightning-input>
+                    <!--lightning-input type="time" name="dayStart" label="Start Time" required value={dayStart} onchange={handleInput}></lightning-input-->
+                    <lightning-input 
+            type="time" 
+            name="dayStart" 
+            label="Start Time"
+            required
+            value={dayStart}
+            min="10:00"
+            max="19:00"
+            step="1800"   
+            onchange={handleInput}>
+        </lightning-input>
                 </div>
                 <div class="slds-col slds-size_1-of-2">
-                    <lightning-input type="time" name="dayEnd" label="End Time" required value={dayEnd} onchange={handleInput}></lightning-input>
+                    <lightning-input type="time" name="dayEnd" label="End Time" required value={dayEnd} onchange={handleInput} min="10:00"
+            max="19:00"
+            step="1800" ></lightning-input>
                 </div>
                 <div class="slds-col slds-size_1-of-1">
                     <lightning-input type="number" name="duration" label="Duration (minutes)" min="15" max="60" required value={duration} onchange={handleInput}></lightning-input>

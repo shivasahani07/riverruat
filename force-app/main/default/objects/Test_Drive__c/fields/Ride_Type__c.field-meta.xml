@@ -23,11 +23,13 @@
             <value>
                 <fullName>Home Ride</fullName>
                 <default>false</default>
+                <isActive>false</isActive>
                 <label>Home Ride</label>
             </value>
             <value>
                 <fullName>Store Ride</fullName>
                 <default>false</default>
+                <isActive>false</isActive>
                 <label>Store Ride</label>
             </value>
         </valueSetDefinition>

@@ -6,9 +6,89 @@
         </template>
     </lightning-progress-indicator>
 
-    <template if:true={status}>
-        <p class="slds-m-top_medium slds-text-heading_small">
-            Current Status:<span class="slds-text-color_success">{status}</span>
-        </p>
+    <!-- <template if:true={status}>
+
+        <li class="slds-m-bottom_medium">
+            <ul class=" slds-m-left_large">
+                <p class="slds-m-top_medium slds-text-heading_small">
+                    Current Status: <span class="slds-text-color_success">{status}</span>
+                </p>
+            </ul>
+        </li>
+
+    </template> -->
+    <br />
+
+
+
+    <template if:true={isBooking}>
+        <p style="color: red; margin-bottom:7px;font-size:20px">Guidelines</p>
+        <ul class=" slds-m-left_large">
+            Fill the following details:
+            <li>• Occupation</li>
+            <li>• Gender</li>
+            <li>• Account Email</li>
+            <li>• Billing Address</li>
+            <li>• Payment Due Date OR Payment And Allocation Stage</li>
+        </ul>
+
     </template>
+
+    <template if:true={isPaymentAndAllocation}>
+        <p style="color: red; margin-bottom:7px;font-size:20px">Guidelines</p>
+        <ul class=" slds-m-left_large slds-text-heading_small">
+            <li>1) Fill Below Details:
+                <ul class=" slds-m-left_large">
+                    <li>• Finance Details (Optional)</li>
+                    <li>• Subsidy Details (if Applicable)</li>
+                </ul>
+            </li>
+            <li>2) Add RTO Charges</li>
+            <li>3) Update full payment</li>
+            <li>4) Vehicle Assignment on payment completion</li>
+        </ul>
+    </template>
+
+    <template if:true={isPreInvoice}>
+        <p style="color: red; margin-bottom:7px;font-size:20px">Guidelines</p>
+        <ul class=" slds-m-left_large slds-text-heading_small">
+            <li>Add more products, if required</li>
+            <br /><br />
+
+            <li><b>Note :</b> If the customer does not have WhatsApp, update the Customer Approval field to "Yes".</li>
+        </ul>
+    </template>
+
+    <template if:true={isInvoiceAndInsurance}>
+        <p style="color: red; margin-bottom:7px;font-size:20px">Guidelines</p>
+        <ul class=" slds-m-left_large slds-text-heading_small">
+            <li>1) Product, Payment Addition is Restricted from this Status Onwards</li>
+            <li>2) Enter the Insurance Policy Number.</li>
+        </ul>
+    </template>
+
+    <template if:true={isRTORegistration}>
+        <p style="color: red; margin-bottom:7px;font-size:20px">Guidelines</p>
+        <ul class=" slds-m-left_large slds-text-heading_small">
+            <li> 1) Click Assigned Vehicle</li>
+            <li> &nbsp;&nbsp;&nbsp; • Update field "Vehicle Registration Number" (VRN) and save</li>
+            <!-- <li> 3) Save</li> -->
+            <li> 2) Now Return to Order for "Ready for Delivery" Status </li>
+        </ul>
+    </template>
+
+    <template if:true={isReadyForDelivery}>
+        <p style="color: red; margin-bottom:7px;font-size:20px">Guidelines</p>
+        <ul class=" slds-m-left_large slds-text-heading_small">
+
+            <li>1) Check "Delivery Date" is updated</li>
+            <li>2) Upload PDI Document.</li>
+            <li>3) Upload the subsidy document (if applicable)</li>
+            <li>4) Handover Gate Pass to the security to scan during the vehicle delivery.</li>
+
+            <br /><br />
+            <li><b>Note :</b> If the customer does not have WhatsApp, update the Delivery Date</li>
+        </ul>
+    </template>
+
 </template>

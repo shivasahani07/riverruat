@@ -45,6 +45,26 @@ public class BatchRecordControllerPDFTest  {
         );
         insert workOrderLineItem1;
         
+        OrgWideEmailAddress owea = [SELECT Id, DisplayName 
+                                        FROM OrgWideEmailAddress 
+                                        WHERE DisplayName = :System.Label.OrgWideEmail 
+                                        LIMIT 1];
+        
+       
+        DeliveryChallanPDF__mdt d = new DeliveryChallanPDF__mdt();
+        d.Bill_From__c='987';
+        d.Bill_To__c='0986';
+        d.CIN__c='98';
+        d.Company_Email__c='a@test.com';
+        d.CompanyName__c='987';
+        d.Company_Phone__c='0987654321';
+        d.Company_Website__c='https://www.example.com';
+        d.Factory_Address__c='987';
+        d.Former_Address__c='097';
+        d.GST__c='098';
+        d.PartA__c='09';
+        d.Registered_Office__c='098';
+        d.Small_CName__c='098';
         Claim claim = new Claim(Name='Test Claim', Create_Batch__c=batch.Id, AccountId = acc.Id);
         insert claim;
         

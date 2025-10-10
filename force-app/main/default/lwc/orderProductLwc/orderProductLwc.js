@@ -232,6 +232,8 @@ export default class OrderProductLwc extends NavigationMixin(LightningElement) {
         this.selectedItems = this.selectedItems.map(item => {
             if (item.Id === itemId) {
 
+                
+
                 let totalPrice = (updatedQuantity === 0) ? 0 : (updatedQuantity ? updatedQuantity * unitPrice : unitPrice) - discount;
                 let totalBeforediscount = totalPrice ? totalPrice  : 0;
                 let TotalAmountAfterDiscount = totalBeforediscount ? totalBeforediscount : 0;

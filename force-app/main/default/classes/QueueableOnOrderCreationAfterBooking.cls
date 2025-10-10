@@ -5,7 +5,7 @@
  * @last modified on  : 03-03-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
-public with sharing class QueueableOnOrderCreationAfterBooking implements Queueable, Database.allowsCallouts{
+public class QueueableOnOrderCreationAfterBooking implements Queueable, Database.allowsCallouts{
     private List<Id> orderIdsToProcess;
     private Map<Id,OrderTriggerHandler.wrapperForBooking> toPassToQueueable;
 

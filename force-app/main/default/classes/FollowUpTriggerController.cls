@@ -2,45 +2,49 @@ public class FollowUpTriggerController {
 
     public static void updateFollowUpName(List<Follow_Up__c> newListFollowUp){
         
-        Set<Id> leadIds = new Set<Id>();
-        for (Follow_Up__c followUp : newListFollowUp) {
-            if (followUp.Lead__c != null) {
-                leadIds.add(followUp.Lead__c);
+        try{
+            Set<Id> leadIds = new Set<Id>();
+            for (Follow_Up__c followUp : newListFollowUp) {
+                if (followUp.Lead__c != null) {
+                    leadIds.add(followUp.Lead__c);
+                }
             }
-        }
-        List<Lead> leadtoupdate = new List<Lead>(); 
-        Map<Id, Integer> followUpCounts = new Map<Id, Integer>();
-        List<AggregateResult> results = [SELECT Lead__c, COUNT(Id) followUpCount FROM Follow_Up__c WHERE Lead__c IN :leadIds GROUP BY Lead__c];
-        if (!leadIds.isEmpty()) {
-            for(Lead l : [select id,status from lead where id = :leadIds]){
-                l.Status = 'Follow Up';
-                leadtoupdate.add(l);
-            }
-            for (AggregateResult ar : results) {
-                followUpCounts.put((Id) ar.get('Lead__c'), (Integer) ar.get('followUpCount'));
-            }
-            
-        }
-        
-        Map<Id, Lead> leads = new Map<Id, Lead>();
-        if (!leadIds.isEmpty()) {
-            leads = new Map<Id, Lead>([
-                SELECT Id, Name FROM Lead WHERE Id IN :leadIds
-            ]);
-        }
-        
-        
-        for (Follow_Up__c followUp : newListFollowUp) {
-            if (followUp.Lead__c != null && leads.containsKey(followUp.Lead__c)) {
-                Lead relatedLead = leads.get(followUp.Lead__c);Integer currentCount = followUpCounts.containsKey(followUp.Lead__c) ? followUpCounts.get(followUp.Lead__c) : 0;
-                followUp.Name = relatedLead.Name + ' - Follow up ' + (currentCount + 1);
-                followUpCounts.put(followUp.Lead__c, currentCount + 1);
+            List<Lead> leadtoupdate = new List<Lead>(); 
+            Map<Id, Integer> followUpCounts = new Map<Id, Integer>();
+            List<AggregateResult> results = [SELECT Lead__c, COUNT(Id) followUpCount FROM Follow_Up__c WHERE Lead__c IN :leadIds GROUP BY Lead__c];
+            if (!leadIds.isEmpty()) {
+                for(Lead l : [select id,status from lead where id = :leadIds]){
+                    l.Status = 'Follow Up';
+                    leadtoupdate.add(l);
+                }
+                for (AggregateResult ar : results) {
+                    followUpCounts.put((Id) ar.get('Lead__c'), (Integer) ar.get('followUpCount'));
+                }
+                
             }
             
-        }
-        
-        if(!leadtoupdate.isempty()){
-            update leadtoupdate;
+            Map<Id, Lead> leads = new Map<Id, Lead>();
+            if (!leadIds.isEmpty()) {
+                leads = new Map<Id, Lead>([
+                    SELECT Id, Name FROM Lead WHERE Id IN :leadIds
+                ]);
+            }
+            
+            
+            for (Follow_Up__c followUp : newListFollowUp) {
+                if (followUp.Lead__c != null && leads.containsKey(followUp.Lead__c)) {
+                    Lead relatedLead = leads.get(followUp.Lead__c);Integer currentCount = followUpCounts.containsKey(followUp.Lead__c) ? followUpCounts.get(followUp.Lead__c) : 0;
+                    followUp.Name = relatedLead.Name + ' - Follow up ' + (currentCount + 1);
+                    followUpCounts.put(followUp.Lead__c, currentCount + 1);
+                }
+                
+            }
+            
+            if(!leadtoupdate.isempty()){
+                update leadtoupdate;
+            }
+        }catch(Exception e){
+            System.debug('Error ============> ' + e.getMessage() + ' at line number ============>' + e.getLineNumber() + ' Cause ============> ' + e.getCause() );
         }
     }
     
@@ -403,35 +407,39 @@ public class FollowUpTriggerController {
     }
 
     public static void assignSameOwnerOfLeadAndOppToTestDriveOwner(List<Follow_Up__c> newListFollowUp) {
-        Set<Id> setOfLeadId = new Set<Id>();
-        Set<Id> setOfOppId = new Set<Id>();
+        try{
+            Set<Id> setOfLeadId = new Set<Id>();
+            Set<Id> setOfOppId = new Set<Id>();
 
-        for (Follow_Up__c followUprec : newListFollowUp) {
-            if (followUprec.Lead__c != null) {
-                setOfLeadId.add(followUprec.Lead__c);
+            for (Follow_Up__c followUprec : newListFollowUp) {
+                if (followUprec.Lead__c != null) {
+                    setOfLeadId.add(followUprec.Lead__c);
+                }
+                if (followUprec.Opportunity__c != null) {
+                    setOfOppId.add(followUprec.Opportunity__c);
+                }
             }
-            if (followUprec.Opportunity__c != null) {
-                setOfOppId.add(followUprec.Opportunity__c);
+
+            Map<Id, Id> mapOfLeadOwner = new Map<Id, Id>();
+            Map<Id, Id> mapOfOppOwner = new Map<Id, Id>();
+
+            for (Lead lead : [SELECT Id, OwnerId FROM Lead WHERE Id IN :setOfLeadId]) {
+                mapOfLeadOwner.put(lead.Id, lead.OwnerId);
             }
-        }
 
-        Map<Id, Id> mapOfLeadOwner = new Map<Id, Id>();
-        Map<Id, Id> mapOfOppOwner = new Map<Id, Id>();
-
-        for (Lead lead : [SELECT Id, OwnerId FROM Lead WHERE Id IN :setOfLeadId]) {
-            mapOfLeadOwner.put(lead.Id, lead.OwnerId);
-        }
-
-        for (Opportunity opp : [SELECT Id, OwnerId FROM Opportunity WHERE Id IN :setOfOppId]) {
-            mapOfOppOwner.put(opp.Id, opp.OwnerId);
-        }
-
-        for (Follow_Up__c followUprec : newListFollowUp) {
-            if (mapOfOppOwner.containsKey(followUprec.Opportunity__c)) {
-                followUprec.OwnerId = mapOfOppOwner.get(followUprec.Opportunity__c);
-            } else if (mapOfLeadOwner.containsKey(followUprec.Lead__c)) {
-                followUprec.OwnerId = mapOfLeadOwner.get(followUprec.Lead__c);
+            for (Opportunity opp : [SELECT Id, OwnerId FROM Opportunity WHERE Id IN :setOfOppId]) {
+                mapOfOppOwner.put(opp.Id, opp.OwnerId);
             }
+
+            for (Follow_Up__c followUprec : newListFollowUp) {
+                if (mapOfOppOwner.containsKey(followUprec.Opportunity__c)) {
+                    followUprec.OwnerId = mapOfOppOwner.get(followUprec.Opportunity__c);
+                } else if (mapOfLeadOwner.containsKey(followUprec.Lead__c)) {
+                    followUprec.OwnerId = mapOfLeadOwner.get(followUprec.Lead__c);
+                }
+            }
+        }catch(Exception e){
+            System.debug('Error ============> ' + e.getMessage() + ' at line number ============>' + e.getLineNumber() + ' Cause ============> ' + e.getCause() );
         }
     }
 }

@@ -107,7 +107,7 @@
                 <td>
                     <b>Invoice Date</b>: &nbsp;
                     <apex:outputText value="{0,date,dd/MM/yyyy}">
-                        <apex:param value="{!workOrderRecord.Invoice_Date__c}" />
+                        <apex:param value="{!workOrderRecord.EndDate+offset}" />
                     </apex:outputText>
                     <br /><br />
                     <b>Invoice No</b>: <span class="s2">RC{!workOrderRecord.Service_Center__r.Center_Code__c}25{!workOrderRecord.Invoice_No__c}</span><br /><br />
@@ -272,10 +272,10 @@
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.List_Price_New__c}"/></apex:outputText></p>
                     </td>
                     <td style="width:40pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Subtotal * item.Discount/100}"/></apex:outputText></p>
+                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Total_NDP__c * item.Discount/100}"/></apex:outputText></p>
                     </td>
                     <td style="width:46pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Total_NDP__c}"/></apex:outputText></p>
+                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Sub_Total__c}"/></apex:outputText></p>
                     </td>
                     
                     <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
@@ -396,6 +396,10 @@
             </tr>
          
         </table>
+        <br/>
+        <p style="font-size: 13px;">
+            Tax payble on reverse charge basis: <b>No</b>
+        </p>
         
     </body>
     <div style="page-break-before:always;"></div>

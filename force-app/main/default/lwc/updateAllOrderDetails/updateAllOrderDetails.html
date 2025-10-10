@@ -1,0 +1,243 @@
+<template>
+    <template if:true={showSpinner}>
+        <lightning-spinner alternative-text="Loading" size="x-small"></lightning-spinner>
+    </template>
+    <template if:true={showEditFrom}>
+        <lightning-record-edit-form object-api-name="Order" record-id={recordId} onsuccess={handleSuccess} onsubmit={handleSubmit}
+            onerror={handleError}>
+            <lightning-messages></lightning-messages>
+            <lightning-quick-action-panel header="Order Details">
+                <lightning-accordion allow-multiple-sections-open active-section-name={activeSections}>
+
+                    <lightning-accordion-section name="Section1" label="Insurance">
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="Insurance_Type__c" onchange={handleChange} required>
+                                    </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+
+                            <template lwc:if={inhouse}>
+                                <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                    large-device-size="6" padding="horizontal-small">
+                                    <div class="custom-box">
+                                        <lightning-input-field field-name="Insurance__c"
+                                            required></lightning-input-field>
+                                    </div>
+                                </lightning-layout-item>
+                            </template>
+                            <template lwc:if={outhouse}>
+                                <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                    large-device-size="6" padding="horizontal-small">
+                                    <div class="custom-box">
+                                        <lightning-input-field field-name="Other_Insurance_Provider_Name__c" required>
+                                        </lightning-input-field>
+                                    </div>
+                                </lightning-layout-item>
+                            </template>
+                        </lightning-layout>
+                        <lightning-layout multiple-rows>
+
+
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="Insurance_Amount__c" required>
+                                    </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </lightning-accordion-section>
+
+                    <lightning-accordion-section name="Section2" label="Finance">
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="Finance_Name__c"> </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="EMI_Amount__c"> </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="Loan_Start_Date__c"> </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="Tenure__c"> </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="Delivery_Order_Obtained__c">
+                                    </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="Tenure_Type__c"> </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="Financed_Amount__c"> </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </lightning-accordion-section>
+
+                    <lightning-accordion-section name="Section3" label="Subsidy">
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="Subsidy__c"> </lightning-input-field>
+
+                                </div>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="Subsidy_Amount__c">
+                                    </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="Eligible_For_Subsidy__c">
+                                    </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </lightning-accordion-section>
+
+                    <lightning-accordion-section name="Section4" label="RTO Charges">
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="RTO_Charges__c" required> </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="Handling_Charges__c"> </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="Transportation_Charges__c">
+                                    </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </lightning-accordion-section>
+
+                    <lightning-accordion-section name="Section5" label="Vehicle Offer Details">
+
+                        <lightning-layout multiple-rows>
+
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="Offer_description__c"> </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="Employee_Discount__c"> </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="Discount_on_Ex_Showroom_Price__c">
+                                    </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="Employee_Id__c"> </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="State_Govt_Subsidy__c"> </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="6" padding="horizontal-small">
+                                <div class="custom-box">
+                                    <lightning-input-field field-name="Offers_Amount__c"> </lightning-input-field>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </lightning-accordion-section>
+                </lightning-accordion>
+
+                <div slot="footer" class="slds-var-m-top_medium slds-text-align_center">
+                    <lightning-button variant="neutral" label="Cancel" onclick={handleCancel}></lightning-button>
+                    &nbsp;&nbsp;&nbsp;
+                    <lightning-button variant="brand" type="submit" label="Save"></lightning-button>
+                </div>
+            </lightning-quick-action-panel>
+        </lightning-record-edit-form>
+    </template>
+
+    <template if:false={showEditFrom}>
+        <lightning-card  title="Order Details">
+            <p>
+                    &emsp;&emsp;You Cannot Update the Details.
+            </p>
+            <p slot="footer"><lightning-button variant="neutral" label="Cancel" onclick={handleCancel}></lightning-button></p>
+        </lightning-card>
+    </template>
+
+
+</template>

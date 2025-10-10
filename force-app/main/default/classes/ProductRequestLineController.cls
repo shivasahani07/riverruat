@@ -290,9 +290,19 @@ public Without Sharing class ProductRequestLineController {
                     
                     getLocationRelatedPRLI = [SELECT Id, Name, ProductCode, IsActive, Type__c, IGST_Percentage__c, CGST_Percentage__c, SGST_Percentage__c
                         FROM Product2 WHERE Id IN :Product2IdIdSet AND IsActive = true AND Type__c NOT IN :ProductTypeNotToShow];
+                    //Added on 09/10/2025 By Aniket
+                    User u = [SELECT Id,Contact.Location__r.State__c FROM User WHERE Id=:UserInfo.getUserId() LIMIT 1];
+                    Pricebook2 price = [SELECT Id,State__c FROM Pricebook2 WHERE State__c=:u.Contact.Location__r.State__c LIMIT 1];//Added By Aniket On 09/20/2025
+                    List<PricebookEntry> pricebookEntries = [SELECT Id, Product2Id, Pricebook2Id,CGST__c,IGST__c,SGST__c,UnitPrice,Dealer_List_Price__c FROM PricebookEntry WHERE Pricebook2Id =:price.Id AND Product2Id IN :Product2IdIdSet];
+                    Map<Id,Decimal> igstMap = new Map<Id,Decimal>();
+                    for(PricebookEntry pe : pricebookEntries){
+                        igstMap.put(pe.Product2Id,pe.IGST__c);
+                    }
+                    //Upto here
                     
                     List<ProductItem> inventoryList= [SELECT Id,LocationId,Product2Id,Quantity_In_Hand__c FROM ProductItem WHERE Product2Id IN:Product2IdIdSet AND LocationId =:logedUser.Contact.Location__c];
                     System.debug('inventoryList==>'+inventoryList);
+                    System.debug('inventoryList size ==>'+inventoryList.size());
                     Map<Id, Decimal> productQtyMap = new Map<Id, Decimal>();
 
                     for (ProductItem pi : inventoryList) {
@@ -308,7 +318,8 @@ public Without Sharing class ProductRequestLineController {
                         pwq.typeOfProduct = p.Type__c;
                         pwq.unitPrice = uniTPriceMap.containsKey(p.Id) ? uniTPriceMap.get(p.Id) : 0;
                         pwq.quantityInHand = productQtyMap.containsKey(p.Id) ? productQtyMap.get(p.Id) : 0;
-                        pwq.igstPercentage = p.IGST_Percentage__c != null ? p.IGST_Percentage__c : null;
+                        //pwq.igstPercentage = p.IGST_Percentage__c != null ? p.IGST_Percentage__c : null;
+                        pwq.igstPercentage = igstMap.get(p.Id);
                         result.add(pwq);
                     }
                     

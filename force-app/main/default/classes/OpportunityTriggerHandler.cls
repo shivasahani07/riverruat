@@ -623,7 +623,10 @@ public without sharing class OpportunityTriggerHandler {
             Set<Id> setOfOwnerId = new Set<Id>();
 
             for (Opportunity opp : newListOfOpp) {
-                Opportunity oldOppo = oldMap.get(opp.Id);
+                Opportunity oldOppo = new Opportunity();
+                if(oldMap != null && oldMap.size() > 0){
+                    oldOppo = oldMap.get(opp.Id);
+                }
 
                 if (oldOppo == null) {
                     setOfOwnerId.add(opp.OwnerId);

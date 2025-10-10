@@ -223,7 +223,7 @@ System.debug('Seller Account => ' + seller);
 
 // Parts (Paid)
 List<WorkOrderLineItem> wolis = [
-    SELECT Id, Quantity, UnitPrice, Discount, Subtotal, TotalPrice,
+    SELECT Id, Quantity, UnitPrice, Discount, Sub_Total__c, TotalPrice,
             RR_Product__r.Name, RR_Product__r.HSN_Code__c,
             IGST_Percentage_formula__c, CGST_Percentage_Formula__c, SGST_Percentage_Formula__c,
             IGST_Amount__c, CGST_Amount__c, SGST_Amount__c,IGST__c, CGST__c, SGST__c,List_Price_New__c,Total_NDP__c,

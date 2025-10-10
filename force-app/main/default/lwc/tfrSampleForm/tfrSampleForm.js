@@ -1,6 +1,10 @@
 import { LightningElement, api, wire, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import verifyExistingTFR from '@salesforce/apex/TFRController.verifyExistingTFR';
+import getTFRRelatedWp from '@salesforce/apex/TFRController.getTFRRelatedWp';
+import updateWorkplan from '@salesforce/apex/TFRController.updateWorkplan';
+
+
 const BLOCKED_STATUSES = new Set([
     'Cancelled',
     'Rejected',
@@ -15,6 +19,13 @@ const EDITABLE_STATUSES = new Set(['Pending', 'Approved']);
 
 export default class TfrSampleForm extends LightningElement {
 
+   @track  listOptions;
+        
+
+    // defaultOptions = ['7', '2', '3'];
+
+    @track requiredOptions;
+
     @api inputObject
     @api recordId;
     @track relatedPart;
@@ -22,10 +33,14 @@ export default class TfrSampleForm extends LightningElement {
     @track partId;
     @track isTFRRecordDisabled = false;
     @track isLoading = true;
+    @track associatedLabours=[];
 
     connectedCallback() {
         this.partId = this.inputObject.Id
         console.log(JSON.stringify(this.inputObject))
+        if(this.inputObject.WorkOrderId){
+            
+        }
     }
 
     @wire(verifyExistingTFR, { partId: '$partId' })
@@ -37,6 +52,7 @@ export default class TfrSampleForm extends LightningElement {
             this.relatedPart = wireData?.workOrderLineItemRec;
             this.tfrSampleRecord = wireData?.tfrSampleRecord;
             this.recordId = wireData?.tfrSampleRecord?.Id;
+            this.getTFRRelatedWorkplanms(this.inputObject.WorkOrderId)
             if (this.relatedPart?.WorkOrder.Status == 'Completed' || this.relatedPart?.WorkOrder.Status == 'Ready for Delivery' || this.relatedPart.WorkOrder?.Status == 'Sumbit for Approval') {
                 this.isTFRRecordDisabled = true;
             } else if (this.relatedPart?.Warranty_Prior__r?.Status__c) {
@@ -59,6 +75,14 @@ export default class TfrSampleForm extends LightningElement {
         this.showToast('Success', 'TFR Sample record created/updated', 'success');
         // this.sendEevntToParent('Success',true,event.detail.id,this.inputObject.Id);
         this.isLoading = false;
+        let wps=[];
+        this.requiredOptions.forEach(itemId => {
+            wps.push({
+                Id: itemId,
+                TFR_Sample__c: this.recordId
+            });
+        });
+        this.updateWorkplan(wps);
     }
 
     handleError(event) {
@@ -74,7 +98,6 @@ export default class TfrSampleForm extends LightningElement {
             variant: variant
         });
         this.dispatchEvent(event);
-        window.location.reload();
     }
 
     sendEevntToParent(message, isSuccess,recordid,parentId) {
@@ -97,5 +120,48 @@ export default class TfrSampleForm extends LightningElement {
       WorkOrderLineItem.Id=partId;
       WorkOrderLineItem.TFR__C=tfrid;
 
+    }
+
+    handleChange(event) {
+        debugger;
+        // Get the list of the "value" attribute on all the selected options
+        const selectedOptionsList = event.detail.value;
+        this.requiredOptions=event.detail.value;
+        // alert(`Options selected: ${selectedOptionsList}`);
+    }
+
+    getTFRRelatedWorkplanms(workOrderId) {
+        debugger;
+    getTFRRelatedWp({ workOrderId: workOrderId })
+        .then(result => {
+            this.requiredOptions = [];
+            this.listOptions = [];
+            result.forEach(item => {
+                this.listOptions.push({ value: item.Id, label: item.Name });
+                if ((item.TFR_Sample__c != undefined && this.recordId != undefined ) && (item.TFR_Sample__c === this.recordId)) {
+                    this.requiredOptions.push(item.Id);
+                } else {
+                    this.listOptions.push({ value: item.Id, label: item.Name });
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching related Workplans:', error);
+        });
+        console.log(JSON.stringify('----',this.listOptions))
+    }
+
+
+    
+    updateWorkplan(workplans){
+        debugger;
+        updateWorkplan({workplans:workplans})
+        .then(result =>{
+            this.showToast('Success', 'Labour code tagged with TFR from', 'success');
+            
+        })
+        .catch(error =>{
+            this.showToast('Error', error.message || "Unknown error", 'error');
+        })
     }
 }

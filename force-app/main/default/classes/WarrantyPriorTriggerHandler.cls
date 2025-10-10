@@ -208,7 +208,7 @@ public class WarrantyPriorTriggerHandler {
     }
     
     //Updated and Optimised Method By Aniket
-    public static void createClaimAndClaimItem(List<Warranty_Prior__c> newWP, Map<Id, Warranty_Prior__c> wpOldMap) {
+ /*   public static void createClaimAndClaimItem(List<Warranty_Prior__c> newWP, Map<Id, Warranty_Prior__c> wpOldMap) {
         System.debug('Inside Warranty Prior Update Trigger By Aniket');
         
         try {
@@ -351,6 +351,6 @@ public class WarrantyPriorTriggerHandler {
         } catch (Exception e) {
             System.debug('Error Occurred: ' + e.getMessage() + ' at line ' + e.getLineNumber());
         }
-    }
+    } */
     
 }

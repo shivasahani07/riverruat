@@ -129,7 +129,7 @@ public class Customer_Invoice_PDF_Controller {
                        DurationType, DurationInMinutes, WorkTypeId, Street, City, State, PostalCode, Country, Latitude, Longitude, GeocodeAccuracy,
                        Address, ServiceTerritoryId, Subject, StatusCategory, IsClosed, Priority, ServiceAppointmentCount, LocationId, Total_Amount__c,
                        Inventory_Lot__c, Product_Available__c, Stage__c, RR_Parts_Category__c, RR_Product__c, RR_Product__r.Name,RR_Product__r.ProductCode , RR_Product__r.HSN_Code__c, IGST_Percentage_formula__c, CGST_Percentage_Formula__c, SGST_Percentage_Formula__c,
-                       IGST__c, CGST__c, SGST__c, IGST_Amount__c, CGST_Amount__c, SGST_Amount__c, Amount__c, Unit_of_Measurement__c,List_Price_New__c,Total_NDP__c,
+                       IGST__c, CGST__c, SGST__c, IGST_Amount__c, CGST_Amount__c, SGST_Amount__c, Amount__c, Unit_of_Measurement__c,List_Price_New__c,Total_NDP__c,Sub_Total__c,
                 Total_Part_Price__c
                 FROM WorkOrderLineItem WHERE WorkOrderId = :workOrderRecord.Id AND RR_Parts_Category__c IN ('Paid')
             ];
@@ -192,14 +192,14 @@ public class Customer_Invoice_PDF_Controller {
             if (workOrderLineItemList != null && workOrderLineItemList.size() > 0) {
                 partLineItemTotal = 0;
                 for (WorkOrderLineItem workItem : workOrderLineItemList) {
-                    if (workItem.Quantity != null && workItem.UnitPrice != null) {
-                        partTotal += (workItem.Quantity * workItem.UnitPrice);
+                    if (workItem.Quantity != null && workItem.List_Price_New__c != null) {
+                        partTotal += (workItem.Quantity * workItem.List_Price_New__c);
                     }
                     if (workItem.Discount != null) {
-                        partDiscount += workItem.Subtotal * workItem.Discount / 100;
+                        partDiscount += workItem.Total_NDP__c * workItem.Discount / 100;
                     }
                     if (workItem.Total_NDP__c != null) {
-                        parttaxValue += workItem.Total_NDP__c;
+                        parttaxValue += workItem.Sub_Total__c;
                         // Store individual line item total
                         lineItemTotalsMap.put(workItem.Id, workItem.TotalPrice);
                     }

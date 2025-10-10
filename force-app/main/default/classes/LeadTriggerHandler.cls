@@ -554,7 +554,7 @@ public class LeadTriggerHandler {
                         Opportunity opp = [SELECT Id, StageName FROM Opportunity WHERE Id = :oppId];
                         if (opp != null) {
                             opp.Name = leadRec.Name;
-                            opp.StageName = 'New';
+                            opp.StageName = 'Decision Pending/ Follow-Up';
                             opp.CloseDate = System.today().addDays(30);
                             opp.OwnerId = ownerId;
                             update opp;
@@ -571,6 +571,7 @@ public class LeadTriggerHandler {
                                 Follow_Up__c followUprec = new Follow_Up__c();
                                 followUprec.Name = opp.Name;
                                 followUprec.Opportunity__c = opp.Id;
+                                followUpRec.Status__c = 'New';
                                 followUprec.Follow_Up_Date__c = system.now() + 1;
                                 Insert followUprec;
                             }

@@ -32,7 +32,13 @@ public class NewAccessoriesInvoicePDFControllerTest {
             Bank_Name__c = 'Canara',
             Center_Code__c = 'BR',
             Invoice_Sequence__c = 0,
-            Store_Type__c = 'DODO'     
+            Store_Type__c = 'DODO',
+            GST_City__c = 'etts',
+            Company_GSTIN_name__c = 'yoy',
+            GST_State__c = 'uttarakhand',
+            GST_Street__c ='ddd' , 
+            GST_Zip_Postal_Code__c = '35353',
+            GSTIN_Number__c = '132421'
         );
         insert dealerAccount;
         
@@ -136,7 +142,13 @@ public class NewAccessoriesInvoicePDFControllerTest {
             BillingCountry = 'India',
             BillingPostalCode = '560001',
             Store_Type__c = 'DODO',
-            Center_Code__c = '123345'
+            Center_Code__c = '123345',
+            GST_City__c = 'etts',
+            Company_GSTIN_name__c = 'yoy',
+            GST_State__c = 'uttarakhand',
+            GST_Street__c ='ddd' , 
+            GST_Zip_Postal_Code__c = '35353',
+            GSTIN_Number__c = '132421'
         );
         insert acc;
         
@@ -195,16 +207,16 @@ public class NewAccessoriesInvoicePDFControllerTest {
         
         NewAccessoriesInvoicePDFController controller = new NewAccessoriesInvoicePDFController(standardController);
         NewAccessoriesInvoicePDFController.methodToCoverage3();
-         NewAccessoriesInvoicePDFController.methodToCoverage();
+        NewAccessoriesInvoicePDFController.methodToCoverage();
         NewAccessoriesInvoicePDFController.methodToCoverage1();
         NewAccessoriesInvoicePDFController.methodToCoverage2();
         NewAccessoriesInvoicePDFController.methodToCoverage3();
         NewAccessoriesInvoicePDFController.methodToCoverage4();
         NewAccessoriesInvoicePDFController.methodToCoverage5();
-         NewAccessoriesInvoicePDFController.methodToCoverage6();
-         NewAccessoriesInvoicePDFController.methodToCoverage7();
-         NewAccessoriesInvoicePDFController.methodToCoverage8();
-         NewAccessoriesInvoicePDFController.methodToCoverage9();
+        NewAccessoriesInvoicePDFController.methodToCoverage6();
+        NewAccessoriesInvoicePDFController.methodToCoverage7();
+        NewAccessoriesInvoicePDFController.methodToCoverage8();
+        NewAccessoriesInvoicePDFController.methodToCoverage9();
         NewAccessoriesInvoicePDFController.methodToCoverage10();
         NewAccessoriesInvoicePDFController.methodToCoverage11();
         NewAccessoriesInvoicePDFController.methodToCoverage12();

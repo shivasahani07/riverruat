@@ -74,6 +74,7 @@
     padding: 0.75rem;
     margin-top: 1rem;
     width:100wh;
+    z-index:11000;
 }
 
 .custom-list-item {

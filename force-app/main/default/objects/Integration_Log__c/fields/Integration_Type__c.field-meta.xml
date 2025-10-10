@@ -83,7 +83,6 @@
             <value>
                 <fullName>Extended Warranty</fullName>
                 <default>false</default>
-                <isActive>false</isActive>
                 <label>Extended Warranty</label>
             </value>
             <value>

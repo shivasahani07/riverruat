@@ -7,8 +7,8 @@
 **/
 public with sharing class QueueableForEWIntegration implements Queueable, Database.allowsCallouts{
     private List<Id> orderIdsToProcess;
-    private Map<Id,OrderController.wrapperForEWIntegration> wrapperValues;
-    public QueueableForEWIntegration(List<Id> orderIdsToProcess, Map<Id,OrderController.wrapperForEWIntegration> wrapperValues){
+    private Map<Id,OrderTriggerHandler.wrapperForEWIntegration> wrapperValues;
+    public QueueableForEWIntegration(List<Id> orderIdsToProcess, Map<Id,OrderTriggerHandler.wrapperForEWIntegration> wrapperValues){
         this.orderIdsToProcess=orderIdsToProcess;
         this.wrapperValues=wrapperValues;
 
@@ -27,7 +27,7 @@ public with sharing class QueueableForEWIntegration implements Queueable, Databa
             
     }
 }
-public static void calloutToEWAPI(Id currentOrderId,Map<Id,OrderController.wrapperForEWIntegration> c){
+public static void calloutToEWAPI(Id currentOrderId,Map<Id,OrderTriggerHandler.wrapperForEWIntegration> c){
     try{
             List<EW_API_Details__c> ewDetails= EW_API_Details__c.getAll().values();
             EW_API_Details__c apiDetails = EW_API_Details__c.getInstance('EW Integration');

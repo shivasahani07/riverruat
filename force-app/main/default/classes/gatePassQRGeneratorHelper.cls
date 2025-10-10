@@ -9,7 +9,7 @@ public class gatePassQRGeneratorHelper implements Database.Batchable<sObject>, D
         this.orderIdToUrlMap = new Map<Id, String>();
         this.processedOrderIds = new Set<Id>();
         
-        String siteBaseUrl = Label.Site_Base_URL; 
+        String siteBaseUrl = Label.Site_Base_URL_QR; 
         String vfPageName = 'gatePass';
         
         for (Order ord : [SELECT Id, OrderNumber, Gate_Pass_QR_Link__c FROM Order WHERE Id IN :orderIds]) {

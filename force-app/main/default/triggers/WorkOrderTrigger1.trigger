@@ -46,6 +46,9 @@ trigger WorkOrderTrigger1 on WorkOrder (before insert, before update, after upda
         //WorkOrderWhatsAppHandler.sendWhatsAppMsgMethod(Trigger.new, Trigger.oldMap);//added by Aniket on 17/06/2025
         //
         InvoicePDFLinkOnJobCard.afterUpdate(Trigger.new,Trigger.oldMap);
+        
+        //added by Ram 06/10/2025
+        JobCardHandler.createClaimAndClaimItemOnWorkOrderCompletion(Trigger.new, Trigger.oldMap);
     }
     
     //added by Ram 15/07/2025

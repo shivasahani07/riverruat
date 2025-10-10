@@ -58,9 +58,6 @@ public without sharing class OrderTriggerHandler {
         } catch (Exception e) {
             System.debug('Error in ======>: ' + e.getMessage() + ' at line no ======> ' + e.getLineNumber());
         }
-
-        
-        
     }
     
     public static void paymentDueIsNotNull(List<Order> newOrders, Map<Id, Order> oldOrderMap) {
@@ -262,10 +259,18 @@ public without sharing class OrderTriggerHandler {
                 if (ord.RecordTypeId == vehicleRecordTypeId ) {
                     System.debug('### 3 RecordType matched Vehicle');
 
+                    if(ord.Remaining_Amount__c > 0 && ord.Status == 'Payment And Allocation' && ord.Payment_And_Allocation_Stage__c == true ){
+                        ord.Payment_And_Allocation_Stage__c.addError('You cannot make this true if the full payment is not done.Please Fill the Payment Due Date or else make full payment');
+                    }
+
                     if (ord.Insurance_Type__c == null && ord.Status == 'Pre Invoice') {
                         System.debug('### 4 Insurance_Type__c is null and Status = Pre Invoice');
                         ord.Insurance_Type__c.addError('Please Select Insurance Type.');
                     }
+
+                    if((ord.Status == 'Booking' || ord.Status == 'Payment and Allocation') && ord.Customer_Approval__c != null){
+                        ord.addError('You Cannot make customer Approval');
+                    }   
 
                     if (ord.Insurance_Type__c != null && ord.Status == 'Pre Invoice') {
                         System.debug('### 5 Insurance_Type__c not null and Status = Pre Invoice, Value: ' + ord.Insurance_Type__c);
@@ -281,7 +286,7 @@ public without sharing class OrderTriggerHandler {
                                 ord.Insurance_Amount__c.addError('Insurance Amount is required for In House type.');
                             }
                             if(ord.Policy_Number__c != null){
-                                ord.Insurance_Amount__c.addError('Please Fill Policy Number at Invoice And Insurance Stage.');
+                                ord.Policy_Number__c.addError('Please Fill Policy Number at Invoice And Insurance Stage.');
                             }
                         }
 
@@ -296,7 +301,7 @@ public without sharing class OrderTriggerHandler {
                                 ord.Insurance_Amount__c.addError('Insurance Amount is required for Out House type.');
                             }
                             if(ord.Policy_Number__c != null){
-                                ord.Insurance_Amount__c.addError('Please Fill Policy Number at Invoice And Insurance Stage.');
+                                ord.Policy_Number__c.addError('Please Fill Policy Number at Invoice And Insurance Stage.');
                             }
                         }
                     }
@@ -330,7 +335,7 @@ public without sharing class OrderTriggerHandler {
                         }
                     }
 
-                    if (ord.Remaining_Amount__c > 0 && ord.Vehicle_Assigned__c == false && ord.Assigned_Vehicle__c != null) {
+                    if (ord.Remaining_Amount__c > 0 && ord.Vehicle_Assigned__c == false && ord.Assigned_Vehicle__c != null && ord.Status == 'Pre Invoice') {
                         System.debug('### 19 Remaining_Amount__c > 0 and Vehicle_Assigned__c = false and Assigned_Vehicle__c not null');
                         ord.addError('Cannot allot the vehicle until full payment is done.');
                     }
@@ -350,6 +355,85 @@ public without sharing class OrderTriggerHandler {
             System.debug('Error in ======>: ' + e.getMessage() + ' at line no ======> ' + e.getLineNumber());
         }
     }
+
+    public static void sendWhatsaapMessageToCustomer(List<Order> newOrders, Map<Id, Order> oldOrderMap) {
+        try {
+            System.debug('Inside sendWhatsaapMessageToCustomer');
+            Set<Id> setOfAccountId = new Set<Id>();
+            for(Order ord : newOrders){
+                if(ord.AccountId != null){
+                    setOfAccountId.add(ord.AccountId);
+                }
+            }
+            map<Id,Account> accMap = new map<Id,Account>();
+            if(!setOfAccountId.isEmpty()){
+                 accMap = new Map<Id, Account>([SELECT Id, Phone FROM Account WHERE Id IN :setOfAccountId]);
+            }
+            WhatsappIntegration__c wConfig = WhatsappIntegration__c.getInstance('WhatsApp API');
+
+            List<Id> bookingIds = new List<Id>();
+            Map<Id, String> bookingPhoneMap = new Map<Id, String>();
+
+            List<Id> preInvoiceIds = new List<Id>();
+            Map<Id, String> preInvoicePhoneMap = new Map<Id, String>();
+
+            List<Id> fullPaymentIds = new List<Id>();
+            Map<Id, String> fullPaymentPhoneMap = new Map<Id, String>();
+
+            List<Id> thanksIds = new List<Id>();
+            Map<Id, String> thanksPhoneMap = new Map<Id, String>();
+
+            List<Id> negativeAckIds = new List<Id>();
+            Map<Id, String> negativeAckPhoneMap = new Map<Id, String>();
+
+            for (Order ord : newOrders) {
+                Order oldOrd = oldOrderMap.get(ord.Id);
+
+                if (ord.Status == 'Booking' && oldOrd == null) {
+                    bookingIds.add(ord.Id);
+                    bookingPhoneMap.put(ord.Id, accMap.get(ord.AccountId).phone);
+                }
+                if (ord.Status == 'Pre Inovice' && oldOrd != null && ord.Status != oldOrd.Status) {
+                    preInvoiceIds.add(ord.Id);
+                    preInvoicePhoneMap.put(ord.Id, ord.Phone__c);
+                }
+                if (ord.Status == 'Payment and Allocation' && oldOrd != null 
+                    && ord.Remaining_Amount__c != oldOrd.Remaining_Amount__c && ord.Remaining_Amount__c == 0) {
+                    fullPaymentIds.add(ord.Id);
+                    fullPaymentPhoneMap.put(ord.Id, ord.Phone__c);
+                }
+                if (ord.Status == 'Pre Inovice' && oldOrd != null 
+                    && ord.Customer_Approval__c != oldOrd.Customer_Approval__c && ord.Customer_Approval__c == 'Yes') {
+                    thanksIds.add(ord.Id);
+                    thanksPhoneMap.put(ord.Id, ord.Phone__c);
+                }
+                if (ord.Status == 'Pre Inovice' && oldOrd != null 
+                    && ord.Customer_Approval__c != oldOrd.Customer_Approval__c && ord.Customer_Approval__c == 'No') {
+                    negativeAckIds.add(ord.Id);
+                    negativeAckPhoneMap.put(ord.Id, ord.Phone__c);
+                }
+            }
+            if (!bookingIds.isEmpty()) {
+                System.enqueueJob(new QueueableTempWithoutParams(bookingIds, 'booking_completed', bookingPhoneMap));
+            }
+            if (!preInvoiceIds.isEmpty()) {
+                System.enqueueJob(new QueueableTempWithoutParams(preInvoiceIds, 'pre_invoice_communication_to_customer', preInvoicePhoneMap));
+            }
+            if (!fullPaymentIds.isEmpty()) {
+                System.enqueueJob(new QueueableTempWithoutParams(fullPaymentIds, 'full_payment_completed', fullPaymentPhoneMap));
+            }
+            if (!thanksIds.isEmpty()) {
+                System.enqueueJob(new QueueableTempWithoutParams(thanksIds, 'thanks_for_confirming', thanksPhoneMap));
+            }
+            if (!negativeAckIds.isEmpty()) {
+                System.enqueueJob(new QueueableTempWithoutParams(negativeAckIds, 'acknowledgement_to_customer_on_negative_response', negativeAckPhoneMap));
+            }
+
+        } catch(Exception e) {
+            System.debug('error message =======>' + e.getMessage() + ' at line number =======> '+ e.getLineNumber());
+        }
+    }
+
 
     
     public static void NewRegistrationdate(List<Order> newOrders, Map<Id, Order> oldOrderMap) {
@@ -1224,10 +1308,10 @@ public without sharing class OrderTriggerHandler {
             }
             //upto here
             if(!orderIdsToProcessWhenAssignedVehicle.isEmpty()){
-                // System.enqueueJob(new QueueableForEWIntegration(orderIdsToProcessWhenAssignedVehicle,mapWhenAssignedVehicle));
+                System.enqueueJob(new QueueableForEWIntegration(orderIdsToProcessWhenAssignedVehicle,mapWhenAssignedVehicle));
             }
             if(!orderIdsToProcessWhenNoAV.isEmpty()){
-                // System.enqueueJob(new QueueableForEWIntegration(orderIdsToProcessWhenNoAV,mapWhenNoAV));
+                System.enqueueJob(new QueueableForEWIntegration(orderIdsToProcessWhenNoAV,mapWhenNoAV));
             }
         }
         catch(Exception e){

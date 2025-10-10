@@ -50,7 +50,7 @@ global class GEN3_EventOrder {
                                    Total_accessories_Amount__c, Dealer_Email__c, Total_Merchandise_Amount__c, GST__c, Invoice_Number__c, Vehicle_Total_Discount__c, Vehicle_identification_Number__c, Same_State__c, 
                                    Total_Accessories_RollUp__c, Total_Vehicle_RollUp__c, Total_Merchandise_RollUp__c, Merchandise_Discount__c, Final_Merchandise_Amount__c, Accessories_IRN_No__c, Merchandise_IRN_No__c, 
                                    Payment_Receipt_PDF_URL__c, Website_Response_Id__c, Finance_Name__c, sap_delivery_no__c, Total_Merchandise_Unit_Price__c, Total_Accessories_Unit_Price__c, Order_prod_count__c, Shopify_Order__c,
-                                   Coupon_Code__c, Coupon_Redeemed_Value__c, Is_Coupon_Applied__c, Customer_Has_No_Coupon__c, Order_Source__c, Total_Pre_GST_Discount__c, Inventory_Error__c, UTR_Ref_No__c FROM 
+                                   Coupon_Code__c, Coupon_Redeemed_Value__c, Is_Coupon_Applied__c, Customer_Has_No_Coupon__c, Order_Source__c, Inventory_Error__c, UTR_Ref_No__c FROM 
                                    Order Where AccountId != null AND Account.Phone =: phone];
             
             for(Order ord : ordList){

@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 09-28-2025
+ * @last modified on  : 10-08-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public class QueueableForVehicleEWIntegration implements Queueable, Database.allowsCallouts{
@@ -45,7 +45,7 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,ExtendedWarrantyForVe
             String dealerCodeFor = c.get(currentOrderId).dealerCode;
 
             OrderItem orderProd;
-            List<OrderItem> orderProductList = [SELECT Id,OrderId,Product2Id,Product2.Name,Product2.ProductCode FROM OrderItem WHERE OrderId=:currentOrderId AND Product2.ProductCode LIKE '%RV-EW%' LIMIT 1];
+             List<OrderItem> orderProductList = [SELECT Id,OrderId,Product2Id,Product2.Name,Product2.ProductCode,Order.Account.Name,Order.Account.Email__c,Order.Account.Phone FROM OrderItem WHERE OrderId=:currentOrderId AND Product2.ProductCode LIKE '%RV-EW%' LIMIT 1];
             if(!orderProductList.isEmpty()){
                 orderProd = orderProductList[0];
             }
@@ -70,6 +70,9 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,ExtendedWarrantyForVe
             payLoad.put('WarrantyType','Extended Warranty');
             payLoad.put('SoldFrom',a.Type == 'Dealer' ? 'Showroom' : a.Type == 'Service Center' ? 'Workshop' : 'Nothing' );
             payLoad.put('EWPlan',ewPlan);
+            payLoad.put('CustomerEmail',orderProd.Order.Account.Email__c != null ? orderProd.Order.Account.Email__c : 'Blank');
+            payLoad.put('CustomerName',orderProd.Order.Account.Name != null ? orderProd.Order.Account.Name : 'Blank');
+            payLoad.put('CustomerMobile',orderProd.Order.Account.Phone != null ? orderProd.Order.Account.Phone : 'Blank');
             String reqBody = JSON.serialize(payLoad);
             System.debug('Request body=>'+JSON.serializePretty(payLoad));
 
@@ -150,7 +153,8 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,ExtendedWarrantyForVe
                     v.Dealer_Amount__c = dealerAmount;
                     v.Customer_Amount__c = customerAmount;
                     v.EW_Submitted__c=true;     
-                    v.EW_Plan__c=(String) responseMap.get('EWPlan');             
+                    v.EW_Plan__c=(String) responseMap.get('EWPlan');    
+                    v.Certificate_For_EW__c = (String) responseMap.get('Certificate URL');          
                     update v;
                     System.debug('Updated Vehicle==>'+v);
                 

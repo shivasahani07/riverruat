@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 07-22-2025
+ * @last modified on  : 10-06-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public with sharing class clainAndShipmentItemController {
@@ -19,7 +19,7 @@ public with sharing class clainAndShipmentItemController {
     
     @AuraEnabled(cacheable = true)
     public static List<ShipmentItem> getShipmentItemList(String recordId){
-        return [Select id,ShipmentItemNumber,Quantity,Quantity_Received__c,Missing_Damaged_Quantity__c,ShipmentId,Shipment.Status,Product2Id,Product2.Name from ShipmentItem where ShipmentId=:recordId];
+        return [Select id,ShipmentItemNumber,Quantity,Quantity_Received__c,Missing_Damaged_Quantity__c,ShipmentId,Shipment.Status,Product2Id,Product2.Name,Product2.ProductCode from ShipmentItem where ShipmentId=:recordId];
     }
 
     @AuraEnabled
@@ -226,7 +226,7 @@ public with sharing class clainAndShipmentItemController {
                 Approved_Quantity__c,
                 Part__r.HSN_Code__c,
                 Part__r.LineItemNumber,
-                Claim.Create_Batch__r.Is_GRN_Received__c, Quantity_Rejected__c,
+                Claim.Create_Batch__r.Is_GRN_Received__c, Quantity_Rejected__c,Product_Code__c,Product_Name__c,
                 Claim.Shipped_Quantity__c
                 FROM ClaimItem 
                 WHERE Claim.Create_Batch__c = :recordId  and Claim_Type__c = 'Part'

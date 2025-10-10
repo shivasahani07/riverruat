@@ -10,7 +10,7 @@
     
     <!--
  <c:failureCodeProductVinCom></c:failureCodeProductVinCom>
-<c:bulkInsertJCProductsCustomNew  recordId='0WOBh000003k3VpOAI'></c:bulkInsertJCProductsCustomNew>
+<c:bulkInsertJCProductsCustomNew  recordId='0WOBh000003oTwLOAU'></c:bulkInsertJCProductsCustomNew>
     
    <c:theme></c:theme>
   <c:theme></c:theme>
@@ -25,8 +25,8 @@
  -->
     
     
-    
-    <c:bulkInsertJCProductsCustomNew recordId='0WOBh000003oTwLOAU'></c:bulkInsertJCProductsCustomNew>
+     
+    <c:failureCodeProductVinCom recordId='0WOBh000003oTwLOAU'></c:failureCodeProductVinCom>
     
     
 </aura:application>

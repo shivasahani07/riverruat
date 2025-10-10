@@ -10,7 +10,9 @@ public with sharing class AppointmentSlotController {
     }
      @AuraEnabled
     public static List<Appointment_Slot_Item__c>  getAppointmentSLot(String statusvalue) {
-        system.debug('statusvalue==='+statusvalue);
+        
+        try{
+            system.debug('statusvalue==='+statusvalue);
         Id userid = UserInfo.getUserId();
         User userRec = [
             SELECT Id, Contact.AccountId, Contact.Account.Name 
@@ -47,12 +49,19 @@ public with sharing class AppointmentSlotController {
         }
 
         return appointmentLineItemList;
+        }
+        catch (Exception e){
+            System.debug('Error Message ==>' + e.getMessage() + ' && Error Line == >' + e.getLineNumber());
+            return null;
+        }
+        
          
     }
 
     @AuraEnabled(cacheable=true)
     public static serviceCenterAppointmentWrapper getCurrentContactServiceCenter(){
-        serviceCenterAppointmentWrapper wrapper = new serviceCenterAppointmentWrapper();
+        try{
+            serviceCenterAppointmentWrapper wrapper = new serviceCenterAppointmentWrapper();
         Id userid = UserInfo.getUserId();
         User userRec = [
             SELECT Id, Contact.AccountId, Contact.Account.Name 
@@ -90,6 +99,12 @@ public with sharing class AppointmentSlotController {
         }
 
         return wrapper;
+        }
+        catch (Exception e){
+            System.debug('Error Message ==>' + e.getMessage() + ' && Error Line == >' + e.getLineNumber());
+            return null;
+        }
+        
     }
 
     public class serviceCenterAppointmentWrapper {
@@ -100,7 +115,8 @@ public with sharing class AppointmentSlotController {
 
     @AuraEnabled(cacheable=true)
     public static Integer getRemainingBayCountForRange(Id serviceCenterId, Date startDate, Date endDate) {
-        Integer totalBays = [SELECT COUNT() FROM Service_Bay__c WHERE Service_Center__c = :serviceCenterId AND Is_Active__c = True];
+        try{
+           Integer totalBays = [SELECT COUNT() FROM Service_Bay__c WHERE Service_Center__c = :serviceCenterId AND Is_Active__c = True];
 
         List<AggregateResult> booked = [
             SELECT Appointment_Slot_Date__c bookedDate, Service_Bay__c bay
@@ -133,7 +149,13 @@ public with sharing class AppointmentSlotController {
             if (usedToday > maxUsedPerDay) maxUsedPerDay = usedToday;
         }
 
-        return totalBays - maxUsedPerDay;
+        return totalBays - maxUsedPerDay; 
+        }
+        catch (Exception e){
+            System.debug('Error Message ==>' + e.getMessage() + ' && Error Line == >' + e.getLineNumber());
+            return null;
+        }
+        
     }
 
     @AuraEnabled   
@@ -146,7 +168,9 @@ public with sharing class AppointmentSlotController {
         Integer serviceBaynumber,
         Integer slotDurationMins
     ) {
-        Time startT = toTime(dayStartTime);
+        
+        try{
+            Time startT = toTime(dayStartTime);
         Time endT = toTime(dayEndTime);
 
         List<Date> dateList = new List<Date>();
@@ -291,6 +315,12 @@ public with sharing class AppointmentSlotController {
         }
 
         return !slotMapByDate.isEmpty() ? slotMapByDate.values()[0].Id : null;
+        }
+        catch (Exception e){
+            System.debug('Error Message ==>' + e.getMessage() + ' && Error Line == >' + e.getLineNumber());
+            return null;
+        }
+        
     }
 
     private static Time toTime(String input) {
