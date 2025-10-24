@@ -27,7 +27,7 @@ public without sharing class DMLLogger {
                             Object_Name__c = objectName,
                             Record_Id__c = oldRec.Id,
                             Operation__c = 'DELETE',
-                            Old_Values__c = JSON.serialize(oldRec),
+                            Old_Values__c = JSON.serializePretty(oldRec),
                             Performed_By__c = UserInfo.getUserId(),
                             Performed_On__c = System.now()
                         ));

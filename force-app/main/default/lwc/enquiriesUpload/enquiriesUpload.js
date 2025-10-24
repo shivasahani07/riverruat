@@ -19,6 +19,7 @@ export default class EnquiriesUpload extends LightningElement {
     @track isLoading = false;
     @track checkTime = false;
     @track ProfileName;
+    @track hasDuplicatePhones = false;
 
     connectedCallback() {
         debugger;
@@ -48,7 +49,6 @@ export default class EnquiriesUpload extends LightningElement {
 
             this.objectOptions = filteredList.map(obj => {
                 let label = obj;
-
                 if (this.ProfileName === 'Sales Manager (Partner)') {
                     if (obj.toLowerCase() === 'opportunity') {
                         label = 'Enquiry';
@@ -64,42 +64,24 @@ export default class EnquiriesUpload extends LightningElement {
         });
     }
 
-
-    // businessHours() {
-    //     debugger;
-    //     const now = new Date();
-    //     const hours = now.getHours();
-    //     const businessHours = Business_Hours;
-
-    //     if (hours >= 10 && hours < 19) {
-    //         this.checkTime = false;
-    //     } else {
-    //         this.checkTime = true;
-    //         this.showToast('Error', 'Please Upload the Data in Business Hours', 'warning');
-    //     }
-    // }
-
     businessHours() {
-        // debugger;
-        // const now = new Date();
-        // const hours = now.getHours();
+        debugger;
+        const now = new Date();
+        const hours = now.getHours();
+        const [startHour, endHour] = Business_Hours.split(',').map(Number);
 
-        // const [startHour, endHour] = Business_Hours.split(',').map(Number);
-
-        // if (hours >= startHour && hours < endHour) {
-        //     this.checkTime = false;
-        // } else {
-        //     this.checkTime = true;
-        //     this.showToast('Error', 'Please Upload the Data in Business Hours', 'warning');
-        // }
+        if (hours >= startHour && hours < endHour) {
+            this.checkTime = false;
+        } else {
+            this.checkTime = true;
+            this.showToast('Error', 'Please Upload the Data in Business Hours', 'warning');
+        }
         this.checkTime = false;
     }
-
 
     handleObjectChange(event) {
         debugger;
         this.selectedObject = event.detail.value;
-
         getFieldList({ objectName: this.selectedObject })
             .then(result => {
                 this.fieldOptions = result.map(field => ({ label: field, value: field }));
@@ -156,8 +138,6 @@ export default class EnquiriesUpload extends LightningElement {
         );
     }
 
-
-
     handleFileChange(event) {
         const file = event.target.files[0];
         if (file) {
@@ -192,6 +172,39 @@ export default class EnquiriesUpload extends LightningElement {
 
                     return values.join(',');
                 });
+
+                // --- PHONE NUMBER UNIQUENESS CHECK ---
+                const phoneColumnIndex = headers.findIndex(h =>
+                    /phone|phone\s*number/i.test(h)
+                );
+
+                this.hasDuplicatePhones = false; // reset flag
+
+                if (phoneColumnIndex !== -1) {
+                    const phoneNumbers = new Set();
+
+                    for (const line of lines.slice(1)) {
+                        if (!line.trim()) continue;
+                        const values = line.split(',').map(v => v.trim());
+                        const phone = values[phoneColumnIndex];
+
+                        if (phone) {
+                            if (phoneNumbers.has(phone)) {
+                                this.hasDuplicatePhones = true;
+                                break;
+                            }
+                            phoneNumbers.add(phone);
+                        }
+                    }
+
+                    if (this.hasDuplicatePhones) {
+                        this.showToast('Error', 'Excel has duplicate phone numbers rows', 'error');
+
+                        this.csvRows = [];
+                        this.columnHeaders = [];
+                        return; // Stop further processing
+                    }
+                }
             };
             reader.readAsText(file);
         }
@@ -207,7 +220,6 @@ export default class EnquiriesUpload extends LightningElement {
         }
         return null;
     }
-
 
     handleFieldMappingChange(event) {
         debugger;
@@ -259,5 +271,6 @@ export default class EnquiriesUpload extends LightningElement {
         this.fieldMapping = {};
         this.csvRows = [];
         this.fileData = null;
+        this.hasDuplicatePhones = false;
     }
 }

@@ -20,20 +20,23 @@
         </div>
 
         <template if:true={columnHeaders.length}>
-            <lightning-layout multiple-rows class="slds-p-around_medium">
-                <template for:each={columnHeaders} for:item="col">
-                    <lightning-layout-item key={col} size="12" padding="around-small">
-                        <lightning-combobox label={col} data-column={col} options={filteredFieldOptions}
-                            onchange={handleFieldMappingChange} oninput={handleFieldSearch}>
-                        </lightning-combobox>
-                    </lightning-layout-item>
-                </template>
-            </lightning-layout>
+            <template if:false={hasDuplicatePhones}>
+                <lightning-layout multiple-rows class="slds-p-around_medium">
+                    <template for:each={columnHeaders} for:item="col">
+                        <lightning-layout-item key={col} size="12" padding="around-small">
+                            <lightning-combobox label={col} data-column={col} options={filteredFieldOptions}
+                                onchange={handleFieldMappingChange} oninput={handleFieldSearch}>
+                            </lightning-combobox>
+                        </lightning-layout-item>
+                    </template>
+                </lightning-layout>
 
-            <div class="slds-p-around_medium">
-                <lightning-button variant="brand" label="Upload Data" onclick={handleUpload}
-                    disabled={checkTime}></lightning-button>
-            </div>
+                <div class="slds-p-around_medium">
+                    <lightning-button variant="brand" label="Upload Data" onclick={handleUpload}
+                        disabled={checkTime}></lightning-button>
+                </div>
+            </template>
         </template>
+
     </lightning-card>
 </template>

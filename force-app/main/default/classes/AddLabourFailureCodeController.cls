@@ -20,7 +20,9 @@ public without sharing class AddLabourFailureCodeController {
     }
     
     @AuraEnabled
-    public static OperationResult createPostVINFCLabourVIN(String fcName, String labourCode, String newVINCutOff) {
+    //public static OperationResult createPostVINFCLabourVIN(String fcName, String labourCode, String newVINCutOff) {
+    public static OperationResult createPostVINFCLabourVIN(String fcName, String labourCode, String newVINCutOff, Integer sampleRequired){
+
         try {
             // Validate input parameters
             if (String.isBlank(fcName) || String.isBlank(labourCode)) {
@@ -36,6 +38,7 @@ public without sharing class AddLabourFailureCodeController {
                 AND Is_Active__c = true
                 LIMIT 1
             ];
+            System.debug('****** fcList ****** : ' + fcList.size());
             
             if (fcList.isEmpty()) {
                 OperationResult tfrResult;
@@ -63,15 +66,20 @@ public without sharing class AddLabourFailureCodeController {
                     fcName,
                     labourEffectResult.recordId,
                     tfrResult.recordId,
-                    8
+                    sampleRequired
                 );
                 return (fcResult != null) ? fcResult : new OperationResult(false, 'Failure code creation failed');
             }
             
             Failure_Code__c fc = fcList[0];
+            System.debug('fc.VIN_Cut_off_No__c : ' + fc.VIN_Cut_off_No__c);
             Integer comparisonResult;
             
             if (fc.VIN_Cut_off__c != null) {
+                
+                System.debug('fc.VIN_Cut_off_No__c : ' + fc.VIN_Cut_off_No__c);
+                System.debug('newVINCutOff : ' + newVINCutOff);
+                
                 // Compare VINs
                 VINCutOffManagement.ComparisonResult compResult = 
                     VINCutOffManagement.compareVINFormat(fc.VIN_Cut_off_No__c, newVINCutOff);
@@ -81,6 +89,7 @@ public without sharing class AddLabourFailureCodeController {
                 }
                 
                 comparisonResult = compResult.resultCode;
+                System.debug('comparisonResult : ' + comparisonResult);
                 
                 if (comparisonResult == 0) {
                     return new OperationResult(false, 'VIN cutoff already exists for this failure code.');
@@ -220,6 +229,7 @@ public without sharing class AddLabourFailureCodeController {
             // Validate VIN format if provided
             if (!String.isBlank(newVINCutOff)) {
                 VINCutOffManagement.ComparisonResult vinResult = VINCutOffManagement.validateVIN(newVINCutOff);
+                System.debug('vinResult : ' + vinResult);
                 
                 if (!vinResult.isSuccess) {
                     return new OperationResult(false, 'Invalid VIN format: ' + vinResult.message);

@@ -31,6 +31,8 @@ public class JobCardHandler {
              FROM WorkOrder
              WHERE Id IN :completedWorkOrderIds]
         );
+        
+        System.debug('woMap ==>'+woMap);
 
         
        
@@ -45,7 +47,8 @@ public class JobCardHandler {
             }
             woToWarrantyMap.get(wp.Job_Card__c).add(wp);
         }
-
+	
+        System.debug('woToWarrantyMap ==>'+woToWarrantyMap);
 
         
         Map<Id, Claim> woToClaimMap = new Map<Id, Claim>();
@@ -56,18 +59,18 @@ public class JobCardHandler {
         ]) {
             woToClaimMap.put(c.Job_Card__c, c);
         }
-
+         System.debug('woToClaimMap ==>'+woToClaimMap);
         
         List<WorkOrderLineItem> workLineItems = [
             SELECT Id, WorkOrderId, Status
             FROM WorkOrderLineItem
-            WHERE Status = 'New' AND WorkOrderId IN :completedWorkOrderIds
+            WHERE Status = 'Approved' AND WorkOrderId IN :completedWorkOrderIds
         ];
 
         List<WorkPlan> workPlans = [
             SELECT Id, WorkOrderId, Status__c
             FROM WorkPlan
-            WHERE Status__c = 'New' AND WorkOrderId IN :completedWorkOrderIds
+            WHERE Status__c = 'Approved' AND WorkOrderId IN :completedWorkOrderIds
         ];
 
        
@@ -90,6 +93,8 @@ public class JobCardHandler {
                 claimsToInsert.add(c);
             }
         }
+        
+        System.debug('claimsToInsert ' + claimsToInsert);
 
         if (!claimsToInsert.isEmpty()) {
             insert claimsToInsert;
@@ -159,6 +164,9 @@ public class JobCardHandler {
         if (!claimItemsToInsert.isEmpty()) insert claimItemsToInsert;
         if (!partsToUpdate.isEmpty()) update partsToUpdate;
         if (!workPlansToUpdate.isEmpty()) update workPlansToUpdate;
+        
+        System.debug('workPlansToUpdate ==>' +workPlansToUpdate);
+        System.debug('partsToUpdate ==>' +partsToUpdate);
 
     } catch (Exception e) {
         System.debug('Error in createClaimAndClaimItemOnWorkOrderCompletion: ' + e.getMessage() + ' at line ' + e.getLineNumber());

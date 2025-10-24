@@ -8,10 +8,10 @@ import getPricebookEntry from '@salesforce/apex/WorkOrderLineItemController.getP
 import createWorkOrderLineItems from '@salesforce/apex/WorkOrderLineItemController.createWorkOrderLineItems';
 import getRelatedWorkOrderLineItems from '@salesforce/apex/WorkOrderLineItemController.getRelatedWorkOrderLineItems';
 import getWarrantyForJobCard from '@salesforce/apex/WorkOrderLineItemController.getWarrantyForJobCard';
-import VeripartWithActionWithPlanApex from '@salesforce/apex/TFRControllerNew.VeripartWithActionWithPlanApex';
+import VeripartWithActionWithPlanApex from '@salesforce/apex/TFRManagement.VeripartWithActionWithPlanApex';
 import getFailureCode from '@salesforce/apex/AddFailureCodeController.getFailureCode';
 import getFailureCodeUpdated from '@salesforce/apex/AddFailureCodeController.getFailureCodeUpdated';
-import checkTFRValidation from '@salesforce/apex/TFRControllerNew.checkTFRValidation';
+import checkTFRValidation from '@salesforce/apex/TFRManagement.checkTFRValidation';
 import LightningAlert from 'lightning/alert';
 
 const STATUS_FIELD = 'WorkOrder.Status';
@@ -24,7 +24,7 @@ const BLOCKED_STATUSES = new Set([
     'Completed'
 ]);
 const EDITABLE_STATUSES = new Set(['New', 'In Progress', 'Re work']);
-const WARRANTY_PRIOR_APPLICABLE = new Set(['River Warranty', 'Paid', 'Parts Warranty']);
+const WARRANTY_PRIOR_APPLICABLE = new Set(['River Warranty', 'Parts Warranty']);
 
 export default class BulkInsertJCProductsCustomNew extends NavigationMixin(LightningElement) {
     @api recordId;
@@ -401,12 +401,14 @@ export default class BulkInsertJCProductsCustomNew extends NavigationMixin(Light
     }
 
     handleQuantityChange(event) {
+        debugger
         const index = event.target.dataset.id;
         this.itemList[index].quantity = event.target.value;
         this.validateQuantity(index);
     }
 
     validateQuantity(index) {
+        debugger;
         const item = this.itemList[index];
         let error = '';
 
@@ -429,7 +431,7 @@ export default class BulkInsertJCProductsCustomNew extends NavigationMixin(Light
         this.itemList[index][fieldName] = value;
 
         if (fieldName === 'RR_Parts_Category__c') {
-            this.itemList[index].showAdditionalFields = value !== 'Paidddd';
+            this.itemList[index].showAdditionalFields = value !== 'Paid';
             this.itemList[index].isElectricalValueRequired = false;
             this.itemList[index]['partsCategory'] = this.itemList[index]['RR_Parts_Category__c']
             this.itemList[index].isDisbaledProduct = false;

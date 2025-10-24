@@ -7,5 +7,14 @@
 		<target>lightning__HomePage</target>
 		<target>lightning__RecordPage</target>
 		<target>lightning__Tab</target>
+		<target>lightningCommunity__Page</target>
+		<target>lightningCommunity__Default</target>
+		<target>lightningCommunity__Page_Layout</target>
+		<target>lightningCommunity__Theme_Layout</target>
 	</targets>
+	<targetConfigs>
+		<targetConfig targets="lightningCommunity__Default">
+			<property name="recordId" type="String" label="Record ID" description="The value should be {!recordId}."/>
+		</targetConfig>
+	</targetConfigs>
 </LightningComponentBundle>

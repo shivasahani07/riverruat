@@ -797,56 +797,81 @@ public class LeadTriggerHandler {
         } catch (Exception e) {
             System.debug('Error: ' + e.getMessage() + ' Line: ' + e.getLineNumber());
         }
-        
-
-        
     }
 
-    public static void pincodeChangeMakeTheDealerMapping(List<Lead> leadList,Map<Id, Lead> oldMap){
-        try{
-            set<String> setOfPincode = new set<String>();
-            Map<Id,Pin_Code__c> mapOfPinCodeToStore = new Map<Id,Pin_Code__c>();
+    public static void pincodeChangeMakeTheDealerMapping(List<Lead> leadList, Map<Id, Lead> oldMap) {
+        try {
+            Set<String> setOfPincode = new Set<String>();
+            Map<String, Pin_Code__c> mapOfPincodeToStore = new Map<String, Pin_Code__c>();
             List<Group> listOfGroup = new List<Group>();
-            for(Lead led: leadList){
-                if(led.PostalCode != null && led.PostalCode != oldMap.get(led.Id).postalCode && led.isConverted == false){
+            List<Task> tasksToInsert = new List<Task>();
+
+            for (Lead led : leadList) {
+                if (led.PostalCode != null &&
+                    oldMap.containsKey(led.Id) &&
+                    led.PostalCode != oldMap.get(led.Id).PostalCode &&
+                    led.IsConverted == false) {
                     setOfPincode.add(led.PostalCode);
                 }
             }
 
-            if(!setOfPincode.isEmpty()){
-                List<Pin_Code__c>  listOfPincodes = [Select Id,Dealer_Service_Center__r.Center_Code__c,Dealer_Service_Center__r.Store_Name__c,Area_Pincode__c,City__r.Name from Pin_Code__c where Area_Pincode__c IN:setOfPincode];
-                for(Pin_Code__c pinCodeRec : listOfPincodes){
-                    if(!mapOfPinCodeToStore.containskey(pinCodeRec.Area_Pincode__c)){
-                        mapOfPinCodeToStore.put(pinCodeRec.Area_Pincode__c,pinCodeRec);
+            if (!setOfPincode.isEmpty()) {
+                for (Pin_Code__c pin : [SELECT Id, Dealer_Service_Center__r.Center_Code__c,Dealer_Service_Center__r.Store_Name__c,
+                        Area_Pincode__c, City__r.Name FROM Pin_Code__c WHERE Area_Pincode__c IN :setOfPincode]) {
+                    mapOfPincodeToStore.put(pin.Area_Pincode__c, pin);
+                }
+            }
+
+            if (mapOfPincodeToStore.isEmpty()) {
+                listOfGroup = [
+                    SELECT Id, Name FROM Group 
+                    WHERE Type = 'Queue' AND Name = 'Head_Quarter'
+                ];
+            }
+
+            for (Lead leadRec : leadList) {
+                if (leadRec.PostalCode == null) continue;
+
+                Boolean pincodeChanged = oldMap.containsKey(leadRec.Id)
+                    && leadRec.PostalCode != oldMap.get(leadRec.Id).PostalCode
+                    && leadRec.IsConverted == false;
+
+                if (pincodeChanged && mapOfPincodeToStore.containsKey(leadRec.PostalCode)) {
+                    Pin_Code__c pin = mapOfPincodeToStore.get(leadRec.PostalCode);
+                    leadRec.Dealer_Code__c = pin.Dealer_Service_Center__r.Center_Code__c;
+                    leadRec.Stores_Name__c = pin.Dealer_Service_Center__r.Store_Name__c;
+                    leadRec.City = pin.City__r.Name;
+                    leadRec.Future_Lead__c = false;
+
+                    Task t = new Task();
+                    t.Subject = 'Call Customer for Updated Dealer Mapping';
+                    t.WhatId = leadRec.Id;
+                    t.OwnerId = leadRec.OwnerId;
+                    t.Priority = 'Normal';
+                    t.Status = 'Open';
+                    t.Description = 'Pincode changed to ' + leadRec.PostalCode +
+                        '. Please call the customer to confirm dealer assignment.';
+                    tasksToInsert.add(t);
+
+                } else if (pincodeChanged && !mapOfPincodeToStore.containsKey(leadRec.PostalCode)) {
+                    leadRec.Dealer_Code__c = '';
+                    leadRec.Stores_Name__c = 'Out Of Serivce';
+                    leadRec.City = '';
+                    leadRec.Future_Lead__c = true;
+                    if (!listOfGroup.isEmpty()) {
+                        leadRec.OwnerId = listOfGroup[0].Id;
                     }
                 }
             }
 
-            if(!mapOfPinCodeToStore.isEmpty()){
-                listOfGroup = [Select Id,name from Group where type = 'Queue' and Name = 'Head_Quarter'];
-                for(Lead leadRec : leadList){
-                    if(mapOfPinCodeToStore.containsKey(leadRec.PostalCode)){
-                        leadRec.Dealer_Code__c = mapOfPinCodeToStore.get(leadRec.PostalCode).Dealer_Service_Center__r.Center_Code__c;
-                        leadRec.Stores_Name__c = mapOfPinCodeToStore.get(leadRec.PostalCode).Dealer_Service_Center__r.Store_Name__c;
-                        leadRec.City = mapOfPinCodeToStore.get(leadRec.PostalCode).City__r.Name;
-                        leadRec.Future_Lead__c = false;
-                    }
-                    else{
-                        leadRec.Dealer_Code__c = '';
-                        leadRec.Stores_Name__c = '';
-                        leadRec.City = '';
-                        leadRec.Future_Lead__c = true;
-                        if(!listOfGroup.isEmpty()){
-                            leadRec.OwnerId = listOfGroup[0].Id;
-                        }
-                    }
-                }
-            }   
+            if (!tasksToInsert.isEmpty()) {
+                insert tasksToInsert;
+            }
+
         } catch (Exception e) {
             System.debug('Error: ' + e.getMessage() + ' Line: ' + e.getLineNumber());
         }
     }
 
-    
     public class CustomException extends Exception {}
 }

@@ -1,3 +1,10 @@
+/**
+ * @description       : 
+ * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @group             : 
+ * @last modified on  : 10-10-2025
+ * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+**/
 public class PdfActionQueueable implements Database.Batchable<SObject>, Database.AllowsCallouts {
     public Set<Id> orderPaymentIds;
 
@@ -45,6 +52,7 @@ public class PdfActionQueueable implements Database.Batchable<SObject>, Database
 
             if (!attachmentsToInsert.isEmpty()) {
                 insert attachmentsToInsert;
+                System.debug('Aniket Email Method is called');
                 SendEmailHandller.sendPreAttchamnets(lstOrderPayments[0].Id, attachmentsToInsert);
             }
 
@@ -53,6 +61,7 @@ public class PdfActionQueueable implements Database.Batchable<SObject>, Database
             }
         } catch (Exception e) {
             System.debug('Exception occurred: ' + e.getMessage());
+            System.debug('Error Line Number Is=======>'+e.getLineNumber());
         }
     }
 

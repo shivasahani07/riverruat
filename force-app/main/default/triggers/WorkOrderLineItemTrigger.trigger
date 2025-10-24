@@ -31,6 +31,11 @@ trigger WorkOrderLineItemTrigger on WorkOrderLineItem (after insert, after updat
     }
     //Added By Ram 24/06/2025
     if(trigger.IsBefore && trigger.IsDelete){
+        List<id> deletedids= new  List<id>();
+        for(WorkOrderLineItem itm: Trigger.old){
+            deletedids.add(itm.Id);
+        }
+        WorkOrderLineItemTriggerHandler.DeletedRelatedLabourfromPart(deletedids);
         JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.old);
         DMLLogger.logChanges(Trigger.oldMap, null, 'DELETE', 'WorkOrderLineItem');
     }

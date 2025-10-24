@@ -39,8 +39,8 @@ trigger WorkOrderTrigger1 on WorkOrder (before insert, before update, after upda
         WorkOrderTriggerHandler.sendApprovalonJCStausCancellationRequestedASM(Trigger.new, Trigger.oldMap);
         WorkOrderTriggerHandler.handleCompletedJobs(Trigger.new, Trigger.oldMap);
         //for Sending Feeback Form Link
-        ServiceFeedbackController.generateFeedbackUrl(Trigger.new, Trigger.oldMap);
-        ServiceFeedbackController.sendWhatsAppMessageWithFeedbackUrl(Trigger.new, Trigger.oldMap);
+        //ServiceFeedbackController.generateFeedbackUrl(Trigger.new, Trigger.oldMap);
+        //ServiceFeedbackController.sendWhatsAppMessageWithFeedbackUrl(Trigger.new, Trigger.oldMap);
         //PSFController.generateFeedbackUrl(Trigger.new, Trigger.oldMap);
         //PSFController.sendWhatsAppMessageWithFeedbackUrl(Trigger.new, Trigger.oldMap);    
         //WorkOrderWhatsAppHandler.sendWhatsAppMsgMethod(Trigger.new, Trigger.oldMap);//added by Aniket on 17/06/2025

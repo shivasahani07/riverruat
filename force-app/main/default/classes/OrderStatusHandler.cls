@@ -463,232 +463,203 @@ public without sharing class OrderStatusHandler {
     // 09/07/2024 : Added a field to capture product name on Order invoice. -by Pratha KR
     // 14/10/2024 : EW & RSA will be of type 'Add-ons' which will create a seperate orderinvoice  - by Pratha KR
     // Updated Code for Duplication Invoice Issue - 11/12/2024
+
     public static void ceateInvoiceRecords(List<Order> lstNewOrder, Map<Id, Order> oldOrdersMap) {
-        try {
-            List<Order_Invoice__c> orderInvoicesToInsert = new List<Order_Invoice__c>();
-            Set<Id> accIdSet = new Set<Id>();
-            Map<Id, Set<String>> orderToItemTypeMap = new Map<Id, Set<String>>();
-            Map<Id, Id> orderIdToDealerId = new Map<Id, Id>();
-            Map<Id, Account> accIdToAccMap = new Map<Id, Account>();
-            Map<Id, Decimal> accIdToInvoiceNoToUpdateMap = new Map<Id, Decimal>();
-            Set<String> OldOrderInvName = new Set<String>();
+    try {
+        List<Order_Invoice__c> orderInvoicesToInsert = new List<Order_Invoice__c>();
+        Set<Id> accIdSet = new Set<Id>();
+        Map<Id, Set<String>> orderToItemTypeMap = new Map<Id, Set<String>>();
+        Map<Id, Id> orderIdToDealerId = new Map<Id, Id>();
+        Map<Id, Account> accIdToAccMap = new Map<Id, Account>();
+        Map<Id, Decimal> accIdToInvoiceNoToUpdateMap = new Map<Id, Decimal>();
 
-            // Gather all order IDs in the batch
-            Set<Id> allOrderIds = new Set<Id>();
-            for (Order o : lstNewOrder) allOrderIds.add(o.Id);
-
-            // Query all existing invoices for these orders
-            List<Order_Invoice__c> existingInvoices = [
-                SELECT Id, Name, Order__c FROM Order_Invoice__c WHERE Order__c IN :allOrderIds
-            ];
-
-            // Map to track max version per order
-            Map<Id, Integer> orderToMaxVersion = new Map<Id, Integer>();
-            for (Order_Invoice__c inv : existingInvoices) {
-                String name = inv.Name;
-                Integer version = 1;
-                Pattern p = Pattern.compile('V(\\d+)$');
-                Matcher m = p.matcher(name);
-                if (m.find()) {
-                    version = Integer.valueOf(m.group(1));
-                }
-                if (!orderToMaxVersion.containsKey(inv.Order__c) || orderToMaxVersion.get(inv.Order__c) < version) {
-                    orderToMaxVersion.put(inv.Order__c, version);
-                }
-                OldOrderInvName.add(name);
-            }
-
-            // Collect dealers for orders changing to 'Pre Invoice'
-            for (Order objOrder : lstNewOrder) {
-                Order oldOrder = oldOrdersMap.get(objOrder.Id);
-                if (oldOrder.Status != 'Pre Invoice' && objOrder.Status == 'Pre Invoice') {
+        // Collect dealer IDs for orders that are changing to 'Pre Invoice'
+        for (Order objOrder : lstNewOrder) {
+            Order oldOrder = oldOrdersMap.get(objOrder.Id);
+            if (oldOrder.Status != 'Pre Invoice' && objOrder.Status == 'Pre Invoice') {
+                if (objOrder.Dealer__c != null) {
                     accIdSet.add(objOrder.Dealer__c);
-                    orderIdToDealerId.put(objOrder.Id, objOrder.Dealer__c);   
+                    orderIdToDealerId.put(objOrder.Id, objOrder.Dealer__c);
                 }
             }
+        }
 
-            // Query order items for these orders
-            List<OrderItem> newOrderItemList = new List<OrderItem>();
-            if (!orderIdToDealerId.isEmpty()) {
-                newOrderItemList = [
-                    SELECT Id, Type__c, OrderId, Product2Id, Product2.Name FROM OrderItem WHERE OrderId IN :orderIdToDealerId.keySet()
-                ];
-            }
-            
-            Map<Id, Map<String, List<String>>> orderIdToTypeToProductsMap = new Map<Id, Map<String, List<String>>>();
-            for (OrderItem objOrderItem : newOrderItemList) {
-                if (!orderToItemTypeMap.containsKey(objOrderItem.OrderId)) {
-                    orderToItemTypeMap.put(objOrderItem.OrderId, new Set<String>());
-                    orderIdToTypeToProductsMap.put(objOrderItem.OrderId, new Map<String, List<String>>());
-                }
-                orderToItemTypeMap.get(objOrderItem.OrderId).add(objOrderItem.Type__c);
-                // Map product names by type
-                Map<String, List<String>> typeToProducts = orderIdToTypeToProductsMap.get(objOrderItem.OrderId);
-                if (!typeToProducts.containsKey(objOrderItem.Type__c)) {
-                    typeToProducts.put(objOrderItem.Type__c, new List<String>());
-                }
-                typeToProducts.get(objOrderItem.Type__c).add(objOrderItem.Product2.Name);
-            }
+        if (orderIdToDealerId.isEmpty()) {
+            System.debug('No orders moving to Pre Invoice — exiting.');
+            return;
+        }
 
-            // Query Account data outside loop
-            List<Account> accList = new List<Account>();
-            if (!accIdSet.isEmpty()) {
-                accList = [SELECT Id, Invoice_Sequence__c, Center_Code__c FROM Account WHERE Id IN :accIdSet];
+        // Query all order items for these orders
+        List<OrderItem> newOrderItemList = [
+            SELECT Id, Type__c, OrderId, Product2.Name
+            FROM OrderItem
+            WHERE OrderId IN :orderIdToDealerId.keySet()
+        ];
+
+        // Build orderToItemTypeMap and Product Map
+        Map<Id, Map<String, List<String>>> orderIdToTypeToProductsMap = new Map<Id, Map<String, List<String>>>();
+        for (OrderItem objOrderItem : newOrderItemList) {
+            if (!orderToItemTypeMap.containsKey(objOrderItem.OrderId)) {
+                orderToItemTypeMap.put(objOrderItem.OrderId, new Set<String>());
+                orderIdToTypeToProductsMap.put(objOrderItem.OrderId, new Map<String, List<String>>());
             }
-            for (Account accObj: accList) {
+            orderToItemTypeMap.get(objOrderItem.OrderId).add(objOrderItem.Type__c);
+
+            Map<String, List<String>> typeToProducts = orderIdToTypeToProductsMap.get(objOrderItem.OrderId);
+            if (!typeToProducts.containsKey(objOrderItem.Type__c)) {
+                typeToProducts.put(objOrderItem.Type__c, new List<String>());
+            }
+            typeToProducts.get(objOrderItem.Type__c).add(objOrderItem.Product2.Name);
+        }
+
+        // Query accounts
+        if (!accIdSet.isEmpty()) {
+            List<Account> accList = [
+                SELECT Id, Invoice_Sequence__c, Center_Code__c
+                FROM Account
+                WHERE Id IN :accIdSet
+            ];
+            for (Account accObj : accList) {
                 accIdToAccMap.put(accObj.Id, accObj);
             }
-
-            // Generate invoices with correct versioning
-            for (Id orderId : orderToItemTypeMap.keySet()) {
-                Decimal invoicesequence = 0;
-                if (orderToItemTypeMap.get(orderId) != null) {
-                    Integer invoiceNumber = (Integer)accIdToAccMap.get(orderIdToDealerId.get(orderId)).Invoice_Sequence__c != null
-                        ? (Integer)accIdToAccMap.get(orderIdToDealerId.get(orderId)).Invoice_Sequence__c : 0;
-                    Set<String> itemTypes = orderToItemTypeMap.get(orderId);
-                    Map<String, List<String>> orderItemToProductNameMap = orderIdToTypeToProductsMap.get(orderId);
-
-                    // Find next version number for this order
-                    Integer version = (orderToMaxVersion.containsKey(orderId) ? orderToMaxVersion.get(orderId) : 0) + 1;
-
-                    if (itemTypes.contains('Vehicle') && (itemTypes.contains('Accessories') || itemTypes.contains('Merchandise') || itemTypes.contains('Parts')) || itemTypes.contains('Add-ons') ) {
-                        String invoiceSequenceVH = GenerateInvoiceId.generateInvoiceId('RV', accIdToAccMap.get(orderIdToDealerId.get(orderId)).Center_Code__c, 'VH', String.valueOf(invoiceNumber+1));
-                        orderInvoicesToInsert.add(createInvoice(orderId, 'Vehicle', invoiceSequenceVH, orderItemToProductNameMap.get('Vehicle'), version));
-                        invoiceNumber += 1;
-
-                        if (itemTypes.contains('Accessories') || itemTypes.contains('Parts')) {
-                            String invoiceSequenceAC = GenerateInvoiceId.generateInvoiceId('RV', accIdToAccMap.get(orderIdToDealerId.get(orderId)).Center_Code__c, 'AC', String.valueOf(invoiceNumber+1));
-                            orderInvoicesToInsert.add(createInvoice(orderId, 'Accessories', invoiceSequenceAC, orderItemToProductNameMap.get('Accessories'), version));
-                            invoiceNumber += 1;
-                        }
-
-                        if (itemTypes.contains('Accessories')) {
-                            String invoiceSequenceOC = GenerateInvoiceId.generateInvoiceId('RV', accIdToAccMap.get(orderIdToDealerId.get(orderId)).Center_Code__c, 'OC', String.valueOf(invoiceNumber+1));
-                            orderInvoicesToInsert.add(createInvoice(orderId, 'Other Charges', invoiceSequenceOC, orderItemToProductNameMap.get('Parts'), version));
-                            invoiceNumber += 1;
-                        }
-
-                        if (itemTypes.contains('Add-ons')) {
-                            String invoiceSequenceAO = GenerateInvoiceId.generateInvoiceId('RV', accIdToAccMap.get(orderIdToDealerId.get(orderId)).Center_Code__c, 'AO', String.valueOf(invoiceNumber+1));
-                            orderInvoicesToInsert.add(createInvoice(orderId, 'Add-ons', invoiceSequenceAO, orderItemToProductNameMap.get('Add-ons'), version));
-                            invoiceNumber += 1;                        
-                        }
-
-                        if (itemTypes.contains('Merchandise')) {
-                            String invoiceSequenceMD = GenerateInvoiceId.generateInvoiceId('RV', accIdToAccMap.get(orderIdToDealerId.get(orderId)).Center_Code__c, 'MD', String.valueOf(invoiceNumber+1));
-                            orderInvoicesToInsert.add(createInvoice(orderId, 'Merchandise', invoiceSequenceMD, orderItemToProductNameMap.get('Merchandise'), version));
-                            invoiceNumber += 1;   
-                        }
-
-                    } else if (itemTypes.contains('Vehicle')) {
-                        String invoiceSequenceVH = GenerateInvoiceId.generateInvoiceId('RV', accIdToAccMap.get(orderIdToDealerId.get(orderId)).Center_Code__c, 'VH', String.valueOf(invoiceNumber+1));
-                        orderInvoicesToInsert.add(createInvoice(orderId, 'Vehicle', invoiceSequenceVH, orderItemToProductNameMap.get('Vehicle'), version));
-                        invoiceNumber += 1;
-
-                        String invoiceSequenceOC = GenerateInvoiceId.generateInvoiceId('RV', accIdToAccMap.get(orderIdToDealerId.get(orderId)).Center_Code__c, 'OC', String.valueOf(invoiceNumber+1));
-                        orderInvoicesToInsert.add(createInvoice(orderId, 'Other Charges', invoiceSequenceOC, orderItemToProductNameMap.get('Parts'), version));
-                        invoiceNumber += 1;
-                    } else if (itemTypes.contains('Accessories') || itemTypes.contains('Parts') || itemTypes.contains('Merchandise')) {
-                        String invoiceSequenceAC = GenerateInvoiceId.generateInvoiceId('RV', accIdToAccMap.get(orderIdToDealerId.get(orderId)).Center_Code__c, 'AC', String.valueOf(invoiceNumber+1));
-                        if(itemTypes.contains('Accessories') || itemTypes.contains('Parts')) {
-                            orderInvoicesToInsert.add(createInvoice(orderId, 'Accessories', invoiceSequenceAC, orderItemToProductNameMap.get('Accessories'), version));
-                            invoiceNumber += 1;
-                        }
-                        if(itemTypes.contains('Merchandise')) {
-                            String invoiceSequenceAO = GenerateInvoiceId.generateInvoiceId('RV', accIdToAccMap.get(orderIdToDealerId.get(orderId)).Center_Code__c, 'MD', String.valueOf(invoiceNumber+1));
-                            orderInvoicesToInsert.add(createInvoice(orderId, 'Merchandise', invoiceSequenceAO, orderItemToProductNameMap.get('Merchandise'), version));
-                            invoiceNumber += 1;
-                        }
-                    }
-
-                    if (!accIdToInvoiceNoToUpdateMap.containsKey(accIdToAccMap.get(orderIdToDealerId.get(orderId)).Id)) {
-                        accIdToInvoiceNoToUpdateMap.put(accIdToAccMap.get(orderIdToDealerId.get(orderId)).Id, invoiceNumber);
-                    }
-                }
-            }
-
-            // Prepare account updates
-            List<Account> accListToUpdate = new List<Account>();
-            if(accIdToInvoiceNoToUpdateMap != null){
-                for(Id accId: accIdToInvoiceNoToUpdateMap.keySet()){
-                    Account accObj = new Account();
-                    accObj.Id = accId;
-                    accObj.Invoice_Sequence__c = accIdToInvoiceNoToUpdateMap.get(accId);
-                    accListToUpdate.add(accObj);
-                }
-            }
-
-            Savepoint sp = Database.setSavepoint();
-            if(orderInvoicesToInsert.size() > 0){
-                try {
-                    Integer recordComingForInsert = orderInvoicesToInsert.size();
-                    Map<String, Order_Invoice__c> orderInvoiceMapBeforeInsert = new Map<String, Order_Invoice__c>();
-                    List<String> unmatchedInvName = new List<String>();
-                    List<Order_Invoice__c> deleteInvToInsert = new List<Order_Invoice__c>();
-
-                    if(oldOrdersMap.values()[0].IsOrderInvoicesGenerated__c == True && recordComingForInsert != existingInvoices.size()){
-                        for (Order_Invoice__c invoice : orderInvoicesToInsert) {
-                            orderInvoiceMapBeforeInsert.put(invoice.Name, invoice);
-                        }
-                        for (String item : orderInvoiceMapBeforeInsert.keySet()) {
-                            if (!OldOrderInvName.contains(item)) {
-                                unmatchedInvName.add(item);
-                                deleteInvToInsert.add(orderInvoiceMapBeforeInsert.get(item));
-                            }
-                        }
-                        if(deleteInvToInsert.size() > 0){
-                            insert deleteInvToInsert;
-                        }
-                    } else if(oldOrdersMap.values()[0].IsOrderInvoicesGenerated__c == false){
-                        insert orderInvoicesToInsert;
-                        List<Order> ordersToUpdate = new List<Order>();
-                        for (Id orderId : orderIdToDealerId.keySet()) {
-                            Order ord = new Order(Id = orderId, IsOrderInvoicesGenerated__c = true);
-                            ordersToUpdate.add(ord);
-                        }
-                        update ordersToUpdate;
-                    }
-                    if(accListToUpdate.size() > 0){
-                        try{
-                            update accListToUpdate;
-                        } catch(Exception e){
-                            Database.rollback(sp);
-                        }
-                    }
-                } catch(Exception e){
-                    Database.rollback(sp);
-                }
-            }
-        } catch(Exception e){
-            System.debug('Error Message ==>'+e.getMessage()+' && Error Line == >'+e.getLineNumber());
         }
-    }
 
+        // Query existing invoices to avoid duplicates
+        Map<Id, Set<String>> existingOrderToTypesMap = new Map<Id, Set<String>>();
+        List<Order_Invoice__c> existingInvoices = [
+            SELECT Id, Order__c, Invoice_Type__c
+            FROM Order_Invoice__c
+            WHERE Order__c IN :orderToItemTypeMap.keySet()
+        ];
+        for (Order_Invoice__c inv : existingInvoices) {
+            if (!existingOrderToTypesMap.containsKey(inv.Order__c)) {
+                existingOrderToTypesMap.put(inv.Order__c, new Set<String>());
+            }
+            existingOrderToTypesMap.get(inv.Order__c).add(inv.Invoice_Type__c);
+        }
 
-    public static Order_Invoice__c createInvoice(Id orderId, String invoiceType, String invoiceSequence, List<String> productName, Integer version) {
+        // Loop through orders and create only missing invoices
+        for (Id orderId : orderToItemTypeMap.keySet()) {
+            if (orderToItemTypeMap.get(orderId) == null) continue;
+
+            Integer invoiceNumber = (Integer)accIdToAccMap.get(orderIdToDealerId.get(orderId)).Invoice_Sequence__c != null ?
+                (Integer)accIdToAccMap.get(orderIdToDealerId.get(orderId)).Invoice_Sequence__c : 0;
+
+            Set<String> itemTypes = orderToItemTypeMap.get(orderId);
+            Map<String, List<String>> orderItemToProductNameMap = orderIdToTypeToProductsMap.get(orderId);
+            Set<String> alreadyExistingTypes = existingOrderToTypesMap.containsKey(orderId)
+                ? existingOrderToTypesMap.get(orderId)
+                : new Set<String>();
+
+            Account accObj = accIdToAccMap.get(orderIdToDealerId.get(orderId));
+            String centerCode = accObj.Center_Code__c;
+
+            // VEHICLE INVOICE
+            if (itemTypes.contains('Vehicle') && !alreadyExistingTypes.contains('Vehicle Invoice')) {
+                String seqVH = GenerateInvoiceId.generateInvoiceId('RV', centerCode, 'VH', String.valueOf(invoiceNumber + 1));
+                orderInvoicesToInsert.add(createInvoice(orderId, 'Vehicle Invoice', seqVH, orderItemToProductNameMap.get('Vehicle')));
+                invoiceNumber++;
+            }
+
+            // ACCESSORIES INVOICE
+            if ((itemTypes.contains('Accessories') || itemTypes.contains('Parts')) && !alreadyExistingTypes.contains('Accessories Invoice')) {
+                String seqAC = GenerateInvoiceId.generateInvoiceId('RV', centerCode, 'AC', String.valueOf(invoiceNumber + 1));
+                orderInvoicesToInsert.add(createInvoice(orderId, 'Accessories Invoice', seqAC, orderItemToProductNameMap.get('Accessories')));
+                invoiceNumber++;
+            }
+
+            // OTHER CHARGES INVOICE
+            if (itemTypes.contains('Parts') && !alreadyExistingTypes.contains('Other Charges Invoice')) {
+                String seqOC = GenerateInvoiceId.generateInvoiceId('RV', centerCode, 'OC', String.valueOf(invoiceNumber + 1));
+                orderInvoicesToInsert.add(createInvoice(orderId, 'Other Charges Invoice', seqOC, orderItemToProductNameMap.get('Parts')));
+                invoiceNumber++;
+            }
+
+            // ADD-ONS INVOICE
+            if (itemTypes.contains('Add-ons') && !alreadyExistingTypes.contains('Add-ons Invoice')) {
+                String seqAO = GenerateInvoiceId.generateInvoiceId('RV', centerCode, 'AO', String.valueOf(invoiceNumber + 1));
+                orderInvoicesToInsert.add(createInvoice(orderId, 'Add-ons Invoice', seqAO, orderItemToProductNameMap.get('Add-ons')));
+                invoiceNumber++;
+            }
+
+            // MERCHANDISE INVOICE
+            if (itemTypes.contains('Merchandise') && !alreadyExistingTypes.contains('Merchandise Invoice')) {
+                String seqMD = GenerateInvoiceId.generateInvoiceId('RV', centerCode, 'MD', String.valueOf(invoiceNumber + 1));
+                orderInvoicesToInsert.add(createInvoice(orderId, 'Merchandise Invoice', seqMD, orderItemToProductNameMap.get('Merchandise')));
+                invoiceNumber++;
+            }
+
+            accIdToInvoiceNoToUpdateMap.put(orderIdToDealerId.get(orderId), invoiceNumber);
+        }
+
+        // Prepare Accounts to update sequence
+        List<Account> accListToUpdate = new List<Account>();
+        for (Id accId : accIdToInvoiceNoToUpdateMap.keySet()) {
+            Account accObj = new Account(Id = accId);
+            accObj.Invoice_Sequence__c = accIdToInvoiceNoToUpdateMap.get(accId);
+            accListToUpdate.add(accObj);
+        }
+
+        // Final insert/update operations
+        Savepoint sp = Database.setSavepoint();
         try {
-            List<Order> orderToUpdates = new List<Order>();
+            if (!orderInvoicesToInsert.isEmpty()) {
+                insert orderInvoicesToInsert;
+
+                // Update orders' flag
+                List<Order> ordersToUpdate = new List<Order>();
+                for (Id orderId : orderIdToDealerId.keySet()) {
+                    ordersToUpdate.add(new Order(Id = orderId, IsOrderInvoicesGenerated__c = true));
+                }
+                if (!ordersToUpdate.isEmpty()) update ordersToUpdate;
+            } else {
+                System.debug('No new invoice types found — skipping insert.');
+            }
+
+            if (!accListToUpdate.isEmpty()) {
+                update accListToUpdate;
+            }
+
+        } catch (Exception ex) {
+            Database.rollback(sp);
+            System.debug('Error during insert/update: ' + ex.getMessage());
+        }
+
+    } catch (Exception e) {
+        System.debug('Error Message: ' + e.getMessage() + ' at line: ' + e.getLineNumber());
+    }
+}
+
+
+    public static Order_Invoice__c createInvoice(Id orderId, string invoiceType, string invoiceSequence, list<string> productName){
+        try{
+            List<Order>orderToUpdates = new List<order>();
+            
             Order_Invoice__c invoice = new Order_Invoice__c();
-            invoice.Name = invoiceType + ' Invoice - V' + String.valueOf(version);
+            invoice.Name = invoiceType;
             invoice.Invoice_Number__c = invoiceSequence;
             if (invoiceType == 'Other Charges') {
+                // Directly update the order's Invoice Number without querying
                 Order orderToUpd = new Order(Id = orderId);
                 orderToUpd.Invoice_Number__c = invoiceSequence;
                 orderToUpdates.add(orderToUpd);
             }
-            invoice.Invoice_Type__c = invoiceType + ' Invoice';
+            System.debug('INVOICE line no 619 --> '+invoiceType);
+            invoice.Invoice_Type__c = invoiceType;
             invoice.Order__c = orderId;
+            //If(productName != null)
+              //  invoice.Order_Name__c = string.join(productName,',');
             if (!orderToUpdates.isEmpty()) {
+                System.debug('orderToUpdates'+orderToUpdates);
                 update orderToUpdates;
             }
-            return invoice;
-        } catch(Exception e) {
-            System.debug('Error Message ==>' + e.getMessage() + ' && Error Line == >' + e.getLineNumber());
+            Return invoice;
+        }catch(Exception e){
+            System.debug('Error Message ==>'+e.getMessage()+' && Error Line == >'+e.getLineNumber());
         }
         return null;
     }
 
-    
     /***********************************************************************************************************************/
     public static void addTest(){
         Integer j=0;

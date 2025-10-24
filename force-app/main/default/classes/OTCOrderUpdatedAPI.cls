@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Aniket Karmakar
  * @group             : 
- * @last modified on  : 09-23-2025
+ * @last modified on  : 10-14-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 @RestResource(urlMapping='/oTCOrder')
@@ -171,7 +171,7 @@ global without sharing class OTCOrderUpdatedAPI {
                         res.statuscode=404;
                         res.responseBody = responseUtility('Price is not defined for the product with SKU '+(string)productmap.get('product_sku_id'),'404',false);
                         return;
-                    }else if((string)productmap.get('product_type') == 'vehicle'){
+                    }else if((string)productmap.get('product_type') == 'vehicle' || (string)productmap.get('product_type') == 'Vehicle'){
                         Database.rollback(sp);
                         res.statuscode=404;
                         res.responseBody = responseUtility('Vehicle is not allowed in OTC Order','404',false);

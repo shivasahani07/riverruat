@@ -5,7 +5,7 @@
 * @last modified on  : 03-18-2025
 * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
-public without sharing class OrderTriggerHandler {
+public class OrderTriggerHandler {
     
     public static final Id vehicleRecordTypeId = Schema.SObjectType.Order.getRecordTypeInfosByName().get('Vehicle').getRecordTypeId();
     private static Boolean isExecuted = false;
@@ -76,19 +76,64 @@ public without sharing class OrderTriggerHandler {
     }
 
     public static void moveStatusToPreInvoiceIfFullPaymentIsDoneAndVehicleIsDone(List<Order> newOrders, Map<Id, Order> oldOrderMap) {
-        try {
-            for (Order ord : newOrders) {
-                if (ord.RecordTypeId == vehicleRecordTypeId) {
-                    if (ord.Status == 'Payment and Allocation' && ord.Assigned_Vehicle__c != null && oldOrderMap.get(ord.Id).Assigned_Vehicle__c == null && ord.Remaining_Amount__c != null && ord.Remaining_Amount__c == 0) {
-                            ord.Status = 'Pre Invoice';
-                            ord.Payment_status__c = 'Completed';
-                    }
-                }
+    System.debug('Entered moveStatusToPreInvoiceIfFullPaymentIsDoneAndVehicleIsDone');
+    try {
+        System.debug('newOrders size: ' + (newOrders != null ? newOrders.size() : 0));
+        System.debug('oldOrderMap size: ' + (oldOrderMap != null ? oldOrderMap.size() : 0));
+
+        for (Order ord : newOrders) {
+            System.debug('------------------------------------------------------');
+            System.debug('Processing Order Id: ' + ord.Id);
+            System.debug('RecordTypeId: ' + ord.RecordTypeId);
+            System.debug('Status: ' + ord.Status);
+            System.debug('Assigned_Vehicle__c (new): ' + ord.Assigned_Vehicle__c);
+            System.debug('Remaining_Amount__c (new): ' + ord.Remaining_Amount__c);
+
+            Order oldOrder = oldOrderMap != null && oldOrderMap.containsKey(ord.Id) ? oldOrderMap.get(ord.Id) : null;
+            if (oldOrder != null) {
+                System.debug('Old Order found: ' + oldOrder.Id);
+                System.debug('Assigned_Vehicle__c (old): ' + oldOrder.Assigned_Vehicle__c);
+            } else {
+                System.debug('Old Order record not found for this Id');
             }
-        } catch (Exception e) {
-            System.debug('Error in ======>: ' + e.getMessage() + ' at line no ======> ' + e.getLineNumber());
+
+            if (ord.RecordTypeId == vehicleRecordTypeId) {
+                System.debug('RecordType matches vehicleRecordTypeId: ' + vehicleRecordTypeId);
+
+                Boolean isStatusMatch = (ord.Status == 'Payment and Allocation');
+                Boolean isVehicleNowAssigned = (ord.Assigned_Vehicle__c != null && oldOrder != null && oldOrder.Assigned_Vehicle__c == null);
+                Boolean isPaymentComplete = (ord.Remaining_Amount__c != null && ord.Remaining_Amount__c == 0);
+
+                System.debug('isStatusMatch (Status == Payment and Allocation): ' + isStatusMatch);
+                System.debug('isVehicleNowAssigned (Vehicle newly assigned): ' + isVehicleNowAssigned);
+                System.debug('isPaymentComplete (Remaining Amount = 0): ' + isPaymentComplete);
+
+                if (isStatusMatch && isVehicleNowAssigned && isPaymentComplete) {
+                    System.debug('✅ All conditions met for Order Id: ' + ord.Id);
+                    System.debug('Before Update → Status: ' + ord.Status + ', Payment_status__c: ' + ord.Payment_status__c);
+
+                    ord.Status = 'Pre Invoice';
+                    ord.Payment_status__c = 'Completed';
+
+                    System.debug('After Update → Status: ' + ord.Status + ', Payment_status__c: ' + ord.Payment_status__c);
+                } else {
+                    System.debug('❌ Conditions not met for Order Id: ' + ord.Id);
+                    if (!isStatusMatch) System.debug('Reason: Status not "Payment and Allocation"');
+                    if (!isVehicleNowAssigned) System.debug('Reason: Vehicle not newly assigned');
+                    if (!isPaymentComplete) System.debug('Reason: Remaining amount not 0 or null');
+                }
+            } else {
+                System.debug('Skipped Order Id: ' + ord.Id + ' as RecordTypeId does not match vehicleRecordTypeId');
+            }
         }
+        System.debug('Completed processing all Orders.');
+    } catch (Exception e) {
+        System.debug('Error in moveStatusToPreInvoiceIfFullPaymentIsDoneAndVehicleIsDone: ' + e.getMessage() + 
+                     ' at line no: ' + e.getLineNumber() + 
+                     ' Stack Trace: ' + e.getStackTraceString());
     }
+}
+
 
     public static void dontAllowUserToTagSameVehicleToMultipleOrders(List<Order> newOrders, Map<Id, Order> oldOrderMap) {
         try {
@@ -335,7 +380,7 @@ public without sharing class OrderTriggerHandler {
                         }
                     }
 
-                    if (ord.Remaining_Amount__c > 0 && ord.Vehicle_Assigned__c == false && ord.Assigned_Vehicle__c != null && ord.Status == 'Pre Invoice') {
+                    if (ord.Remaining_Amount__c > 0 && ord.Vehicle_Assigned__c == false && ord.Assigned_Vehicle__c != null && (ord.Status == 'Pre Invoice' || ord.Status == 'Payment and Allocation')) {
                         System.debug('### 19 Remaining_Amount__c > 0 and Vehicle_Assigned__c = false and Assigned_Vehicle__c not null');
                         ord.addError('Cannot allot the vehicle until full payment is done.');
                     }
@@ -389,10 +434,10 @@ public without sharing class OrderTriggerHandler {
             for (Order ord : newOrders) {
                 Order oldOrd = oldOrderMap.get(ord.Id);
 
-                if (ord.Status == 'Booking' && oldOrd == null) {
-                    bookingIds.add(ord.Id);
-                    bookingPhoneMap.put(ord.Id, accMap.get(ord.AccountId).phone);
-                }
+                // if (ord.Status == 'Booking' && oldOrd == null) {
+                //     bookingIds.add(ord.Id);
+                //     bookingPhoneMap.put(ord.Id, accMap.get(ord.AccountId).phone);
+                // }
                 if (ord.Status == 'Pre Inovice' && oldOrd != null && ord.Status != oldOrd.Status) {
                     preInvoiceIds.add(ord.Id);
                     preInvoicePhoneMap.put(ord.Id, ord.Phone__c);
@@ -1043,57 +1088,119 @@ public without sharing class OrderTriggerHandler {
     }
     
     //code added by Aniket on 11/02/2025
-    public static void sendWhatsAppAfterOrderCreation(List<Order> newOrderList,Map<Id,Order> oldOrderMap){
-        try{
-            System.debug('Inside pdf whatsapp template');
-            List<Id> orderIdsToProcess = new List<Id>();
+    public static void sendWhatsAppAfterOrderCreation(List<Order> newOrderList, Map<Id, Order> oldOrderMap) {
+        try {
+            System.debug('Inside sendWhatsAppAfterOrderCreation');
+
             Set<Id> orderIdsToGet = new Set<Id>();
-            Map<Id,String> orderToProductColor = new Map<Id,String>();
-            Map<Id,wrapperForBooking> toPassToQueueable = new Map<Id,wrapperForBooking>();
-            for(Order o : newOrderList){
-                System.debug('o.Booking_Form_File_URL__c ===> ' + o.Booking_Form_File_URL__c);
-                System.debug('o.oldOrderMap.get(o.Id).Booking_Form_File_URL__c ===> ' + oldOrderMap.get(o.Id).Booking_Form_File_URL__c);
-                if(o.RecordTypeId == vehicleRecordTypeId && o.AccountId !=null && o.Booking_Form_File_URL__c != oldOrderMap.get(o.Id).Booking_Form_File_URL__c){
-                    orderIdsToGet.add(o.Id);
-                    
-                }else{
-                    return;
+            List<Id> fullPaymentOrderIds = new List<Id>();
+            List<Id> customerApprovalOrderIds = new List<Id>();
+            Map<Id, String> orderIdToPhoneMap = new Map<Id, String>();
+            Map<Id, String> customerApprovalPhoneMap = new Map<Id, String>();
+
+            for (Order newOrder : newOrderList) {
+                Order oldOrder = oldOrderMap.get(newOrder.Id);
+                if (newOrder == null || oldOrder == null) continue;
+
+                if (newOrder.RecordTypeId == vehicleRecordTypeId && newOrder.AccountId != null && 
+                    newOrder.Booking_Form_File_URL__c != oldOrder.Booking_Form_File_URL__c) {
+                    orderIdsToGet.add(newOrder.Id);
+                }
+
+                if (newOrder.Remaining_Amount__c != oldOrder.Remaining_Amount__c && 
+                    newOrder.Remaining_Amount__c == 0 && 
+                    newOrder.RecordTypeId == vehicleRecordTypeId) {
+                    fullPaymentOrderIds.add(newOrder.Id);
+                    orderIdToPhoneMap.put(newOrder.Id, newOrder.Phone__c);
+                }
+
+                if (newOrder.Customer_Approval__c != oldOrder.Customer_Approval__c && 
+                    newOrder.Customer_Approval__c == 'Yes' && 
+                    newOrder.RecordTypeId == vehicleRecordTypeId) {
+                    customerApprovalOrderIds.add(newOrder.Id);
+                    customerApprovalPhoneMap.put(newOrder.Id, newOrder.Phone__c);
                 }
             }
-            System.debug('orderIdsToGet==>'+orderIdsToGet);
-            //changes made on 14/02/2025
-            OrderItem oi = [Select Id,OrderId,Product2Id,Type__c from OrderItem WHERE OrderId=:orderIdsToGet AND Type__c='Vehicle' LIMIT 1];
-            System.debug('Order Products==>'+oi);
-            Product2 p = [Select Id,Colour__c from Product2 WHERE Id=:oi.Product2Id LIMIT 1];
-            System.debug('Product==>'+p);
-            
-            
-            //upto here
-            List<Order> ordersToProcess = [Select id,Phone__c,RecordTypeId,Account.Name,Website_Order_Id__c,Booking_Form_File_URL__c from Order WHERE Id IN:orderIdsToGet];
-            System.debug('ordersToProcess==>'+ordersToProcess);
-            for(Order order : ordersToProcess){
-                if(order.RecordTypeId == vehicleRecordTypeId){
-                    orderIdsToProcess.add(order.Id);
-                    //orderToProductColor.put(order.Id,p.Colour__c);
-                    
-                    wrapperForBooking w = new wrapperForBooking();
-                    w.phoneNumber = order.Phone__c;
-                    w.bookingId = order.Website_Order_Id__c;
-                    w.color = p.Colour__c;//order.Assigned_Vehicle__r.Colour__c;
-                    w.pdfLink = order.Booking_Form_File_URL__c;
-                    w.fileName = 'River Indie Booking Receipt';
-                    toPassToQueueable.put(order.Id,w);
+
+            System.debug('orderIdsToGet => ' + orderIdsToGet);
+            System.debug('fullPaymentOrderIds => ' + fullPaymentOrderIds);
+            System.debug('customerApprovalOrderIds => ' + customerApprovalOrderIds);
+
+            Map<Id, Order> orderMap = new Map<Id, Order>([
+                SELECT Id, Phone__c, RecordTypeId, Account.Name, Website_Order_Id__c,
+                    Booking_Form_File_URL__c, Status
+                FROM Order
+                WHERE Id IN :orderIdsToGet
+            ]);
+
+            Set<Id> combinedOrderIds = new Set<Id>();
+            combinedOrderIds.addAll(orderIdsToGet);
+            combinedOrderIds.addAll(fullPaymentOrderIds);
+            combinedOrderIds.addAll(customerApprovalOrderIds);
+
+            Map<Id, String> orderIdToColorMap = new Map<Id, String>();
+
+            if (!combinedOrderIds.isEmpty()) {
+                Map<Id, Id> orderToProductMap = new Map<Id, Id>();
+                for (OrderItem oi : [
+                    SELECT OrderId, Product2Id
+                    FROM OrderItem
+                    WHERE OrderId IN :combinedOrderIds AND Type__c = 'Vehicle'
+                ]) {
+                    orderToProductMap.put(oi.OrderId, oi.Product2Id);
+                }
+
+                if (!orderToProductMap.isEmpty()) {
+                    Map<Id, Product2> prodMap = new Map<Id, Product2>([
+                        SELECT Id, Colour__c FROM Product2 WHERE Id IN :orderToProductMap.values()
+                    ]);
+                    for (Id orderId : orderToProductMap.keySet()) {
+                        Product2 prod = prodMap.get(orderToProductMap.get(orderId));
+                        if (prod != null && prod.Colour__c != null) {
+                            orderIdToColorMap.put(orderId, prod.Colour__c);
+                        }
+                    }
                 }
             }
-            System.debug('toPassToQueueable==>'+toPassToQueueable);
-            if(!orderIdsToProcess.isEmpty()){
-                System.enqueueJob(new QueueableOnOrderCreationAfterBooking(orderIdsToProcess,toPassToQueueable));
+
+            Map<Id, wrapperForBooking> bookingPayloadMap = new Map<Id, wrapperForBooking>();
+            for (Order orderRec : orderMap.values()) {
+                if (orderRec.RecordTypeId == vehicleRecordTypeId && orderRec.Status == 'Booking') {
+                    wrapperForBooking wrap = new wrapperForBooking();
+                    wrap.phoneNumber = orderRec.Phone__c;
+                    wrap.bookingId = orderRec.Website_Order_Id__c;
+                    wrap.color = orderIdToColorMap.get(orderRec.Id);
+                    wrap.pdfLink = orderRec.Booking_Form_File_URL__c;
+                    wrap.fileName = 'River Indie Booking Receipt';
+                    wrap.templateName = 'booking_completed';
+                    bookingPayloadMap.put(orderRec.Id, wrap);
+                }
             }
-        }catch(Exception e){
-            System.debug('Error occured==>'+e.getMessage());
-            System.debug('Eroor Line Number is =====>'+e.getLineNumber());
+
+            if (!bookingPayloadMap.isEmpty()) {
+                System.enqueueJob(new QueueableOnOrderCreationAfterBooking(
+                    new List<Id>(bookingPayloadMap.keySet()), bookingPayloadMap
+                ));
+            }
+
+            if (!fullPaymentOrderIds.isEmpty()) {
+                System.enqueueJob(new QueueableTempWithoutParams(
+                    fullPaymentOrderIds, 'full_payment_completed', orderIdToPhoneMap
+                ));
+            }
+
+            if (!customerApprovalOrderIds.isEmpty()) {
+                System.enqueueJob(new QueueableTempWithoutParams(
+                    customerApprovalOrderIds, 'thanks_for_confirming', customerApprovalPhoneMap
+                ));
+            }
+
+        } catch (Exception e) {
+            System.debug('Error: ' + e.getMessage() + ' at line ' + e.getLineNumber());
         }
     }
+
+
     
     public static void processOrderMilestones(List<Order> newOrders, Map<Id, Order> oldOrderMap) {
         System.debug('In processOrderMilestones');
@@ -1326,6 +1433,7 @@ public without sharing class OrderTriggerHandler {
         public String color{get;set;}
         public String pdfLink{get;set;}
         public String fileName{get;set;}
+        public String templateName{get;set;}
     }
     
     public class wrapperForAllotment{

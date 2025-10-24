@@ -16,6 +16,11 @@
                 <label>New</label>
             </value>
             <value>
+                <fullName>On-Going</fullName>
+                <default>false</default>
+                <label>On-Going</label>
+            </value>
+            <value>
                 <fullName>Scheduled</fullName>
                 <default>false</default>
                 <label>Scheduled</label>
@@ -31,7 +36,7 @@
                 <label>Completed</label>
             </value>
             <value>
-                <fullName>Cancelled</fullName>
+                <fullName>Canceled</fullName>
                 <default>false</default>
                 <label>Cancelled</label>
             </value>

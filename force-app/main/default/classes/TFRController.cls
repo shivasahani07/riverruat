@@ -456,7 +456,7 @@ public without sharing class TFRController {
     @AuraEnabled
     public static list<workplan> getTFRRelatedWp(String workOrderId){
         try {
-            list<workplan> rtfrwops=[SELECT Id,Name,TFR_Sample__c,TFR_Required__c FROM workplan WHERE WorkOrderId =:workOrderId];
+            list<workplan> rtfrwops=[SELECT Id,Name,TFR_Sample__c,TFR_Required__c,Failure_Code__c FROM workplan WHERE WorkOrderId =:workOrderId];
             return rtfrwops;
         } catch (Exception e) {
             // throw new AuraHandledException(e.getMessage());

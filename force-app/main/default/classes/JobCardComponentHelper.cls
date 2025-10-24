@@ -317,12 +317,17 @@ public class JobCardComponentHelper {
                     insert jobCard;
                     jobdetails.jobcardId = jobCard.Id;  
                     if(jobCardDetails.TypeOfJob == 'Periodic Maintenance') {
-                        AssetMilestone assetRecord = [Select id,Stage from AssetMilestone where VehicleId=:jobCard.Vehicle__c AND MilestoneType  =:jobCard.RR_Periodic_Maintenance_Type__c AND Stage = 'Tentative'];
+                        AssetMilestone assetRecord = [Select id,Stage,Service_Center__c from AssetMilestone where VehicleId=:jobCard.Vehicle__c AND MilestoneType  =:jobCard.RR_Periodic_Maintenance_Type__c AND Stage = 'Tentative'];
                         if(assetRecord.Stage == 'Tentative'){
                             WorkOrder updatworkOrder = new WorkOrder();
                             updatworkOrder.Id = jobCard.Id;
                             updatworkOrder.Asset_Milestone__c = assetRecord.Id;
                             Update updatworkOrder;
+                             Id userId = UserInfo.getUserId();
+                             List<user> userServiceAccount = [SELECT   id,Contact.AccountId From User where Id =: userId AND Contact.Account.Type = 'Service Center' limit 1];
+                             assetRecord.Service_Center__c =  userServiceAccount[0].Contact.AccountId;
+                             update assetRecord;
+
                             System.debug('updatworkOrder'+updatworkOrder);
                             if(updatworkOrder != null){
                                 System.debug('SerachAppointment');

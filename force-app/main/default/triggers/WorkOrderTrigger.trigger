@@ -1,15 +1,19 @@
-trigger WorkOrderTrigger on WorkOrder (before insert, before update, after update, after Insert) {
+trigger WorkOrderTrigger on WorkOrder (before insert, before update, after update, after Insert, before delete) {
     public static Boolean isFirstRun = true;
-    
+    Set<Id> closedJcIds = new Set<Id>();
+    List<String> myList = new List<String>();
     if(trigger.isBefore && trigger.isUpdate){
         for(WorkOrder wo : trigger.new){
             if(wo.Status == 'Completed' && trigger.oldMap.get(wo.Id).Invoice_Date__c == null){
                 wo.Invoice_Date__c = Datetime.now();
             }
         }
+        
     }
     
-     if (Trigger.isBefore && (Trigger.isInsert || Trigger.isUpdate)) {
+    
+   
+    if (Trigger.isBefore && (Trigger.isInsert || Trigger.isUpdate)) {
         if (!isFirstRun) {
             //return;
         }
@@ -25,11 +29,11 @@ trigger WorkOrderTrigger on WorkOrder (before insert, before update, after updat
                 vehicleSet.add(wo.Vehicle__c);
             }
         }
-         
-                 
-         if (Trigger.isUpdate) {
-             oldJCbyId.putAll(Trigger.oldMap);
-         }
+        
+        
+        if (Trigger.isUpdate) {
+            oldJCbyId.putAll(Trigger.oldMap);
+        }
         
         if (!vehicleSet.isEmpty()) {
             
@@ -114,7 +118,13 @@ trigger WorkOrderTrigger on WorkOrder (before insert, before update, after updat
     if(Trigger.isAfter && Trigger.isUpdate){
         // WorkOrderTriggerHandler.updatePDIAfterCompetetion(Trigger.new,Trigger.oldMap); 
         WorkOrderTriggerHandler.createSkippedActionPlan(Trigger.new, Trigger.oldMap);
-       // WorkOrderTriggerHandler.onJobcardCompleteUpdateAssetMilestone(Trigger.new, Trigger.oldMap);
+        for(WorkOrder wo : trigger.new){
+            if(wo.Status == 'Completed' && 'Completed' != trigger.oldMap.get(wo.Id).Status){
+                myList.add(wo.id);
+            }
+        }
+         TFRManagement.addSampleSizeONjcCloser(myList);
+        // WorkOrderTriggerHandler.onJobcardCompleteUpdateAssetMilestone(Trigger.new, Trigger.oldMap);
         //code Added by Sagar on 14/04/2025
         // WorkOrderTriggerHandler.handleJobCardCompletion(Trigger.new,Trigger.oldMap);
     }
@@ -123,6 +133,10 @@ trigger WorkOrderTrigger on WorkOrder (before insert, before update, after updat
     if (trigger.isAfter && trigger.isInsert) {
         // WorkOrderTriggerHandler.handleNewJobCards(trigger.new);
         // WorkOrderTriggerHandler.onJobcardOpenUdpateAssetMilestone(trigger.new);
+    }
+    
+    if(trigger.IsBefore && trigger.IsDelete){
+        DMLLogger.logChanges(Trigger.oldMap, null, 'DELETE', 'WorkOrder');
     }
     
 }

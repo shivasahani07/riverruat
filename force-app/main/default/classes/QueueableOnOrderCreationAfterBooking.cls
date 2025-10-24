@@ -23,11 +23,12 @@ public class QueueableOnOrderCreationAfterBooking implements Queueable, Database
                 String color = toPassToQueueable.get(currentOrderId).color;
                 String fileName = toPassToQueueable.get(currentOrderId).fileName;
                 String pdfLink = toPassToQueueable.get(currentOrderId).pdfLink;
+                String templateName = toPassToQueueable.get(currentOrderId).templateName;
             
                System.debug('Data==>'+PhoneNumber+bookingId+color+fileName+pdfLink);
             
             if(PhoneNumber!=null && bookingId!=null && color!=null && fileName!=null && pdfLink!=null){
-                sendWhatsAppAfterBooking(PhoneNumber,bookingId,color,fileName,pdfLink);
+                sendWhatsAppAfterBooking(PhoneNumber,bookingId,color,fileName,pdfLink,templateName);
             }
             if(!orderIdsToProcess.isEmpty() && !Test.isRunningTest()){
                 System.enqueueJob(new QueueableOnOrderCreationAfterBooking(orderIdsToProcess,toPassToQueueable));
@@ -36,14 +37,14 @@ public class QueueableOnOrderCreationAfterBooking implements Queueable, Database
         }
         
     }
-    public static void sendWhatsAppAfterBooking(String PhoneNumber,String bookingId,String color,String fileName,String pdfLink){
+    public static void sendWhatsAppAfterBooking(String PhoneNumber,String bookingId,String color,String fileName,String pdfLink,String templateName){
         List<WhatsappIntegration__c> ws = WhatsappIntegration__c.getAll().values();
         WhatsappIntegration__c w = WhatsappIntegration__c.getInstance('WhatsApp API');
         String url = w.API_Endpoint__c !=null? w.API_Endpoint__c : '';
         String apikey =  w.API_Key__c !=null? w.API_Key__c : '';
         
         String fullPhoneNumber = '+91'+PhoneNumber;
-        String templateName='booking_done_with_receipt1';
+        // String templateName = templateName;
 
         Map<String,Object> payload = new Map<String,Object>();
 

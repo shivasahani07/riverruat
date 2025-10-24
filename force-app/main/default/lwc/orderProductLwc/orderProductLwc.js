@@ -103,15 +103,17 @@ export default class OrderProductLwc extends NavigationMixin(LightningElement) {
         const spinnerDelay = 1000;
         const startTime = new Date().getTime();
         getLogedInUserRelatedLocationPOLI()
-            .then((data) => {
-                if (data) {
-                    this.requestLineItems = data.map((res) => ({
+        .then((data) => {
+            if (data) {
+                this.requestLineItems = data
+                    .filter(res => res.Name !== 'Road Side Assistance' && res.Type__c !== 'Road Side Assistance')
+                    .map((res) => ({
                         Id: res.Id,
                         ProductName: res.Name,
                         ProductCode: res.ProductCode,
                         unitPirce: res.PricebookEntries[0].UnitPrice,
                         tax: res.PricebookEntries[0].IGST_Percentage__c != null ? res.PricebookEntries[0].IGST_Percentage__c : 0,
-                       discount: res.Merchandise_discount_price__c != null ? res.Merchandise_discount_price__c : 0,
+                        discount: res.Merchandise_discount_price__c != null ? res.Merchandise_discount_price__c : 0,
                         Type: res.Type__c,
                         AllocatedQuantity: 1,
                         totalBeforediscount: 0,
@@ -122,25 +124,25 @@ export default class OrderProductLwc extends NavigationMixin(LightningElement) {
                         totalPrice: 0,
                         isChargesDisabled: true,
                     }));
-                    this.filteredRequestLineItems = [];
-                    this.error = undefined;
-                } else {
-                    this.filteredRequestLineItems = [];
-                    this.requestLineItems = [];
-                }
-            })
-            .catch((error) => {
-                this.error = error;
-                console.error('Error fetching product request items:', error);
-            })
-            .finally(() => {
+                this.filteredRequestLineItems = [];
+                this.error = undefined;
+            } else {
+                this.filteredRequestLineItems = [];
+                this.requestLineItems = [];
+            }
+        })
+        .catch((error) => {
+            this.error = error;
+            console.error('Error fetching product request items:', error);
+        })
+        .finally(() => {
+            const elapsedTime = new Date().getTime() - startTime;
+            const remainingTime = Math.max(0, spinnerDelay - elapsedTime);
+            setTimeout(() => {
+                this.showSpinner = false;
+            }, remainingTime);
+        });
 
-                const elapsedTime = new Date().getTime() - startTime;
-                const remainingTime = Math.max(0, spinnerDelay - elapsedTime);
-                setTimeout(() => {
-                    this.showSpinner = false;
-                }, remainingTime);
-            });
     }
 
     handleSearchInput(event) {

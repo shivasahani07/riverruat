@@ -179,7 +179,7 @@ public class PaymentTriggerHandler {
                     if (p.Enquiry__c != null) {
                         if (!oppIdToCount.containsKey(p.Enquiry__c) || (Integer)oppIdToCount.get(p.Enquiry__c).get('cnt') == 0) {
                             System.debug('Inside =======> ');
-                            p.addError('Please add the products to the opportunity');
+                            p.addError('Please add the products to the Enquiry');
                         }
                     }
                 }

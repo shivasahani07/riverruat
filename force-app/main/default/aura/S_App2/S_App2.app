@@ -26,7 +26,7 @@
     
     
      
-    <c:failureCodeProductVinCom recordId='0WOBh000003oTwLOAU'></c:failureCodeProductVinCom>
+    <c:bulkInsertWorkPlansCustom recordId='0WOBh000003oTwLOAU'></c:bulkInsertWorkPlansCustom>
     
     
 </aura:application>

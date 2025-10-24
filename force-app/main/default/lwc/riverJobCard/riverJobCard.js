@@ -966,7 +966,7 @@ export default class RiverJobCard extends NavigationMixin(LightningElement) {
 
         if (this.ServiceAdvisor === undefined || this.ServiceAdvisor === null || this.ServiceAdvisor === '') {
             LightningAlert.open({
-                message: 'Please selct a Service Advisor correctly! (Search and select from the drop down)',
+                message: 'Please select a Service Advisor correctly! (Search and select from the drop down)',
                 theme: 'warning',
                 label: 'Error!'
             });

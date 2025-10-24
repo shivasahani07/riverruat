@@ -209,7 +209,8 @@ export default class AddLabourFailureCodeLwcComp extends LightningElement {
             const result = await createPostVINFCLabourVIN({
                 fcName: this.failureCode.failureCode,
                 labourCode: this.failureCode.labourCode,
-                newVINCutOff: this.failureCode.vinCutoff
+                newVINCutOff: this.failureCode.vinCutoff,
+                sampleRequired: this.failureCode.batchSize
             });
 
             this.messages = result;
@@ -254,6 +255,6 @@ export default class AddLabourFailureCodeLwcComp extends LightningElement {
             })
         );
 
-        alert(message);
+        // alert(message);
     }
 }

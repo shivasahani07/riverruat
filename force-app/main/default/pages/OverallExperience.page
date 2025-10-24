@@ -6,6 +6,9 @@
   @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 -->
 <apex:page controller="OverallExpereinceController" showHeader="false" sidebar="false" standardStylesheets="false" >
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
     <apex:includeScript value="/soap/ajax/43.0/connection.js"/>
     <apex:includeScript value="/soap/ajax/43.0/apex.js"/>
    
@@ -25,6 +28,7 @@
         width: 100%;
         max-width: 100vw;
         height: auto;
+        margin-top:5%;
         }
        
         .header-logo {
@@ -299,7 +303,7 @@
             textareaContainer.style.marginTop = '20px';
            
             textareaContainer.innerHTML = `
-    <label for="otherTextInput" style="display: block; margin-bottom: 5px;">Please specify:</label>
+    <label for="otherTextInput" style="display: block; margin-bottom: 5px;">Additional Comment:</label>
     <textarea
         id="otherTextInput"
         placeholder="Enter your feedback here..."

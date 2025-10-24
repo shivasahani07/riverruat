@@ -185,7 +185,8 @@ public class CSVUploadQueueable implements Queueable {
                     Opportunity existingOpp = accountOpportunities.get(acc.Id);
                     List<Test_Drive__c> testDrives = testDrivesByAccount.get(acc.Id);
                     
-                    if (existingOpp != null && existingOpp.StageName != 'Closed Won' || existingOpp.StageName != 'Drop Out') {
+                    if (existingOpp != null && (existingOpp.StageName != 'Closed Won' && existingOpp.StageName != 'Drop Out')) {
+
                         Boolean hasIncompleteTestDrive = false;
                         if (testDrives != null) {
                             for (Test_Drive__c td : testDrives) {

@@ -1,3 +1,10 @@
+/**
+ * @description       : 
+ * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @group             : 
+ * @last modified on  : 10-15-2025
+ * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+**/
 trigger UpdateVehicleInsuranceAndFinance on Order (before insert, before update, after update,After Insert) {
     
     if(trigger.isBefore && trigger.isInsert){
@@ -21,7 +28,7 @@ trigger UpdateVehicleInsuranceAndFinance on Order (before insert, before update,
         OrderStatusHandler.sendPreOrderReceipt(trigger.new, trigger.oldMap);
         for(Order ord:trigger.new){
             
-            if(ord.Assigned_Vehicle__c != null && ord.Assigned_Vehicle__r.RSA_Activation__c != true){
+            if(ord.Assigned_Vehicle__c != null && ord.Assigned_Vehicle__r.RSA_Activation__c != true && ord.RecordTypeId == Schema.SObjectType.Order.getRecordTypeInfosByName().get('Vehicle').getRecordTypeId()){
                 if (!Test.isRunningTest()) {
                     RSACalloutHandler.getchasisnumber(trigger.new);  
                 }else if(ord.Status=='RTO Registration'||ord.Status=='Vehicle Delivered' && (ord.Assigned_Vehicle__c != null)){

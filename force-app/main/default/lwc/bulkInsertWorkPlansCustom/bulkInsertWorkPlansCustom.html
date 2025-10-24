@@ -58,7 +58,7 @@
                 <div class="slds-card__body">
                     <div class="slds-grid slds-grid_vertical-align-center slds-m-bottom_medium">
                         <div class="slds-col slds-size_2-of-3">
-                            <p>Add one or more labour codes to this work order.</p>
+
                         </div>
                         <div class="slds-col slds-size_1-of-3 slds-text-align_right">
                             <lightning-button variant="brand" label="Add Row" icon-name="utility:add"
@@ -69,11 +69,7 @@
 
                     <template for:each={itemList} for:item="item" for:index="index">
                         <div key={item.id} class="form-row slds-box slds-m-bottom_small {item.cssClass}">
-                            <div>
-                                <lightning-button-icon icon-name="utility:delete" alternative-text="Delete Row" label="Delete" style="margin-bottom:-20px;"
-                                        title="Delete Row" onclick={removeRow} data-id={index} variant="destructive">
-                                    </lightning-button-icon>
-                            </div>
+
                             <div class="slds-grid slds-wrap slds-gutters">
                                 <!-- Labour Category -->
                                 <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-12">
@@ -99,7 +95,7 @@
                                         <lightning-combobox name="failureCode" label="Failure Code"
                                             value={item.Failure_Code__c} placeholder="Select Failure Code"
                                             data-id={index} options={item.failureCodeOptions}
-                                            onchange={handleFailureCodeChange} required>
+                                            onchange={handleFailureCodeChange}>
                                         </lightning-combobox>
                                     </div>
                                 </template>
@@ -111,12 +107,12 @@
                                     </lightning-input>
                                 </div>
                                 <!-- Actions -->
-                                <div
-                                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-12">
-                                    <!-- <span class="">
-                                        Delete 
-                                    </span> -->
-                                    
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-12">
+                                    <div style="margin-top:20px;">
+                                        <lightning-button-icon icon-name="utility:delete" alternative-text="Delete Row" label="Delete" style="margin-bottom:-20px;"
+                                            title="Delete Row" onclick={removeRow} data-id={index} variant="destructive">
+                                        </lightning-button-icon>
+                                    </div>
                                 </div>
                             </div>
                             <!-- slds-align_absolute-center -->

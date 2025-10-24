@@ -2,7 +2,7 @@
 * @description       : 
 * @author            : Aniket Karmakar
 * @group             : 
-* @last modified on  : 07-02-2025
+* @last modified on  : 10-22-2025
 * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public with sharing class QueueableForCreatePaymentOnWebsite implements Queueable, Database.allowsCallouts{
@@ -33,7 +33,7 @@ public with sharing class QueueableForCreatePaymentOnWebsite implements Queueabl
         }
         try{
             if(paymentId != null){
-                List<Order_Payment__c> orderPaymentList = [Select id,Name,Order__c,Order__r.AccountId,Payments__c,Payments__r.Transaction_Id__c,Payments__r.Amount__c, Payments__r.Payment_Status__c,Payments__r.Bank_Reference_Number__c,Payments__r.Tracking_Id__c,Payments__r.Mode_Of_Payment__c, Payments__r.Card_Name__c,Order__r.Remaining_Amount__c,Order__r.Booking_Form_File_URL__c,Order__r.Payment_Receipt_PDF_URL__c,Type__c from Order_Payment__c Where Id=:paymentId LIMIT 1];
+                List<Order_Payment__c> orderPaymentList = [Select id,Name,Order__c,Order__r.AccountId,Payments__c,Payments__r.Transaction_Id__c,Payments__r.Amount__c, Payments__r.Payment_Status__c,Payments__r.Bank_Reference_Number__c,Payments__r.Tracking_Id__c,Payments__r.Mode_Of_Payment__c, Payments__r.Card_Name__c,Order__r.Remaining_Amount__c,Order__r.Booking_Form_File_URL__c,Order__r.Payment_Receipt_PDF_URL__c,Type__c,Order__r.EffectiveDate,Order__r.Website_Order_Id__c from Order_Payment__c Where Id=:paymentId LIMIT 1];
                 if(!orderPaymentList.isEmpty()){
                     Order_Payment__c o = orderPaymentList[0];
                     System.debug('Order Payment ==>'+o);
@@ -90,8 +90,96 @@ public with sharing class QueueableForCreatePaymentOnWebsite implements Queueabl
                     HttpResponse res = http.send(req);
                     if(res.getStatusCode() == 200){
                         System.debug('Payment Information has been successfully updated in River Website Database');
+
+                         Integration_Log__c logObj = new Integration_Log__c(
+                        Integration_Type__c = 'Reverse Integration Create Payment',
+                        Request_Payload__c = reqBody,
+                        Response_Payload__c = res.getBody(),
+                        Error_Message__c = '',
+                        Status__c = 'Success',
+                        Order__c=o.Order__c     
+                    );
+                    insert logObj;
                     }else{
                         System.debug('Some Error Occurred==>'+res.getBody());
+                        Integration_Log__c logObj = new Integration_Log__c(
+                        Integration_Type__c = 'Reverse Integration Create Payment',
+                        Request_Payload__c = reqBody,
+                        Response_Payload__c = res.getBody(),
+                        Error_Message__c = '',
+                        Status__c = 'Failed',
+                        Order__c=o.Order__c  
+                    );
+                    insert logObj;
+
+                    Group g;
+                List<Group> sapGroup = [SELECT Id,Name,DeveloperName from Group WHERE DeveloperName = 'Integration_Group' LIMIT 1];
+                System.debug('sapGroup=>'+sapGroup);
+                if(!sapGroup.isEmpty()){
+                    g=sapGroup[0];
+                    System.debug('G==>'+g);
+                }
+                List<GroupMember> members = [SELECT UserOrGroupId FROM GroupMember WHERE GroupId = :g.Id];
+                System.debug('members==>'+members);
+                Set<Id> userIds = new Set<Id>();
+                for (GroupMember gm : members) {
+                    if (gm.UserOrGroupId.getSObjectType() == Schema.User.SObjectType) {
+                        userIds.add(gm.UserOrGroupId);
+                    }
+                }
+                List<User> users = [SELECT Id, Name, Email FROM User WHERE Id IN :userIds];
+                System.debug('users==>'+users);
+                List<String> emailList = new List<String>();
+                for(User u : users){
+                    emailList.add(u.Email);
+                }
+                System.debug('emailList==>'+emailList);
+
+
+                                //upto here
+               List<OrgWideEmailAddress> oweaList = [SELECT Id FROM OrgWideEmailAddress WHERE Address = 'support@rideriver.com' LIMIT 1];
+               System.debug('OrgWideEmailAddress List In Salesforce==>'+oweaList);
+                Messaging.SingleEmailMessage mail2 = new Messaging.SingleEmailMessage();
+                mail2.setToAddresses(emailList);
+                mail2.setSubject('Reverse Integration Failure');
+                mail2.setOrgWideEmailAddressId(oweaList[0].Id);
+               
+                                    String htmlBody = 
+                        '<html>' +
+                        '<head>' +
+                        '<style>' +
+                        '  body { font-family: Arial, sans-serif; color: #333; }' +
+                        '  .container { padding: 20px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9; }' +
+                        '  h2 { color: #d9534f; }' +
+                        '  .po-details { margin-top: 20px; padding: 15px; background-color: #fff3cd; border-left: 5px solid #ffeeba; }' +
+                        '  .footer { margin-top: 30px; font-size: 12px; color: #888; }' +
+                        '</style>' +
+                        '</head>' +
+                        '<body>' +
+                        '  <div class="container">' +
+                        '    <h2>🚨 Reverse Integration Failure</h2>' +
+                        '    <p>Dear Integration Group Users,</p>' +
+                        '    <p>The following Order failed to sync with Website. Please review the details below and take appropriate action.</p>' +
+                        '    <div class="po-details">' +
+                        '      <p><strong>Order No.:</strong> ' + o.Order__r.Website_Order_Id__c + '</p>' +
+                        '      <p><strong>Failure Reason:</strong> ' + res.getBody() + '</p>' +
+                         '      <p><strong>Order Date:</strong> ' + o.Order__r.EffectiveDate+ '</p>' +
+                        '      <p><strong>Integration Type:</strong> ' + 'Reverse Integration Create Payment' + '</p>' +
+                        '    </div>' +
+                        '    <p>Kindly address this issue at the earliest.</p>' +
+                        '    <div class="footer">' +
+                        '      <p>--<br/>This is an automated message from Salesforce.</p>' +
+                        '    </div>' +
+                        '  </div>' +
+                        '</body>' +
+                        '</html>';
+
+                    mail2.setHtmlBody(htmlBody);
+                Messaging.SendEmailResult[] results = Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail2 });
+                System.debug('Send Email Result: ' + results[0].isSuccess());
+
+
+
                     }
                 }                    
             }

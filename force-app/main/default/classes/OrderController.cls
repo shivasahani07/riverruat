@@ -106,12 +106,12 @@ public class OrderController {
                         FROM PricebookEntries where IsActive = true)
                 FROM Product2 
                 WHERE IsActive = TRUE 
-                    AND (Type__c = 'Merchandise' OR Type__c = 'Accessories' OR Type__c = 'Extended Warranty' OR Type__c = 'Road side assistance' OR Type__c = 'Parts') 
+                    AND (Type__c = 'Merchandise' OR Type__c = 'Accessories' OR Type__c = 'Extended Warranty' OR Type__c = 'Parts') 
                     AND Id IN (
                         SELECT Product2Id
                         FROM PricebookEntry 
                         WHERE Pricebook2Id = :priceBookId AND IsActive = TRUE
-                    )
+                    ) 
             ];
         } catch (Exception e) {
             System.debug('Error in getLogedInUserRelatedLocationPOLI: ' + e.getMessage());

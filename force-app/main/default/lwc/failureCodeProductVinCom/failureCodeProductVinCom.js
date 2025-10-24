@@ -1,8 +1,8 @@
 import { LightningElement, wire, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import getFailureCodes from '@salesforce/apex/TFRController.getFailureCodes';
-import deleteFailureCode from '@salesforce/apex/TFRController.deleteFailureCode';
+import getFailureCodes from '@salesforce/apex/TFRManagement.getFailureCodes';
+import deleteFailureCode from '@salesforce/apex/TFRManagement.deleteFailureCode';
 import { refreshApex } from '@salesforce/apex';
 
 

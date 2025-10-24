@@ -243,7 +243,7 @@
                             <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{!item.RR_Labour_Code__r.Code}"/></p>
                         </td>
                         <td style="width:29pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Duration_Hour__c + (item.Duration_Min__c/60)}"/></apex:outputText></p>
+                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Duration_Hour__c + (item.Duration_Min__c/60.0)}"/></apex:outputText></p>
                         </td>
                         <td style="width:38pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                             <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Labour_Charge_CodeSet_New__c}"/></apex:outputText></p>

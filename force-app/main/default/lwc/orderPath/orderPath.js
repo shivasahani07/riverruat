@@ -18,6 +18,7 @@ export default class OrderPath extends LightningElement {
     @track isInvoiceAndInsurance = false;
     @track isRTORegistration = false;
     @track isReadyForDelivery = false;
+    @track isCancel = false;
 
     connectedCallback() {
         debugger;
@@ -121,6 +122,9 @@ export default class OrderPath extends LightningElement {
                 break;
             case "Vehicle Delivered":
                 this.isVehicleDelivered = true;
+                break;
+            case "Cancellation Requested":
+                this.isCancel = true;
                 break;
             default:
                 break;

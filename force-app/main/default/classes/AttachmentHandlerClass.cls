@@ -301,7 +301,7 @@ public class AttachmentHandlerClass {
             
             if (!attachmentsToInsert.isEmpty()) {
                 insert attachmentsToInsert;
-                SendEmailHandller.sendPreAttchamnets(lstOrderPayments[0].Id,attachmentsToInsert); 
+                //SendEmailHandller.sendPreAttchamnets(lstOrderPayments[0].Id,attachmentsToInsert); 
             }
             if(!orderPaymentToUpdate.isEmpty()){ //added By Aniket
                 update orderPaymentToUpdate;//added By Aniket

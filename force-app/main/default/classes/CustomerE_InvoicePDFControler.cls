@@ -43,6 +43,7 @@ public class CustomerE_InvoicePDFControler {
     public decimal laboursTotal { get; set; }
     public decimal invoiceTotal { get; set; }
     public String invoiceTotalInWords { get; set; }
+    public String ModPayment { get; set; }
     public String storeType { get; set; }
     public DeliveryChallanPDF__mdt dcPdf { get; set; }
     public String dodoAccName { get; set; }
@@ -112,7 +113,7 @@ public class CustomerE_InvoicePDFControler {
                    Vehicle__r.Dealer__r.Name, Vehicle__r.Dealer__r.ShippingStreet, Vehicle__r.Dealer__r.GSTIN_Number__c, Vehicle__r.Insurance__r.Address__c, Vehicle__r.Insurance__r.GSTIN_Number__c,
                    Vehicle__r.CurrentOwner.Name, Vehicle__r.CurrentOwner.GSTIN_Number__c, Vehicle__r.CurrentOwner.ShippingStreet, Service_Center__r.BillingCity, Service_Center__r.BillingCountry,
                    Service_Center__r.BillingState, Service_Center__r.BillingStreet, Service_Center__r.CIN__c, Service_Center__r.BillingPostalCode,Service_Center__r.GST_City__c, Service_Center__r.GST_State__c, Service_Center__r.GST_Zip_Postal_Code__c,
-            	   Service_Center__r.GST_Street__c,
+            	   Service_Center__r.GST_Street__c,Mode_Of_Payment__c,
                    Account.BillingStreet, Account.BillingCity, Account.BillingState, Account.BillingPostalCode, Account.Email__c, Account.Phone, Account.Secondary_Phone_Number__c, Account.GSTIN_Number__c,
                    Service_Center__r.Store_Type__c, Service_Center__r.Email__c, Service_Center__r.Phone, Vehicle__r.CurrentOwner.ShippingCity, Vehicle__r.CurrentOwner.ShippingState,
                    Vehicle__r.CurrentOwner.ShippingCountry, Vehicle__r.CurrentOwner.ShippingPostalCode, Service_Center__r.Secondary_Phone_Number__c, RR_Service_Advisor__r.Name,
@@ -134,7 +135,7 @@ public class CustomerE_InvoicePDFControler {
                 System.debug('No QRAtt Record Found');
             }
         if(workOrderList[0].IRN_No__c != null){
-                
+                 ModPayment = workOrderList[0].Mode_Of_Payment__c;
                 Integer midPoint = Math.ceil(workOrderList[0].IRN_No__c.length() / 2).intValue();
                 
                 formatedIRNNumber = workOrderList[0].IRN_No__c.substring(0, midPoint) + '<br/>' + workOrderList[0].IRN_No__c.substring(midPoint);
@@ -265,7 +266,7 @@ public class CustomerE_InvoicePDFControler {
             partsTotal += parttaxValue + ((workOrderRecord.same_state__c == true) ? (partCGST + partSGST) : partIGST);
             laboursTotal += labourtaxValue + ((workOrderRecord.same_state__c == true) ? (labourCGST + labourSGST) : labourIGST);
             invoiceTotal = Math.round(partsTotal + laboursTotal);
-            invoiceTotalInWords = NumberToWords.convertNumberToText(invoiceTotal);
+            invoiceTotalInWords = CurrencyToWordsInRupees.convertToWords(invoiceTotal);
             system.debug('## FINAL TOTALS => Parts: ' + partsTotal + ', Labours: ' + laboursTotal + ', InvoiceTotal: ' + invoiceTotal + ', InvoiceInWords: ' + invoiceTotalInWords);
         }
     }

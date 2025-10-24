@@ -61,10 +61,10 @@ export default class RideRiverWarrantyRecord extends LightningElement {
         { label: 'Status', fieldName: 'Status', type: 'text' },
         { label: 'Tax %', fieldName: 'Code_Set_Tax__c', type: 'number', editable: true, cellAttributes: { alignment: 'left' } },
         { label: 'Total Amount', fieldName: 'Total_Labour_Cost__c', type: 'currency', cellAttributes: { alignment: 'centre' } },
-         { label: 'TFR No.', fieldName: 'TFR_NO', type: 'text' },
+         { label: 'TFR No.', fieldName: 'TFR_NO', type: 'text',initialWidth: 200 },
          {
 
-            type: "button", label: 'TFR+', initialWidth: 130, typeAttributes: {
+            type: "button", label: 'TFR+', initialWidth: 200, typeAttributes: {
                 label: 'Add/View',
                 name: 'view',
                 title: 'view',
@@ -101,14 +101,14 @@ export default class RideRiverWarrantyRecord extends LightningElement {
         { label: 'Quantity', fieldName: 'Quantity', type: 'number', cellAttributes: { alignment: 'center' } },
         // { label: 'Status', fieldName: 'Status', type: 'text' },
         // { label: 'FFIR No.', fieldName: 'FFIR_Number__c', type: 'text' },
-        { label: 'TFR No.', fieldName: 'TFR_NO', type: 'text' },
-        {
+            {
             label: 'FFIR Links',
             fieldName: 'FFIR_Links__c',
             type: 'url', editable: { fieldName: 'isDisableFFRLink' },
             typeAttributes: { label: { fieldName: 'FFIR_Link_Label' }, target: '_blank' },
             // disabled: { fieldName: 'isDisableFFRLink' } 
         },
+         { label: 'TFR No.', fieldName: 'TFR_NO', type: 'text',initialWidth: 200 },
         // {
         //     label: 'FFIR Links',
         //     fieldName: 'FFIR_Links__c',
@@ -120,7 +120,7 @@ export default class RideRiverWarrantyRecord extends LightningElement {
         // },
         {
 
-            type: "button", label: 'TFR+', initialWidth: 130, typeAttributes: {
+            type: "button", label: 'TFR+', initialWidth: 200, typeAttributes: {
                 label: 'Add/View',
                 name: 'view',
                 title: 'view',

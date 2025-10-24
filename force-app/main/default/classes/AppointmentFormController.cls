@@ -441,7 +441,7 @@ return  AppSlotItemList;
             asiup.Booking_Status__c = 'Booked';
             
             // Query all Tasks related to this Appointment
-            List<Task> tasksToComplete = [
+            /*List<Task> tasksToComplete = [
                 SELECT Id, Status 
                 FROM Task 
                 WHERE WhatId = :AppointmentId 
@@ -457,7 +457,7 @@ return  AppSlotItemList;
             update new List<SObject>{ appRec, oppSlot, asiup };
                 if (!tasksToComplete.isEmpty()) {
                     update tasksToComplete;
-                }
+                }*/
             
             response = 'success';
         } catch (Exception e) {

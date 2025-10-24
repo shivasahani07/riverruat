@@ -1,8 +1,7 @@
 @isTest
 private class Customer_Invoice_PDF_Controller_Test {
-    @isTest static void testNull() {
-        // Create test data
-        
+    @isTest static void testDODOAndCOCOServiceCenters() {
+        // --------- Create common base data ----------
         Account acc = new Account();
         acc.Name = 'testing Account';
         acc.Type = 'Customer';
@@ -22,6 +21,12 @@ private class Customer_Invoice_PDF_Controller_Test {
         asst.AccountId = acc.Id;
         asst.ContactId = con.Id;
         insert asst;
+        
+        Asset asst2 = new Asset();
+        asst2.Name = 'test1 Asset';
+        asst2.AccountId = acc.Id;
+        asst2.ContactId = con.Id;
+        insert asst2;
         
         Software_Version__c sv = new Software_Version__c();
         sv.Name = 'test version';
@@ -52,60 +57,142 @@ private class Customer_Invoice_PDF_Controller_Test {
         vac.Spare_Vehicle__c = false;
         insert vac;
         
-        // Create a test Warehouse
+        // Create a second vehicle for COCO WorkOrder to avoid validation error
+        Vehicle vac2 = new Vehicle();
+        vac2.Name = 'test vehicle 2';
+        vac2.CurrentOwnerId = acc.Id;
+        vac2.Charger_PC_Number__c = '456DD';
+        vac2.VehicleRegistrationNumber = '456';
+        vac2.VehicleIdentificationNumber = 'NeoCity2022ZXi-2'; // make sure it's unique
+        vac2.VehicleDefinitionId = vd.Id;
+        vac2.Software_Version__c = sv.Id;
+        vac2.AssetId = asst2.Id;
+        vac2.Spare_Vehicle__c = false;
+        insert vac2;
+        
+        
         Warehouse__c testWarehouse = new Warehouse__c();
         testWarehouse.Name = 'Test Warehouse';
-        
-        
-        
         insert testWarehouse;
         
-        // Create a test WorkOrder with the required fields, including Warehouse__c
-        WorkOrder testWorkOrder = new WorkOrder();
-        testWorkOrder.Warehouse__c = testWarehouse.Id; // Set the Warehouse reference
-        testWorkOrder.Vehicle__c = vac.Id;
-        testWorkOrder.AccountId = acc.Id;
-        insert testWorkOrder;
+        // --------- DODO Service Center ----------
+        Account serviceCenterDODO = new Account(
+            Name = 'DODO Center',
+            GSTIN_Number__c = '29ABCDE1234F1Z5',
+            BillingStreet = 'Line 1\nLine 2',
+            BillingCity = 'Bangalore',
+            BillingState = 'Karnataka',
+            BillingCountry = 'India',
+            BillingPostalCode = '560001',
+            Type = 'Service Center',
+            Center_Code__c = '3324',
+            Store_Type__c = 'DODO',
+            GST_Street__c = 'GST Line 1\nGST Line 2',
+            Company_GSTIN_name__c = 'DODO GST Co.',
+            GST_City__c = 'Bengaluru',
+            GST_State__c = 'Karnataka',
+            GST_Zip_Postal_Code__c = '543733'
+        );
+        insert serviceCenterDODO;
         
-        // Create a test Work Type record (related to Work_Type__c lookup field)
+        WorkOrder workOrderDODO = new WorkOrder();
+        workOrderDODO.Warehouse__c = testWarehouse.Id; 
+        workOrderDODO.Service_Center__c = serviceCenterDODO.Id;
+        workOrderDODO.Vehicle__c = vac.Id;
+        workOrderDODO.AccountId = acc.Id;
+        insert workOrderDODO;
+        
+        // --------- COCO Service Center ----------
+        Account serviceCenterCOCO = new Account(
+            Name = 'COCO Center',
+            GSTIN_Number__c = '29XYZDE1234F1Z5',
+            BillingStreet = 'COCO Street 1\nStreet 2',
+            BillingCity = 'Mumbai',
+            BillingState = 'Maharashtra',
+            BillingCountry = 'India',
+            BillingPostalCode = '400001',
+            Type = 'Service Center',
+            Center_Code__c = '4455',
+            Store_Type__c = 'COCO',
+            GST_Street__c = 'COCO GST Street 1\nStreet 2',
+            Company_GSTIN_name__c = 'COCO GST Co.',
+            GST_City__c = 'Mumbai',
+            GST_State__c = 'Maharashtra',
+            GST_Zip_Postal_Code__c = '400001'
+        );
+        insert serviceCenterCOCO;
+        
+        WorkOrder workOrderCOCO = new WorkOrder();
+        workOrderCOCO.Warehouse__c = testWarehouse.Id; 
+        workOrderCOCO.Service_Center__c = serviceCenterCOCO.Id;
+        workOrderCOCO.Vehicle__c = vac2.Id;
+        workOrderCOCO.AccountId = acc.Id;
+        insert workOrderCOCO;
+        
+        // --------- Common Work Type & Plans ---------
         WorkType testWorkType = new WorkType();
         testWorkType.Name = 'Test Work Type';
         testWorkType.Amount__c = 100.0;
-        testWorkType.EstimatedDuration = 2; // Correct the field name
-        testWorkType.DurationType = 'Hours'; // Correct the field name
+        testWorkType.EstimatedDuration = 2;
+        testWorkType.DurationType = 'Hours';
         insert testWorkType;
         
+        // WorkPlans for DODO WorkOrder
+        insert new List<WorkPlan>{
+            new WorkPlan(
+                Name = 'DODO Plan 1',
+                WorkOrderId = workOrderDODO.Id,
+                Work_Type__c = testWorkType.Id,
+                Labour_Charge__c = 100,
+                RR_Labour_Category__c = 'Paid',
+                Duration_Hour__c = 1
+            ),
+                new WorkPlan(
+                    Name = 'DODO Plan 2',
+                    WorkOrderId = workOrderDODO.Id,
+                    Work_Type__c = testWorkType.Id,
+                    Labour_Charge__c = 150,
+                    RR_Labour_Category__c = 'Insurance',
+                    Duration_Hour__c = 2
+                )
+                };
+                    
+                    // WorkPlans for COCO WorkOrder
+                    insert new List<WorkPlan>{
+                        new WorkPlan(
+                            Name = 'COCO Plan 1',
+                            WorkOrderId = workOrderCOCO.Id,
+                            Work_Type__c = testWorkType.Id,
+                            Labour_Charge__c = 120,
+                            RR_Labour_Category__c = 'Paid',
+                            Duration_Hour__c = 1
+                        )
+                            };
+                                
+       // --------- Test both controller cases ---------
+           Test.startTest();
         
-        // Create a test WorkPlan associated with the test WorkOrder
-        WorkPlan testWorkPlan = new WorkPlan();
-        testWorkPlan.Name = 'Test Workplan';
-        testWorkPlan.Labour_Charge__c = 100.0; // Set values as needed
-        testWorkPlan.Work_Type__c = testWorkType.Id; // Use the ID of the created WorkType record
-        testWorkPlan.WorkOrderId = testWorkOrder.Id;
-        testWorkPlan.RR_Labour_Category__c = 'Paid';
-        testWorkPlan.Duration_Hour__c = 1;
-        testWorkPlan.Labour_Charge__c = 100;
-        // testWorkPlan.Discount__c = 2;
-        insert testWorkPlan;
+        // Test for DODO Service Center
+        ApexPages.StandardController scDODO = new ApexPages.StandardController(workOrderDODO);
+        PageReference pageRefDODO = Page.Customer_Invoice_PDF;
+        pageRefDODO.getParameters().put('id', workOrderDODO.Id);
+        Test.setCurrentPage(pageRefDODO);
         
-        WorkPlan testWorkPlan1 = new WorkPlan();
-        testWorkPlan1.Name = 'Test Workplan1';
-        testWorkPlan1.Labour_Charge__c = 100.0; // Set values as needed
-        testWorkPlan1.Work_Type__c = testWorkType.Id; // Use the ID of the created WorkType record
-        testWorkPlan1.WorkOrderId = testWorkOrder.Id;
-        testWorkPlan1.RR_Labour_Category__c = 'Insurance';
-        testWorkPlan1.Duration_Hour__c = 1;
-        testWorkPlan1.Labour_Charge__c = 100;
-        // testWorkPlan1.Discount__c = 2;
-        insert testWorkPlan1;
+        Customer_Invoice_PDF_Controller objDODO = new Customer_Invoice_PDF_Controller(scDODO);
+        String dodoBilling = objDODO.getFormattedBillingStreet();
+        String dodoGST = objDODO.getFormattedGSTBillingStreet();
+        String dodoAccount = objDODO.getFormattedAccountBillingStreet();
         
-        // Call the method being tested
-        Test.startTest();
-            ApexPages.StandardController sc = new ApexPages.StandardController(testWorkOrder);
-            PageReference pageRef = Page.Customer_Invoice_PDF; // Add your VF page Name here
-            pageRef.getParameters().put('id', String.valueOf(testWorkOrder.Id));
-            Test.setCurrentPage(pageRef);
-            Customer_Invoice_PDF_Controller obj = new Customer_Invoice_PDF_Controller(sc);
+        // Test for COCO Service Center
+        ApexPages.StandardController scCOCO = new ApexPages.StandardController(workOrderCOCO);
+        PageReference pageRefCOCO = Page.Customer_Invoice_PDF;
+        pageRefCOCO.getParameters().put('id', workOrderCOCO.Id);
+        Test.setCurrentPage(pageRefCOCO);
+        
+        Customer_Invoice_PDF_Controller objCOCO = new Customer_Invoice_PDF_Controller(scCOCO);
+        String cocoBilling = objCOCO.getFormattedBillingStreet();
+        String cocoGST = objCOCO.getFormattedGSTBillingStreet();
+        String cocoAccount = objCOCO.getFormattedAccountBillingStreet();
         Test.stopTest();
     }
 }

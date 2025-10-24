@@ -4,7 +4,7 @@ public class ExtendedWarrantyForVehicleOrderTest {
     static void coverMethods(){
         Account testAccount = new Account(Name = 'Test Account',Center_Code__c = '291002',Email__c = 'test@example.com',Phone='0987654321');
         insert testAccount;
-        Product2 testProduct = new Product2(Name = 'Test Product', ProductCode = 'RV-EW-001', IsActive = true, HSN_Code__c = '12345', Type__c= 'Accessories');
+        Product2 testProduct = new Product2(Name = 'Test Product', ProductCode = 'RV-EW-1', IsActive = true, HSN_Code__c = '12345', Type__c= 'Accessories');
         insert testProduct;
        
         
@@ -31,7 +31,9 @@ public class ExtendedWarrantyForVehicleOrderTest {
             RecordTypeId = otcRecordType.Id,
             EffectiveDate = Date.today(),
             Assigned_Vehicle__c = testVehicle.Id,
-            Pricebook2Id = Test.getStandardPricebookId()
+            Pricebook2Id = Test.getStandardPricebookId(),
+            Insurance_Type__c = 'In House',
+            Policy_Number__c='testPolicy123'
         );
         insert order;
         

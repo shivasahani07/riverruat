@@ -6,6 +6,7 @@
     <columns>Rating__c</columns>
     <columns>Response_Status__c</columns>
     <columns>CREATED_DATE</columns>
+    <columns>Answers_For_Post_7_Day_Service__c</columns>
     <filterScope>Everything</filterScope>
     <label>All</label>
 </ListView>

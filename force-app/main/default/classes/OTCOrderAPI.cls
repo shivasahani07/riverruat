@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 10-03-2025
+ * @last modified on  : 10-17-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 @RestResource(urlMapping='/createOTCOrder')
@@ -112,14 +112,31 @@ global without sharing class OTCOrderAPI {
                 res.responseBody = responseUtility('Order Already Exists With Order Id ' + orderId ,'404',false);
                 return;
             }
+            Vehicle v;
+            if(requestMap.containsKey('vin')){
+                String vin_Number = (String)requestMap.get('vin');
+                System.debug('vin_Number==>'+vin_Number);
+                List<Vehicle> vehicleList = [SELECT Id,VehicleIdentificationNumber FROM Vehicle WHERE VehicleIdentificationNumber=:vin_Number LIMIT 1];
+                System.debug('Vehicle==>'+vehicleList);
+                if(vehicleList.isEmpty()){
+                    Database.rollback(sp);
+                    res.statuscode=404;
+                    res.responseBody = responseUtility('No Vehicle Found with VIN ' + vin_Number ,'404',false);
+                    return;
+                }
+                v = vehicleList[0];
 
+            }
+            
             Order oTCOrder = new Order(
                 recordTypeid = SObjectType.Order.getRecordTypeInfosByDeveloperName().get('OTC').getRecordTypeId(),
                 AccountId = customerAccount.Id,
                 Dealer__c = dealerAcccount.Id,
+                Assigned_Vehicle__c = v != null ? v.Id : null,
                 Website_Order_Id__c = (String)requestMap.get('order_id'),
                 EffectiveDate = Date.today(),
-                Status = (String)requestMap.get('order_status') != null?(String)requestMap.get('order_status'):'Activated', 
+                // Status = (String)requestMap.get('order_status') != null?(String)requestMap.get('order_status'):'New', 
+                Status = 'New', 
                 Description = (String)requestMap.get('delivery_timeline_description') != null? (String)requestMap.get('delivery_timeline_description'):'',
                 pricebook2Id = priceBookForOrder,
                 Notify_By_SMS__c = (Boolean)requestMap.get('notify_by_sms') != null?(Boolean)requestMap.get('notify_by_sms'):false,
@@ -255,13 +272,13 @@ global without sharing class OTCOrderAPI {
             insert orderPayment;
            
          res.statuscode=201;
-         res.responseBody = responseUtility('OTC Order Is Successfully Created with Salesforce Order Id ' + oTCOrder.Id,'201',true);   
+         res.responseBody = successResponse('OTC Order Is Successfully Created with Salesforce Order Id ' + oTCOrder.Id,'201',true,String.valueof(oTCOrder.Id));   
 
 
         }catch(Exception e){
             Database.rollback(sp);
             res.statuscode=404;
-            res.responseBody = responseUtility('Error In Creating OTC Order' + e.getMessage(),'404',true);  
+            res.responseBody = responseUtility('Error In Creating OTC Order' + e.getMessage(),'404',false);  
             System.debug('Error Occured==>'+e.getMessage());
             System.debug('Error Line Number Is ==>'+e.getLineNumber());
         }
@@ -272,6 +289,25 @@ global without sharing class OTCOrderAPI {
             Map<String,Object> data = new Map<String,Object>();
             data.put('success', isSuccess);
             data.put('message', message);
+            responseBody.put('data', data);
+            responseBody.put('status_code', statusCode);
+
+            return Blob.valueOf(JSON.serializePretty(responseBody));
+
+        }catch(Exception e){
+            System.debug('Error Occured ==>'+e.getMessage());
+            System.debug('Error Line Number Is ==>'+e.getLineNumber());
+            return null;
+        }
+    }
+
+    public static Blob successResponse(String message,String statusCode, Boolean isSuccess,String orderId){
+        try{
+            Map<String,Object> responseBody = new Map<String,Object>();
+            Map<String,Object> data = new Map<String,Object>();
+            data.put('success', isSuccess);
+            data.put('message', message);
+            data.put('id',orderId);
             responseBody.put('data', data);
             responseBody.put('status_code', statusCode);
 

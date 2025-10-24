@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Aniket Karmakar
  * @group             : 
- * @last modified on  : 10-07-2025
+ * @last modified on  : 10-14-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public without sharing class AccessTokenSimActivation {
@@ -34,16 +34,13 @@ public without sharing class AccessTokenSimActivation {
                 Map<String,Object> responseMap = (Map<String,Object>) JSON.deserializeUntyped(res.getBody());
                 String accessToken = responseMap.containsKey('access_token') ? (String)responseMap.get('access_token') : 'Error Parsing Access Token';
                 String refreshToken = responseMap.containsKey('refresh_token') ? (String)responseMap.get('refresh_token') : 'Error Parsing Refresh Token';
-
+                
                 return accessToken;
             }else{
                 System.debug('Response Body ==>'+res.getBody());
                 return 'Error In Getting Access and Refresh Token';
             }
             
-        
-
-
         }catch(Exception e){
             System.debug('Error In Getting Access Token==>'+e.getMessage());
             System.debug('Error Line Number Is ===>'+e.getLineNumber());

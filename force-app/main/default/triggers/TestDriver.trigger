@@ -24,7 +24,7 @@ trigger TestDriver on Test_Drive__c (After insert,After Update,After delete) {
         }
         
     }
-    update lst;*/
+    update lst;
     if(trigger.isafter &&trigger.isinsert){	
         set<Id> leadIds=new set<Id>();
         for(Test_Drive__c td:trigger.new){
@@ -42,7 +42,7 @@ trigger TestDriver on Test_Drive__c (After insert,After Update,After delete) {
             upleadlst.add(l);
         }
         update upleadlst;
-    }
+    }*/
       
     
 }

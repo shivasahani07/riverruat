@@ -394,10 +394,13 @@ System.debug('Error Occured===>'+e.getMessage()+'Error Occured In Line Number===
     //added by Aniket to tag Warranty even after update on 22/05/2025
     public static void createWarrantyAfterUpdate(List<WorkOrderLineItem> workOrderLineItems,Map<Id,WorkOrderLineItem> oldMapParts){
         try{
+            System.debug('WorkOrderLineItem ==>'+workOrderLineItems);
             Set<String> restrictedPartsCategories = new Set<String>();
             for (Parts_Category_Restricted__mdt meta : [SELECT Parts_Category__c FROM Parts_Category_Restricted__mdt]) {
                 restrictedPartsCategories.add(meta.Parts_Category__c);
             }
+            
+             System.debug('restrictedPartsCategories ==>'+restrictedPartsCategories);
             
             Set<Id> workOrderIds = new Set<Id>();
             Set<Id> warrantyPriorIds = new Set<Id>();
@@ -501,5 +504,17 @@ System.debug('Error Occured===>'+e.getMessage()+'Error Occured In Line Number===
             System.debug('Error occured ==>'+e.getMessage());
             System.debug('Error Line Number Is ==>'+e.getLineNumber());
         }
+    }
+    
+    @future
+    Public Static void DeletedRelatedLabourfromPart(List<id> wolitmIds){
+        try {
+           list<WorkPlan> WorkPlandd= [SELECT ID FROM WorkPlan where WorkOrderLineItemId IN:wolitmIds];
+           delete WorkPlandd;
+        } catch (Exception ex) {
+            System.debug('error at line number----'+ex.getLineNumber());
+            System.debug('error is ----'+ex.getMessage());
+        }
+        
     }
 }

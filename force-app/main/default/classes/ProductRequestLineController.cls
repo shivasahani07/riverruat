@@ -276,12 +276,12 @@ public Without Sharing class ProductRequestLineController {
             }
             
             getProdItemList = [SELECT Id, Product2.Name, Product2Id,UnitPrice, Dealer_List_Price__c FROM PricebookEntry WHERE Pricebook2Id = :loggedInUserContactRecord.Location__r.Price_Book__c];
-            Map<Id,Decimal> uniTPriceMap = new Map<Id,Decimal>();
+            
             if (getProdItemList.size() > 0) {
                 for (PricebookEntry prod : getProdItemList) {
                     if (prod.Product2Id != null) {
                         Product2IdIdSet.add(prod.Product2Id);
-                        uniTPriceMap.put(prod.Product2Id, prod.Dealer_List_Price__c != null ? prod.Dealer_List_Price__c : 0);
+                        //uniTPriceMap.put(prod.Product2Id, prod.Dealer_List_Price__c != null ? prod.Dealer_List_Price__c : 0);
                     }
                 }
                 
@@ -292,12 +292,21 @@ public Without Sharing class ProductRequestLineController {
                         FROM Product2 WHERE Id IN :Product2IdIdSet AND IsActive = true AND Type__c NOT IN :ProductTypeNotToShow];
                     //Added on 09/10/2025 By Aniket
                     User u = [SELECT Id,Contact.Location__r.State__c FROM User WHERE Id=:UserInfo.getUserId() LIMIT 1];
-                    Pricebook2 price = [SELECT Id,State__c FROM Pricebook2 WHERE State__c=:u.Contact.Location__r.State__c LIMIT 1];//Added By Aniket On 09/20/2025
-                    List<PricebookEntry> pricebookEntries = [SELECT Id, Product2Id, Pricebook2Id,CGST__c,IGST__c,SGST__c,UnitPrice,Dealer_List_Price__c FROM PricebookEntry WHERE Pricebook2Id =:price.Id AND Product2Id IN :Product2IdIdSet];
+                    Set<Id> pricebookIds = new Set<Id>();
+                    List<Pricebook2> price = [SELECT Id,State__c FROM Pricebook2 WHERE State__c=:u.Contact.Location__r.State__c];//Added By Aniket On 09/20/2025
+                    for(Pricebook2 pp : price){
+                        pricebookIds.add(pp.Id);
+                    }
+                    System.debug('pricebookIds==>'+pricebookIds);
+                    List<PricebookEntry> pricebookEntries = [SELECT Id, Product2Id, Pricebook2Id,CGST__c,IGST__c,SGST__c,UnitPrice,Dealer_List_Price__c,Product2.ProductCode FROM PricebookEntry WHERE Pricebook2Id IN:pricebookIds AND Product2Id IN :Product2IdIdSet];
+                    System.debug('pricebookEntries For Debug=>'+pricebookEntries);
                     Map<Id,Decimal> igstMap = new Map<Id,Decimal>();
+                    Map<Id,Decimal> uniTPriceMap = new Map<Id,Decimal>();
                     for(PricebookEntry pe : pricebookEntries){
                         igstMap.put(pe.Product2Id,pe.IGST__c);
+                        uniTPriceMap.put(pe.Product2Id, pe.Dealer_List_Price__c != null ? pe.Dealer_List_Price__c : 0);
                     }
+                    System.debug('uniTPriceMap==>'+uniTPriceMap);
                     //Upto here
                     
                     List<ProductItem> inventoryList= [SELECT Id,LocationId,Product2Id,Quantity_In_Hand__c FROM ProductItem WHERE Product2Id IN:Product2IdIdSet AND LocationId =:logedUser.Contact.Location__c];
@@ -319,7 +328,8 @@ public Without Sharing class ProductRequestLineController {
                         pwq.unitPrice = uniTPriceMap.containsKey(p.Id) ? uniTPriceMap.get(p.Id) : 0;
                         pwq.quantityInHand = productQtyMap.containsKey(p.Id) ? productQtyMap.get(p.Id) : 0;
                         //pwq.igstPercentage = p.IGST_Percentage__c != null ? p.IGST_Percentage__c : null;
-                        pwq.igstPercentage = igstMap.get(p.Id);
+                        //pwq.igstPercentage = igstMap.get(p.Id);
+                        pwq.igstPercentage = (igstMap.get(p.Id) != null) ? igstMap.get(p.Id) : 0;
                         result.add(pwq);
                     }
                     

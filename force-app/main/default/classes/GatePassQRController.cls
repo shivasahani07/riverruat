@@ -1,22 +1,51 @@
+/**
+ * @description       : 
+ * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @group             : 
+ * @last modified on  : 10-14-2025
+ * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+**/
 public class GatePassQRController {
     
     public static void checkAndGenerateQR(List<Order> newOrders, Map<Id, Order> oldOrderMap) {
+        Id vehicleRecordType = SObjectType.Order.getRecordTypeInfosByDeveloperName().get('Vehicle').getRecordTypeId();//added by Aniket on 14/10/2025
         try {
+
+            List<Order> vehicleOrders = new List<Order>();
+            for (Order ord : newOrders) {
+                if (ord.RecordTypeId == vehicleRecordType) {
+                    vehicleOrders.add(ord);
+                }
+            }
+
+            if (vehicleOrders.isEmpty()) {
+                System.debug('No Vehicle Orders found. Skipping GatePass QR generation.');
+                return;
+            }
+
+
             System.debug('Starting checkAndGenerateQR with ' + newOrders.size() + ' orders.');
 
             List<Id> eligibleOrderIds = new List<Id>();
             List<Order> ordersToUpdate = new List<Order>();
-
-            String currentUserName = [SELECT Id,Name FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1].Name;
-            
+ 
+            User u;
+            List<User> userList = [SELECT Id,Name FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
+            System.debug('userList==>'+userList);
+            if(!userList.isEmpty()){
+                u=userList[0];
+            }
+            // String currentUserName = [SELECT Id,Name FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1].Name;
+            String currentUserName = u.Name;
             System.debug('currentUserName ==>'+currentUserName);
 
-            for (Order ord : newOrders) {
+            for (Order ord : vehicleOrders) {
                 try {
                     Order oldOrd = oldOrderMap.get(ord.Id);
                     System.debug('Checking order Id: ' + ord.Id + ' with new status: ' + ord.Status);
-
-                    if (ord.Status == 'Ready for Delivery' && ord.Delivery_Date__c != null &&
+                    
+                    if(ord.RecordTypeId == vehicleRecordType){
+                        if (ord.Status == 'Ready for Delivery' && ord.Delivery_Date__c != null &&
                         oldOrd != null && oldOrd.Delivery_Date__c != ord.Delivery_Date__c) {
                         
                         System.debug('Order eligible for QR generation: ' + ord.Id);
@@ -28,6 +57,8 @@ public class GatePassQRController {
 
                         eligibleOrderIds.add(ord.Id);
                     }
+                    }
+                   
                 } catch (Exception innerEx) {
                     System.debug('Exception in inner loop for order Id: ' + ord.Id + ' - ' + innerEx.getMessage());
                     ExceptionHelper.createExceptionLog(innerEx);

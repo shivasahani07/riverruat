@@ -4,6 +4,7 @@ import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import generateEInvoice from '@salesforce/apex/ClearTaxAPiHelperForService.generateEInvoice';
 import genereteE_invoicePDF from '@salesforce/apex/ClearTaxAPiHelperForService.genereteE_invoicePDF';
 import checkValidateDataforIRNGeneration from '@salesforce/apex/ClearTaxAPiHelperForService.checkValidateDataforIRNGeneration';
+import CheckWorkOrderStatus from '@salesforce/apex/ClearTaxAPiHelperForService.CheckWorkOrderStatus';
 //import { updateRecord } from 'lightning/uiRecordApi';
 import Successinvoice from '@salesforce/resourceUrl/Successinvoice';
 
@@ -55,7 +56,15 @@ export default class GenerateEinvocieForService extends LightningElement {
     
         validatePayloadData() {
             debugger;
-            this.checkMandatoryFields();
+            CheckWorkOrderStatus({recordId: this.recordId}).then(result=> {
+
+                if(result != null && result.includes('Delivery')){
+                    
+                    this.showToast('ERROR', result, 'error');
+                } else {
+                    this.checkMandatoryFields();
+                }
+            })
         }
     
         callApexMethod() {

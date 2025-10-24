@@ -58,7 +58,8 @@ public class ProductRequestLineControllerTest {
        // OrderItem ord = ProductRequestLineController.createOrderItem(order,lineItem2,pricebookEntry1.id,4,pricebook.Id);
         
         User use = [SELECt Id,Name,Profile.Name from User WHeRE Profile.Name = 'Sales Manager (Partner)' AND isActive = true AND  Contact.Location__c != null LIMIT 1];
-        List<Product2> Data1 =   ProductRequestLineController.getLogedInUserRelatedLocationPOLI(use.id, 'Accessories');
+        //List<Product2> Data1 =   ProductRequestLineController.getLogedInUserRelatedLocationPOLI(use.id, 'Accessories');
+        List<ProductRequestLineController.ProductWithQty> Data1 =   ProductRequestLineController.getLogedInUserRelatedLocationPOLI(use.id, 'Accessories');
         String Data2 =   ProductRequestLineController.getCurrentLogedUserAccountRecord(use.id);
         String Data6 =   ProductRequestLineController.createPurchaseorder('VOR',use.id, 'Accessories');
         Shipment ship = [SELECT Id,SourceLocationId,DestinationLocationId,Order__c,ShipmentNumber FROM Shipment LIMIT 1];

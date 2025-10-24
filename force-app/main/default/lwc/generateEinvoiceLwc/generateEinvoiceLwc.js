@@ -4,6 +4,7 @@ import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import generateEInvoice from '@salesforce/apex/ClearTaxApiHelper.generateEInvoice';
 import genereteE_invoicePDF from '@salesforce/apex/ClearTaxApiHelper.genereteE_invoicePDF';
 import checkValidateDataforIRNGeneration from '@salesforce/apex/ClearTaxApiHelper.checkValidateDataforIRNGeneration';
+ import CheckOrderStatus   from '@salesforce/apex/ClearTaxApiHelper.CheckOrderStatus';
 import { updateRecord } from 'lightning/uiRecordApi';
 import Successinvoice from '@salesforce/resourceUrl/Successinvoice';
 const FIELDS = [
@@ -55,7 +56,19 @@ export default class GenerateEinvoiceLwc extends LightningElement {
 
     validatePayloadData(){
         debugger;
-        this.checkMandatoryFields();
+        CheckOrderStatus({recordId: this.recordId}).then(result=> {
+        
+                        if (result != null && (result.includes('Completed') || result.includes('Delivery'))){
+                            
+                            this.showToast('ERROR', result, 'error');
+                        } else {
+                            this.checkMandatoryFields();
+                        }
+                    }).catch(error => {
+            console.error('CheckOrderStatus failed', error);
+            this.showToast('ERROR', 'Something went wrong while checking status.', 'error');
+        });
+        
     }
 
     callApexMethod(){

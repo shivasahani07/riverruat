@@ -223,7 +223,7 @@ export default class AddFailureCodeLwcComp extends LightningElement {
                 this.showNotification('Success', result.message, 'success');
                 if (result.recordId) {
                     this.failureCodeRecordId = result.recordId;
-                    alert(result.recordId);
+                    // alert(result.recordId);
                 }
                 // this.resetForm();
                 this.hasResults = false;

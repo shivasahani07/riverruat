@@ -13,7 +13,7 @@ public without sharing class VINCutOffManagement {
         'A' => 1,'B' => 2,'C' => 3,'D' => 4,'E' => 5,'F' => 6,
         'G' => 7,'H' => 8,'J' => 9,'K' => 10,'L' => 11,'M' => 12
     };
-
+        
     public static final Integer INVALID_RESULT = -99;
     
     public class ComparisonResult {

@@ -1,0 +1,15 @@
+<template>
+     <lightning-card title="Feedback Summary Report" icon-name="custom:custom63">
+        <div class="slds-p-around_medium">
+            <lightning-datatable
+                key-field="feedbackId"
+                data={reportData}
+                columns={columns}
+                hide-checkbox-column>
+            </lightning-datatable>
+        </div>
+        <div class="slds-p-around_medium slds-text-align_right">
+            <lightning-button label="Download CSV" variant="brand" onclick={handleDownload}></lightning-button>
+        </div>
+    </lightning-card>
+</template>

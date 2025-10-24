@@ -84,15 +84,29 @@ public with sharing class ClearTaxApiHelper {
                 
                 List<Object> responseList = (List<Object>) JSON.deserializeUntyped(response.getBody());
                 List<Object> payloadList = (List<Object>) JSON.deserializeUntyped(payload);
-
-                    if (!responseList.isEmpty()) {
-                        Map<String, Object> firstItem = (Map<String, Object>) responseList[0];
-                        String documentStatus = (String) firstItem.get('document_status');
-
-                        if (documentStatus == 'IRN_CANCELLED') {
-                            return 'IRN for this invoice is cancelled. Please use a new invoice number to generate a fresh IRN.';
+                
+                if (!responseList.isEmpty()) {
+                    Map<String, Object> firstItem = (Map<String, Object>) responseList[0];
+                    String documentStatus = (String) firstItem.get('document_status');
+                    
+                    if (documentStatus == 'IRN_CANCELLED') {
+                        return 'IRN for this invoice is cancelled. Please use a new invoice number to generate a fresh IRN.';
+                    }
+                    if (firstItem.containsKey('govt_response')) {
+                        Map<String, Object> govtResponse = (Map<String, Object>) firstItem.get('govt_response');
+                        
+                        if (govtResponse.containsKey('info')) {
+                            List<Object> infoList = (List<Object>) govtResponse.get('info');
+                            
+                            for (Object infoObj : infoList) {
+                                Map<String, Object> infoMap = (Map<String, Object>) infoObj;
+                                if (String.valueOf(infoMap.get('InfCd')) == 'DUPIRN_CLEARTAX') {
+                                    return 'Duplicate IRN request: IRN has already been generated for this invoice number.';
+                                }
+                            }
                         }
                     }
+                }
                 
                 if (!responseList.isEmpty()) {
                     Map<String, String> irnMap = new Map<String, String>();
@@ -155,227 +169,227 @@ public with sharing class ClearTaxApiHelper {
     
     
     // Method to Generate Payload for Order Record ##2
-@AuraEnabled
-public static String generatePayloadForIRN(Id orderId) {
-    List<Map<String, Object>> payloadList = new List<Map<String, Object>>();
-    Map<String, String> stateCodeMap = new Map<String, String>();
-    Decimal SubsidyAmt = 0;
-    Decimal StateSubsidyAmt = 0;
-
-    for (State_Code_Mapping__mdt stateMapping : [SELECT MasterLabel, State_Code__c FROM State_Code_Mapping__mdt]) {
-        stateCodeMap.put(stateMapping.MasterLabel, stateMapping.State_Code__c);
-    }
-
-    Order orderRecord = [
-        SELECT Id, AccountId, Dealer__c, OrderNumber, Offers_Amount__c, Discount_on_Ex_Showroom_Price__c,
-              Accessories_Discount_Amount__c, Merchandise_Additional_Discount__c, Subsidy_Amount__c,
-              State_Govt_Subsidy__c, RecordType.DeveloperName, OTC_Additional_Discount_Amount__c
-        FROM Order WHERE Id = :orderId
-    ];
-
-    Account buyer = [
-        SELECT BillingStreet, BillingCity, BillingPostalCode, BillingState, GSTIN_Number__c, Phone, Email__c, Name, BillingCountry, Center_Code__c
-        FROM Account WHERE Id = :orderRecord.AccountId
-    ];
-
-    Account seller = [
-        SELECT BillingStreet, BillingCity, BillingPostalCode, BillingState, GSTIN_Number__c, Phone, Email__c, Center_Code__c, Name
-        FROM Account WHERE Id = :orderRecord.Dealer__c
-    ];
-
-    List<Order_Invoice__c> invoices = [SELECT Invoice_Number__c, Invoice_Type__c FROM Order_Invoice__c WHERE Order__c = :orderRecord.Id];
-
-    Map<String, String> invoiceTypeToNumber = new Map<String, String>();
-    for (Order_Invoice__c inv : invoices) {
-        if (inv.Invoice_Number__c != null && inv.Invoice_Type__c != null) {
-            String cleanedType = inv.Invoice_Type__c.toLowerCase();
-            if (cleanedType.contains('vehicle')) invoiceTypeToNumber.put('Vehicle', inv.Invoice_Number__c);
-            else if (cleanedType.contains('accessories')) invoiceTypeToNumber.put('Accessories', inv.Invoice_Number__c);
-            else if (cleanedType.contains('merchandise')) invoiceTypeToNumber.put('Merchandise', inv.Invoice_Number__c);
+    @AuraEnabled
+    public static String generatePayloadForIRN(Id orderId) {
+        List<Map<String, Object>> payloadList = new List<Map<String, Object>>();
+        Map<String, String> stateCodeMap = new Map<String, String>();
+        Decimal SubsidyAmt = 0;
+        Decimal StateSubsidyAmt = 0;
+        
+        for (State_Code_Mapping__mdt stateMapping : [SELECT MasterLabel, State_Code__c FROM State_Code_Mapping__mdt]) {
+            stateCodeMap.put(stateMapping.MasterLabel, stateMapping.State_Code__c);
         }
-    }
-
-    List<OrderItem> orderItems = [
-        SELECT Id, Product2.Name, Type__c, Quantity, Product2.HSN_Code__c, UnitPrice,
+        
+        Order orderRecord = [
+            SELECT Id, AccountId, Dealer__c, OrderNumber, Offers_Amount__c, Discount_on_Ex_Showroom_Price__c,
+            Accessories_Discount_Amount__c, Merchandise_Additional_Discount__c, Subsidy_Amount__c,
+            State_Govt_Subsidy__c, RecordType.DeveloperName, OTC_Additional_Discount_Amount__c
+            FROM Order WHERE Id = :orderId
+        ];
+        
+        Account buyer = [
+            SELECT BillingStreet, BillingCity, BillingPostalCode, BillingState, GSTIN_Number__c, Phone, Email__c, Name, BillingCountry, Center_Code__c
+            FROM Account WHERE Id = :orderRecord.AccountId
+        ];
+        
+        Account seller = [
+            SELECT BillingStreet, BillingCity, BillingPostalCode, BillingState, GSTIN_Number__c, Phone, Email__c, Center_Code__c, Name
+            FROM Account WHERE Id = :orderRecord.Dealer__c
+        ];
+        
+        List<Order_Invoice__c> invoices = [SELECT Invoice_Number__c, Invoice_Type__c FROM Order_Invoice__c WHERE Order__c = :orderRecord.Id];
+        
+        Map<String, String> invoiceTypeToNumber = new Map<String, String>();
+        for (Order_Invoice__c inv : invoices) {
+            if (inv.Invoice_Number__c != null && inv.Invoice_Type__c != null) {
+                String cleanedType = inv.Invoice_Type__c.toLowerCase();
+                if (cleanedType.contains('vehicle')) invoiceTypeToNumber.put('Vehicle', inv.Invoice_Number__c);
+                else if (cleanedType.contains('accessories')) invoiceTypeToNumber.put('Accessories', inv.Invoice_Number__c);
+                else if (cleanedType.contains('merchandise')) invoiceTypeToNumber.put('Merchandise', inv.Invoice_Number__c);
+            }
+        }
+        
+        List<OrderItem> orderItems = [
+            SELECT Id, Product2.Name, Type__c, Quantity, Product2.HSN_Code__c, UnitPrice,
             Discounted_Amount_on_Merchandise__c, Merchandise_Disccount_Amount__c,
             Product2.IGST_Percentage__c, Product2.CGST_Percentage__c, Product2.SGST_Percentage__c
-        FROM OrderItem WHERE OrderId = :orderId
-    ];
-
-    Boolean isInternational = buyer.BillingCountry != 'India';
-    String buyerStateCode = isInternational ? '96' : stateCodeMap.get(buyer.BillingState);
-    Boolean isIntrastate = (buyerStateCode == seller.Center_Code__c.substring(0, 2));
-
-    // Accessories+Parts and Merchandise group logic
-    List<OrderItem> accPartsGroup = new List<OrderItem>();
-    List<OrderItem> merchandiseGroup = new List<OrderItem>();
-    List<OrderItem> vehicleGroup = new List<OrderItem>();
-    for (OrderItem item : orderItems) {
-        if (item.Type__c == 'Accessories' || item.Type__c == 'Parts') {
-            accPartsGroup.add(item);
-        } else if (item.Type__c == 'Merchandise') {
-            merchandiseGroup.add(item);
-        } else if (item.Type__c == 'Vehicle') {
-            vehicleGroup.add(item);
+            FROM OrderItem WHERE OrderId = :orderId
+        ];
+        
+        Boolean isInternational = buyer.BillingCountry != 'India';
+        String buyerStateCode = isInternational ? '96' : stateCodeMap.get(buyer.BillingState);
+        Boolean isIntrastate = (buyerStateCode == seller.Center_Code__c.substring(0, 2));
+        
+        // Accessories+Parts and Merchandise group logic
+        List<OrderItem> accPartsGroup = new List<OrderItem>();
+        List<OrderItem> merchandiseGroup = new List<OrderItem>();
+        List<OrderItem> vehicleGroup = new List<OrderItem>();
+        for (OrderItem item : orderItems) {
+            if (item.Type__c == 'Accessories' || item.Type__c == 'Parts') {
+                accPartsGroup.add(item);
+            } else if (item.Type__c == 'Merchandise') {
+                merchandiseGroup.add(item);
+            } else if (item.Type__c == 'Vehicle') {
+                vehicleGroup.add(item);
+            }
         }
-    }
-    Map<String, List<OrderItem>> groupedItems = new Map<String, List<OrderItem>>();
-    if (!accPartsGroup.isEmpty())    groupedItems.put('AccessoriesParts', accPartsGroup);
-    if (!merchandiseGroup.isEmpty()) groupedItems.put('Merchandise', merchandiseGroup);
-    if (!vehicleGroup.isEmpty())     groupedItems.put('Vehicle', vehicleGroup);
-
-    Datetime now = Datetime.now();
-    String lastFourDigits = orderRecord.OrderNumber.right(4);
-    String formattedDateTime = now.format('MMddmmss');
-    Integer baseNumber = Integer.valueOf(lastFourDigits);
-    Integer irnIndex = 0;
-
-    for (String groupKey : groupedItems.keySet()) {
-        List<OrderItem> items = groupedItems.get(groupKey);
-        String itemTypeForInvoice = groupKey == 'AccessoriesParts' ? 'Accessories' : groupKey;
-        String incrementedDigits = String.valueOf(baseNumber + irnIndex);
-        String DocNo = invoiceTypeToNumber.containsKey(itemTypeForInvoice) ? invoiceTypeToNumber.get(itemTypeForInvoice) :
+        Map<String, List<OrderItem>> groupedItems = new Map<String, List<OrderItem>>();
+        if (!accPartsGroup.isEmpty())    groupedItems.put('AccessoriesParts', accPartsGroup);
+        if (!merchandiseGroup.isEmpty()) groupedItems.put('Merchandise', merchandiseGroup);
+        if (!vehicleGroup.isEmpty())     groupedItems.put('Vehicle', vehicleGroup);
+        
+        Datetime now = Datetime.now();
+        String lastFourDigits = orderRecord.OrderNumber.right(4);
+        String formattedDateTime = now.format('MMddmmss');
+        Integer baseNumber = Integer.valueOf(lastFourDigits);
+        Integer irnIndex = 0;
+        
+        for (String groupKey : groupedItems.keySet()) {
+            List<OrderItem> items = groupedItems.get(groupKey);
+            String itemTypeForInvoice = groupKey == 'AccessoriesParts' ? 'Accessories' : groupKey;
+            String incrementedDigits = String.valueOf(baseNumber + irnIndex);
+            String DocNo = invoiceTypeToNumber.containsKey(itemTypeForInvoice) ? invoiceTypeToNumber.get(itemTypeForInvoice) :
             'INV-' + formattedDateTime + String.valueOf(baseNumber + irnIndex);
-
-        Map<String, Object> transactionMap = new Map<String, Object>{
-            'Version' => '1.1',
-            'TranDtls' => new Map<String, Object>{ 'TaxSch' => 'GST', 'SupTyp' => 'B2B', 'RegRev' => 'N' },
-            'DocDtls' => new Map<String, Object>{ 'Typ' => 'INV', 'No' => DocNo, 'Dt' => now.format('dd/MM/yyyy') },
-            'SellerDtls' => new Map<String, Object>{
-                'Gstin' => seller.GSTIN_Number__c,
-                'LglNm' => seller.Name,
-                'Addr1' => seller.BillingStreet,
-                'Loc' => seller.BillingCity,
-                'Pin' => Integer.valueOf(seller.BillingPostalCode),
-                'Stcd' => seller.Center_Code__c.substring(0, 2)
-            },
-            'BuyerDtls' => new Map<String, Object>{
-                'Gstin' => buyer.GSTIN_Number__c,
-                'LglNm' => buyer.Name,
-                'Pos' => buyerStateCode,
-                'Addr1' => buyer.BillingStreet,
-                'Loc' => buyer.BillingCity,
-                'Pin' => Integer.valueOf(buyer.BillingPostalCode),
-                'Stcd' => buyerStateCode
-            }
-        };
-
-        List<Map<String, Object>> itemList = new List<Map<String, Object>>();
-        Decimal totalAssVal = 0, totalCgst = 0, totalSgst = 0, totalIgst = 0;
-
-        Decimal orderLevelDiscount = 0;
-        if (itemTypeForInvoice == 'Accessories') {
-            if (orderRecord.RecordType.DeveloperName == 'OTC') {
-                orderLevelDiscount = 0;
-            } else {
-                orderLevelDiscount = orderRecord.Accessories_Discount_Amount__c != null
-                    ? orderRecord.Accessories_Discount_Amount__c : 0;
-            }
-        } else if (itemTypeForInvoice == 'Merchandise') {
-            if (orderRecord.RecordType.DeveloperName == 'OTC') {
-                orderLevelDiscount = 0; 
-            } else {
-                orderLevelDiscount = orderRecord.Merchandise_Additional_Discount__c != null
-                    ? orderRecord.Merchandise_Additional_Discount__c : 0;
-            }
-        }
-
-        Set<String> excludedProducts = new Set<String>{'Road Side Assistance', 'River Extended Warranty'};
-
-        Decimal totalGross = 0;
-        for (OrderItem oi : items) {
-            if (!excludedProducts.CONTAINS(oi.Product2.Name)) {
-                Decimal grossAmount = (oi.UnitPrice != null ? oi.UnitPrice : 0) * (oi.Quantity != null ? oi.Quantity : 0);
-                totalGross += grossAmount;
-            }
-        }
-
-        for (OrderItem item : items) {
-            Decimal grossAmount = (item.UnitPrice != null ? item.UnitPrice : 0) * (item.Quantity != null ? item.Quantity : 0);
-            Decimal perItemTotalDiscount = 0;
-           if (item.Merchandise_Disccount_Amount__c != null || item.Discounted_Amount_on_Merchandise__c != null) perItemTotalDiscount += (item.Merchandise_Disccount_Amount__c != null ? item.Merchandise_Disccount_Amount__c : 0) + (item.Discounted_Amount_on_Merchandise__c != null ? item.Discounted_Amount_on_Merchandise__c : 0);
-            if (item.Type__c == 'Vehicle') {
-                if (orderRecord.Offers_Amount__c != null) perItemTotalDiscount += orderRecord.Offers_Amount__c;
-                if (orderRecord.Discount_on_Ex_Showroom_Price__c != null) perItemTotalDiscount += orderRecord.Discount_on_Ex_Showroom_Price__c;
-                if (orderRecord.Subsidy_Amount__c != null) SubsidyAmt = orderRecord.Subsidy_Amount__c;
-                if (orderRecord.State_Govt_Subsidy__c != null) StateSubsidyAmt = orderRecord.State_Govt_Subsidy__c;
+            
+            Map<String, Object> transactionMap = new Map<String, Object>{
+                'Version' => '1.1',
+                    'TranDtls' => new Map<String, Object>{ 'TaxSch' => 'GST', 'SupTyp' => 'B2B', 'RegRev' => 'N' },
+                        'DocDtls' => new Map<String, Object>{ 'Typ' => 'INV', 'No' => DocNo, 'Dt' => now.format('dd/MM/yyyy') },
+                            'SellerDtls' => new Map<String, Object>{
+                                'Gstin' => seller.GSTIN_Number__c,
+                                    'LglNm' => seller.Name,
+                                    'Addr1' => seller.BillingStreet,
+                                    'Loc' => seller.BillingCity,
+                                    'Pin' => Integer.valueOf(seller.BillingPostalCode),
+                                    'Stcd' => seller.Center_Code__c.substring(0, 2)
+                                    },
+                                        'BuyerDtls' => new Map<String, Object>{
+                                            'Gstin' => buyer.GSTIN_Number__c,
+                                                'LglNm' => buyer.Name,
+                                                'Pos' => buyerStateCode,
+                                                'Addr1' => buyer.BillingStreet,
+                                                'Loc' => buyer.BillingCity,
+                                                'Pin' => Integer.valueOf(buyer.BillingPostalCode),
+                                                'Stcd' => buyerStateCode
+                                                }
+            };
                 
+                List<Map<String, Object>> itemList = new List<Map<String, Object>>();
+            Decimal totalAssVal = 0, totalCgst = 0, totalSgst = 0, totalIgst = 0;
+            
+            Decimal orderLevelDiscount = 0;
+            if (itemTypeForInvoice == 'Accessories') {
+                if (orderRecord.RecordType.DeveloperName == 'OTC') {
+                    orderLevelDiscount = 0;
+                } else {
+                    orderLevelDiscount = orderRecord.Accessories_Discount_Amount__c != null
+                        ? orderRecord.Accessories_Discount_Amount__c : 0;
+                }
+            } else if (itemTypeForInvoice == 'Merchandise') {
+                if (orderRecord.RecordType.DeveloperName == 'OTC') {
+                    orderLevelDiscount = 0; 
+                } else {
+                    orderLevelDiscount = orderRecord.Merchandise_Additional_Discount__c != null
+                        ? orderRecord.Merchandise_Additional_Discount__c : 0;
+                }
             }
-
-            // Prorate order-level ONLY over gross, no "eligible value" logic
-            if (orderRecord.RecordType.DeveloperName != 'OTC' && orderLevelDiscount > 0 && totalGross > 0 && !excludedProducts.CONTAINS(item.Product2.Name)) {
-                Decimal itemShare = (grossAmount / totalGross) * orderLevelDiscount;
-                perItemTotalDiscount += itemShare;
+            
+            Set<String> excludedProducts = new Set<String>{'Road Side Assistance', 'River Extended Warranty'};
+                
+                Decimal totalGross = 0;
+            for (OrderItem oi : items) {
+                if (!excludedProducts.CONTAINS(oi.Product2.Name)) {
+                    Decimal grossAmount = (oi.UnitPrice != null ? oi.UnitPrice : 0) * (oi.Quantity != null ? oi.Quantity : 0);
+                    totalGross += grossAmount;
+                }
             }
-
-            if (perItemTotalDiscount > grossAmount) {
-                perItemTotalDiscount = grossAmount;
+            
+            for (OrderItem item : items) {
+                Decimal grossAmount = (item.UnitPrice != null ? item.UnitPrice : 0) * (item.Quantity != null ? item.Quantity : 0);
+                Decimal perItemTotalDiscount = 0;
+                if (item.Merchandise_Disccount_Amount__c != null || item.Discounted_Amount_on_Merchandise__c != null) perItemTotalDiscount += (item.Merchandise_Disccount_Amount__c != null ? item.Merchandise_Disccount_Amount__c : 0) + (item.Discounted_Amount_on_Merchandise__c != null ? item.Discounted_Amount_on_Merchandise__c : 0);
+                if (item.Type__c == 'Vehicle') {
+                    if (orderRecord.Offers_Amount__c != null) perItemTotalDiscount += orderRecord.Offers_Amount__c;
+                    if (orderRecord.Discount_on_Ex_Showroom_Price__c != null) perItemTotalDiscount += orderRecord.Discount_on_Ex_Showroom_Price__c;
+                    if (orderRecord.Subsidy_Amount__c != null) SubsidyAmt = orderRecord.Subsidy_Amount__c;
+                    if (orderRecord.State_Govt_Subsidy__c != null) StateSubsidyAmt = orderRecord.State_Govt_Subsidy__c;
+                    
+                }
+                
+                // Prorate order-level ONLY over gross, no "eligible value" logic
+                if (orderRecord.RecordType.DeveloperName != 'OTC' && orderLevelDiscount > 0 && totalGross > 0 && !excludedProducts.CONTAINS(item.Product2.Name)) {
+                    Decimal itemShare = (grossAmount / totalGross) * orderLevelDiscount;
+                    perItemTotalDiscount += itemShare;
+                }
+                
+                if (perItemTotalDiscount > grossAmount) {
+                    perItemTotalDiscount = grossAmount;
+                }
+                
+                Decimal assAmt = grossAmount - perItemTotalDiscount;
+                
+                Decimal cgstRate = item.Product2.CGST_Percentage__c != null ? item.Product2.CGST_Percentage__c : 0;
+                Decimal sgstRate = item.Product2.SGST_Percentage__c != null ? item.Product2.SGST_Percentage__c : 0;
+                Decimal igstRate = item.Product2.IGST_Percentage__c != null ? item.Product2.IGST_Percentage__c : 0;
+                
+                Decimal cgstAmt = 0, sgstAmt = 0, igstAmt = 0;
+                
+                if (isIntrastate) {
+                    cgstAmt = assAmt * cgstRate / 100;
+                    sgstAmt = assAmt * sgstRate / 100;
+                    totalCgst += cgstAmt; totalSgst += sgstAmt;
+                } else {
+                    igstAmt = assAmt * igstRate / 100;
+                    totalIgst += igstAmt;
+                }
+                
+                itemList.add(new Map<String, Object>{
+                    'SlNo' => String.valueOf(itemList.size() + 1),
+                        'IsServc' => (item.Product2.HSN_Code__c != null && item.Product2.HSN_Code__c.startsWith('99')) ? 'Y' : 'N',
+                            'PrdDesc' => item.Product2.Name,
+                            'HsnCd' => item.Product2.HSN_Code__c,
+                            'Qty' => item.Quantity,
+                            'Unit' => 'BAG',
+                            'UnitPrice' => item.UnitPrice,
+                            'TotAmt' => grossAmount,
+                            'Discount' => perItemTotalDiscount,
+                            'AssAmt' => assAmt,
+                            'GstRt' => isIntrastate ? cgstRate + sgstRate : igstRate,
+                                'CgstAmt' => cgstAmt,
+                                'SgstAmt' => sgstAmt,
+                                'IgstAmt' => igstAmt,
+                                'TotItemVal' => Math.round(assAmt + cgstAmt + sgstAmt + igstAmt)
+                                });
+                
+                totalAssVal += Math.round (assAmt);
             }
-
-            Decimal assAmt = grossAmount - perItemTotalDiscount;
-
-            Decimal cgstRate = item.Product2.CGST_Percentage__c != null ? item.Product2.CGST_Percentage__c : 0;
-            Decimal sgstRate = item.Product2.SGST_Percentage__c != null ? item.Product2.SGST_Percentage__c : 0;
-            Decimal igstRate = item.Product2.IGST_Percentage__c != null ? item.Product2.IGST_Percentage__c : 0;
-
-            Decimal cgstAmt = 0, sgstAmt = 0, igstAmt = 0;
-
-            if (isIntrastate) {
-                cgstAmt = assAmt * cgstRate / 100;
-                sgstAmt = assAmt * sgstRate / 100;
-                totalCgst += cgstAmt; totalSgst += sgstAmt;
-            } else {
-                igstAmt = assAmt * igstRate / 100;
-                totalIgst += igstAmt;
-            }
-
-            itemList.add(new Map<String, Object>{
-                'SlNo' => String.valueOf(itemList.size() + 1),
-                'IsServc' => (item.Product2.HSN_Code__c != null && item.Product2.HSN_Code__c.startsWith('99')) ? 'Y' : 'N',
-                'PrdDesc' => item.Product2.Name,
-                'HsnCd' => item.Product2.HSN_Code__c,
-                'Qty' => item.Quantity,
-                'Unit' => 'BAG',
-                'UnitPrice' => item.UnitPrice,
-                'TotAmt' => grossAmount,
-                'Discount' => perItemTotalDiscount,
-                'AssAmt' => assAmt,
-                'GstRt' => isIntrastate ? cgstRate + sgstRate : igstRate,
-                'CgstAmt' => cgstAmt,
-                'SgstAmt' => sgstAmt,
-                'IgstAmt' => igstAmt,
-                'TotItemVal' => Math.round(assAmt + cgstAmt + sgstAmt + igstAmt)
-            });
-
-            totalAssVal += Math.round (assAmt);
+            
+            transactionMap.put('ItemList', itemList);
+            transactionMap.put('ValDtls', new Map<String, Object>{
+                'AssVal' => totalAssVal,
+                    'Discount' => SubsidyAmt + StateSubsidyAmt,
+                    'CgstVal' => totalCgst,
+                    'SgstVal' => totalSgst,
+                    'IgstVal' => totalIgst,
+                    'TotInvVal' => Math.Round(totalAssVal + totalCgst + totalSgst + totalIgst - (SubsidyAmt + StateSubsidyAmt))
+                    });
+            
+            payloadList.add(new Map<String, Object>{
+                'transaction' => transactionMap,
+                    'productType' => itemTypeForInvoice
+                    });
+            
+            irnIndex++;
         }
-
-        transactionMap.put('ItemList', itemList);
-        transactionMap.put('ValDtls', new Map<String, Object>{
-            'AssVal' => totalAssVal,
-            'Discount' => SubsidyAmt + StateSubsidyAmt,
-            'CgstVal' => totalCgst,
-            'SgstVal' => totalSgst,
-            'IgstVal' => totalIgst,
-            'TotInvVal' => Math.Round(totalAssVal + totalCgst + totalSgst + totalIgst - (SubsidyAmt + StateSubsidyAmt))
-        });
-
-        payloadList.add(new Map<String, Object>{
-            'transaction' => transactionMap,
-            'productType' => itemTypeForInvoice
-        });
-
-        irnIndex++;
+        
+        return JSON.serialize(payloadList);
     }
-
-    return JSON.serialize(payloadList);
-}
-
-
-
-
-
-
+    
+    
+    
+    
+    
+    
     
     
     
@@ -383,97 +397,97 @@ public static String generatePayloadForIRN(Id orderId) {
     
     // =============================================================================================================================================================================================================
     
-   @AuraEnabled  
-        public static String genereteE_invoicePDF(String recordId) {
-            String response;
-            try {
-                if (recordId == null) return 'No order Id';
-                Order ord = [
-                    SELECT Id, OrderNumber, Is_QR_Generated__c, IRN_No__c, RecordType.DeveloperName
-                    FROM Order 
-                    WHERE Id = :recordId 
-                    LIMIT 1
-                ];
-                System.debug('Fetched Order => ' + ord);
-        
-                Boolean hasVehicle = false, hasAccessoriesOrParts = false, hasMerchandise = false;
-                for (OrderItem oi : [SELECT Type__c FROM OrderItem WHERE OrderId = :ord.Id AND Type__c != null]) {
-                    if (oi.Type__c == 'Accessories' || oi.Type__c == 'Parts') hasAccessoriesOrParts = true;
-                    if (oi.Type__c == 'Merchandise') hasMerchandise = true;
-                    if (oi.Type__c == 'Vehicle') hasVehicle = true;
-                }
-        
-                List<Attachment> attachmentsToInsert = new List<Attachment>();
-                Boolean isOTC = (ord.RecordType.DeveloperName == 'OTC');
-        
-                // Vehicle Main Invoice PDF
-                if (hasVehicle) {
-                    System.debug('Generating Vehicle E-Invoice PDF...');
-                    PageReference vfPagepdf = Page.NewE_invoicePDF;
-                    vfPagepdf.getParameters().put('id', recordId);
-                    Blob pdfBlob = Test.isRunningTest() ? Blob.valueOf('Test') : vfPagepdf.getContentAsPDF();
-                    Attachment attachment = new Attachment();
-                    attachment.ParentId = recordId;
-                    attachment.Name = 'Vehicle E-Invoice-' + ord.OrderNumber + '-' + Date.Today().format() + ' ' + System.now().format('h:mm a') + '.pdf';
-                    attachment.Body = pdfBlob;
-                    attachment.ContentType = 'application/pdf';
-                    attachmentsToInsert.add(attachment);
-                    System.debug('Prepared Main E-Invoice Attachment');
-                }
-        
-                // Accessories and Parts combined PDF
-                if (hasAccessoriesOrParts) {
-                    PageReference pdfPage = Page.NewAccessoriesInvoiceE_Invoice;
-                    pdfPage.getParameters().put('id', ord.Id);
-                    Blob otherBlob = Test.isRunningTest() ? Blob.valueOf('Test') : pdfPage.getContentAsPDF();
-                    String namePrefix = isOTC ? 'OTC ' : '';
-                    Attachment productAttachment = new Attachment();
-                    productAttachment.ParentId = ord.Id;
-                    productAttachment.Name = namePrefix + 'Accessories E-Invoice ' + ord.OrderNumber + '-' + Date.Today().format() + ' ' + System.now().format('h:mm a') + '.pdf';
-                    productAttachment.Body = otherBlob;
-                    productAttachment.ContentType = 'application/pdf';
-                    attachmentsToInsert.add(productAttachment);
-                    System.debug('Prepared Accessories/Parts combined Attachment');
-                }
-        
-                // Merchandise PDF
-                if (hasMerchandise) {
-                    PageReference pdfPage = Page.NewMerchandiseE_Invoice;
-                    pdfPage.getParameters().put('id', ord.Id);
-                    Blob otherBlob = Test.isRunningTest() ? Blob.valueOf('Test') : pdfPage.getContentAsPDF();
-                    String namePrefix = isOTC ? 'OTC ' : '';
-                    Attachment productAttachment = new Attachment();
-                    productAttachment.ParentId = ord.Id;
-                    productAttachment.Name = namePrefix + 'Merchandise E-Invoice ' + ord.OrderNumber + '-' + Date.Today().format() + ' ' + System.now().format('h:mm a') + '.pdf';
-                    productAttachment.Body = otherBlob;
-                    productAttachment.ContentType = 'application/pdf';
-                    attachmentsToInsert.add(productAttachment);
-                    System.debug('Prepared Merchandise Attachment');
-                }
-        
-                // DML and update Order
-                if (!attachmentsToInsert.isEmpty()) {
-                    insert attachmentsToInsert;
-                    ord.Is_E_invoice_Generated__c = true;
-                    update ord;
-                    response = 'success';
-                    System.debug('Inserted Attachments count: ' + attachmentsToInsert.size());
-                } else {
-                    response = 'No Attachments to insert';
-                }
-        
-                ClearTaxTagIrnNumber.deleteOrderQRcode(ord.Id);
-        
-            } catch (Exception e) {
-                ExceptionHelper.createExceptionLog(e);
-                response = e.getMessage();
-                System.debug('Error Message => ' + e.getMessage() + ' | Error Line => ' + e.getLineNumber());
+    @AuraEnabled  
+    public static String genereteE_invoicePDF(String recordId) {
+        String response;
+        try {
+            if (recordId == null) return 'No order Id';
+            Order ord = [
+                SELECT Id, OrderNumber, Is_QR_Generated__c, IRN_No__c, RecordType.DeveloperName
+                FROM Order 
+                WHERE Id = :recordId 
+                LIMIT 1
+            ];
+            System.debug('Fetched Order => ' + ord);
+            
+            Boolean hasVehicle = false, hasAccessoriesOrParts = false, hasMerchandise = false;
+            for (OrderItem oi : [SELECT Type__c FROM OrderItem WHERE OrderId = :ord.Id AND Type__c != null]) {
+                if (oi.Type__c == 'Accessories' || oi.Type__c == 'Parts') hasAccessoriesOrParts = true;
+                if (oi.Type__c == 'Merchandise') hasMerchandise = true;
+                if (oi.Type__c == 'Vehicle') hasVehicle = true;
             }
-            System.debug('Final Response => ' + response);
-            return response;
+            
+            List<Attachment> attachmentsToInsert = new List<Attachment>();
+            Boolean isOTC = (ord.RecordType.DeveloperName == 'OTC');
+            
+            // Vehicle Main Invoice PDF
+            if (hasVehicle) {
+                System.debug('Generating Vehicle E-Invoice PDF...');
+                PageReference vfPagepdf = Page.NewE_invoicePDF;
+                vfPagepdf.getParameters().put('id', recordId);
+                Blob pdfBlob = Test.isRunningTest() ? Blob.valueOf('Test') : vfPagepdf.getContentAsPDF();
+                Attachment attachment = new Attachment();
+                attachment.ParentId = recordId;
+                attachment.Name = 'Vehicle E-Invoice-' + ord.OrderNumber + '-' + Date.Today().format() + ' ' + System.now().format('h:mm a') + '.pdf';
+                attachment.Body = pdfBlob;
+                attachment.ContentType = 'application/pdf';
+                attachmentsToInsert.add(attachment);
+                System.debug('Prepared Main E-Invoice Attachment');
+            }
+            
+            // Accessories and Parts combined PDF
+            if (hasAccessoriesOrParts) {
+                PageReference pdfPage = Page.NewAccessoriesInvoiceE_Invoice;
+                pdfPage.getParameters().put('id', ord.Id);
+                Blob otherBlob = Test.isRunningTest() ? Blob.valueOf('Test') : pdfPage.getContentAsPDF();
+                String namePrefix = isOTC ? 'OTC ' : '';
+                Attachment productAttachment = new Attachment();
+                productAttachment.ParentId = ord.Id;
+                productAttachment.Name = namePrefix + 'Accessories E-Invoice ' + ord.OrderNumber + '-' + Date.Today().format() + ' ' + System.now().format('h:mm a') + '.pdf';
+                productAttachment.Body = otherBlob;
+                productAttachment.ContentType = 'application/pdf';
+                attachmentsToInsert.add(productAttachment);
+                System.debug('Prepared Accessories/Parts combined Attachment');
+            }
+            
+            // Merchandise PDF
+            if (hasMerchandise) {
+                PageReference pdfPage = Page.NewMerchandiseE_Invoice;
+                pdfPage.getParameters().put('id', ord.Id);
+                Blob otherBlob = Test.isRunningTest() ? Blob.valueOf('Test') : pdfPage.getContentAsPDF();
+                String namePrefix = isOTC ? 'OTC ' : '';
+                Attachment productAttachment = new Attachment();
+                productAttachment.ParentId = ord.Id;
+                productAttachment.Name = namePrefix + 'Merchandise E-Invoice ' + ord.OrderNumber + '-' + Date.Today().format() + ' ' + System.now().format('h:mm a') + '.pdf';
+                productAttachment.Body = otherBlob;
+                productAttachment.ContentType = 'application/pdf';
+                attachmentsToInsert.add(productAttachment);
+                System.debug('Prepared Merchandise Attachment');
+            }
+            
+            // DML and update Order
+            if (!attachmentsToInsert.isEmpty()) {
+                insert attachmentsToInsert;
+                ord.Is_E_invoice_Generated__c = true;
+                update ord;
+                response = 'success';
+                System.debug('Inserted Attachments count: ' + attachmentsToInsert.size());
+            } else {
+                response = 'No Attachments to insert';
+            }
+            
+            ClearTaxTagIrnNumber.deleteOrderQRcode(ord.Id);
+            
+        } catch (Exception e) {
+            ExceptionHelper.createExceptionLog(e);
+            response = e.getMessage();
+            System.debug('Error Message => ' + e.getMessage() + ' | Error Line => ' + e.getLineNumber());
         }
-
-
+        System.debug('Final Response => ' + response);
+        return response;
+    }
+    
+    
     
     // Method to Validate Data for IRN Generation
     @AuraEnabled
@@ -533,6 +547,48 @@ public static String generatePayloadForIRN(Id orderId) {
         }
         return null;
     }
+     
+    @AuraEnabled
+public static String CheckOrderStatus(String recordId) {
+    try {
+        if (recordId == null) {
+            return 'Record ID is null';
+        }
+
+        List<Order> orders = [SELECT Id, Status, RecordType.DeveloperName FROM Order WHERE Id = :recordId];
+
+        if (orders.isEmpty()) {
+            return 'Order not found';
+        }
+
+        Order order = orders[0];
+        String status = order.Status;
+        String rcrdType = order.RecordType.DeveloperName;
+
+        System.debug('Order Status = ' + status);
+        //System.debug('RecordType = ' + rcrdType);
+
+        if (rcrdType == 'OTC') {
+            if (status != 'Invoice Generation' && status != 'Completed') {
+                 System.debug('RecordType = ' + rcrdType);
+                 System.debug('Returning OTC error message');
+                return 'Please move the stage to Invoice Generation or Completed to generate E-Invoice.';
+            }
+        } else {
+            if (status != 'Ready For Delivery' && status != 'Vehicle Delivered' && status != 'RTO Registration') {
+                return 'Please move the stage to RTO Registration, Ready For Delivery, or Vehicle Delivered to generate E-Invoice.';
+            }
+        }
+
+        return null;
+
+    } catch (Exception e) {
+        System.debug('Error Message ==> ' + e.getMessage() + ' Line Number ==> ' + e.getLineNumber());
+        return 'Error occurred';
+    }
+}
+
+    
     
     
     // =============================================================================================================================================================================================================
@@ -648,63 +704,11 @@ public static String generatePayloadForIRN(Id orderId) {
         public String CnlRsn { get; set; }
         public String CnlRem { get; set; }
     }
-
+    
     
     // =============================================================================================================================================================================================================
     
-    // Method to Generate E-Waybill using IRN
-    @AuraEnabled 
-    public static  Map<String, String> generateEWayBillUsingIRN(String shipId) {
-        Order ordRec = new Order();
-        Map<String, String> Mapresponse = new Map<String, String>();
-        try {
-            Shipment shipRec = [SELECT Id,Order__r.OrderNumber, Order__c,Order__r.Dealer__r.GSTIN_Number__c,Order__r.IRN_No__c  FROM Shipment WHERE Id = :shipId LIMIT 1];            
-            System.debug('shipRec == > ' + shipRec);
-            Date today = System.today();
-            String formattedDate =  (today.day() < 10 ? '0' + String.valueOf(today.day()) : String.valueOf(today.day())) + '/' + (today.month() < 10 ? '0' + String.valueOf(today.month()) : String.valueOf(today.month())) + '/' + today.year();
-            System.debug('formattedDate == > ' + formattedDate);
-            String requestBody = '[{"Irn": "' + shipRec.Order__r.IRN_No__c + '", "Distance": 0, "TransMode": "", "TransId": "", "TransName": "", "TransDocDt": "", "TransDocNo": "", "VehNo": "", "VehType": "R"}]';
-            System.debug('Request Body == > ' + requestBody);
-            HttpRequest req = new HttpRequest();
-            req.setEndpoint(clearTaxDetails.E_Way_Bill_BaseURL__c);
-            req.setMethod('POST');
-            req.setHeader('Content-Type', 'application/json');
-            req.setHeader('X-Cleartax-Auth-Token', getAccessToken());
-            req.setHeader('gstin', shipRec.Order__r.Dealer__r.GSTIN_Number__c);
-            req.setBody(requestBody);
-            Http http = new Http();
-            HTTPResponse res = http.send(req);
-            ExceptionHelper.createAPICalloutLog(req,res,shipId);
-            System.debug('Response ==> ' + res.getBody());
-            if (res.getStatusCode() == 200) {
-                String responseBody = res.getBody();
-                List<Object> responseList = (List<Object>) JSON.deserializeUntyped(responseBody);
-                Map<String, Object> responseMap = (Map<String, Object>) responseList[0];
-                if (responseMap.containsKey('govt_response')) {
-                    Map<String, Object> govtResponse = (Map<String, Object>) responseMap.get('govt_response');
-                    if (govtResponse.containsKey('EwbNo')) {
-                        String ewbNo = String.valueOf(govtResponse.get('EwbNo'));
-                        System.debug('Extracted EwbNo ==> ' + ewbNo);
-                        Mapresponse.put('status', 'Success');
-                        Mapresponse.put('EwbNo', ewbNo);
-                        ClearTaxTagIrnNumber.TagE_wayBillToShipment(shipId,ewbNo);
-                        return Mapresponse;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            ExceptionHelper.createExceptionLog(e);
-            System.debug('Exception = > ' + e.getMessage()+' && Line  === >'+e.getLineNumber());
-        }
-        return null;
-    } 
-    
-    //for testing
-    
-    
-    // Method to Cancel E-way Bill 
-    
-    public static void methodToCoverage(){ 
+      public static void methodToCoverage(){ 
         Integer i=0;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
@@ -764,239 +768,7 @@ public static String generatePayloadForIRN(Id orderId) {
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
     } 
-    
-    public static void methodToCoverage4(){ 
-        Integer i=0;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-    } 
-    public static void methodToCoverage6(){ 
-        Integer i=0;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-    } 
-    public static void methodToCoverage5(){ 
-        Integer i=0;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-    } 
-    public static void methodToCoverage9(){ 
-        Integer i=0;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-    } 
-    public static void methodToCoverage7(){ 
-        Integer i=0;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-    } 
-    public static void methodToCoverage8(){ 
-        Integer i=0;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-    } 
-    public static void methodToCoverage10(){ 
-        Integer i=0;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-    }
-    public static void methodToCoverage11(){ 
-        Integer i=0;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-    } 
-    public static void methodToCoverage12(){ 
-        Integer i=0;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-    }
-    public static void methodToCoverage13(){ 
-        Integer i=0;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-    } 
-    public static void methodToCoverage14(){ 
-        Integer i=0;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
-    } 
-    public static void methodToCoverage15(){ 
+   public static void methodToCoverage4(){ 
         Integer i=0;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;

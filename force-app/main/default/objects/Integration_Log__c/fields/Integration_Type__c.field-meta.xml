@@ -86,6 +86,51 @@
                 <label>Extended Warranty</label>
             </value>
             <value>
+                <fullName>RSA</fullName>
+                <default>false</default>
+                <label>RSA</label>
+            </value>
+            <value>
+                <fullName>Reverse Integration Create Order</fullName>
+                <default>false</default>
+                <label>Reverse Integration Create Order</label>
+            </value>
+            <value>
+                <fullName>Reverse Integration Update Order</fullName>
+                <default>false</default>
+                <label>Reverse Integration Update Order</label>
+            </value>
+            <value>
+                <fullName>Reverse Integration Create Order Product</fullName>
+                <default>false</default>
+                <label>Reverse Integration Create Order Product</label>
+            </value>
+            <value>
+                <fullName>Reverse Integration Delete Order Product</fullName>
+                <default>false</default>
+                <label>Reverse Integration Delete Order Product</label>
+            </value>
+            <value>
+                <fullName>Reverse Integration Create Payment</fullName>
+                <default>false</default>
+                <label>Reverse Integration Create Payment</label>
+            </value>
+            <value>
+                <fullName>Reverse Integration Delete Order Payment</fullName>
+                <default>false</default>
+                <label>Reverse Integration Delete Order Payment</label>
+            </value>
+            <value>
+                <fullName>Reverse Integration Update User</fullName>
+                <default>false</default>
+                <label>Reverse Integration Update User</label>
+            </value>
+            <value>
+                <fullName>Sim Activation</fullName>
+                <default>false</default>
+                <label>Sim Activation</label>
+            </value>
+            <value>
                 <fullName>Lead Creation - CarBike360</fullName>
                 <default>false</default>
                 <isActive>false</isActive>

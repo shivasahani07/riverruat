@@ -176,12 +176,15 @@
             
         </div>
         
-        <!--Upto here-->
+         <!--Upto here-->
         <p style="text-indent: 0pt;text-align: left;"><br/></p>
         <table style="border-collapse:collapse;" cellspacing="0" width="100%">
             <tr style="height:21pt">
                 <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="2">
                     <p class="s3" style="padding-top: 5pt;padding-left: 5pt;padding-right: 4pt;text-indent: 0pt;text-align: left;">Sl. No</p>
+                </td>
+                <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="2">
+                    <p class="s3" style="padding-top: 5pt;padding-left: 9pt;text-indent: 0pt;text-align: left;">Product/Labour Code</p>
                 </td>
                 <td style="width:106pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="2">
                     <p class="s3" style="padding-top: 5pt;padding-left: 33pt;text-indent: 0pt;text-align: left;">Particulars</p>
@@ -190,20 +193,20 @@
                     <p class="s3" style="padding-top: 5pt;padding-left: 9pt;text-indent: 0pt;text-align: left;">HSN Code</p>
                 </td>
                 <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="2">
-                    <p class="s3" style="padding-top: 5pt;padding-left: 9pt;text-indent: 0pt;text-align: left;">Product/Labour Code</p>
-                </td>
-                <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="2">
                     <p class="s3" style="padding-top: 5pt;padding-left: 7pt;text-indent: 0pt;text-align: left;">Qty/Duration Hour</p>
                 </td>
                 <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="2">
-                    <p class="s3" style="padding-top: 5pt;padding-left: 10pt;text-indent: 0pt;text-align: left;">Rate</p>
+                    <p class="s3" style="padding-top: 5pt;padding-left: 10pt;text-indent: 0pt;text-align: left;">Rate (INR)</p>
                 </td>
                 
                 <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="2">
-                    <p class="s3" style="padding-top: 5pt;padding-left: 6pt;text-indent: 0pt;text-align: left;">Discount</p>
+                    <p class="s3" style="padding-top: 5pt;padding-left: 6pt;text-indent: 0pt;text-align: left;">Discount &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;% </p>
                 </td>
                 <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="2">
-                    <p class="s3" style="padding-top: 5pt;padding-left: 10pt;padding-right: 5pt;text-indent: -4pt;text-align: left;">Taxable value</p>
+                    <p class="s3" style="padding-top: 5pt;padding-left: 6pt;text-indent: 0pt;text-align: left;">Discount Amount (INR)</p>
+                </td>
+                <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="2">
+                    <p class="s3" style="padding-top: 5pt;padding-left: 10pt;padding-right: 5pt;text-indent: -4pt;text-align: left;">Taxable value (INR)</p>
                 </td>
                 <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="2">
                     <p class="s3" style="padding-top: 5pt;text-indent: 0pt;text-align: center;">TAX</p>
@@ -219,18 +222,18 @@
                     <p class="s3" style="padding-top: 5pt;text-indent: 0pt;text-align: center;">IGST</p>
                 </td>
                 <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" rowspan="2">
-                    <p class="s3" style="padding-top: 5pt;padding-left: 10pt;text-indent: 0pt;text-align: left;">Total</p>
+                    <p class="s3" style="padding-top: 5pt;padding-left: 10pt;text-indent: 0pt;text-align: left;">Total (INR)</p>
                 </td>
             </tr>
             <tr style="height:21pt">
                 <td style='border-right-width:1pt;border-right-style:solid'>
-                    <p class="s3" style="padding-top: 5pt;padding-left: 1pt;text-indent: 0pt;text-align: center;border-right-width:1pt">Amount</p>
+                    <p class="s3" style="padding-top: 5pt;padding-left: 1pt;text-indent: 0pt;text-align: center;border-right-width:1pt">Amount (INR)</p>
                 </td>
                 <td style='border-right-width:1pt;border-right-style:solid'>
-                    <p class="s3" style="padding-top: 5pt;padding-left: 1pt;text-indent: 0pt;text-align: center;border-right-width:1pt">Amount</p>
+                    <p class="s3" style="padding-top: 5pt;padding-left: 1pt;text-indent: 0pt;text-align: center;border-right-width:1pt">Amount (INR)</p>
                 </td>
                 <td style='border-right-width:1pt;border-right-style:solid'>
-                    <p class="s3" style="padding-top: 5pt;padding-left: 1pt;text-indent: 0pt;text-align: center;border-right-width:1pt">Amount</p>
+                    <p class="s3" style="padding-top: 5pt;padding-left: 1pt;text-indent: 0pt;text-align: center;border-right-width:1pt">Amount (INR)</p>
                 </td>
             </tr>
             <!-- Parts Start -->
@@ -238,7 +241,7 @@
                 <td style="width:22pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                     <p class="s3" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: center;">A</p>
                 </td>
-                <td style="width:527pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="12">
+                <td style="width:527pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="13">
                     <p class="s3" style="padding-top: 1pt;padding-left: 5pt;text-indent: 0pt;text-align: left;">PARTS :</p>
                 </td>
             </tr>
@@ -256,20 +259,24 @@
                     <td style="width:22pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p class="s3" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: center;"><apex:outputText value="{!count}"/></p>
                     </td>
+                    <td style="width:35pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{!item.RR_Product__r.ProductCode}"/></p>
+                    </td>
                     <td style="width:106pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{!item.RR_Product__r.Name}"/></p>
                     </td>
                     <td style="width:35pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{!item.RR_Product__r.HSN_Code__c}"/></p>
                     </td>
-                    <td style="width:35pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{!item.RR_Product__r.ProductCode}"/></p>
-                    </td>
+                    
                     <td style="width:29pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{!item.Quantity}"/></p>
                     </td>
                     <td style="width:38pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.List_Price_New__c}"/></apex:outputText></p>
+                    </td>
+                    <td style="width:40pt;border-top:1pt solid;border-left:1pt solid;border-bottom:1pt solid;border-right:1pt solid;">
+                        <p style="text-indent: 0pt; text-align: center;"><apex:outputPanel rendered="{!NOT(ISBLANK(item.Discount)) && item.Discount != 0}"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Discount}"/> </apex:outputText><apex:outputText value="%"/></apex:outputPanel></p>
                     </td>
                     <td style="width:40pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Total_NDP__c * item.Discount/100}"/></apex:outputText></p>
@@ -311,7 +318,7 @@
                 <td style="width:22pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                     <p class="s3" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: center;">B</p>
                 </td>
-                <td style="width:527pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="12">
+                <td style="width:527pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="13">
                     <p class="s3" style="padding-top: 1pt;padding-left: 5pt;text-indent: 0pt;text-align: left;">LABOUR :</p>
                 </td>
             </tr>
@@ -326,23 +333,28 @@
                     <td style="width:22pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p class="s3" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: center;"><apex:outputText value="{!count}"/></p>
                     </td>
+                    <td style="width:35pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{!item.RR_Labour_Code__r.Code}"/></p>
+                    </td>
                     <td style="width:106pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{!item.Name}"/></p>
                     </td>
                     <td style="width:35pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{!item.RR_Labour_Code__r.HSN_Code__c}"/></p>
                     </td>
-                    <td style="width:35pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{!item.RR_Labour_Code__r.Code}"/></p>
-                    </td>
+                    
                     <td style="width:29pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Duration_Hour__c + (item.Duration_Min__c/60)}"/></apex:outputText></p>
                     </td>
                     <td style="width:38pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Labour_Charge_CodeSet_New__c}"/></apex:outputText></p>
                     </td>
+                    <td style="width:40pt;border-top:1pt solid;border-left:1pt solid;border-bottom:1pt solid;border-right:1pt solid;">
+                        <p style="text-indent: 0pt; text-align: center;"><apex:outputPanel rendered="{!NOT(ISBLANK(item.Discount__c)) && item.Discount__c != 0}"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Discount__c}"/></apex:outputText><apex:outputText value="%"/></apex:outputPanel></p>
+                    </td>
+
                     <td style="width:40pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Discount__c*item.Labour_Charge__c/100}"/></apex:outputText></p>
+                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Labour_Charge__c * item.Discount__c/100}"/></apex:outputText></p>
                     </td>
                     <td style="width:46pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Subtotal__c}"/></apex:outputText></p>
@@ -378,15 +390,15 @@
             
             <tr>
                 <!-- Invoice Total (In Words) spans Sl. No to Tax % -->
-                <td colspan="10" style="border:1pt solid black; padding-left:5pt; padding-top:8pt; padding-bottom:8pt; text-align:left;">
-                    <p style="margin:0;"><b>Invoice Total (In Words): Rs {!invoiceTotalInWords}</b></p>
+                <td colspan="11" style="border:1pt solid black; padding-left:5pt; padding-top:8pt; padding-bottom:8pt; text-align:left;">
+                    <p style="margin:0;"><b>Invoice Total (In Words):  INR  {!invoiceTotalInWords}</b></p>
                 </td>
                 
                 <!-- Invoice Total spans CGST, SGST, IGST -->
                 <td colspan="3" style="border:1pt solid black; padding-left:5pt; padding-top:8pt; padding-bottom:8pt; text-align:left;">
                     <p style="margin:0;">
                         <b>
-                            Invoice Total: 
+                            Invoice Total: INR 
                             <apex:outputText value="{0, number, ###,###,###,##0.00}">
                                 <apex:param value="{!invoiceTotal}"/>
                             </apex:outputText>
@@ -394,11 +406,14 @@
                     </p>
                 </td>
             </tr>
-         
+            
         </table>
         <br/>
         <p style="font-size: 13px;">
             Tax payble on reverse charge basis: <b>No</b>
+        </p>
+        <p style="font-size: 13px; margin-Top: 20px">
+            Mode Of Payment: <b>{!ModPayment}</b>
         </p>
         
     </body>
@@ -419,7 +434,8 @@
         2.The seller is not responsible for any loss or damage to goods in transit.<br/><br/>
         3.The buyer undertakes to submit the prescribed ST<br/>
         <p style='padding-left:12px;font-size:14px;'>declaration to the sender on demand. Disputes, if any,</p>
-    <p style='padding-left:12px;font-size:14px;'>will be subject to the <span>{!IF(ISBLANK(JuriName), 'Sellers', JuriName)}</span> court’s jurisdiction.</p><br/>
+    <p style='padding-left:12px;font-size:14px;'>will be subject to the <span>{!IF(ISBLANK(JuriName), 'Sellers', JuriName)}</span>
+        court’s jurisdiction.</p><br/>
 </p>
 
 <!-- Disclosure -->

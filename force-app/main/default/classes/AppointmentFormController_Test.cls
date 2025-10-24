@@ -15,12 +15,15 @@ public with sharing class AppointmentFormController_Test {
 
         // --------------------------- TESTING getServiceCenters() --------------------------- //
         AppointmentFormController.getServiceCenters();
-
+          Schema.Location testLocation = new Schema.Location(Name = 'Test Location', LocationType = 'State',State__c = 'Karnataka');
+        insert testLocation;         
         // Create Contact
         Contact con = new Contact(
             AccountId = acc.Id,    
             FirstName = 'Joey', 
             LastName = 'Shaul',
+           
+            Location__c=testLocation.Id,Role_Type__c='Sales',
             Phone = '8967452312');
         insert con;
 
@@ -390,6 +393,7 @@ public with sharing class AppointmentFormController_Test {
             v1.VehicleRegistrationNumber,
             Date.today().addDays(3),
             '9876543210',
+            'PMS',
             slot.Id,
             slotItem.Id,
             'Same issue is coming again - appointment description'
@@ -401,6 +405,7 @@ public with sharing class AppointmentFormController_Test {
             v1.VehicleRegistrationNumber,
             Date.today().addDays(3),
             '9876543210',
+            'PMS',
             slot.Id,
             slotItem.Id,
             'Same issue is coming again - appointment description'

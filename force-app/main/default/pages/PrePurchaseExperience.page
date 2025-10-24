@@ -1,21 +1,25 @@
 <!--
-  @description       : 
-  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
-  @group             : 
-  @last modified on  : 07-17-2025
-  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+@description       : 
+@author            : ChangeMeIn@UserSettingsUnder.SFDoc
+@group             : 
+@last modified on  : 07-17-2025
+@last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 -->
 <apex:page controller="FeedbackResponseController" showHeader="false" sidebar="false" standardStylesheets="false">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
     <apex:includeScript value="/soap/ajax/43.0/connection.js"/>
     <apex:includeScript value="/soap/ajax/43.0/apex.js"/>
-   
+    
     <style>
         body {
         font-family: Arial, sans-serif;
         margin: 0;
+        font-size: 150%;
         background-color: #f9f9f9;
         }
-       
+        
         .header {
         background-color: #037CB5;
         color: white;
@@ -25,8 +29,9 @@
         width: 100%;
         max-width: 100vw;
         height: auto;
+        margin-top:5%;
         }
-       
+        
         .header-logo {
         height: 100px;
         width: auto;
@@ -35,7 +40,7 @@
         top: 50%;
         transform: translateY(-50%);
         }
-       
+        
         .user-name {
         position: absolute;
         left: 50%;
@@ -46,79 +51,79 @@
         white-space: nowrap;
         color: white;
         }
-       
+        
         .highlight {
         color: #f7ec2a;
         font-weight: bold;
         }
-       
+        
         @media (max-width: 768px) {
         .header-logo {
         height: 80px;
         left: 10px;
         }
-       
+        
         .user-name {
         font-size: 20px;
         }
         }
-       
+        
         @media (max-width: 480px) {
         .header-logo {
         height: 60px;
         left: 5px;
         }
-       
+        
         .user-name {
         font-size: 18px;
         }
         }
-       
+        
         h2 {
         font-size: 24px;
         margin-top: 40px;
         }
-       
+        
         p {
         font-size: 18px;
         color: #666;
         margin-bottom: 30px;
         }
-       
+        
         .stars {
-        font-size: 4em;
+        font-size: 3em;
         color: #ccc;
         margin-bottom: 20px;
         cursor: pointer;
         }
-       
+        
         .star.selected {
         color: #FFD700;
         }
-       
+        
         .question-title {
         font-weight: bold;
         margin-bottom: 20px;
         text-align: left;
         font-size: 18px;
         }
-       
+        
         .question-block {
         margin-top: 3%;
         }
-       
+        
         .option-group {
         display: inline-block;
         text-align: left;
         margin: 0 auto 30px auto;
         }
-       
+        
         .option-group label {
         display: block;
         margin: 10px 0;
         font-size: 18px;
         }
-       
+        
         #submitBtn {
         background-color: #037CB5;
         color: white;
@@ -128,7 +133,7 @@
         border-radius: 5px;
         cursor: pointer;
         }
-       
+        
         #submitBtnWrapper {
         display: none;
         margin-top: 20px;
@@ -143,7 +148,7 @@
         gap: 8px;
         color:#007DB6;
         }
-       
+        
         #submitBtn:disabled {
         background-color: #cccccc;  
         color: #666666;
@@ -151,7 +156,7 @@
         border: none;
         width: 156px;
         }
-       
+        
         .success-message {
         text-align: center;
         padding: 80px 20px;
@@ -163,12 +168,12 @@
         letter-spacing: 0%;
         text-align: center;
         }
-       
+        
         .success-checkmark {
         font-size: 80px;
         color: #4BB543;
         }
-       
+        
         /* New styles for Other option */
         #otherTextInput {
         border: 1px solid #ccc;
@@ -179,43 +184,43 @@
         width: 100%;
         box-sizing: border-box;
         }
-       
+        
         #otherTextContainer {
         margin: 10px 0 20px 0;
         display: none;
         }
-       
+        
         #otherTextContainer label {
         font-weight: normal;
         color: #666;
         font-size: 16px;
         }
- 
+        
         /* New styles for expired message */
         .expired-message {
-            text-align: center;
-            padding: 80px 20px;
-            display: none;
-            font-family: DM Sans;
-            font-weight: 800;
-            font-size: 24px;
-            line-height: 41.73px;
+        text-align: center;
+        padding: 80px 20px;
+        display: none;
+        font-family: DM Sans;
+        font-weight: 800;
+        font-size: 24px;
+        line-height: 41.73px;
         }
-       
+        
         .expired-icon {
-            font-size: 80px;
-            color: #FF0000;
+        font-size: 80px;
+        color: #FF0000;
         }
     </style>
-   
+    
     <div class="header">
         <img src="{!URLFOR($Resource.Ride_River_Logo_LWC)}" alt="Ride River Logo" class="header-logo" />
-       
+        
         <apex:outputPanel rendered="{!NOT(ISNULL(currentLead))}">
             <div class="user-name"><span class="highlight">Hi!</span> {!currentLead.Name}</div>
-        </apex:outputPanel>
+        </apex:outputPanel> 
     </div>
-   
+    
     <!-- Main Content -->
     <div id="mainContent" style="text-align: center;">
         <h2>Thank you for visiting the River Store!</h2>
@@ -223,7 +228,7 @@
             We'd love to hear about your experience. Please take a<br/>
             moment to complete this short survey.
         </p>
-       
+        
         <div class="stars" id="starContainer">
             <span class="star" data-value="1">&#9733;</span>
             <span class="star" data-value="2">&#9733;</span>
@@ -231,43 +236,43 @@
             <span class="star" data-value="4">&#9733;</span>
             <span class="star" data-value="5">&#9733;</span>
         </div>
-       
+        
         <div class="question-block" id="questionBlock" style="display:none;">
             <div class="option-group">
                 <div class="question-title" id="questionTitle"></div>
                 <div id="optionsContainer"></div>
             </div>
         </div>
-       
+        
         <div id="submitBtnWrapper">
             <button id="submitBtn"  disabled="disabled">Submit</button>
         </div>
     </div>
     <!-- Success Message for first submission -->
-<div class="success-message" id="thankYouMessage" style="display:none;">
-    <div class="success-checkmark">&#10004;</div>
-    <h2>Thank You for Your Feedback!</h2>
-    <p>We appreciate you taking the time to share your experience with us.<br/>
-        Your feedback helps us improve our services.
-    </p>
-</div>
-
-<!-- Already Submitted Message -->
-<div class="success-message" id="alreadySubmittedMessage" style="display:none;">
-    <div class="success-checkmark">&#10004;</div>
-    <h2>Feedback Already Submitted</h2>
-    <p>Thanks for sharing your thoughts! We've already received your feedback.<br/>
-        If you need to update or have more to say, feel free to contact our team.
-    </p>
-</div>
- 
+    <div class="success-message" id="thankYouMessage" style="display:none;">
+        <div class="success-checkmark">&#10004;</div>
+        <h2>Thank You for Your Feedback!</h2>
+        <p>We appreciate you taking the time to share your experience with us.<br/>
+            Your feedback helps us improve our services.
+        </p>
+    </div>
+    
+    <!-- Already Submitted Message -->
+    <div class="success-message" id="alreadySubmittedMessage" style="display:none;">
+        <div class="success-checkmark">&#10004;</div>
+        <h2>Feedback Already Submitted</h2>
+        <p>Thanks for sharing your thoughts! We've already received your feedback.<br/>
+            If you need to update or have more to say, feel free to contact our team.
+        </p>
+    </div>
+    
     <!-- Expired Message -->
     <div class="expired-message" id="expiredMessage" style="display:none;">
         <div class="expired-icon">&#9888;</div>
         <h2>Oops! this Link isn't active anymore</h2>
         <p>Looks like this feeedback link has expired or been used already.</p>
     </div>
-   
+    
     <!-- JavaScript -->
     <script>
     let rating = 0;
@@ -278,41 +283,41 @@
     let leadId = null;
     let feedbackSubmitted = false;
     let linkExpired = false;
- 
+    
     function getUrlParameter(name) {
         const params = new URLSearchParams(window.location.search);
         return params.get(name);  
     }
- 
+    
     function renderOptions(options, type) {
         const container = document.getElementById('optionsContainer');
         container.innerHTML = '';
         const inputType = 'checkbox';
-       
+        
         options.forEach(opt => {
             const label = document.createElement('label');
             label.style.display = 'block';
             label.style.margin = '10px 0';
             label.innerHTML = `<input type="${inputType}" value="${opt}" ${opt === 'Other' ? 'data-is-other="true"' : ''}> ${opt}`;
                         container.appendChild(label);
-       
+        
         if (opt === 'Other') {
             const textareaContainer = document.createElement('div');
             textareaContainer.id = 'otherTextContainer';
             textareaContainer.style.display = 'none';
             textareaContainer.style.marginTop = '20px';
-           
+            
             textareaContainer.innerHTML = `
-    <label for="otherTextInput" style="display: block; margin-bottom: 5px;">Please specify:</label>
-    <textarea
-        id="otherTextInput"
-        placeholder="Enter your feedback here..."
-        style="width: 100%;  display: block;"
-    ></textarea>
-`;
- 
-            container.appendChild(textareaContainer);
-            const otherCheckbox = label.querySelector('input');
+            <label for="otherTextInput" style="display: block; margin-bottom: 5px;">Additional Comment:</label>
+                <textarea
+                id="otherTextInput"
+                placeholder="Enter your feedback here..."
+                style="width: 100%;  display: block;"
+                ></textarea>
+                `;
+                
+                container.appendChild(textareaContainer);
+                                      const otherCheckbox = label.querySelector('input');
             otherCheckbox.addEventListener('change', function() {
                 if (this.checked) {
                     textareaContainer.style.display = 'block';
@@ -329,245 +334,245 @@
     });
         validateForm();
     }
-       
-    function validateForm() {
+        
+        function validateForm() {
         const submitBtn = document.getElementById('submitBtn');
         const checkboxes = document.querySelectorAll('#optionsContainer input[type="checkbox"]:checked');
         submitBtn.disabled = checkboxes.length === 0;
     }
-       
-    function getSelectedAnswers() {
+        
+        function getSelectedAnswers() {
         const selected = [];
         const inputs = document.querySelectorAll('#optionsContainer input:checked');
-       
+        
         inputs.forEach(input => {
-            selected.push(input.value);
-        });
-       
+        selected.push(input.value);
+    });
+        
         return selected;
     }
-       
-    function loadFeedbackQuestions() {
+        
+        function loadFeedbackQuestions() {
         const formName = 'Pre-Purchase Experience';
         Visualforce.remoting.Manager.invokeAction(
-            '{!$RemoteAction.FeedbackResponseController.getAllFeedbackQuestions}',
-            formName,
-            function(result, event) {
-                if (event.status) {
-                    allQuestions = result;
-                }
-            }
+        '{!$RemoteAction.FeedbackResponseController.getAllFeedbackQuestions}',
+        formName,
+        function(result, event) {
+        if (event.status) {
+        allQuestions = result;
+    }
+    }
         );
     }
-       
-    function createFeedbackRecord() {
-    console.log('Attempting to create feedback record for lead:', leadId);
-    Visualforce.remoting.Manager.invokeAction(
+        
+        function createFeedbackRecord() {
+        console.log('Attempting to create feedback record for lead:', leadId);
+        Visualforce.remoting.Manager.invokeAction(
         '{!$RemoteAction.FeedbackResponseController.createEmptyResponse}',
         leadId,
         function(result, event) {
-            console.log('Remote action completed', event);
-            if (event.status) {
-                responseId = result;
-                console.log('Created Feedback Record ID:', responseId);
-            } else {
-                console.error('Remote action failed:', event.message);
-                alert('Could not create feedback session: ' + event.message);
-            }
-        },
+        console.log('Remote action completed', event);
+        if (event.status) {
+        responseId = result;
+        console.log('Created Feedback Record ID:', responseId);
+    } else {
+        console.error('Remote action failed:', event.message);
+        alert('Could not create feedback session: ' + event.message);
+    }
+    },
         {escape: false}
-    );
-}
- 
+                                                                );
+    }
+    
     function checkLinkExpiration(sentDateTime) {
         if (!sentDateTime) return false;
-       
+        
         const sentDate = new Date(sentDateTime);
         const currentDate = new Date();
         const diffHours = Math.abs(currentDate - sentDate) / 36e5; // hours
-       
+        
         // return diffHours >= 24;
         return false;//added by Aniket on 17/07/2025
     }
-
-function checkExistingFeedback() {
-    Visualforce.remoting.Manager.invokeAction(
-        '{!$RemoteAction.FeedbackResponseController.checkExistingFeedback}',
-        leadId,
-        function(result, event) {
-            if (event.status) {
-                if (result) {
-                    if (result.Sent_Date_Time__c && isLinkExpired(result.Sent_Date_Time__c)) {
-                        showExpiredMessage();
-                        return;
-                    }
-                    if ((result.Response_Status__c && result.Response_Status__c.toLowerCase() === 'submitted') && 
-                        result.Submitted_Date_Time__c) {
-                        showAlreadySubmittedMessage();
-                        return;
-                    }
-                    if (result.Id) {
-                        responseId = result.Id;
-                        console.log('Existing feedback record found (not submitted):', responseId);
-                    }
-                } else {
-                    console.log('No feedback record found, creating new one');
-                    createFeedbackRecord();
-                }
-            } else {
-                console.error('Error checking existing feedback:', event.message);
-            }
-        }
-    );
-}
-
-function isLinkExpired(sentDateTime) {
-    const sentDate = new Date(sentDateTime);
-    const currentDate = new Date();
-    const diffHours = Math.abs(currentDate - sentDate) / 36e5; // hours
-    console.log('Current time:', currentDate);
-    console.log('Sent time:', sentDate);
-    console.log('Difference in hours:', diffHours);
-    // return diffHours >= 24;
-    return false;//added by Aniket on 17/07/2025
-}
-
-function showExpiredMessage() {
-    const mainContent = document.getElementById('mainContent');
-    const successMessage = document.getElementById('successMessage');
-    const alreadySubmittedMessage = document.getElementById('alreadySubmittedMessage');
-    const expiredMessage = document.getElementById('expiredMessage');
-
-    if (mainContent) mainContent.style.display = 'none';
-    else console.warn('#mainContent not found');
-
-    if (successMessage) successMessage.style.display = 'none';
-    else console.warn('#successMessage not found');
-
-    if (alreadySubmittedMessage) alreadySubmittedMessage.style.display = 'none';
-    else console.warn('#alreadySubmittedMessage not found');
-
-    if (expiredMessage) expiredMessage.style.display = 'block';
-    else console.warn('#expiredMessage not found');
-
-    linkExpired = true;
-    feedbackSubmitted = false;
-}
-
-
-function showAlreadySubmittedMessage() {
-    const mainContent = document.getElementById('mainContent');
-    const thankYouMessage = document.getElementById('thankYouMessage');
-    const alreadySubmittedMessage = document.getElementById('alreadySubmittedMessage');
-    const expiredMessage = document.getElementById('expiredMessage');
-
-    if (mainContent) mainContent.style.display = 'none';
-    else console.warn('#mainContent not found');
-
-    if (thankYouMessage) thankYouMessage.style.display = 'none';
-    else console.warn('#thankYouMessage not found');
-
-    if (alreadySubmittedMessage) alreadySubmittedMessage.style.display = 'block';
-    else console.warn('#alreadySubmittedMessage not found');
-
-    if (expiredMessage) expiredMessage.style.display = 'none';
-    else console.warn('#expiredMessage not found');
-
-    feedbackSubmitted = true;
-    linkExpired = false;
-}
-
-
-document.getElementById('submitBtn').addEventListener('click', () => {
-    if (linkExpired) return;
     
-    const answers = getSelectedAnswers();
-    const otherText = document.getElementById('otherTextInput')?.value.trim() || '';
-    
-    if (answers.length === 0) {
-        return alert('Please select at least one option.');
-    }
-                                                        
-    const formUrl = window.location.href;
-                                                        
-    Visualforce.remoting.Manager.invokeAction(
-        '{!$RemoteAction.FeedbackResponseController.saveFeedback}',
-        responseId,
-        leadId,
-        rating,
-        currentQuestionId,
-        answers.join(', '),
-        otherText,        
-        formUrl,
-        function(result, event) {
-            if (event.status) {
-                document.getElementById('mainContent').style.display = 'none';
-                document.getElementById('thankYouMessage').style.display = 'block';
-                document.getElementById('alreadySubmittedMessage').style.display = 'none';
-                document.getElementById('expiredMessage').style.display = 'none';
-            } else {
-                alert('Failed to submit feedback.');
-            }
-        }
-    );
-});
-       
-    document.querySelectorAll('.star').forEach(star => {
-        star.addEventListener('click', () => {
-            if (linkExpired) return;
-           
-            rating = parseInt(star.dataset.value);
-            document.querySelectorAll('.star').forEach(s => {
-                s.classList.toggle('selected', parseInt(s.dataset.value) <= rating);
-            });
-       
-            const type = rating <= 3 ? 'negative' : 'positive';
-            const question = allQuestions[type];
-            if (!question) return;
-       
-            currentQuestionId = question.questionId;
-            currentQuestionType = question.type;
-       
-            document.getElementById('questionTitle').innerText = question.question;
-            renderOptions(question.options, currentQuestionType);
-       
-            document.getElementById('questionBlock').style.display = 'block';
-            document.getElementById('submitBtnWrapper').style.display = 'block';
-        });
-    });
-    document.getElementById('submitBtn').addEventListener('click', () => {
-        if (linkExpired) return;
-       
-        const answers = getSelectedAnswers();
-        const otherText = document.getElementById('otherTextInput')?.value.trim() || '';
-       
-        if (answers.length === 0) {
-            return alert('Please select at least one option.');
-        }
-                                                         
-        const formUrl = window.location.href;
-                                                         
+    function checkExistingFeedback() {
         Visualforce.remoting.Manager.invokeAction(
-            '{!$RemoteAction.FeedbackResponseController.saveFeedback}',
-            responseId,
+            '{!$RemoteAction.FeedbackResponseController.checkExistingFeedback}',
             leadId,
-            rating,
-            currentQuestionId,
-            answers.join(', '),
-            otherText,        
-            formUrl,
             function(result, event) {
                 if (event.status) {
-                    document.getElementById('mainContent').style.display = 'none';
-                    document.getElementById('successMessage').style.display = 'block';
-                    document.getElementById('expiredMessage').style.display = 'none';
+                    if (result) {
+                        if (result.Sent_Date_Time__c && isLinkExpired(result.Sent_Date_Time__c)) {
+                            showExpiredMessage();
+                            return;
+                        }
+                        if ((result.Response_Status__c && result.Response_Status__c.toLowerCase() === 'submitted') && 
+                            result.Submitted_Date_Time__c) {
+                            showAlreadySubmittedMessage();
+                            return;
+                        }
+                        if (result.Id) {
+                            responseId = result.Id;
+                            console.log('Existing feedback record found (not submitted):', responseId);
+                        }
+                    } else {
+                        console.log('No feedback record found, creating new one');
+                        createFeedbackRecord();
+                    }
                 } else {
-                    alert('Failed to submit feedback.');
+                    console.error('Error checking existing feedback:', event.message);
                 }
             }
         );
+    }
+    
+    function isLinkExpired(sentDateTime) {
+        const sentDate = new Date(sentDateTime);
+        const currentDate = new Date();
+        const diffHours = Math.abs(currentDate - sentDate) / 36e5; // hours
+        console.log('Current time:', currentDate);
+        console.log('Sent time:', sentDate);
+        console.log('Difference in hours:', diffHours);
+        // return diffHours >= 24;
+        return false;//added by Aniket on 17/07/2025
+    }
+    
+    function showExpiredMessage() {
+        const mainContent = document.getElementById('mainContent');
+        const successMessage = document.getElementById('successMessage');
+        const alreadySubmittedMessage = document.getElementById('alreadySubmittedMessage');
+        const expiredMessage = document.getElementById('expiredMessage');
+        
+        if (mainContent) mainContent.style.display = 'none';
+        else console.warn('#mainContent not found');
+        
+        if (successMessage) successMessage.style.display = 'none';
+        else console.warn('#successMessage not found');
+        
+        if (alreadySubmittedMessage) alreadySubmittedMessage.style.display = 'none';
+        else console.warn('#alreadySubmittedMessage not found');
+        
+        if (expiredMessage) expiredMessage.style.display = 'block';
+        else console.warn('#expiredMessage not found');
+        
+        linkExpired = true;
+        feedbackSubmitted = false;
+    }
+    
+    
+    function showAlreadySubmittedMessage() {
+        const mainContent = document.getElementById('mainContent');
+        const thankYouMessage = document.getElementById('thankYouMessage');
+        const alreadySubmittedMessage = document.getElementById('alreadySubmittedMessage');
+        const expiredMessage = document.getElementById('expiredMessage');
+        
+        if (mainContent) mainContent.style.display = 'none';
+        else console.warn('#mainContent not found');
+        
+        if (thankYouMessage) thankYouMessage.style.display = 'none';
+        else console.warn('#thankYouMessage not found');
+        
+        if (alreadySubmittedMessage) alreadySubmittedMessage.style.display = 'block';
+        else console.warn('#alreadySubmittedMessage not found');
+        
+        if (expiredMessage) expiredMessage.style.display = 'none';
+        else console.warn('#expiredMessage not found');
+        
+        feedbackSubmitted = true;
+        linkExpired = false;
+    }
+    
+    
+    document.getElementById('submitBtn').addEventListener('click', () => {
+        if (linkExpired) return;
+        
+        const answers = getSelectedAnswers();
+        const otherText = document.getElementById('otherTextInput')?.value.trim() || '';
+        
+        if (answers.length === 0) {
+        return alert('Please select at least one option.');
+    }
+                                                          
+                                                          const formUrl = window.location.href;
+                                                          
+                                                          Visualforce.remoting.Manager.invokeAction(
+                                                          '{!$RemoteAction.FeedbackResponseController.saveFeedback}',
+                                                          responseId,
+                                                          leadId,
+                                                          rating,
+                                                          currentQuestionId,
+                                                          answers.join(', '),
+        otherText,        
+        formUrl,
+        function(result, event) {
+        if (event.status) {
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('thankYouMessage').style.display = 'block';
+            document.getElementById('alreadySubmittedMessage').style.display = 'none';
+            document.getElementById('expiredMessage').style.display = 'none';
+        } else {
+            alert('Failed to submit feedback.');
+        }
+    }
+    );
     });
-   
+    
+    document.querySelectorAll('.star').forEach(star => {
+        star.addEventListener('click', () => {
+        if (linkExpired) return;
+        
+        rating = parseInt(star.dataset.value);
+        document.querySelectorAll('.star').forEach(s => {
+        s.classList.toggle('selected', parseInt(s.dataset.value) <= rating);
+    });
+        
+        const type = rating <= 3 ? 'negative' : 'positive';
+        const question = allQuestions[type];
+        if (!question) return;
+        
+        currentQuestionId = question.questionId;
+        currentQuestionType = question.type;
+        
+        document.getElementById('questionTitle').innerText = question.question;
+        renderOptions(question.options, currentQuestionType);
+        
+        document.getElementById('questionBlock').style.display = 'block';
+        document.getElementById('submitBtnWrapper').style.display = 'block';
+    });
+    });
+    document.getElementById('submitBtn').addEventListener('click', () => {
+        if (linkExpired) return;
+        
+        const answers = getSelectedAnswers();
+        const otherText = document.getElementById('otherTextInput')?.value.trim() || '';
+        
+        if (answers.length === 0) {
+        return alert('Please select at least one option.');
+    }
+                                                          
+                                                          const formUrl = window.location.href;
+                                                          
+                                                          Visualforce.remoting.Manager.invokeAction(
+                                                          '{!$RemoteAction.FeedbackResponseController.saveFeedback}',
+                                                          responseId,
+                                                          leadId,
+                                                          rating,
+                                                          currentQuestionId,
+                                                          answers.join(', '),
+        otherText,        
+        formUrl,
+        function(result, event) {
+        if (event.status) {
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('expiredMessage').style.display = 'none';
+        } else {
+            alert('Failed to submit feedback.');
+        }
+    }
+    );
+    });
+    
     window.onload = function() {
         leadId = getUrlParameter('id');
         console.log('Extracted leadId:', leadId);

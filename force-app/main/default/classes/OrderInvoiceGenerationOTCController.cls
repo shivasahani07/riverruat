@@ -2,7 +2,7 @@
 * @description       : 
 * @author            : Aniket Karmakar
 * @group             : 
-* @last modified on  : 09-16-2025
+* @last modified on  : 10-14-2025
 * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public without sharing class OrderInvoiceGenerationOTCController {
@@ -17,6 +17,9 @@ public without sharing class OrderInvoiceGenerationOTCController {
             List<Id> orderIdsToProcessWhenAssignedVehicle = new List<Id>();
             if(!newOrderList.isEmpty()){
                 for(Order o : newOrderList){
+                    if(o.RecordTypeId != otcRecordTypeId){
+                        return;
+                    }
                     if(o.RecordTypeId == otcRecordTypeId && o.Assigned_Vehicle__c != null && o.Status == 'Invoice Generation' && o.Status != oldOrderMap.get(o.Id).Status){
                         orderIds.add(o.Id);
                         vehicleIds.add(o.Assigned_Vehicle__c);
@@ -25,6 +28,7 @@ public without sharing class OrderInvoiceGenerationOTCController {
             }
             System.debug('orderIds==>'+orderIds);
             System.debug('vehicleIds==>'+vehicleIds);
+            System.debug('Daliya Changed UAT Org');
             Map<Id, Vehicle> vehicleMap = new Map<Id, Vehicle>();
             if (!vehicleIds.isEmpty()) {
                 for (Vehicle v : [SELECT Id, Purchased_Date__c, ChassisNumber, Name,VehicleIdentificationNumber, RR_Battery_Number__c, EngineNumber, Charger_PC_Number__c, Account__c, Account__r.Center_Code__c,CurrentOwnerId,CurrentOwner.Center_Code__c, CreatedDate,Dealer__r.Center_Code__c

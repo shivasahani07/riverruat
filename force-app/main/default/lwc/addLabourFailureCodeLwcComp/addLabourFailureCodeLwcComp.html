@@ -8,69 +8,48 @@
                 <div class="slds-grid slds-wrap slds-gutters">
                     <!-- Failure Code Field -->
                     <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                       <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                                <lightning-record-picker label="Select product" object-api-name="CodeSet"
-                                     onchange={recordChangeHandler} name="CodeSet"
-                                    display-info={displayInfo} record-id={selectedrecord} lwc:ref="myPicker">
-                                </lightning-record-picker>
-                            </div>
+
+                        <lightning-record-picker label="Select labour" object-api-name="CodeSet"
+                            onchange={recordChangeHandler} name="CodeSet" display-info={displayInfo}
+                            record-id={selectedrecord} lwc:ref="myPicker">
+                        </lightning-record-picker>
+
                     </div>
 
                     <!-- Batch Size Field -->
                     <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                                <!-- <lightning-record-picker label="Select existing failurecode Code" object-api-name="Failure_Code__c"
+
+                        <!-- <lightning-record-picker label="Select existing failurecode Code" object-api-name="Failure_Code__c"
                                     filter={fcfilter}  name="failurecode"
                                      lwc:ref="myPicker">
                                 </lightning-record-picker> -->
 
-                                <lightning-input type="search" label="Search Failure Codes" value={searchKey}
-                                    onchange={handleSearchChange}>
-                                </lightning-input>
+                        <lightning-input type="search" label="Search Failure Codes" value={searchKey}
+                            onchange={handleSearchChange}>
+                        </lightning-input>
 
-                                <template if:true={recordsGetter}>
-                                    <div class="custom-list-container slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                                        <ul class="slds-listbox slds-listbox_vertical slds-dropdown">
-                                            <template for:each={records} for:item="rec">
-                                                <li key={rec.Id} class="slds-listbox__item custom-list-item" 
-                                                    onclick={handleSelect} data-id={rec.Id}>
-                                                    <div class="slds-media slds-listbox__option slds-listbox__option_entity">
-                                                        <div class="slds-media__body">
-                                                            <span class="slds-truncate">
-                                                                <p class="custom-item-text">{rec.Name}, {rec.VIN_Cut_off_No__c}</p>    
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            </template>
-                                        </ul>
-                                    </div>
-                                </template>
-<!-- 
-                                <template if:true={recordsGetter}>
-                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                                        <ul class="slds-listbox slds-listbox_vertical slds-dropdown">
-                                            <template for:each={records} for:item="rec">
-                                                <li key={rec.Id} class="slds-listbox__item" onclick={handleSelect}
-                                                    data-id={rec.Id}>
-                                                    <div
-                                                        class="slds-media slds-listbox__option slds-listbox__option_entity">
-                                                        <div class="slds-media__body">
-                                                            <span class="slds-truncate">
-                                                            <p>{rec.Name},{rec.VIN_Cut_off_No__c}</p>    
-                                                        </span>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            </template>
-                                        </ul>
-                                    </div>
-                                </template> -->
-
-                                <template if:true={selectedRecord}>
-                                    <p>✅ Selected: {selectedRecord.Name}</p>
-                                </template>
+                        <template if:true={recordsGetter}>
+                            <div class="custom-list-container slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                <ul class="slds-listbox slds-listbox_vertical slds-dropdown">
+                                    <template for:each={records} for:item="rec">
+                                        <li key={rec.Id} class="slds-listbox__item custom-list-item"
+                                            onclick={handleSelect} data-id={rec.Id}>
+                                            <div class="slds-media slds-listbox__option slds-listbox__option_entity">
+                                                <div class="slds-media__body">
+                                                    <span class="slds-truncate">
+                                                        <p class="custom-item-text">{rec.Name}, {rec.VIN_Cut_off_No__c}</p>    
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </template>
+                                </ul>
                             </div>
+                        </template>
+                        <template if:true={selectedRecord}>
+                            <p>✅ Selected: {selectedRecord.Name}</p>
+                        </template>
+
                     </div>
 
                     <!-- Labour Code Field -->
@@ -83,8 +62,14 @@
 
                     <!-- VIN Cutoff Field -->
                     <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input label="Sample Required" type="number" value={failureCode.batchSize}
+                            data-field="batchSize" onchange={handleInputChange} class="input-field" min="0">
+                        </lightning-input>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
                         <lightning-input label="VIN Cutoff" value={failureCode.vinCutoff} data-field="vinCutoff"
-                            onchange={handleInputChange} variant="label-stacked" class="input-field" maxlength="17"
+                            onchange={handleInputChange} class="input-field" maxlength="17"
                             message-when-pattern-mismatch="VIN must be 17 alphanumeric characters">
                         </lightning-input>
                     </div>
@@ -131,7 +116,7 @@
                     <div class="slds-notification" class:slds-theme_success={messages.isSuccess}
                         class:slds-theme_error={messages.isSuccess}>
                         <div class="slds-notification__body">
-                            <div class="slds-grid slds-grid_align-spread">
+                            <div class="slds-grid slds-grid_align-spread slds-var-p-around_large">
                                 <p class="slds-text-body_regular">{messages.message}</p>
                                 <lightning-icon icon-name="utility:success" alternative-text="Success" size="small"
                                     if:true={messages.isSuccess}

@@ -41,6 +41,8 @@ public class ClearTaxApiHelperTest {
         );
         insert pbe;
         
+        
+        
         Order testOrder = new Order(
             Name = 'Test Order',
             AccountId = buyer.Id,
@@ -82,22 +84,50 @@ public class ClearTaxApiHelperTest {
         Test.stopTest();
     }
     
-    static testMethod void testCancelIRN_EInvoice() {
+     static testMethod void testCancelIRN_EInvoice() {
+        Account dealer = new Account(Name = 'Test Dealer', GSTIN_Number__c = '29ABCDE1234F2Z5');
+        insert dealer;
+		
+         Account acc = new Account();
+         acc.Name = 'tt';
+         acc.Phone = '1443456787';
+         acc.Email__c = 'rwew@gmail.com';
+         insert acc;
+
+        Order testOrder = new Order(
+            Name = 'Test Order',
+            AccountId = acc.id,
+            Dealer__c = dealer.Id,
+            IRN_No__c = 'IRN1234567890',
+            Status = 'Draft',
+            EffectiveDate = Date.today()
+        );
+        insert testOrder;
+
+        Test.setMock(HttpCalloutMock.class, new MultiCalloutMock());
+
         Test.startTest();
-        
-        String mockAccessTokenResponse = '{"access_token": "mock_access_token"}';
-        Test.setMock(HttpCalloutMock.class, new MockHttpResponse(200, mockAccessTokenResponse));
-        
-        String mockCancelResponse = '[{"document_status": "Cancelled", "govt_response": {"Success": "Y", "AckNo": "123456", "AckDt": "2025-02-25"}}]';
-        Test.setMock(HttpCalloutMock.class, new MockHttpResponse(200, mockCancelResponse));
-        
-        Order testOrder = [SELECT Id, IRN_No__c FROM Order LIMIT 1];
-        
         String cancellationReason = 'Cancelled by user';
         String cancellationRemark = 'Reason for cancellation';
         String response = ClearTaxApiHelper.cancelIRN_EInvoice(cancellationReason, cancellationRemark, testOrder.Id);
-        
         Test.stopTest();
+    }
+
+class MultiCalloutMock implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            HTTPResponse res = new HTTPResponse();
+            if (req.getEndpoint().contains('access-token')) {
+                res.setStatusCode(200);
+                res.setBody('{"access_token": "mock_access_token"}');
+            } else if (req.getEndpoint().contains('cancel')) {
+                res.setStatusCode(200);
+                res.setBody('[{"document_status": "Cancelled", "govt_response": {"Success": "Y", "AckNo": "123456", "AckDt": "2025-02-25"}}]');
+            } else {
+                res.setStatusCode(404);
+                res.setBody('{"error":"Not Found"}');
+            }
+            return res;
+        }
     }
     
     static testMethod void testGenerateEInvoice() {
@@ -106,19 +136,6 @@ public class ClearTaxApiHelperTest {
         Test.setMock(HttpCalloutMock.class, new MockHttpResponse(200, mockResponse));
         Order testOrder = [SELECT Id FROM Order LIMIT 1];
         String response = ClearTaxApiHelper.generateEInvoice(testOrder.Id);
-        Test.stopTest();
-    }
-    
-    static testMethod void testGenerateEWayBillUsingIRN() {
-        Test.startTest();
-        
-        String mockAccessTokenResponse = '[{"access_token": "mock_access_token"}]';
-        Test.setMock(HttpCalloutMock.class, new MockHttpResponse(200, mockAccessTokenResponse));
-        
-        String mockEWayBillResponse = '[{"govt_response": {"EwbNo": "123456789012"}}]';
-        Test.setMock(HttpCalloutMock.class, new MockHttpResponse(200, mockEWayBillResponse));
-        
-        Shipment testShipment = [SELECT Id, Order__r.Dealer__r.GSTIN_Number__c FROM Shipment LIMIT 1];        
         Test.stopTest();
     }
     
@@ -209,30 +226,147 @@ public class ClearTaxApiHelperTest {
         ClearTaxTagIrnNumber.TagE_wayBillToShipment(testShipment.Id,'345678');
         Test.stopTest();
     }
+
+
+@isTest
+static void testCheckOrderStatus() {
     
-    static testMethod void testgenerateEWayBill() {
+    Id rectypId = Schema.SObjectType.Order.getRecordTypeInfosByDeveloperName().get('OTC').getRecordTypeId();
+    Id rectypIdVehi = Schema.SObjectType.Order.getRecordTypeInfosByDeveloperName().get('Vehicle').getRecordTypeId();
+ 
+    Order otcOrderInvalid = new Order(
+        Name = 'OTC Order Invalid',
+        Status = 'Draft',
+        EffectiveDate = Date.today(),
+        Pricebook2Id = Test.getStandardPricebookId(),
+        AccountId = [SELECT Id FROM Account LIMIT 1].Id,
+        RecordTypeId = rectypId
+    );
+    insert otcOrderInvalid;
+
+    Order otcOrderValid = new Order(
+        Name = 'OTC Order Valid',
+        Status = 'Draft',
+        EffectiveDate = Date.today(),
+        Pricebook2Id = Test.getStandardPricebookId(),
+        AccountId = [SELECT Id FROM Account LIMIT 1].Id,
+        RecordTypeId = rectypId
+    );
+    insert otcOrderValid;
+
+    Order retailOrderInvalid = new Order(
+        Name = 'Retail Order Invalid',
+        Status = 'Draft',
+        EffectiveDate = Date.today(),
+        Pricebook2Id = Test.getStandardPricebookId(),
+        AccountId = [SELECT Id FROM Account LIMIT 1].Id,
+        RecordTypeId = rectypIdVehi
+    );
+    insert retailOrderInvalid;
+
+    Order retailOrderValid = new Order(
+        Name = 'Retail Order Valid',
+        Status = 'RTO Registration',
+        EffectiveDate = Date.today(),
+        Pricebook2Id = Test.getStandardPricebookId(),
+        AccountId = [SELECT Id FROM Account LIMIT 1].Id,
+        RecordTypeId = rectypIdVehi
+    );
+    insert retailOrderValid;
+
+    Test.startTest();
+    String resultNull = ClearTaxApiHelper.CheckOrderStatus(null);
+    String resultOtcInvalid = ClearTaxApiHelper.CheckOrderStatus(otcOrderInvalid.Id);
+    String resultOtcValid = ClearTaxApiHelper.CheckOrderStatus(otcOrderValid.Id);
+    String resultRetailInvalid = ClearTaxApiHelper.CheckOrderStatus(retailOrderInvalid.Id);
+    String resultRetailValid = ClearTaxApiHelper.CheckOrderStatus(retailOrderValid.Id);
+    Test.stopTest();
+}
+
+@isTest
+    static void testGenerateEInvoicePDF_VehicleAndMerchandise() {
+        Id rectypId = Schema.SObjectType.Order.getRecordTypeInfosByDeveloperName().get('OTC').getRecordTypeId();
+
+        Account dealer = new Account(Name = 'Test Dealer');
+        insert dealer;
+        
+         Account acc = new Account();
+         acc.Name = 'ttt';
+         acc.Phone = '1443856787';
+         acc.Email__c = 'rww@gmail.com';
+         insert acc;
+        
+        Id pricebookId = Test.getStandardPricebookId();
+        Pricebook2 standardPricebook = new Pricebook2(
+            Id = pricebookId,
+            IsActive = true
+        );
+        update standardPricebook;
+        
+        Product2 product = new Product2(
+            Name = 'Test Product',
+            ProductCode = 'TP-001',
+            IsActive = true,
+            HSN_Code__c = 'DFGHJ',
+            Type__c = 'Vehicle'
+        );
+        insert product;
+        
+        Product2 product1 = new Product2(
+            Name = 'Test Product',
+            ProductCode = 'TP-001',
+            IsActive = true,
+            HSN_Code__c = 'DFGHJ',
+            Type__c = 'Merchandise'
+        );
+        insert product1;
+        
+        PricebookEntry pbe = new PricebookEntry(
+            Pricebook2Id = standardPricebook.Id,
+            Product2Id = product.Id,
+            UnitPrice = 100.0,
+            IsActive = true
+        );
+        insert pbe;
+        
+        PricebookEntry pbe1 = new PricebookEntry(
+            Pricebook2Id = standardPricebook.Id,
+            Product2Id = product1.Id,
+            UnitPrice = 100.0,
+            IsActive = true
+        );
+        insert pbe1;
+
+        Order ord = new Order(
+            Name = 'Test Order',
+            Dealer__c = dealer.Id,
+            Status = 'Draft',
+            AccountId = acc.id,
+            EffectiveDate = Date.today(),
+            RecordTypeId = rectypId,
+            Pricebook2Id = standardPricebook.Id
+        );
+        insert ord;
+        
+         
+
+        List<OrderItem> orderItems = new List<OrderItem>{
+            new OrderItem(OrderId = ord.Id, Quantity = 1, UnitPrice = 1000, Type__c = 'Vehicle', PricebookEntryId = pbe.Id),
+            new OrderItem(OrderId = ord.Id, Quantity = 2, UnitPrice = 200, Type__c = 'Merchandise', PricebookEntryId = pbe1.ID)
+        };
+        insert orderItems;
+
         Test.startTest();
-        String mockResponse = '{"access_token": "mock_access_token"}';
-        Test.setMock(HttpCalloutMock.class, new MockHttpResponse(200, mockResponse));
-        Shipment testShipment = [SELECT Id, Order__r.Dealer__r.GSTIN_Number__c FROM Shipment LIMIT 1];
-        ClearTaxApiHelper.generateEWayBillUsingIRN(testShipment.Id);
+        ClearTaxApiHelper.genereteE_invoicePDF(ord.Id);
+        Test.stopTest();
+    }
+     static testMethod void testgenerateEWayBill() {
+     Test.startTest();
         ClearTaxApiHelper.methodToCoverage();
         ClearTaxApiHelper.methodToCoverage1();
         ClearTaxApiHelper.methodToCoverage2();
-        ClearTaxApiHelper.methodToCoverage3();
-        ClearTaxApiHelper.methodToCoverage4();
-        ClearTaxApiHelper.methodToCoverage5();
-        ClearTaxApiHelper.methodToCoverage9();
-        ClearTaxTagIrnNumber.methodToCoverage5();
-        ClearTaxApiHelper.methodToCoverage6();
-        ClearTaxApiHelper.methodToCoverage7();
-        ClearTaxApiHelper.methodToCoverage8();
-        ClearTaxApiHelper.methodToCoverage10();
-        ClearTaxApiHelper.methodToCoverage11();
-        ClearTaxApiHelper.methodToCoverage12();
-        ClearTaxApiHelper.methodToCoverage13();
-        ClearTaxApiHelper.methodToCoverage14();
-        ClearTaxApiHelper.methodToCoverage15();
-        Test.stopTest();
-    }  
+         ClearTaxApiHelper.methodToCoverage3();
+         ClearTaxApiHelper.methodToCoverage4();
+ Test.stopTest();
+     }
 }

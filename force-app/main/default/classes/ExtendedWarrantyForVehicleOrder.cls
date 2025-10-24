@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Aniket Karmakar
  * @group             : 
- * @last modified on  : 09-19-2025
+ * @last modified on  : 10-15-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public class ExtendedWarrantyForVehicleOrder {
@@ -22,6 +22,10 @@ public class ExtendedWarrantyForVehicleOrder {
                     }
                 }
             }   
+            System.debug('orderIds==>>>>'+orderIds);
+            if(orderIds.isEmpty()){
+                return;
+            }
             Map<Id, Vehicle> vehicleMap = new Map<Id, Vehicle>();
             if (!vehicleIds.isEmpty()) {
                 for (Vehicle v : [SELECT Id, Purchased_Date__c, ChassisNumber, Name,VehicleIdentificationNumber, RR_Battery_Number__c, EngineNumber, Charger_PC_Number__c, Account__c, Account__r.Center_Code__c,CurrentOwnerId,CurrentOwner.Center_Code__c, CreatedDate,Dealer__r.Center_Code__c
@@ -46,7 +50,7 @@ public class ExtendedWarrantyForVehicleOrder {
             List<Order> finalOrderListForEW = [select id,Assigned_Vehicle__c,Assigned_Vehicle__r.VehicleIdentificationNumber,Dealer__r.Type,Dealer__r.Service_Center__r.Type
                                                    ,Dealer__r.Center_Code__c,Dealer__r.Store_Type__c,Dealer__r.Service_Center__r.Store_Type__c,Dealer__r.Service_Center__r.Center_Code__c,Assigned_Vehicle__r.VehicleRegistrationNumber,Account.Name, Account.Phone,Assigned_Vehicle__r.PDI_Status_Pass__c from Order where Id IN:orderIdsForEW];
             
-                          if(!finalOrderListForEW.isEmpty()){
+                          if(!finalOrderListForEW.isEmpty()){//needs to be changed
                     for (Order order : finalOrderListForEW) {
                         if (order.Assigned_Vehicle__c != null && vehicleMap.containsKey(order.Assigned_Vehicle__c) && order.Assigned_Vehicle__r.PDI_Status_Pass__c == true) {
                             Vehicle v = vehicleMap.get(order.Assigned_Vehicle__c);
@@ -75,6 +79,7 @@ public class ExtendedWarrantyForVehicleOrder {
         }catch(Exception e){
             System.debug('Error Occured ==>'+e.getMessage());
             System.debug('Error Line Number Is ==>'+e.getLineNumber());
+            System.debug('Error==>'+e);
         }
     }
   public class wrapperForEWIntegration{

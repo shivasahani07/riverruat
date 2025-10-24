@@ -267,8 +267,10 @@ public class RescheduleAppointmentFormController {
             WHERE Appointment__c =: parentId  
             LIMIT  1
         ];
-        
-		delete slotItemRecord;
+
+        slotItemRecord.Booking_Status__c = 'Available';
+         
+		update slotItemRecord;
 
         Appointment__c appointRec = [Select id ,Service_Appointment__c,Appointment_Date__c from Appointment__c where Id =:parentId];
 		Id saId = appointRec.Service_Appointment__c;

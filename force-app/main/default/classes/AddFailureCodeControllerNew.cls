@@ -23,7 +23,10 @@ public without sharing class AddFailureCodeControllerNew {
     public static OperationResult createPostVINFCPCVIN(String fcName, String productcode, String newVINCutOff, Integer batchSize) {
         try {
             System.debug('-----------------createPostVINFCPCVIN-----------------');
-            System.debug('batchSize : ' + batchSize);
+            System.debug('fcName: ' + fcName);
+            System.debug('productcode: ' + productcode);
+            System.debug('newVINCutOff: ' + newVINCutOff);
+            System.debug('batchSize: ' + batchSize);
 
             // Validate input parameters
             if (String.isBlank(fcName) || String.isBlank(productcode)) {
@@ -39,6 +42,8 @@ public without sharing class AddFailureCodeControllerNew {
                 AND Is_Active__c = true
                 LIMIT 1
             ];
+            System.debug('****** fcList ****** : ' + fcList.size());
+            
             
             if (fcList.isEmpty()) {
                 OperationResult tfrResult;
@@ -74,18 +79,25 @@ public without sharing class AddFailureCodeControllerNew {
             
             
             Failure_Code__c fc = fcList[0];
+            System.debug('fc.VIN_Cut_off_No__c : ' + fc.VIN_Cut_off_No__c);
             Integer comparisonResult;
             
             if (fc.VIN_Cut_off__c != null) {
+                
+                System.debug('fc.VIN_Cut_off_No__c : ' + fc.VIN_Cut_off_No__c);
+                System.debug('newVINCutOff : ' + newVINCutOff);
                 // Compare VINs
                 VINCutOffManagement.ComparisonResult compResult = 
                     VINCutOffManagement.compareVINFormat(fc.VIN_Cut_off_No__c, newVINCutOff);
+                
+                System.debug('compResult : ' + compResult);
                 
                 if (!compResult.isSuccess) {
                     return new OperationResult(false, 'VIN comparison failed: ' + compResult.message);
                 }
                 
                 comparisonResult = compResult.resultCode;
+                System.debug('comparisonResult : ' + comparisonResult);
                 
                 if (comparisonResult == 0) {
                     return new OperationResult(false, 'VIN cutoff already exists for this failure code.');
@@ -103,11 +115,11 @@ public without sharing class AddFailureCodeControllerNew {
                     return new OperationResult(false, 'New VIN is older than existing VIN cutoff.');
                 }
             } else {
-                // No VIN cutoff exists yet
-                /*OperationResult tfrResult = checkandCreateVIN(newVINCutOff);
-                if (!tfrResult.isSuccess) return tfrResult;*/
+                 //No VIN cutoff exists yet
+                OperationResult tfrResult = checkandCreateVIN(newVINCutOff);
+                if (!tfrResult.isSuccess) return tfrResult;
                 
-                OperationResult fcResult = checkfailureCode(fc,null);
+                OperationResult fcResult = checkfailureCode(fc,tfrResult.recordId);
                 return fcResult;
             }
             

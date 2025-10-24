@@ -1,3 +1,10 @@
+/**
+ * @description       : 
+ * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @group             : 
+ * @last modified on  : 10-10-2025
+ * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+**/
 public class SendEmailHandller {        
     
     public static void SendEmailHandller(list<order> lstOrder, map<id,List<Attachment>> mapOrderIdToAttachments) {
@@ -139,65 +146,85 @@ public class SendEmailHandller {
     // ==============================================================================================================================================================================   
     // Send the Pre_payments Attchamnetnts.
     public static void sendPreAttchamnets(string OrderpaymentId, List<Attachment> attachmentsToInsert){
-        set<Id>setAccountId=new set<Id>();
-        list<Order_Payment__c>lstOrderPayment=[SELECT Id,name,Order__c,order__r.AccountId,Order__r.OrderNumber,Amount__c,Order__r.Website_Order_Id__c FROM Order_Payment__c  WHERE Id=:OrderpaymentId];
-        system.debug('lstOrderPayment==>'+lstOrderPayment);
-        system.debug('OrderPayment==>'+lstOrderPayment);
+       System.debug('Scheduler For EMail Debug has been called');
+       Datetime dt = Datetime.now().addSeconds(15);
+            String cron = String.format('{0} {1} {2} {3} {4} ? {5}',
+                new String[]{
+                    String.valueOf(dt.second()),
+                    String.valueOf(dt.minute()),
+                    String.valueOf(dt.hour()),
+                    String.valueOf(dt.day()),
+                    String.valueOf(dt.month()),
+                    String.valueOf(dt.year())
+                }
+            );
+
+            SendEmailScheduler job = new SendEmailScheduler(OrderpaymentId,attachmentsToInsert);
+            System.schedule('Schedule_SendEmailPDF_' + Datetime.now().getTime(), cron, job);
+
+
+
+
+
+    //     set<Id>setAccountId=new set<Id>();
+    //     list<Order_Payment__c>lstOrderPayment=[SELECT Id,name,Order__c,order__r.AccountId,Order__r.OrderNumber,Amount__c,Order__r.Website_Order_Id__c FROM Order_Payment__c  WHERE Id=:OrderpaymentId];
+    //     system.debug('lstOrderPayment==>'+lstOrderPayment);
+    //     system.debug('OrderPayment==>'+lstOrderPayment);
         
-        //fetch Org wide email address
-        OrgWideEmailAddress orgWideEmailAddresses = [SELECT Id, Address, DisplayName FROM OrgWideEmailAddress WHERE Address='support@rideriver.com'];
-        string senderEmail = orgWideEmailAddresses.Address; 
+    //     //fetch Org wide email address
+    //     OrgWideEmailAddress orgWideEmailAddresses = [SELECT Id, Address, DisplayName FROM OrgWideEmailAddress WHERE Address='support@rideriver.com'];
+    //     string senderEmail = orgWideEmailAddresses.Address; 
         
-        for(Order_Payment__c objOrderPayment :lstOrderPayment){
-            if(objOrderPayment.order__r.AccountId!=null){
-                setAccountId.add(objOrderPayment.order__r.AccountId); 
-            }
-        } 
-        List<Messaging.SingleEmailMessage> emailMessages = new List<Messaging.SingleEmailMessage>();
-        list<Contact>lstContact=[select Id, Name,Email,AccountId from contact where AccountId In:setAccountId];
-        system.debug('lstContact==>'+lstContact);
+    //     for(Order_Payment__c objOrderPayment :lstOrderPayment){
+    //         if(objOrderPayment.order__r.AccountId!=null){
+    //             setAccountId.add(objOrderPayment.order__r.AccountId); 
+    //         }
+    //     } 
+    //     List<Messaging.SingleEmailMessage> emailMessages = new List<Messaging.SingleEmailMessage>();
+    //     list<Contact>lstContact=[select Id, Name,Email,AccountId from contact where AccountId In:setAccountId];
+    //     system.debug('lstContact==>'+lstContact);
         
-        //Add attchaments.
-        List<Messaging.EmailFileAttachment> emailAttachments = new List<Messaging.EmailFileAttachment>();
+    //     //Add attchaments.
+    //     List<Messaging.EmailFileAttachment> emailAttachments = new List<Messaging.EmailFileAttachment>();
         
-        // Add the attachments to the list
-        for (Attachment attachment : attachmentsToInsert) {
-            Messaging.EmailFileAttachment emailAttachment = new Messaging.EmailFileAttachment();
-            emailAttachment.setFileName(attachment.Name);
-            emailAttachment.setBody(attachment.Body);
-            emailAttachments.add(emailAttachment);
-        }
+    //     // Add the attachments to the list
+    //     for (Attachment attachment : attachmentsToInsert) {
+    //         Messaging.EmailFileAttachment emailAttachment = new Messaging.EmailFileAttachment();
+    //         emailAttachment.setFileName(attachment.Name);
+    //         emailAttachment.setBody(attachment.Body);
+    //         emailAttachments.add(emailAttachment);
+    //     }
         
-        //Send the Email.
-        for(contact ObjContact:lstContact){
-            if(ObjContact.Email!=null){
-                // Create and send the email
-                Messaging.SingleEmailMessage sEmail = new Messaging.SingleEmailMessage();
-                String[] toAddresses = new String[] {objContact.Email}; // Use the appropriate email field
-                    sEmail.setToAddresses(toAddresses);
-                sEmail.setSubject('Payment Receipt');
-                String body = 'Hi ' + objContact.Name + ',<br/><br/>' ;
-                body += 'Thank you for making the payment of ' + lstOrderPayment[0].Amount__c + ' for Order ' + lstOrderPayment[0].Order__r.Website_Order_Id__c + '.<br/><br/>' ;
-                body += 'Please find your receipts attached with this email.<br/><br/>' ;
-                body += 'Warm Regards,<br/>';
-                body += 'Team River';
-                sEmail.setHtmlBody(body);  
-                sEmail.setReplyTo(senderEmail);  
-                sEmail.setOrgWideEmailAddressId(orgWideEmailAddresses.Id);
+    //     //Send the Email.
+    //     for(contact ObjContact:lstContact){
+    //         if(ObjContact.Email!=null){
+    //             // Create and send the email
+    //             Messaging.SingleEmailMessage sEmail = new Messaging.SingleEmailMessage();
+    //             String[] toAddresses = new String[] {objContact.Email}; // Use the appropriate email field
+    //                 sEmail.setToAddresses(toAddresses);
+    //             sEmail.setSubject('Payment Receipt');
+    //             String body = 'Hi ' + objContact.Name + ',<br/><br/>' ;
+    //             body += 'Thank you for making the payment of ' + lstOrderPayment[0].Amount__c + ' for Order ' + lstOrderPayment[0].Order__r.Website_Order_Id__c + '.<br/><br/>' ;
+    //             body += 'Please find your receipts attached with this email.<br/><br/>' ;
+    //             body += 'Warm Regards,<br/>';
+    //             body += 'Team River';
+    //             sEmail.setHtmlBody(body);  
+    //             sEmail.setReplyTo(senderEmail);  
+    //             sEmail.setOrgWideEmailAddressId(orgWideEmailAddresses.Id);
                 
-                // Attach the list of attachments to the email
-                sEmail.setFileAttachments(emailAttachments);
-                emailMessages.add(sEmail);
-            }
-        }
+    //             // Attach the list of attachments to the email
+    //             sEmail.setFileAttachments(emailAttachments);
+    //             emailMessages.add(sEmail);
+    //         }
+    //     }
         
-        if (!emailMessages.isEmpty()){
-            try {
-                Messaging.sendEmail(emailMessages);
-            } catch(Exception e) {
-                System.debug('Exception>>' + e);
+    //     if (!emailMessages.isEmpty()){
+    //         try {
+    //              Messaging.sendEmail(emailMessages);
+    //         } catch(Exception e) {
+    //             System.debug('Exception>>' + e);
+    //         }
+    //     }
+    //  
             }
-        }
-    }  
-    
 }

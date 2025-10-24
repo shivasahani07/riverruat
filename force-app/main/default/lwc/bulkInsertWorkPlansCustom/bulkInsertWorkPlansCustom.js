@@ -5,9 +5,9 @@ import getRelatedWorkPlans from '@salesforce/apex/WorkPlanController.getRelatedW
 import deleteWorkPlanApex from '@salesforce/apex/WorkPlanController.deleteWorkPlanApex';
 import insertWorkPlans from '@salesforce/apex/WorkPlanController.insertWorkPlans';
 import getLabourCode from '@salesforce/apex/AdditionalJobsRecommendedController.getLabourCode';
-import VeripartWithActionWithPlanApex from '@salesforce/apex/TFRController.VeripartWithActionWithPlanApex';
+import VeripartWithActionWithPlanApex from '@salesforce/apex/TFRManagement.VeripartWithActionWithPlanApex';
 import getFailureCode from '@salesforce/apex/AddFailureCodeController.getFailureCode';
-import checkTFRValidation from '@salesforce/apex/TFRControllerNew.checkTFRValidation';
+import checkTFRValidation from '@salesforce/apex/TFRManagement.checkTFRValidation';
 
 import { getRecord } from "lightning/uiRecordApi";
 import getFailureCodeUpdated from '@salesforce/apex/AddFailureCodeController.getFailureCodeUpdated';
@@ -119,6 +119,7 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
                 const status = data.fields.Status.value;
                 this.currentVinNo = data.fields.Vehicle_Identification_Number__c.value;
                 this.showAll = EDITABLE_STATUSES.has(status) && !BLOCKED_STATUSES.has(status);
+                this.addMoreDis=!this.showAll;
             }
             if (error) this.handleError('Error loading work order status', error);
         }
@@ -233,12 +234,15 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
 
     // Remove a row from the form
     removeRow(event) {
+        debugger;
         const index = parseInt(event.target.dataset.id, 10);
-        if (this.itemList.length > 1) {
-            this.itemList = this.itemList.filter((item, i) => i !== index);
-        } else {
-            this.showToast('Info', 'Cannot delete the only row', 'info');
-        }
+        // this.itemList = this.itemList.filter((item, i) => i !== index);
+        // if (this.itemList.length > 1) {
+        //     // this.itemList = this.itemList.filter((item, i) => i !== index);
+        // } else {
+        //     this.showRow=false
+        //     // this.showToast('Info', 'Cannot delete the only row', 'info');
+        // }
     }
 
     get DisabledsubmitButtin() {
@@ -251,8 +255,16 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
         const index = event.target.dataset.id;
         const value = event.detail.recordId;
 
+        if(value==null){
+            this.itemList[index].failureCodeOptions=null
+            this.itemList[index].Failure_Code__c=null
+            this.itemList[index].isFailureCodeVisible = false;
+            return;
+        }
+
         this.itemList[index].RR_Labour_Code__c = value;
         this.itemList[index].RR_Labour_CodeId = value;
+        
         
         // Check for duplicates
         const rules = [
@@ -279,7 +291,7 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
                 
                 // Check if this labour code requires TFR validation
                 if (this.itemList[index].RR_Labour_Category__c === 'River Warranty') {
-                    this.itemList[index].isFailureCodeVisible = true;
+                    
                     // this.getFailureCodes(result.tfrEffectId, index);
                     this.getFailureCodes(value,index);
                 }
@@ -299,7 +311,7 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
         this.itemList[index].RR_Labour_Category__c = value;
         
         // Show failure code field for River Warranty
-        this.itemList[index].isFailureCodeVisible = value === 'River Warranty';
+        // this.itemList[index].isFailureCodeVisible = value === 'River Warranty';
         
         // Check for duplicates
         const rules = [
@@ -316,19 +328,19 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
     }
 
     // Get failure codes for a TFR effect
-    async getFailureCodes(tfrEffectId, index) {
-        debugger;
-        try {
-            const data = await getFailureCode({ tfrPEId: tfrEffectId, isLabour: true });
+    // async getFailureCodes(tfrEffectId, index) {
+    //     debugger;
+    //     try {
+    //         const data = await getFailureCode({ tfrPEId: tfrEffectId, isLabour: true });
 
-            this.itemList[index].failureCodeOptions = data.map(item => ({
-                label: item.Name,
-                value: item.Id
-            }));
-        } catch (error) {
-            console.error('Error fetching failure codes: ', error);
-        }
-    }
+    //         this.itemList[index].failureCodeOptions = data.map(item => ({
+    //             label: item.Name,
+    //             value: item.Id
+    //         }));
+    //     } catch (error) {
+    //         console.error('Error fetching failure codes: ', error);
+    //     }
+    // }
 
     // Handle failure code selection
     async handleFailureCodeChange(event) {
@@ -388,7 +400,10 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
             if (tfrData.isPostVinCuttoff) {
                 item.tfrMessage = 'Post-VIN cutoff labour - special handling required';
                 item.cssClass = item.cssClass ? item.cssClass + ' post-vin-row' : 'post-vin-row';
-            } else {
+            } else if((tfrData.isPostVinCuttoff == undefined || tfrData.isPostVinCuttoff == null) && tfrData.isTFRApplicable){
+                         item.tfrMessage = 'TFR is Required , special handling required';
+                        item.cssClass = item.cssClass ? item.cssClass + 'post-vin-row' : 'post-vin-row';
+            }else {
                 item.tfrMessage = 'Pre-VIN cutoff labour - standard handling';
                 item.cssClass = item.cssClass ? item.cssClass + ' pre-vin-row' : 'pre-vin-row';
             }
@@ -479,7 +494,7 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
             variant: variant
         });
         this.dispatchEvent(event);
-        alert(message);
+        // alert(message);
     }
 
     VeripartWithActionWithPlan(workOrderId) {
@@ -532,16 +547,16 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
 
     // NEW 
      async getFailureCodes(tfrPEId, index) {
+        debugger;
         try {
             console.log('tfrPEId : ' + tfrPEId);
-            
-            //const data = await getFailureCode({ tfrPEId:tfrPEId });
             const data = await getFailureCodeUpdated({ productId:tfrPEId, newVIN: this.currentVinNo }); // this.currentVinNo
-
             this.itemList[index].failureCodeOptions = data.map(item => ({
                 label: item.Name,
                 value: item.Id
             }));
+            if(data.length>0)
+            this.itemList[index].isFailureCodeVisible = true;
         } catch (error) {
             console.error('Error fetching failure codes: ', error);
         }

@@ -202,7 +202,7 @@ public class NewE_invoicePDFControllerTest {
         
         ApexPages.StandardController stdController = new ApexPages.StandardController(testOrder);
         NewE_invoicePDFController controller = new NewE_invoicePDFController(stdController);
-         NewE_invoicePDFController.testCoverageData();
+        NewE_invoicePDFController.testCoverageData();
         NewE_invoicePDFController.testCoverageData1();
         NewE_invoicePDFController.testCoverageData2();
         NewE_invoicePDFController.testCoverageData3();

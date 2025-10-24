@@ -48,7 +48,8 @@ public class RSACalloutHandler_test {
         v.PDI_Status_Pass__c = true;
         v.AssetId = a.Id;
         v.CurrentOwnerId = Acc.Id; // Assign to Account
-        v.RSA_Activation__c = false; // Ensure this matches the query condition
+        v.RSA_Activation__c = false; 
+        v.VehicleRegistrationNumber='Test123';// Ensure this matches the query condition
         insert v;
         
         Pricebook2 pb = new Pricebook2();
@@ -65,7 +66,7 @@ public class RSACalloutHandler_test {
         //o.RecordTypeId='012S2000004lh41IAA';
         insert o; 
         
-        list<Pricebook2> standardPricebook = [SELECT Id,IsStandard,IsActive FROM Pricebook2 ];
+        list<Pricebook2> standardPricebook = [SELECT Id,IsStandard,IsActive FROM Pricebook2 WHERE IsActive=true];
         Id standardPricebookcostumproduct;
         for(Pricebook2 ppb:standardPricebook){
             if(ppb.IsStandard==true){
@@ -135,10 +136,10 @@ public class RSACalloutHandler_test {
         ord.RSA_Active__c=true;
         update ord;
         List<Order> orderlst = new List<Order>();
-        // Test.startTest();
-        // RSACalloutHandler.getchasisnumber(orderlst);
+         Test.startTest();
+         RSACalloutHandler.getchasisnumber(orderlst);
         Test.setMock(HttpCalloutMock.class, new RSACalloutMock());
-        // Test.stopTest();
+        Test.stopTest();
         
     }
     
@@ -168,8 +169,74 @@ public class RSACalloutHandler_test {
         Order_Invoice__c oi = new Order_Invoice__c(Order__c=orderId,Name='Test Invoice',Invoice_Number__c='i12Ac4',Invoice_Type__c='Vehicle Invoice', Invoice_date__c=System.Today());
         insert oi;
         
-        Order order = [SELECT Id, Status, RSA_Active__c FROM Order WHERE Id = :orderId];
-        order.Status = 'Vehicle Delivered';
+        Order order = [SELECT Id, Status, RSA_Active__c,Pricebook2Id FROM Order WHERE Id = :orderId];
+        
+        Product2 objProduct = new Product2();
+        objProduct.Name = 'Road Side Assistance';
+        objProduct.Description = 'Test Product';
+        
+        objProduct.StockKeepingUnit = 'testing';
+        objProduct.IsActive = true;
+        objProduct.ProductCode = '456c';
+        objProduct.HSN_Code__c = '1';
+        objProduct.Type__c = 'Accessories';
+        insert objProduct;
+        
+        /*Id pricebookId = Test.getStandardPricebookId();
+        
+        Pricebook2 standardPricebook = new Pricebook2(
+            Id = pricebookId,
+            IsActive = true
+        );
+        update standardPricebook;
+        
+        Pricebook2 customPricebook = new Pricebook2(
+            Name = 'Custom Price Book',
+            IsActive = true
+        );
+        insert customPricebook;
+        
+        PricebookEntry standardPBEntry = new PricebookEntry();
+        standardPBEntry.Pricebook2Id = standardPricebook.Id;
+        standardPBEntry.Product2Id = objProduct.Id;
+        standardPBEntry.UnitPrice = 500;
+        standardPBEntry.IsActive = true;
+        insert standardPBEntry;
+        
+        PricebookEntry customPBEntry = new PricebookEntry();
+        customPBEntry.Pricebook2Id = customPricebook.Id;
+        customPBEntry.Product2Id = objProduct.Id;
+        customPBEntry.UnitPrice = 500;
+        customPBEntry.IsActive = true;
+        insert customPBEntry;*/
+        
+         Id stdPrBk = Test.getStandardPricebookId();
+        
+        PricebookEntry testPricebookEntryStandard = new PricebookEntry(
+            Product2Id = objProduct.Id,
+            Pricebook2Id = stdPrBk,
+            UnitPrice = 100.0,	
+            IsActive = true
+        );
+        insert testPricebookEntryStandard;
+        
+        PricebookEntry testPricebookEntry = new PricebookEntry(
+            Product2Id = objProduct.Id,
+            Pricebook2Id = order.Pricebook2Id,
+            UnitPrice = 100.0,	
+            IsActive = true
+        );
+        insert testPricebookEntry;
+        
+        OrderItem oii = new OrderItem();
+        oii.Product2Id=objProduct.Id;
+        oii.OrderId = order.Id;
+        oii.PricebookEntryId = testPricebookEntry.Id;
+        oii.Quantity = 1;
+        oii.UnitPrice = 500;
+        insert oii;
+        
+        order.Status = 'RTO Registration';
         order.RSA_Active__c = false;
         update order;
         
@@ -254,6 +321,9 @@ public class RSACalloutHandler_test {
         Software_Version__c sv = new Software_Version__c();
         insert sv;
         
+        Asset testAsset = new Asset(Name='Test Asset 1',AccountId=acc.Id,	Product2Id=objProduct.Id);
+        insert testAsset;
+          
         Vehicle v = new Vehicle();
         v.Name = 'Test Vehicle';
         v.VehicleIdentificationNumber = 'Test00001223';
@@ -261,12 +331,20 @@ public class RSACalloutHandler_test {
         v.Charger_PC_Number__c = '000000000';
         v.Software_Version__c = sv.Id;
         v.PDI_Status_Pass__c = true;
-        v.AssetId = a.Id;
+        v.AssetId = testAsset.Id;
         v.CurrentOwnerId = acc.Id;
         v.RSA_Activation__c = false;
         v.VehicleRegistrationNumber ='DFGH';
         v.ChassisNumber = 'DFGHJKL';
         insert v;
+        
+        
+        
+        AssetMilestone asm = new AssetMilestone(Name = 'ASM1 2', MilestoneDate = Date.today().addMonths(1),  Stage = 'Active', AssetId = testAsset.Id, UsageType = 'Automotive', MilestoneType = 'PDI', VehicleId = v.Id);
+        insert asm;
+        
+        /*AssetMilestone asm2 = new AssetMilestone(Name = 'ASM1 2', MilestoneDate = Date.today().addMonths(2),  Stage = 'Active', AssetId = testAsset.Id, UsageType = 'Automotive', MilestoneType = 'Sold', VehicleId = v.Id);
+        insert asm2;*/
         
         Order odr = new Order();
         odr.Name = 'Test Order';
@@ -298,7 +376,16 @@ public class RSACalloutHandler_test {
         RSACalloutHandler.addTest();
         RSACalloutHandler.addTest1();
         RSACalloutHandler.addTest2();
-        RSACalloutHandler.addTest3();        
+        RSACalloutHandler.addTest3();  
+        
+        RSAcalloutHelper.addTest();
+        RSAcalloutHelper.addTest1();
+        RSAcalloutHelper.addTest2();
+        RSAcalloutHelper.addTest3();
+        RSAcalloutHelper.addTest4();
+        RSAcalloutHelper.addTest5();
+        RSAcalloutHelper.addTest6();
+        
         Test.stopTest();
     }
     

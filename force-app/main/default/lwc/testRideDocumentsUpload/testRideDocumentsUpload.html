@@ -1,0 +1,37 @@
+<template>
+    <lightning-quick-action-panel header="Documents Uploading">
+        <lightning-layout multiple-rows>
+            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="horizontal-small">
+                <lightning-record-edit-form object-api-name="Test_Drive__c" record-id={recordId}
+                    onsuccess={handleSuccess} onerror={handleError}>
+                    
+                    <lightning-messages></lightning-messages>
+
+                    <!-- One row with two columns -->
+                    <lightning-layout>
+                        <!-- Column 1 -->
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6" padding="horizontal-small">
+                            <lightning-input-field field-name="Test_Drive_Status__c" value="On-Going" disabled></lightning-input-field>
+                            <lightning-input-field field-name="Drivers_License_Number__c"></lightning-input-field>
+                        </lightning-layout-item>
+
+                        <!-- Column 2 -->
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="6" padding="horizontal-small">
+                            <lightning-file-upload label="Attach receipt" name="fileUploader"
+                                accept={acceptedFormats} record-id={recordId}
+                                onuploadfinished={handleUploadFinished} multiple>
+                            </lightning-file-upload>
+                        </lightning-layout-item>
+                    </lightning-layout>
+
+                    <!-- Buttons -->
+                    <div class="slds-var-m-top_medium">
+                        <lightning-button variant="brand" type="submit" label="Save" onclick={handleSave}></lightning-button>
+                        &nbsp;&nbsp;
+                        <lightning-button variant="neutral" label="Cancel" onclick={handleCancel}></lightning-button>
+                    </div>
+                </lightning-record-edit-form>
+            </lightning-layout-item>
+        </lightning-layout>
+    </lightning-quick-action-panel>
+</template>

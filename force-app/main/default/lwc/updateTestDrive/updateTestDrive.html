@@ -1,0 +1,35 @@
+<template>
+    <lightning-card variant="base">
+        <lightning-quick-action-panel header="Update Test-Drive">
+            <lightning-combobox name="TestDriveStatus" label="Test Drive Status" 
+                  options={statusOptions} value={status} onchange={handleChange} required>
+            </lightning-combobox>
+
+            <template if:true={showFields}>
+                <lightning-combobox name="DropOutReason" label="Drop Out Reason" value={reason}
+                    options={reasonOptions} onchange={handleChange} required>
+                </lightning-combobox>
+
+                <lightning-combobox name="DropOutSubReason" label="Drop Out Sub Reason" 
+                    options={subReasonOptions} value={subReason} onchange={handleChange} required>
+                </lightning-combobox>
+                
+                <template if:true={otherReason}>  
+                    <lightning-input 
+                        type="text"
+                        name="Others"
+                        label="Others"
+                        value={others}
+                        onchange={handleChange}
+                        required
+                    ></lightning-input>
+                </template>
+            </template>
+
+            <div slot="footer">
+                <lightning-button variant="brand" label="Save" onclick={handleSave}></lightning-button>
+                <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+            </div>
+        </lightning-quick-action-panel>
+    </lightning-card>
+</template>
