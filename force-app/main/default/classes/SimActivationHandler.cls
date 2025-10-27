@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 10-23-2025
+ * @last modified on  : 10-24-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public without sharing class SimActivationHandler {
@@ -29,7 +29,7 @@ public without sharing class SimActivationHandler {
                    vehicleIdsForAPI.add(v.Id);
                    simPhoneMap.put(v.Id,v.SIM_Activation_Phone__c != null ? v.SIM_Activation_Phone__c : 'Blank');
 
-                   if(v.Sim_Activation_Status__c == 'Pending'){
+                   if(v.Sim_Activation_Status__c == 'Pending' || v.Sim_Activation_Status__c == null){
                        cmpMap.put(v.Id,'A');
                        currCmpMap.put(v.Id,'RP');
                    }

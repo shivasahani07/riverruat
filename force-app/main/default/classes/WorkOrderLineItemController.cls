@@ -184,7 +184,7 @@ public without sharing class WorkOrderLineItemController {
             wp.Failure_Code__c = fcId;
             wp.Name = tpe.Code_Set__r != null ? tpe.Code_Set__r.Name : 'Unnamed Labour Code';
             wp.ParentRecordId = woli.WorkOrderId;
-            wp.WorkOrderLineItemId = woli.Id;
+            //wp.WorkOrderLineItemId = woli.Id;
             wp.RR_Labour_Code__c = tpe.Code_Set__c;
 
             // Get Labour Category from WorkOrderLineItem
@@ -250,6 +250,7 @@ public without sharing class WorkOrderLineItemController {
             
         } catch (Exception ex) {
             Database.rollback(sp);
+            system.debug('getting error at line number---'+ex.getLinenumber());
             throw new AuraHandledException('Error creating line items: ' + ex.getMessage());
         }
     }

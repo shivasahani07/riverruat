@@ -1,7 +1,7 @@
 /**
  * @description       : Lead Report Batch with Debug Logs
  * @author            : Aniket Karmakar
- * @last modified on  : 10-23-2025
+ * @last modified on  : 10-24-2025
 **/
 global class LeadReportBatch implements Database.Batchable<SObject>, Database.Stateful {
 
@@ -38,11 +38,11 @@ global class LeadReportBatch implements Database.Batchable<SObject>, Database.St
         System.debug('leadList==>'+leadList);
 
         return Database.getQueryLocator([
-            SELECT Id, Name, Phone, Owner.Name, LeadSource, CreatedDate,
+            SELECT Id, Name, Phone, Owner.Name, LeadSource, CreatedDate,Verified__c,
                    Dealer_Code__c, Lead_Dealer_Code__c, IsConverted, Status
             FROM Lead
             WHERE CreatedDate >= :startDate AND CreatedDate <= :endDate
-                  AND Lead_Dealer_Code__c != null
+                  AND Lead_Dealer_Code__c != null AND Verified__c = true
             ORDER BY CreatedDate DESC
         ]);
     }
@@ -73,7 +73,7 @@ global class LeadReportBatch implements Database.Batchable<SObject>, Database.St
         Map<Id, Test_Drive__c> leadToTestDriveMap = new Map<Id, Test_Drive__c>();
         if (!leadIds.isEmpty()) {
             for (Test_Drive__c td : [
-                SELECT Id, Lead__c, Test_Drive_Status__c, Test_Drive_Date__c
+                SELECT Id, Lead__c, Test_Drive_Status__c, Test_Ride_Date__c
                 FROM Test_Drive__c
                 WHERE Lead__c IN :leadIds
                 ORDER BY CreatedDate ASC
@@ -108,8 +108,8 @@ global class LeadReportBatch implements Database.Batchable<SObject>, Database.St
                     testDriveCompleted = 'Yes';
                 }
                 // 🔹 Capture Test Drive Date (if exists)
-                if (td.Test_Drive_Date__c != null) {
-                    testDriveDate = String.valueOf(td.Test_Drive_Date__c);
+                if (td.Test_Ride_Date__c != null) {
+                    testDriveDate = String.valueOf(td.Test_Ride_Date__c);
                 }
             }
 

@@ -9,7 +9,7 @@ public class QueueableForOTCEWIntegrationTest {
         apiDetails.Cookie__c='PHD=t1432';    
         insert apiDetails;
         
-        Account testAccount = new Account(Name = 'Test Account',Type='Customer',Phone='0987654321',Center_Code__c='292001');
+        Account testAccount = new Account(Name = 'Test Account',Type='Customer',Phone='0987654321',Center_Code__c='292001',Email__c='test@example.com');
         insert testAccount;
         
         Schema.Location testLocation = new Schema.Location(Name = 'Test Location', LocationType = 'State',State__c = 'Karnataka');
@@ -39,7 +39,7 @@ public class QueueableForOTCEWIntegrationTest {
         Software_Version__c testSV = new Software_Version__c(Name='Test Software Version');
         insert testSV;
         
-        Vehicle testVehicle = new Vehicle(Name='Test Vehicle', Account__c=testAccount.Id, AssetId=testAsset.Id,  VehicleDefinitionId=testVD.Id, VehicleIdentificationNumber='A2B3',  Software_Version__c=testSV.Id, Charger_PC_Number__c='abcd',PDI_Status_Pass__c=true,Purchased_Date__c = System.Today(),ChassisNumber='5342',Vehicle_Details__c='B123',EngineNumber='E321');
+        Vehicle testVehicle = new Vehicle(Name='Test Vehicle', Account__c=testAccount.Id, AssetId=testAsset.Id,  VehicleDefinitionId=testVD.Id, VehicleIdentificationNumber='A2B3',  Software_Version__c=testSV.Id, Charger_PC_Number__c='abcd',PDI_Status_Pass__c=true,Purchased_Date__c = System.Today(),ChassisNumber='5342',Vehicle_Details__c='B123',EngineNumber='E321',CurrentOwnerId=testAccount.Id);
         insert testVehicle;
         
         AssetMilestone asm = new AssetMilestone(Name = 'ASM1', MilestoneDate = Date.today().addMonths(2),  Stage = 'Active', AssetId = testAsset.Id, UsageType = 'Automotive', MilestoneType = 'PDI', VehicleId = testVehicle.Id);
@@ -81,7 +81,7 @@ public class QueueableForOTCEWIntegrationTest {
         public HTTPResponse respond(HTTPRequest req) {
             HTTPResponse res = new HTTPResponse();
             res.setStatusCode(201);
-            res.setBody('{"Message":"Extended Warranty created.","Policy No":"EW050","ChassisNo":"1234567890123121","EW Start Date":"26-07-2027","EW Expire Date":"25-07-2029","Dealer Amount":"4623","Customer Amount":"7079","Warranty Type":"Extended Warranty","Dealer Type":"FOFO - Sales","GST Number":"29AAMCB5945L1ZY","Dealer Name":"BALAJI ELECTRIC VEHICLES PRIVATE LIMITED - Yelahanka","State":"Karnataka"}'); 
+            res.setBody('{"Message":"Extended Warranty created.","Policy No":"EW050","ChassisNo":"1234567890123121","EW Start Date":"26-07-2027","EW Expire Date":"25-07-2029","Dealer Amount":"4623","Customer Amount":"7079","Warranty Type":"Extended Warranty","Dealer Type":"FOFO - Sales","GST Number":"29AAMCB5945L1ZY","Dealer Name":"BALAJI ELECTRIC VEHICLES PRIVATE LIMITED - Yelahanka","State":"Karnataka","status":"success"}'); 
             return res;
         }
     }

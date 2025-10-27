@@ -64,6 +64,7 @@
                                 {!workOrderRecord.Service_Center__r.GST_State__c}-{!workOrderRecord.Service_Center__r.GST_Zip_Postal_Code__c}
                                 <br /> <span style="font-size: 14px;"> Email: {!workOrderRecord.Service_Center__r.Email__c}, &nbsp; Phone: +91 {!workOrderRecord.Service_Center__r.Phone} </span>
                                 <br /> <span style="font-size: 14px;"> CIN: {!workOrderRecord.Service_Center__r.CIN__c} </span>
+                                <br /> <span style="font-size: 14px;"> GSTIN: {!GSTIN} </span>
                             </apex:outputPanel>
                             
                             <apex:outputPanel rendered="{!storeType = 'COCO'}">
@@ -72,6 +73,7 @@
                                 <br /> <span style="font-size: 14px;"> Whitefield, Bengaluru, Bengaluru Urban, Karnataka, India 560048 </span>
                                 <br /> <span style="font-size: 14px;"> Email: {!cocoBillEmail}, &nbsp; Phone: +91 {!cocoPhone} </span>
                                 <br /> <span style="font-size: 14px;"> CIN: {!cocoCIN} </span>
+                                <br /> <span style="font-size: 14px;"> GSTIN: {!GSTIN} </span>
                             </apex:outputPanel>
                             
                         </p>

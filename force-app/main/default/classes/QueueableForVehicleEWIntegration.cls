@@ -43,9 +43,9 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,ExtendedWarrantyForVe
             System.debug('dateForReqBody==>'+dateForReqBody);
             
             String dealerCodeFor = c.get(currentOrderId).dealerCode;
-
+            
             OrderItem orderProd;
-             List<OrderItem> orderProductList = [SELECT Id,OrderId,Product2Id,Product2.Name,Product2.ProductCode,Order.Account.Name,Order.Account.Email__c,Order.Account.Phone FROM OrderItem WHERE OrderId=:currentOrderId AND Product2.ProductCode LIKE '%RV-EW%' LIMIT 1];
+            List<OrderItem> orderProductList = [SELECT Id,OrderId,Product2Id,Product2.Name,Product2.ProductCode,Order.Account.Name,Order.Account.Email__c,Order.Account.Phone,Order.Assigned_Vehicle__r.CurrentOwner.Name,Order.Assigned_Vehicle__r.CurrentOwner.Email__c,Order.Assigned_Vehicle__r.CurrentOwner.Phone FROM OrderItem WHERE OrderId=:currentOrderId AND Product2.ProductCode LIKE '%RV-EW%' LIMIT 1];
             if(!orderProductList.isEmpty()){
                 orderProd = orderProductList[0];
             }
@@ -54,9 +54,10 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,ExtendedWarrantyForVe
             if(orderProd.Product2.ProductCode == 'RV-EW-1' || orderProd.Product2.ProductCode == 'RV-EW-2' || orderProd.Product2.ProductCode == 'RV-EW-3'){
                 ewPlan = '5 Years or 50,000Kms';
             }
-            if(orderProd.Product2.ProductCode == 'RV-EW-4' || orderProd.Product2.ProductCode == 'RV-EW-5' || orderProd.Product2.ProductCode == 'RV-EW-6' || orderProd.Product2.ProductCode == 'RV-EW-7'){
+            if(orderProd.Product2.ProductCode == 'RV-EW-4' || orderProd.Product2.ProductCode == 'RV-EW-5' || orderProd.Product2.ProductCode == 'RV-EW-6' ||orderProd.Product2.ProductCode == 'RV-EW-7'){
                 ewPlan = '8 Years or 80,000Kms';
             }
+            
 
             Account a = [SELECT Id,Center_Code__c,Type FROM Account WHERE Center_Code__c=:dealerCodeFor LIMIT 1];
             Map<String,Object> payLoad = new Map<String,Object>();
@@ -70,9 +71,10 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,ExtendedWarrantyForVe
             payLoad.put('WarrantyType','Extended Warranty');
             payLoad.put('SoldFrom',a.Type == 'Dealer' ? 'Showroom' : a.Type == 'Service Center' ? 'Workshop' : 'Nothing' );
             payLoad.put('EWPlan',ewPlan);
-            payLoad.put('CustomerEmail',orderProd.Order.Account.Email__c != null ? orderProd.Order.Account.Email__c : 'Blank');
-            payLoad.put('CustomerName',orderProd.Order.Account.Name != null ? orderProd.Order.Account.Name : 'Blank');
-            payLoad.put('CustomerMobile',orderProd.Order.Account.Phone != null ? orderProd.Order.Account.Phone : 'Blank');
+            payLoad.put('CustomerEmail',orderProd.Order.Assigned_Vehicle__r.CurrentOwner.Email__c != null ? orderProd.Order.Assigned_Vehicle__r.CurrentOwner.Email__c : 'Blank');
+            payLoad.put('CustomerName',orderProd.Order.Assigned_Vehicle__r.CurrentOwner.Name != null ? orderProd.Order.Assigned_Vehicle__r.CurrentOwner.Name : 'Blank');
+            payLoad.put('CustomerMobile',orderProd.Order.Assigned_Vehicle__r.CurrentOwner.Phone != null ? orderProd.Order.Assigned_Vehicle__r.CurrentOwner.Phone : 'Blank');
+
             String reqBody = JSON.serialize(payLoad);
             System.debug('Request body=>'+JSON.serializePretty(payLoad));
 
@@ -89,11 +91,20 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,ExtendedWarrantyForVe
             HttpResponse res = http.send(req);
             try{
                 if(res.getStatusCode() == 200 || res.getStatusCode() == 201){
+
                     
                     Map<String,Object> responseMap = (Map<String,Object>)JSON.deserializeUntyped(res.getBody());
                     System.debug('Response Map==>'+responseMap);
-                                            
-                    String inputDateForStartDate = String.valueOf(responseMap.get('EW Start Date')); 
+
+                    if(responseMap.containsKey('status') && responseMap.get('status') == 'success'){
+
+                        if(!responseMap.containsKey('EW Start Date') || !responseMap.containsKey('EW Expire Date')){
+                            handleEWError(reqBody, res.getBody(), 'Either Start Date or Expiry Date Missing', c.get(currentOrderId).chassisNumber,currentOrderId);
+                            return;
+                        }
+
+
+                        String inputDateForStartDate = String.valueOf(responseMap.get('EW Start Date')); 
                     String inputDateForExpireDate = String.valueOf(responseMap.get('EW Expire Date')); 
                     
                     Date ewStartDate;
@@ -152,99 +163,35 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,ExtendedWarrantyForVe
                     v.EW_Expire_Date__c = ewExpireDate;
                     v.Dealer_Amount__c = dealerAmount;
                     v.Customer_Amount__c = customerAmount;
-                    v.EW_Submitted__c=true;     
-                    v.EW_Plan__c=(String) responseMap.get('EWPlan');    
-                    v.Certificate_For_EW__c = (String) responseMap.get('Certificate URL');          
+                    v.EW_Submitted__c=true;  
+                    v.EW_Plan__c=(String) responseMap.get('EWPlan'); 
+                    v.Certificate_For_EW__c = (String) responseMap.get('Certificate URL'); 
                     update v;
                     System.debug('Updated Vehicle==>'+v);
                 
-                    
-
-                }else if(res.getStatusCode() == 400 ){
-                    String errorMessage = '';
-                    Map<String,Object> responseMapForError = (Map<String,Object>) JSON.deserializeUntyped(res.getBody());
-                    System.debug('responseMapForError==>'+responseMapForError);
-                    errorMessage = (String) responseMapForError.get('message');
-                    System.debug(' '+errorMessage);
-
-                
-                    Map<String,Object> responseMap = (Map<String,Object>) JSON.deserializeUntyped(res.getBody());
-                String msg = responseMap.containsKey('message') ? (String)responseMap.get('message') : 'Not Found';
-                System.debug('Error Message Is ==>'+msg);
-
-                Integration_Log__c logObj = new Integration_Log__c(
+                    Integration_Log__c logObj = new Integration_Log__c(
                         Integration_Type__c = 'Extended Warranty',
                         Request_Payload__c = reqBody,
                         Response_Payload__c = res.getBody(),
-                        Error_Message__c = msg,
-                        Status__c = 'Failed'
+                        //Error_Message__c = msg,
+                        Status__c = 'Success',
+                        Order__c=currentOrderId
                     );
                     insert logObj;
 
-                //added by Aniket on 11/07/2025
-                Group g;
-                List<Group> sapGroup = [SELECT Id,Name,DeveloperName from Group WHERE DeveloperName = 'EW_Group' LIMIT 1];
-                System.debug('sapGroup=>'+sapGroup);
-                if(!sapGroup.isEmpty()){
-                    g=sapGroup[0];
-                    System.debug('G==>'+g);
-                }
-                List<GroupMember> members = [SELECT UserOrGroupId FROM GroupMember WHERE GroupId = :g.Id];
-                System.debug('members==>'+members);
-                Set<Id> userIds = new Set<Id>();
-                for (GroupMember gm : members) {
-                    if (gm.UserOrGroupId.getSObjectType() == User.SObjectType) {
-                        userIds.add(gm.UserOrGroupId);
+                    }else if(responseMap.containsKey('status') && responseMap.get('status') == 'error'){
+                        String errorMessage = '';
+                        if (responseMap.containsKey('message')) {
+                            errorMessage = (String) responseMap.get('message');
+                        }
+                        handleEWError(reqBody, res.getBody(), errorMessage, c.get(currentOrderId).chassisNumber,currentOrderId);
                     }
-                }
-                List<User> users = [SELECT Id, Name, Email FROM User WHERE Id IN :userIds];
-                System.debug('users==>'+users);
-                List<String> emailList = new List<String>();
-                for(User u : users){
-                    emailList.add(u.Email);
-                }
-                System.debug('emailList==>'+emailList);
-
-
-                                //upto here
-               List<OrgWideEmailAddress> oweaList = [SELECT Id FROM OrgWideEmailAddress WHERE Address = 'support@rideriver.com' LIMIT 1];
-               System.debug('OrgWideEmailAddress List In Salesforce==>'+oweaList);
-                Messaging.SingleEmailMessage mail2 = new Messaging.SingleEmailMessage();
-                mail2.setToAddresses(emailList);
-                mail2.setSubject('SAP Sync Failure');
-                mail2.setOrgWideEmailAddressId(oweaList[0].Id);
-               
-                                    String htmlBody = 
-                        '<html>' +
-                        '<head>' +
-                        '<style>' +
-                        '  body { font-family: Arial, sans-serif; color: #333; }' +
-                        '  .container { padding: 20px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9; }' +
-                        '  h2 { color: #d9534f; }' +
-                        '  .po-details { margin-top: 20px; padding: 15px; background-color: #fff3cd; border-left: 5px solid #ffeeba; }' +
-                        '  .footer { margin-top: 30px; font-size: 12px; color: #888; }' +
-                        '</style>' +
-                        '</head>' +
-                        '<body>' +
-                        '  <div class="container">' +
-                        '    <h2>🚨 EW Sync Failure</h2>' +
-                        '    <p>Dear EW Group Users,</p>' +
-                        '    <p>The following Vehicle failed to sync with EW Portal. Please review the details below and take appropriate action.</p>' +
-                        '    <div class="po-details">' +
-                        '      <p><strong>VIN No.:</strong> ' + c.get(currentOrderId).chassisNumber + '</p>' +
-                        '      <p><strong>Failure Reason:</strong> ' + errorMessage + '</p>' +
-                        '    </div>' +
-                        '    <p>Kindly address this issue at the earliest.</p>' +
-                        '    <div class="footer">' +
-                        '      <p>--<br/>This is an automated message from Salesforce.</p>' +
-                        '    </div>' +
-                        '  </div>' +
-                        '</body>' +
-                        '</html>';
-
-                    mail2.setHtmlBody(htmlBody);
-                Messaging.SendEmailResult[] results = Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail2 });
-                System.debug('Send Email Result: ' + results[0].isSuccess());
+                                            
+                    
+                }else if(res.getStatusCode() != 200 || res.getStatusCode() != 201){
+                    Map<String,Object> responseMapForError = (Map<String,Object>) JSON.deserializeUntyped(res.getBody());
+                    String errorMessage = (String) responseMapForError.get('message');
+                    handleEWError(reqBody, res.getBody(), errorMessage, c.get(currentOrderId).chassisNumber,currentOrderId);
                 
                     
                 }
@@ -262,6 +209,94 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,ExtendedWarrantyForVe
             }
 
     }
+    private static void handleEWError(
+    String reqBody,
+    String resBody,
+    String errorMessage,
+    String chassisNumber,
+    Id orderId
+) {
+    try {
+        
+        Integration_Log__c logObj = new Integration_Log__c(
+            Integration_Type__c = 'Extended Warranty',
+            Request_Payload__c = reqBody,
+            Response_Payload__c = resBody,
+            Error_Message__c = errorMessage,
+            Status__c = 'Failed',
+            Order__c=orderId
+        );
+        insert logObj;
+
+        // 2. Fetch EW group
+        Group g;
+        List<Group> sapGroup = [SELECT Id FROM Group WHERE DeveloperName = 'EW_Group' LIMIT 1];
+        if (!sapGroup.isEmpty()) {
+            g = sapGroup[0];
+        }
+
+        // 3. Fetch group members
+        List<GroupMember> members = [SELECT UserOrGroupId FROM GroupMember WHERE GroupId = :g.Id];
+        Set<Id> userIds = new Set<Id>();
+        for (GroupMember gm : members) {
+            if (gm.UserOrGroupId.getSObjectType() == User.SObjectType) {
+                userIds.add(gm.UserOrGroupId);
+            }
+        }
+
+        // 4. Fetch user emails
+        List<User> users = [SELECT Id, Name, Email FROM User WHERE Id IN :userIds];
+        List<String> emailList = new List<String>();
+        for (User u : users) {
+            emailList.add(u.Email);
+        }
+
+        // 5. Prepare and send the email
+        if (!emailList.isEmpty()) {
+            List<OrgWideEmailAddress> oweaList = [
+                SELECT Id FROM OrgWideEmailAddress WHERE Address = 'support@rideriver.com' LIMIT 1
+            ];
+
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+            mail.setToAddresses(emailList);
+            mail.setSubject('SAP Sync Failure');
+            mail.setOrgWideEmailAddressId(oweaList.isEmpty() ? null : oweaList[0].Id);
+
+            String htmlBody = 
+                '<html>' +
+                '<head>' +
+                '<style>' +
+                'body { font-family: Arial, sans-serif; color: #333; }' +
+                '.container { padding: 20px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9; }' +
+                'h2 { color: #d9534f; }' +
+                '.po-details { margin-top: 20px; padding: 15px; background-color: #fff3cd; border-left: 5px solid #ffeeba; }' +
+                '.footer { margin-top: 30px; font-size: 12px; color: #888; }' +
+                '</style>' +
+                '</head>' +
+                '<body>' +
+                '<div class="container">' +
+                '<h2>🚨 EW Sync Failure</h2>' +
+                '<p>Dear EW Group Users,</p>' +
+                '<p>The following Vehicle failed to sync with EW Portal. Please review the details below and take appropriate action.</p>' +
+                '<div class="po-details">' +
+                '<p><strong>VIN No.:</strong> ' + chassisNumber + '</p>' +
+                '<p><strong>Failure Reason:</strong> ' + errorMessage + '</p>' +
+                '</div>' +
+                '<p>Kindly address this issue at the earliest.</p>' +
+                '<div class="footer">' +
+                '<p>--<br/>This is an automated message from Salesforce.</p>' +
+                '</div>' +
+                '</div>' +
+                '</body>' +
+                '</html>';
+
+            mail.setHtmlBody(htmlBody);
+            Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+        }
+    } catch (Exception e) {
+        System.debug('Error in handleEWError: ' + e.getMessage());
+    }
+}
        
 
 }

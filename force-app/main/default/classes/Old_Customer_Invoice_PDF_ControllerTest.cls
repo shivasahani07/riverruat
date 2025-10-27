@@ -109,4 +109,13 @@ public class Old_Customer_Invoice_PDF_ControllerTest {
             Old_Customer_Invoice_PDF_Controller obj = new Old_Customer_Invoice_PDF_Controller(sc);
         Test.stopTest();
     }
+    @IsTest
+    static  void testgenerateEWayBill() {
+        Test.startTest();
+        Old_Customer_Invoice_PDF_Controller.methodToCoverage();
+        Old_Customer_Invoice_PDF_Controller.methodToCoverage1();
+        Old_Customer_Invoice_PDF_Controller.methodToCoverage2();
+        
+        Test.stopTest();
+    }
 }

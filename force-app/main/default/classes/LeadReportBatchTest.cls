@@ -27,7 +27,8 @@ public class LeadReportBatchTest {
             //OwnerId = UserInfo.getUserId(),
             OwnerId = dealerOwner.Id,
             Status = 'Open - Not Contacted',
-            PostalCode='291002'
+            PostalCode='291002',
+            Verified__c=true
         );
         insert lead;
         
@@ -43,7 +44,8 @@ public class LeadReportBatchTest {
             //OwnerId = UserInfo.getUserId(),
             OwnerId = dealerOwner.Id,
             Status = 'Open - Not Contacted',
-            PostalCode='291002'
+            PostalCode='291002',
+            Verified__c=true
         );
         insert lead2;    
         

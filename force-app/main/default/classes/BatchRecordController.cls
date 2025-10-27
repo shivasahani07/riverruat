@@ -1,4 +1,4 @@
-public with sharing class BatchRecordController {
+public without sharing class BatchRecordController {
    
     @AuraEnabled(cacheable=true)
     public static Contact getCurrentUserContact() {

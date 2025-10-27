@@ -61,6 +61,7 @@ public class CustomerE_InvoicePDFControler {
     public List<Attachment> QRAtt {get;set;}
     public Boolean IsQrGenerated {get;set;}
     public String JuriName { get; set; }
+    public String GSTIN { get; set; }
     
 
     // New property to hold individual line item totals
@@ -105,7 +106,7 @@ public class CustomerE_InvoicePDFControler {
         system.debug('## dcPdf record fetched: ' + dcPdf);
                 
         List<WorkOrder> workOrderList = [
-            SELECT Id, CreatedDate, IRN_No__c, EndDate, Service_Center__r.Name, Service_Center__r.Company_GSTIN_name__c, Service_Center__r.GSTIN_Number__c, Service_Center__r.ShippingStreet, Service_Center__r.ShippingCity,
+            SELECT Id, CreatedDate, IRN_No__c, EndDate, Service_Center__r.Parent.GSTIN_Number__c, Service_Center__r.Name, Service_Center__r.Company_GSTIN_name__c, Service_Center__r.GSTIN_Number__c, Service_Center__r.ShippingStreet, Service_Center__r.ShippingCity,
                    Service_Center__r.ShippingState, Service_Center__r.ShippingCountry, Service_Center__r.ShippingPostalCode, Company__c, Invoice_No__c, WorkOrderNumber, Invoice_Date__c,
                    Account.ShippingState, Account.Name, Status, Service_Center__r.Center_Code__c, Same_State__c, Account.Company_GSTIN_name__c,
                    Vehicle__r.Insurance__r.Name, Vehicle__r.Policy_Number__c, Vehicle__r.EngineNumber, Invoice_Type__c, Vehicle__r.isCustomerStateSame__c, City__r.State__c,
@@ -135,12 +136,23 @@ public class CustomerE_InvoicePDFControler {
                 System.debug('No QRAtt Record Found');
             }
         if(workOrderList[0].IRN_No__c != null){
+            workOrderRecord = workOrderList[0];
                  ModPayment = workOrderList[0].Mode_Of_Payment__c;
                 Integer midPoint = Math.ceil(workOrderList[0].IRN_No__c.length() / 2).intValue();
                 
                 formatedIRNNumber = workOrderList[0].IRN_No__c.substring(0, midPoint) + '<br/>' + workOrderList[0].IRN_No__c.substring(midPoint);
                 
                 System.debug('formatedIRNNumber==>'+formatedIRNNumber);
+            String centerGSTIN = workOrderRecord.Service_Center__r.GSTIN_Number__c;
+            String parentGSTIN = (workOrderRecord.Service_Center__r.Parent != null)
+                ? workOrderRecord.Service_Center__r.Parent.GSTIN_Number__c
+                : null;
+            
+            if (!String.isBlank(centerGSTIN) && !String.isBlank(parentGSTIN) && centerGSTIN == parentGSTIN) {
+                GSTIN = parentGSTIN;
+            } else {
+                GSTIN = centerGSTIN;
+            }
                 
             } 
 

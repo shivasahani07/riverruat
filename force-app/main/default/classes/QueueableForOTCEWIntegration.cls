@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Aniket Karmakar
  * @group             : 
- * @last modified on  : 10-23-2025
+ * @last modified on  : 10-24-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public class QueueableForOTCEWIntegration implements Queueable, Database.allowsCallouts{
@@ -45,7 +45,7 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,OrderInvoiceGeneratio
             String dealerCodeFor = c.get(currentOrderId).dealerCode;
             
             OrderItem orderProd;
-            List<OrderItem> orderProductList = [SELECT Id,OrderId,Product2Id,Product2.Name,Product2.ProductCode,Order.Account.Name,Order.Account.Email__c,Order.Account.Phone FROM OrderItem WHERE OrderId=:currentOrderId AND Product2.ProductCode LIKE '%RV-EW%' LIMIT 1];
+            List<OrderItem> orderProductList = [SELECT Id,OrderId,Product2Id,Product2.Name,Product2.ProductCode,Order.Account.Name,Order.Account.Email__c,Order.Account.Phone,Order.Assigned_Vehicle__r.CurrentOwner.Name,Order.Assigned_Vehicle__r.CurrentOwner.Email__c,Order.Assigned_Vehicle__r.CurrentOwner.Phone FROM OrderItem WHERE OrderId=:currentOrderId AND Product2.ProductCode LIKE '%RV-EW%' LIMIT 1];
             if(!orderProductList.isEmpty()){
                 orderProd = orderProductList[0];
             }
@@ -71,9 +71,9 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,OrderInvoiceGeneratio
             payLoad.put('WarrantyType','Extended Warranty');
             payLoad.put('SoldFrom',a.Type == 'Dealer' ? 'Showroom' : a.Type == 'Service Center' ? 'Workshop' : 'Nothing' );
             payLoad.put('EWPlan',ewPlan);
-            payLoad.put('CustomerEmail',orderProd.Order.Account.Email__c != null ? orderProd.Order.Account.Email__c : 'Blank');
-            payLoad.put('CustomerName',orderProd.Order.Account.Name != null ? orderProd.Order.Account.Name : 'Blank');
-            payLoad.put('CustomerMobile',orderProd.Order.Account.Phone != null ? orderProd.Order.Account.Phone : 'Blank');
+            payLoad.put('CustomerEmail',orderProd.Order.Assigned_Vehicle__r.CurrentOwner.Email__c != null ? orderProd.Order.Assigned_Vehicle__r.CurrentOwner.Email__c : 'Blank');
+            payLoad.put('CustomerName',orderProd.Order.Assigned_Vehicle__r.CurrentOwner.Name != null ? orderProd.Order.Assigned_Vehicle__r.CurrentOwner.Name : 'Blank');
+            payLoad.put('CustomerMobile',orderProd.Order.Assigned_Vehicle__r.CurrentOwner.Phone != null ? orderProd.Order.Assigned_Vehicle__r.CurrentOwner.Phone : 'Blank');
 
             String reqBody = JSON.serialize(payLoad);
             System.debug('Request body=>'+JSON.serializePretty(payLoad));
@@ -97,6 +97,13 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,OrderInvoiceGeneratio
                     System.debug('Response Map==>'+responseMap);
 
                     if(responseMap.containsKey('status') && responseMap.get('status') == 'success'){
+
+                        if(!responseMap.containsKey('EW Start Date') || !responseMap.containsKey('EW Expire Date')){
+                            handleEWError(reqBody, res.getBody(), 'Either Start Date or Expiry Date Missing', c.get(currentOrderId).chassisNumber,currentOrderId);
+                            return;
+                        }
+
+
                         String inputDateForStartDate = String.valueOf(responseMap.get('EW Start Date')); 
                     String inputDateForExpireDate = String.valueOf(responseMap.get('EW Expire Date')); 
                     
@@ -158,7 +165,7 @@ public static void calloutToEWAPI(Id currentOrderId,Map<Id,OrderInvoiceGeneratio
                     v.Customer_Amount__c = customerAmount;
                     v.EW_Submitted__c=true;  
                     v.EW_Plan__c=(String) responseMap.get('EWPlan'); 
-                    //v.Certificate_For_EW__c = (String) responseMap.get('Certificate URL'); 
+                    v.Certificate_For_EW__c = (String) responseMap.get('Certificate URL'); 
                     update v;
                     System.debug('Updated Vehicle==>'+v);
                 

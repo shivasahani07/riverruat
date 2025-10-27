@@ -47,15 +47,72 @@
             margin-bottom: 10px;
         }
         
-        @media (max-width: 768px) { 
-            .header-logo {
-                left: 20px;
-                height: 60px;
-            }
-            .user-name {
-                font-size: 24px;
-            }
+         /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .header-logo {
+            position: static;
+            margin-bottom: 10px;
         }
+
+        .header {
+            flex-direction: column;
+            padding: 16px;
+        }
+
+        .user-name {
+            font-size: 22px;
+            margin-top: 10px;
+        }
+
+        #feedbackForm {
+            display:block;
+            margin: 40px auto;
+            justify-content: center;
+        }
+        
+
+        .question-card {
+            width: 100%;
+        }
+
+        textarea {
+            font-size: 13px;
+        }
+
+        h2 {
+            font-size: 22px;
+        }
+
+        p {
+            font-size: 16px;
+        }
+    }
+
+         @media (max-width: 480px) {
+        .user-name {
+            font-size: 20px;
+        }
+
+        #feedbackForm {
+            display: flex;
+            flex-direction: column;
+            margin: 1%;
+        }
+
+        .header-logo {
+            height: 55px;
+            width: 50px;
+        }
+
+        #submitBtn {
+            font-size: 14px;
+            padding: 12px 20px;
+        }
+
+        .question-title {
+            font-size: 16px;
+        }
+    }
         
         h2 { 
             font-size: 24px; 
@@ -258,7 +315,8 @@
         <h2>We'd love your feedback!</h2>
         <p style="font-size: 20px;">
             We're always looking to improve your River experience.<br/>
-            Share your thoughts to help us keep getting better.
+            <!-- Share your thoughts to help us keep getting better. -->
+            Share a quick rating to help us keep getting better.
         </p>
         
         <div id="feedbackForm">
@@ -274,7 +332,7 @@
         </div>
         
         <div id="submitBtnWrapper">
-            <button id="submitBtn">Submit Feedback</button>
+            <button id="submitBtn" disabled="disabled">Submit Feedback</button>
         </div>
     </div>
     
@@ -318,7 +376,8 @@
             { id: 'q4', text: 'Were the job card and invoice provided and explained to you?', type: 'yesno' },
             { id: 'q5', text: 'How clean was the delivered vehicle after service?', type: 'stars' },
             { id: 'q6', text: 'How effectively was your issue resolved during the service?', type: 'stars' },
-            { id: 'q7', text: 'Was your Indie service completed on time?', type: 'yesno' }
+            { id: 'q7', text: 'Was your Indie\'s service completed on time?', type: 'yesno' }
+            /*{ id: 'q7', text: 'Was your Indie service completed on time?', type: 'yesno' }*/
         ];
         
         function getUrlParameter(name) {
@@ -473,6 +532,7 @@
         }
         
          function checkCompletion() {
+            debugger;
              let allAnswered = true;
              let hasValidationErrors = false;
              

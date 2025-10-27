@@ -60,7 +60,7 @@ public class PSFController {
             List<Feedback_Response__c> responsesToUpdate = [
                 SELECT Id, Name, Response_Status__c
                 FROM Feedback_Response__c
-                WHERE Job_Card__c = :leadId AND Response_Status__c = 'Sent'
+                WHERE Job_Card__c = :leadId
                 LIMIT 1
             ];
             System.debug('Found ' + responsesToUpdate.size() + ' responses to update');

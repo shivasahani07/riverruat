@@ -4,7 +4,7 @@
     <columns>NAME</columns>
     <columns>Status__c</columns>
     <columns>Integration_Type__c</columns>
-    <columns>Button_Name__c</columns>
+    <columns>Response_Payload__c</columns>
     <columns>Error_Message__c</columns>
     <columns>CREATED_DATE</columns>
     <filterScope>Everything</filterScope>

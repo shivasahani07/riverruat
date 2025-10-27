@@ -3,8 +3,9 @@
     <fullName>paid_amount_cannot_be_less_than_2500</fullName>
     <active>true</active>
     <errorConditionFormula>AND(
+    Enquiry__r.Order__r.Record_Type_Name__c = &quot;Vehicle&quot;,
     NOT(ISBLANK(Enquiry__c)),
-    Amount__c &lt;= 2500
+    Amount__c &lt;= 2500  
 )</errorConditionFormula>
     <errorMessage>Initial Amount Should be Greater than 2500</errorMessage>
 </ValidationRule>

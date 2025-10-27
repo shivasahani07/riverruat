@@ -9,7 +9,7 @@ trigger WarrantyPriorTrigger on Warranty_Prior__c (before update,after update, b
     if (Trigger.isAfter && Trigger.isUpdate) {
         //WarrantyPriorTriggerHandler.creatClaimLineItemPartJobsAdded(Trigger.new, Trigger.oldMap);//Commented by Aniket To Test
         //WarrantyPriorTriggerHandler.handleWarrantyApproval(Trigger.new, Trigger.oldMap);//Commented By Aniket To Test
-       // WarrantyPriorTriggerHandler.createClaimAndClaimItem(Trigger.new, Trigger.oldMap);
+        //WarrantyPriorTriggerHandler.createClaimAndClaimItem(Trigger.new, Trigger.oldMap);
         DMLLogger.logChanges(Trigger.oldMap, Trigger.newMap, 'UPDATE', 'Warranty_Prior__c');
         
         // WarrantyPriorTriggerHandler.sendNotificationToDealer(Trigger.new,Trigger.oldMap);

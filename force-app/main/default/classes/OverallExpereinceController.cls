@@ -16,7 +16,7 @@ public class OverallExpereinceController {
 
                 if (currentLead.AccountId != null) {
                     List<Contact> primaryContacts = [
-                        SELECT Id, Name, Primary_Contact__c
+                        SELECT Id, Name, Primary_Contact__c, FirstName, LastName
                         FROM Contact
                         WHERE AccountId = :currentLead.AccountId
                         AND Primary_Contact__c = true

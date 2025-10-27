@@ -90,7 +90,7 @@
         }
        
         .stars {
-        font-size: 2em;
+        font-size: 4em;
         color: #ccc;
         margin-bottom: 20px;
         cursor: pointer;
