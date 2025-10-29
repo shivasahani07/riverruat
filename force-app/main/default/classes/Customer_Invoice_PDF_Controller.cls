@@ -131,7 +131,7 @@ public class Customer_Invoice_PDF_Controller {
                 ? workOrderRecord.Service_Center__r.Parent.GSTIN_Number__c
                 : null;
             
-            if (!String.isBlank(centerGSTIN) && !String.isBlank(parentGSTIN) && centerGSTIN == parentGSTIN) {
+            if (!String.isBlank(parentGSTIN)) {
                 GSTIN = parentGSTIN;
             } else {
                 GSTIN = centerGSTIN;

@@ -57,6 +57,8 @@ private class TFRManagement_Test {
         );
         insert fc;
         
+        
+        
         Id vehiclePdiRtId = Schema.SObjectType.WorkOrder.getRecordTypeInfosByName().get('Vehicle PDI').getRecordTypeId();
         
         
@@ -139,6 +141,55 @@ private class TFRManagement_Test {
 
         );
         insert testWorkOrder;
+        
+        WorkOrder closedWO = new WorkOrder(
+            RecordTypeId = vehiclePdiRtId,
+            Warehouse__c = testWarehouse.Id,
+            Vehicle__c = testVehicle2.Id,
+            Odometer_Reading__c = 100,
+            Status = 'Completed',
+            Mode_Of_Payment__c = 'UPI',
+            Subject = 'Test Work Order', 
+            RR_Technician__c = con.Id,
+            RR_SOC_Level__c = true,
+            RR_Front_Axle_Nut__c = true,
+            RR_Brake_Play__c = true,
+            RR_Tyre_Pressure__c = true,
+            RR_GUI_Checks__c = true,
+            RR_Tyre_Condition__c = true,
+            RR_Socket_Cover_Opening__c = true,
+            RR_Tank_Badge__c = true,
+            RR_Suspnsion_Play__c = true,
+            RR_Fork_Seal__c = true,
+            RR_Brake_Oil_Level__c = true,
+            RR_Rear_Axle_Nut__c = true,
+            RR_Brake_Pads__c = true,
+            RR_Steering_Top_Nut__c = true,
+            RR_Brake_Sponginess__c = true,
+            RR_Check_all_requested_work_completed__c = 'Done',
+            RR_Pending_Field_Fix__c = 'Done',
+            RR_Ensure_latest_Firmware_is_flashed__c = 'Done',
+            RR_Status_of_Side_Stand_switch_in_parked__c = 'Done',
+            RR_Electrical_Component_Functioning__c = 'Done',
+            RR_Check_for_outstanding_Fault_Codes__c = 'Done',
+            RR_Washing_Polishing__c= 'Done',
+            Total_Duration_Min__c = 0,
+            Total_Duration_Hour__c = 0,
+            Labour_Charge__c = 0,
+            SGST_on_Labour_Charges__c = 0,
+            IGST_on_Labour_Charges__c = 0,
+            CGST_on_Labour_Charges__c = 0,
+            Service_Center__c=serviceCenter.Id
+
+        );
+        insert closedWO;
+        
+        // Create Failure_Code__c record
+        TFR_Sample__c tfrSample = new TFR_Sample__c(
+			Job_Card__c = closedWO.Id,
+            Failure_Code__c = fc.Id
+        );
+        insert tfrSample;
     }
     
     // Test Method for getFailureCodes()
@@ -178,6 +229,18 @@ private class TFRManagement_Test {
         
         Test.startTest();
         TFRManagement.VeripartWithActionWithPlanApex(wo.Id);
+        Test.stopTest();
+    }
+    
+    // Test Method for VeripartWithActionWithPlanApex()
+    @IsTest
+    static void test_addSampleSizeONjcCloser() {
+        WorkOrder wo = [SELECT Id FROM WorkOrder WHERE Status = 'Completed' LIMIT 1 ];
+	
+        List<Id> jobIds = new List<Id>{wo.Id};
+            
+        Test.startTest();
+        TFRManagement.addSampleSizeONjcCloser(jobIds);
         Test.stopTest();
     }
     

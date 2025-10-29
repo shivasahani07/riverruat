@@ -6,8 +6,8 @@
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 
-public class CustomerE_InvoicePDFControler {
-    public Double offset {
+public class NewInsurenceE_Invoice_PDF_Controller {
+ public Double offset {
         get {
             TimeZone tz = UserInfo.getTimeZone();
             // Milliseconds to Day
@@ -62,12 +62,13 @@ public class CustomerE_InvoicePDFControler {
     public Boolean IsQrGenerated {get;set;}
     public String JuriName { get; set; }
     public String GSTIN { get; set; }
+    public Boolean SameState { get; set; }
     
 
     // New property to hold individual line item totals
     public Map<Id, Decimal> lineItemTotalsMap { get; set; }
 
-    public CustomerE_InvoicePDFControler(ApexPages.StandardController controller) {
+    public NewInsurenceE_Invoice_PDF_Controller(ApexPages.StandardController controller) {
         system.debug('## Entering CustomerE_InvoicePDFControler constructor');
         workOrderRecord = new WorkOrder();
         workOrderLineItemList = new List<WorkOrderLineItem>();
@@ -113,8 +114,9 @@ public class CustomerE_InvoicePDFControler {
                    Vehicle_Registration_Number__c, Vehicle__r.VehicleIdentificationNumber, Vehicle__r.Name, Vehicle__r.VehicleRegistrationNumber, Vehicle__r.LastOdometerReading, toLabel(RR_Job_Type__c),
                    Vehicle__r.Dealer__r.Name, Vehicle__r.Dealer__r.ShippingStreet, Vehicle__r.Dealer__r.GSTIN_Number__c, Vehicle__r.Insurance__r.Address__c, Vehicle__r.Insurance__r.GSTIN_Number__c,
                    Vehicle__r.CurrentOwner.Name, Vehicle__r.CurrentOwner.GSTIN_Number__c, Vehicle__r.CurrentOwner.ShippingStreet, Service_Center__r.BillingCity, Service_Center__r.BillingCountry,
-                   Service_Center__r.BillingState, Service_Center__r.BillingStreet, Service_Center__r.CIN__c, Service_Center__r.BillingPostalCode,Service_Center__r.GST_City__c, Service_Center__r.GST_State__c, Service_Center__r.GST_Zip_Postal_Code__c,
-            	   Service_Center__r.GST_Street__c,Mode_Of_Payment__c,
+                   Service_Center__r.BillingState, Service_Center__r.BillingStateCode, Service_Center__r.BillingStreet, Service_Center__r.CIN__c, Service_Center__r.BillingPostalCode,Service_Center__r.GST_City__c, Service_Center__r.GST_State__c, Service_Center__r.GST_Zip_Postal_Code__c,
+            	   Service_Center__r.GST_Street__c,Mode_Of_Payment__c,Vehicle__r.Insurance__r.Address__Street__s,Vehicle__r.Insurance__r.Address__StateCode__s,
+                   Vehicle__r.Insurance__r.Address__CountryCode__s,Vehicle__r.Insurance__r.Address__PostalCode__s,
                    Account.BillingStreet, Account.BillingCity, Account.BillingState, Account.BillingPostalCode, Account.Email__c, Account.Phone, Account.Secondary_Phone_Number__c, Account.GSTIN_Number__c,
                    Service_Center__r.Store_Type__c, Service_Center__r.Email__c, Service_Center__r.Phone, Vehicle__r.CurrentOwner.ShippingCity, Vehicle__r.CurrentOwner.ShippingState,
                    Vehicle__r.CurrentOwner.ShippingCountry, Vehicle__r.CurrentOwner.ShippingPostalCode, Service_Center__r.Secondary_Phone_Number__c, RR_Service_Advisor__r.Name,
@@ -160,6 +162,17 @@ public class CustomerE_InvoicePDFControler {
             } else {
                 GSTIN = centerGSTIN;
             }
+            
+            String centerStateCode = workOrderRecord.Service_Center__r.BillingStateCode;
+                String insuranceStateCode = workOrderRecord.Vehicle__r.Insurance__r.Address__StateCode__s;
+            
+            System.debug('centerStateCode ==>'+centerStateCode + ''+'insuranceStateCode ==>'+insuranceStateCode);
+                
+                if (String.isNotBlank(centerStateCode) && String.isNotBlank(insuranceStateCode)) {
+                    SameState = (centerStateCode == insuranceStateCode);
+                } else {
+                    SameState = false; 
+                }
 
             workOrderLineItemList = [
                 SELECT Id, CreatedDate, WorkOrderId, ParentWorkOrderLineItemId, Product2Id, AssetId, OrderId, RootWorkOrderLineItemId, Description,
@@ -169,7 +182,7 @@ public class CustomerE_InvoicePDFControler {
                        Inventory_Lot__c, Product_Available__c, Stage__c, RR_Parts_Category__c, RR_Product__c, RR_Product__r.Name, RR_Product__r.HSN_Code__c, IGST_Percentage_formula__c, CGST_Percentage_Formula__c, SGST_Percentage_Formula__c,
                        IGST__c,RR_Product__r.ProductCode, CGST__c, SGST__c, IGST_Amount__c, CGST_Amount__c, SGST_Amount__c, Amount__c, Unit_of_Measurement__c,List_Price_New__c,Total_NDP__c,Sub_Total__c,
                 Total_Part_Price__c
-                FROM WorkOrderLineItem WHERE WorkOrderId = :workOrderRecord.Id AND RR_Parts_Category__c IN ('Paid')
+                FROM WorkOrderLineItem WHERE WorkOrderId = :workOrderRecord.Id AND RR_Parts_Category__c IN ('Insurance')
             ];
             system.debug('## WorkOrderLineItemList size: ' + workOrderLineItemList.size());
             system.debug('## WorkOrderLineItemList : ' + workOrderLineItemList);
@@ -179,7 +192,7 @@ public class CustomerE_InvoicePDFControler {
                        Duration_Hour__c, Discount__c, Duration_Min__c, RR_Labour_Category__c, Labour_Charge__c, Labour_Charge_CodeSet_New__c, Status__c, Work_Type__c,
                        Estimate_Duration_Type__c, Estimated_Duration__c, RR_Labour_Code__c, RR_Labour_Code__r.Code, IGST__c, SGST__c,
                        CGST__c, IGST_Amount__c, CGST_Amount__c, SGST_Amount__c, Amount__c
-                FROM WorkPlan WHERE WorkOrderId = :workOrderRecord.Id AND RR_Labour_Category__c IN ('Paid')
+                FROM WorkPlan WHERE WorkOrderId = :workOrderRecord.Id AND RR_Labour_Category__c IN ('Insurance')
             ];
             system.debug('## WorkPlansItemList size: ' + workPlansItemList.size());
             system.debug('## WorkPlansItemList : ' + workPlansItemList);
@@ -301,6 +314,12 @@ public class CustomerE_InvoicePDFControler {
     public String getFormattedAccountBillingStreet() {
         String formatted = workOrderRecord.Account.BillingStreet != null ? workOrderRecord.Account.BillingStreet.replace('\n', '<br/>') : '';
         system.debug('## FormattedAccountBillingStreet: ' + formatted);
+        return formatted;
+    }
+    
+    public String getFormattedInsurenceBillingStreet() {
+        String formatted = workOrderRecord.Vehicle__r.Insurance__r.Address__Street__s != null ? workOrderRecord.Vehicle__r.Insurance__r.Address__Street__s.replace('\n', '<br/>') : '';
+        system.debug('## FormattedInsuranceBillingStreet: ' + formatted);
         return formatted;
     }
 }

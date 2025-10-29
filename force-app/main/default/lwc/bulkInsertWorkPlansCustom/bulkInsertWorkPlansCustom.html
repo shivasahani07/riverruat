@@ -106,6 +106,14 @@
                                         value={item.LabourCharge} formatter="currency" data-id={index} disabled>
                                     </lightning-input>
                                 </div>
+                                <!--Approved Insurance (%)-->
+                                <template if:true={item.isInsuranceCategory}>
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-12">
+                                    <lightning-input type="Percent" label="Approved Insurance (%)" name="Approved_Insurance__c" data-fieldname="Approved_Insurance__c"
+                                        value={item.Approved_Insurance__c} formatter="currency" data-id={index} onchange={handleInputChange}>
+                                    </lightning-input>
+                                </div>
+                                </template>
                                 <!-- Actions -->
                                 <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-12">
                                     <div style="margin-top:20px;">

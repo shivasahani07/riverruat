@@ -210,6 +210,17 @@
                                                 data-fieldname="Part_Description__c">
                                             </lightning-input>
                                         </div>
+                                        <!--Approved Insurence %-->
+                                        <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_3-of-12">
+                                            <lightning-input 
+                                                type="text" 
+                                                label="Approved Insurance (%)"
+                                                value={item.Approved_Insurance__c} 
+                                                onchange={handleInputChange}
+                                                data-id={index} 
+                                                data-fieldname="Approved_Insurance__c">
+                                            </lightning-input>
+                                        </div>
                                     </template>
                                 </template>
                             </div>

@@ -1,6 +1,6 @@
 /**
  * @description       : 
- * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @author            : Aniket Karmakar
  * @group             : 
  * @last modified on  : 10-17-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
@@ -273,6 +273,8 @@ global without sharing class OTCOrderAPI {
            
          res.statuscode=201;
          res.responseBody = successResponse('OTC Order Is Successfully Created with Salesforce Order Id ' + oTCOrder.Id,'201',true,String.valueof(oTCOrder.Id));   
+         
+         createLogRecord('OTC Website', reqBody, 'Success', res.responseBody.toString());
 
 
         }catch(Exception e){
@@ -281,6 +283,9 @@ global without sharing class OTCOrderAPI {
             res.responseBody = responseUtility('Error In Creating OTC Order' + e.getMessage(),'404',false);  
             System.debug('Error Occured==>'+e.getMessage());
             System.debug('Error Line Number Is ==>'+e.getLineNumber());
+            
+            createLogRecord('OTC Website', req.requestBody.toString(), 'Failed', res.responseBody.toString());
+
         }
     }
     public static Blob responseUtility(String message,String statusCode, Boolean isSuccess){
@@ -319,4 +324,14 @@ global without sharing class OTCOrderAPI {
             return null;
         }
     }
+     private static void createLogRecord(String integrationType, String request, String status, String response) {
+        
+        Integration_log__c logObj = new Integration_log__c();
+        logObj.Integration_Type__c = integrationType;
+        logObj.Request_Payload__c = request;
+        logObj.Response_Payload__c = response;
+        logObj.Status__c = status;
+        insert logObj;
+    }
+    
 }

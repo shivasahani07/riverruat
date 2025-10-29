@@ -25,6 +25,47 @@ export default class AddLabourFailureCodeLwcComp extends LightningElement {
     @track selectedRecord;
     @track selectedLabourcodesetid = null
 
+    @track selectedCSrecord;
+    @track displayInfo;
+
+    // Filter for active CodeSets only
+    filter = {
+        criteria: [
+            {
+                fieldPath: 'IsActive',
+                operator: 'eq',
+                value: true
+            }
+        ],
+        filterLogic: '1'
+    };
+
+    // Optional: preload active records
+    connectedCallback() {
+        this.prefillActiveRecords();
+    }
+
+    async prefillActiveRecords() {
+        // simulate a "default" search term (e.g., empty or wildcard)
+        const searchTerm = ''; 
+        const results = await getActiveCodeSets({ searchTerm });
+
+        // Programmatically show records in picker if needed
+        const picker = this.refs.myPicker;
+        if (picker && results.length > 0) {
+            // The picker’s `.search()` method can show filtered results
+            picker.search(searchTerm);
+        }
+    }
+
+    /*
+    recordChangeHandler2(event) {
+        this.selectedCSrecord = event.detail.recordId;
+        this.displayInfo = event.detail.displayInfo;
+    }
+    */
+    
+    /*
      @track displayInfo = {
         primaryField: 'Name',
         additionalFields: ['Code'],
@@ -39,7 +80,7 @@ export default class AddLabourFailureCodeLwcComp extends LightningElement {
             }
         ],
     }
-
+    */
 
     handleSearch(searchKey, codesetid) {
         debugger;
@@ -75,7 +116,8 @@ export default class AddLabourFailureCodeLwcComp extends LightningElement {
         this.selectedLabourcodesetid = event.detail.recordId;
         this.searchKey = '';
         this.records = null; // hide dropdown after select
-        this.failureCode.labourCode=this.selectedLabourcodesetid
+        this.failureCode.labourCode=this.selectedLabourcodesetid;
+         this.displayInfo = event.detail.displayInfo;
     }
 
     handleSearchChange(event) {
@@ -205,12 +247,14 @@ export default class AddLabourFailureCodeLwcComp extends LightningElement {
 
         this.isLoading = true;
 
+        console.log('this.failureCode.batchSize : ' + this.failureCode.batchSize);
+
         try {
             const result = await createPostVINFCLabourVIN({
                 fcName: this.failureCode.failureCode,
                 labourCode: this.failureCode.labourCode,
                 newVINCutOff: this.failureCode.vinCutoff,
-                sampleRequired: this.failureCode.batchSize
+                sampleRequired: this.failureCode.batchSize ? parseInt(this.failureCode.batchSize, 10) : null
             });
 
             this.messages = result;

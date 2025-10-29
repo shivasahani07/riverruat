@@ -11,7 +11,7 @@ public with sharing class WorkPlanController {
         System.debug('Fetching related Work Plans for Work Order Id: ' + workOrderId);
         List<WorkPlan> workplans = [SELECT Id, Name, RR_Labour_Code__r.Code, Status__c, Duration_Hour__c, Labour_Charge__c,CreatedDate, RR_Labour_Code__c,RR_Labour_Category__c,WorkOrder.Status,RR_Labour_Code__r.Name,Failure_code__c,Failure_code__r.Name,
                                     Amount_per_Hour__c, Labour_Charge_CodeSet__c, Total_Labour_Cost__c,RR_Labour_Code__r.Labour_Charges__c,RR_Labour_Code__r.RR_Labour_Charge__c,RR_Labour_Code__r.RR_Efforts_Hours__c,
-                                    RR_Labour_Code__r.RR_Efforts_Minutes__c,workOrder.Service_Center__c,workOrderId,Warranty_Prior__r.Status__c,Warranty_Prior__c
+                                    RR_Labour_Code__r.RR_Efforts_Minutes__c,workOrder.Service_Center__c,workOrderId,Warranty_Prior__r.Status__c,Warranty_Prior__c, Approved_Insurance__c
                                     FROM WorkPlan 
                                     WHERE WorkOrderId =:workOrderId
                                     ORDER BY CreatedDate ASC];

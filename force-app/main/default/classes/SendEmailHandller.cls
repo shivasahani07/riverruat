@@ -147,22 +147,36 @@ public class SendEmailHandller {
     // Send the Pre_payments Attchamnetnts.
     public static void sendPreAttchamnets(string OrderpaymentId, List<Attachment> attachmentsToInsert){
        System.debug('Scheduler For EMail Debug has been called');
-       Datetime dt = Datetime.now().addSeconds(15);
-            String cron = String.format('{0} {1} {2} {3} {4} ? {5}',
-                new String[]{
-                    String.valueOf(dt.second()),
-                    String.valueOf(dt.minute()),
-                    String.valueOf(dt.hour()),
-                    String.valueOf(dt.day()),
-                    String.valueOf(dt.month()),
-                    String.valueOf(dt.year())
-                }
-            );
+        Order_Payment__c op = [
+        SELECT Id, Order__c, Order__r.RecordType.Name
+        FROM Order_Payment__c
+        WHERE Id = :orderPaymentId
+        LIMIT 1
+    ];
 
-            SendEmailScheduler job = new SendEmailScheduler(OrderpaymentId,attachmentsToInsert);
-            System.schedule('Schedule_SendEmailPDF_' + Datetime.now().getTime(), cron, job);
+    
+    if (op.Order__r.RecordType.Name == 'Vehicle') {
+        Datetime dt = Datetime.now().addSeconds(15);
 
+        String cron = String.format('{0} {1} {2} {3} {4} ? {5}',
+            new String[]{
+                String.valueOf(dt.second()),
+                String.valueOf(dt.minute()),
+                String.valueOf(dt.hour()),
+                String.valueOf(dt.day()),
+                String.valueOf(dt.month()),
+                String.valueOf(dt.year())
+            }
+        );
 
+        
+        SendEmailScheduler job = new SendEmailScheduler(orderPaymentId, attachmentsToInsert);
+        System.schedule('Schedule_SendEmailPDF_' + Datetime.now().getTime(), cron, job);
+
+        System.debug('Scheduled SendEmailScheduler for Vehicle order.');
+    } else {
+        System.debug('Skipped scheduling — Order Record Type is not Vehicle.');
+    }
 
 
 
@@ -227,4 +241,7 @@ public class SendEmailHandller {
     //     }
     //  
             }
+    
+   
+    
 }

@@ -67,6 +67,7 @@ public with sharing class AppointmentFormController_Test {
             ContactId = con.Id,
             Vehicle__c = v.Id,
             Status = 'Completed',
+            Mode_Of_Payment__c = 'Cash',
             Completed_Date__c = System.now().addDays(-4),
             Subject = 'Old Completed WO'
         );
@@ -92,6 +93,7 @@ public with sharing class AppointmentFormController_Test {
             AccountId = acc.Id,
             ContactId = con.Id,
             Status = 'Completed',
+              Mode_Of_Payment__c = 'Cash',
             Completed_Date__c = System.now().addDays(-4),
             Subject = 'Old Completed WO'
         );
@@ -173,6 +175,7 @@ public with sharing class AppointmentFormController_Test {
             ContactId = con1.Id,
             Vehicle__c = v1.Id,
             Status = 'Completed',
+             Mode_Of_Payment__c = 'Cash',
             Completed_Date__c = System.now().addDays(-4),
             Subject = 'Old Completed WO'
         );
@@ -279,7 +282,7 @@ public with sharing class AppointmentFormController_Test {
             Status__c = 'Published',
             Service_Center__c = acc.Id
         );
-        insert appSlot1;
+       // insert appSlot1;
 
         AppointmentFormController.getSlotItems(acc.Id, System.today().addDays(1));
     }

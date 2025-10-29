@@ -635,6 +635,7 @@ export default class BulkInsertJCProductsCustomNew extends NavigationMixin(Light
                 RR_Product__c: item.productId,
                 Warranty_Prior__c: isAddWP ? this.warrantyId : null,
                 Post_Vin_cutt_off__c: item.Post_Vin_cutt_off__c,
+                Approved_Insurance__c: item.Approved_Insurance__c,
                 ...(!item.isChild && {
                     Electrical_Value__c: item.Electrical_Value__c,
                     Part_Description__c: item.Part_Description__c

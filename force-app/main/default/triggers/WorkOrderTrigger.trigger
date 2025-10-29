@@ -58,9 +58,9 @@ trigger WorkOrderTrigger on WorkOrder (before insert, before update, after updat
                 WorkOrder oldWo=oldJCbyId.get(wo.id);
                 if (lastOdo != null && wo.Odometer_Reading__c != null &&
                     wo.Odometer_Reading__c <= lastOdo && (oldWo == null || oldWo.Status != 'Submit For Approval')) {
-                        wo.Odometer_Reading__c.addError(
+                       /* wo.Odometer_Reading__c.addError(
                             'Odometer reading must be greater than the Vehicle record value: ' + lastOdo
-                        );
+                        );*/
                     }
                 
                 // VIN/VRN uniqueness
@@ -123,7 +123,7 @@ trigger WorkOrderTrigger on WorkOrder (before insert, before update, after updat
                 myList.add(wo.id);
             }
         }
-         TFRManagement.addSampleSizeONjcCloser(myList);
+         //TFRManagement.addSampleSizeONjcCloser(myList);
         // WorkOrderTriggerHandler.onJobcardCompleteUpdateAssetMilestone(Trigger.new, Trigger.oldMap);
         //code Added by Sagar on 14/04/2025
         // WorkOrderTriggerHandler.handleJobCardCompletion(Trigger.new,Trigger.oldMap);

@@ -13,5 +13,14 @@
     <columns>Product_Name__c</columns>
     <columns>CREATED_DATE</columns>
     <filterScope>Everything</filterScope>
+    <filters>
+        <field>CodeSetId__c</field>
+        <operation>notEqual</operation>
+    </filters>
+    <filters>
+        <field>Type__c</field>
+        <operation>equals</operation>
+        <value>Labour</value>
+    </filters>
     <label>All</label>
 </ListView>

@@ -259,7 +259,7 @@ public without sharing class WorkOrderLineItemController {
     public static List<WorkOrderLineItem> getRelatedWorkOrderLineItems(Id workOrderId){
         try{
             System.debug('Fetching related Products for Work Order Id: ' + workOrderId);
-            List<WorkOrderLineItem> WorkOrderLineItems = [SELECT WorkOrderId, Id, LineItemNumber,Part__c, PricebookEntryId, PricebookEntry.Product2.Name,
+            List<WorkOrderLineItem> WorkOrderLineItems = [SELECT WorkOrderId, Id, LineItemNumber,Part__c, PricebookEntryId, PricebookEntry.Product2.Name, Approved_Insurance__c,
                                                           Quantity, RR_Parts_Category__c, Status,WorkOrder.Status,WorkOrder.Vehicle_Identification_Number__c,Replacement_Type__c,
                                                           PricebookEntry.Product2.ProductCode,CreatedDate,WorkOrder.WorkOrderNumber, PricebookEntry.Product2Id,Labour_Code__c,Labour_Code__r.Name, Product2.ProductCode
                                                           FROM WorkOrderLineItem

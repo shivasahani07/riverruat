@@ -1,5 +1,5 @@
-<apex:page renderAs="pdf" standardcontroller="WorkOrder" extensions="Insurance_Invoice_PDF_Controller" standardStylesheets="false"  applyBodyTag="false" applyHtmlTag="false" showHeader="false">
-     <head>
+<apex:page renderAs="pdf" standardcontroller="WorkOrder" extensions="NewInsurenceE_Invoice_PDF_Controller" standardStylesheets="false"  applyBodyTag="false" applyHtmlTag="false" showHeader="false">
+    <head>
         <style type="text/css">
             @page {
             size: 11.01in 15.58in;
@@ -57,7 +57,6 @@
                         
                         <p style="margin-top: 2px;">
                             
-                            
                             <apex:outputPanel rendered="{!storeType = 'DODO'}">
                                 <b><span style="font-size: 15px;"> {!dodoAccName} </span></b> <br/>
                                 <apex:outputText value="{!formattedGSTBillingStreet}" escape="false"/>,
@@ -82,12 +81,21 @@
                         
                     </td>
                     
-                    <td style="padding: 8px; width: 15%; vertical-align: top; text-align: left;">
-                        <div style="font-size: 13pt; font-weight: bold;">
-                            TAX INVOICE
-                        </div>
-                        <div style="font-size: 10pt; font-weight: bold;">
-                            Customer Copy
+                    <td style="padding: 10px; width: 15%; vertical-align: top; text-align: left;">
+                        <div style="font-size: 13pt; font-weight: bold;">   TAX INVOICE  </div>
+                        <div style="font-size: 10pt; font-weight: bold;"> Customer Copy </div>
+                        <apex:outputPanel rendered="{!NOT(ISBLANK(WorkOrder.IRN_No__c))}">
+                            <br />
+                            <div>
+                                IRN No: <br />
+                                <apex:outputText value="{!formatedIRNNumber}" escape="false"/>
+                            </div>
+                        </apex:outputPanel>
+                        <br/>
+                        <div>
+                            <apex:outputPanel rendered="{!IsQrGenerated == true}">
+                                <apex:image value="{!URLFOR('/servlet/servlet.FileDownload?file=' + QRAtt[0].Id)}" alt="QR Code" height="150px" width="150px" />
+                            </apex:outputPanel>
                         </div>
                     </td>
                 </tr>
@@ -139,7 +147,7 @@
                     <td >
                         <b>Billed From</b><br/>
                         <b>{!workOrderRecord.Service_Center__r.Company_GSTIN_name__c}</b><br/>
-                        <apex:outputText value="{!formattedBillingStreet}" escape="false"/> <br/>
+                         <apex:outputText value="{!formattedBillingStreet}" escape="false"/><br/>
                         {!workOrderRecord.Service_Center__r.BillingCity}
                         {!workOrderRecord.Service_Center__r.BillingState}  {!workOrderRecord.Service_Center__r.BillingPostalCode}<br/>               
                         Email: {!IF(AND(NOT(ISNULL(workOrderRecord.Service_Center__c)), NOT(ISNULL(workOrderRecord.Service_Center__r.Email__c))), workOrderRecord.Service_Center__r.Email__c, '')}<br/>
@@ -170,7 +178,7 @@
             
         </div>
         
-        <!--Upto here-->
+         <!--Upto here-->
         <p style="text-indent: 0pt;text-align: left;"><br/></p>
         <table style="border-collapse:collapse;" cellspacing="0" width="100%">
             <tr style="height:21pt">

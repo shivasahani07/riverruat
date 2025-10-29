@@ -53,7 +53,7 @@ public without sharing class ParentOrderTriggerHandler extends BasdeOrderTrigger
         OrderTriggerHandler.sendWhatsAppAfterOrderCreation((List<Order>)Trigger.new,(Map<Id,Order>)Trigger.oldMap);
         form22Controller.handleOrderUpdate((List<Order>)Trigger.new, (Map<Id,Order>)Trigger.oldMap);
         // OrderTriggerHandler.sendPDFAfterRTO(Trigger.new,Trigger.oldMap);
-        //OrderTriggerHandler.processOrderMilestones((List<Order>)Trigger.new,(Map<Id,Order>) Trigger.oldMap);
+        OrderTriggerHandler.processOrderMilestones((List<Order>)Trigger.new,(Map<Id,Order>) Trigger.oldMap);
         //OrderTriggerHandler.sendWhatsAppAfterOrderCreation(Trigger.new);
         //added by Aniket on 05/03/2025 for Ew Integration
         //OrderTriggerHandler.afterUpdateForEWIntegration(Trigger.new, Trigger.oldMap);
@@ -80,6 +80,7 @@ public without sharing class ParentOrderTriggerHandler extends BasdeOrderTrigger
         OrderInvoiceGenerationOTCController.eWAndRSACallout((List<Order>)Trigger.new, (Map<Id,Order>)Trigger.oldMap);//added by Aniket on 19/09/2025
         ExtendedWarrantyForVehicleOrder.punchOTCMethod((List<Order>)Trigger.new,(Map<Id,Order>)Trigger.oldMap);//added by Aniket on 19/09/2025
         SimActivationHandler.activateSim((List<Order>)Trigger.new,(Map<Id,Order>)Trigger.oldMap);//added by Aniket on 13/10/2025
+        //sendPDFForOTCOrder.sendPdf((List<Order>)Trigger.new,(Map<Id,Order>)Trigger.oldMap);//added by Aniket on 27/10/2025 
     }
     public override void afterDelete(){
         System.debug('Executing After Delete Triggers');

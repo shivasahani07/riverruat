@@ -188,6 +188,15 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
         this.showAll = !this.showAll;
         this.showRow = !this.showRow;
     }
+        handleInputChange(event) {
+        const index = event.target.dataset.id;
+        const fieldName = event.target.dataset.fieldname;
+        const value = event.target.value;
+
+        // Update the corresponding field value in the item list
+        this.itemList[index][fieldName] = value;
+        this.itemList = [...this.itemList];
+    }
 
     // Handle row actions in the datatable
     handleRowAction(event) {
@@ -227,6 +236,7 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
             Post_Vin_cutt_off__c: false,
             tfrMessage: '',
             hasError: false,
+            isInsuranceCategory: false,
             errorMessage: ''
         };
         this.itemList = [...this.itemList, newItem];
@@ -309,6 +319,7 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
         const value = event.detail.value;
 
         this.itemList[index].RR_Labour_Category__c = value;
+         this.itemList[index].isInsuranceCategory = (value === 'Insurance');
         
         // Show failure code field for River Warranty
         // this.itemList[index].isFailureCodeVisible = value === 'River Warranty';
@@ -447,6 +458,7 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
                 Failure_Code__c: item.Failure_Code__c,
                 TFR_Required__c: item.TFR_Required__c,
                 Post_Vin_cutt_off__c: item.Post_Vin_cutt_off__c,
+                Approved_Insurance__c: item.Approved_Insurance__c,
                 Name: item.Name
             };
         });

@@ -8,10 +8,22 @@
                 <div class="slds-grid slds-wrap slds-gutters">
                     <!-- Failure Code Field -->
                     <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-
+                        
+                        <!--
                         <lightning-record-picker label="Select labour" object-api-name="CodeSet"
                             onchange={recordChangeHandler} name="CodeSet" display-info={displayInfo}
                             record-id={selectedrecord} lwc:ref="myPicker">
+                        </lightning-record-picker>
+                        -->
+
+                        <lightning-record-picker
+                            label="Select Labour"
+                            object-api-name="CodeSet"
+                            filter={filter}
+                            onchange={recordChangeHandler}
+                            lwc:ref="myPicker"
+                            display-info={displayInfo}
+                            record-id={selectedrecord}>
                         </lightning-record-picker>
 
                     </div>

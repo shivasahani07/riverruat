@@ -3,6 +3,15 @@
     <fullName>Service_Center__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <label>Service Center</label>
+    <lookupFilter>
+        <active>true</active>
+        <filterItems>
+            <field>Account.Type</field>
+            <operation>equals</operation>
+            <value></value>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
     <referenceTo>Account</referenceTo>
     <relationshipLabel>Appointments</relationshipLabel>
     <relationshipName>Appointments</relationshipName>

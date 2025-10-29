@@ -6,8 +6,8 @@ trigger WorkOrderLineItemTrigger on WorkOrderLineItem (after insert, after updat
        // } /*else if (Trigger.isUpdate) {
             // Add any future logic for "before update" here if required
         //}
-    //} 
-
+    //}
+ 
     // Handle "after insert" logic
     if (Trigger.isAfter) {
         if (Trigger.isInsert) {
@@ -18,10 +18,10 @@ trigger WorkOrderLineItemTrigger on WorkOrderLineItem (after insert, after updat
            WorkOrderLineItemTriggerHandler.createWarrantyAfterUpdate(Trigger.new,Trigger.oldMap); //added by Aniket on 22/05/2025
         }else if (Trigger.isDelete) {
            WorkOrderLineItemTriggerHandler.handleDelete(Trigger.old);
-            
+           
       }
-    } 
-    
+    }
+   
     //Added By Ram 24/06/2025
     if(trigger.IsBefore && trigger.IsUpdate){
         JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.new);
@@ -39,7 +39,7 @@ trigger WorkOrderLineItemTrigger on WorkOrderLineItem (after insert, after updat
         JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.old);
         DMLLogger.logChanges(Trigger.oldMap, null, 'DELETE', 'WorkOrderLineItem');
     }
-    
+   
     if (Trigger.isAfter && Trigger.isUpdate) {
         DMLLogger.logChanges(Trigger.oldMap, Trigger.newMap, 'UPDATE', 'WorkOrderLineItem');
     }

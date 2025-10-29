@@ -24,6 +24,8 @@ public without sharing class AddLabourFailureCodeController {
     public static OperationResult createPostVINFCLabourVIN(String fcName, String labourCode, String newVINCutOff, Integer sampleRequired){
 
         try {
+            System.debug('sampleRequired : ' + sampleRequired);
+
             // Validate input parameters
             if (String.isBlank(fcName) || String.isBlank(labourCode)) {
                 return new OperationResult(false, 'Failure code name and labour code are required.');
@@ -101,14 +103,23 @@ public without sharing class AddLabourFailureCodeController {
                     OperationResult labourEffectResult = checkLabourEffect(labourCode, tfrResult.recordId);
                     if (!labourEffectResult.isSuccess) return labourEffectResult;
                     
-                    OperationResult fcResult = checkFailureCode(fc, fcName, labourEffectResult.recordId, tfrResult.recordId, null);
+                    OperationResult fcResult = checkFailureCode(fc, fcName, labourEffectResult.recordId, tfrResult.recordId, sampleRequired);
                     return fcResult;
                 } else if (comparisonResult == -1) {
                     return new OperationResult(false, 'New VIN is older than existing VIN cutoff.');
                 }
             } else {
+                /*
                 // No VIN cutoff exists yet
                 OperationResult fcResult = checkFailureCode(fc, null);
+                return fcResult;
+                */
+
+                //No VIN cutoff exists yet
+                OperationResult tfrResult = checkandCreateVIN(newVINCutOff);
+                if (!tfrResult.isSuccess) return tfrResult;
+
+                OperationResult fcResult = checkfailureCode(fc,tfrResult.recordId, sampleRequired);
                 return fcResult;
             }
             
@@ -180,6 +191,7 @@ public without sharing class AddLabourFailureCodeController {
             insert newFC;
             
             OldFC.Is_Active__c = false;
+            //OldFc.VIN_Cut_off__c = tfrId;
             update OldFC;
             
             return new OperationResult(true, 'Created new failure code and deactivated old one', newFC.Id, fcName);
@@ -205,15 +217,20 @@ public without sharing class AddLabourFailureCodeController {
         }
     }
     
-    private static OperationResult checkFailureCode(Failure_Code__c OldFC, String tfrId) {
+    private static OperationResult checkFailureCode(Failure_Code__c OldFC, String tfrId, Integer batchSize) {
         try {
+            System.debug('EXECUTING CHECKFAILURECODE WITH 3 PARAMETERS : ' + batchSize);
             OldFC.VIN_Cut_off__c = tfrId;
+            OldFC.Batch_Size__c = batchSize;
             update OldFC;
+            System.debug('After Updating OlfFC : ' + OldFC.Batch_Size__c);
+
             return new OperationResult(true, 'Updated failure code with VIN cutoff', OldFC.Id, OldFC.Name);
         } catch (Exception e) {
             return new OperationResult(false, 'Error updating failure code: ' + e.getMessage());
         }
     }
+    
     
     @AuraEnabled
     public static OperationResult validateInputs(String fcName, String labourCode, String newVINCutOff) {

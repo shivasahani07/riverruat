@@ -109,7 +109,7 @@ public without sharing class AddFailureCodeControllerNew {
                     OperationResult partEffectResult = checkCausalPartEF(productcode, tfrResult.recordId);
                     if (!partEffectResult.isSuccess) return partEffectResult;
                     
-                    OperationResult fcResult = checkfailureCode(fc, fcName, partEffectResult.recordId, tfrResult.recordId, batchSize);
+                    OperationResult fcResult = checkfailureCode(fc, fcName, partEffectResult.recordId, tfrResult.recordId, null);
                     return fcResult;
                 } else if (comparisonResult == -1) {
                     return new OperationResult(false, 'New VIN is older than existing VIN cutoff.');
@@ -119,7 +119,7 @@ public without sharing class AddFailureCodeControllerNew {
                 OperationResult tfrResult = checkandCreateVIN(newVINCutOff);
                 if (!tfrResult.isSuccess) return tfrResult;
                 
-                OperationResult fcResult = checkfailureCode(fc,tfrResult.recordId);
+                OperationResult fcResult = checkfailureCode(fc,tfrResult.recordId, batchSize);
                 return fcResult;
             }
             
@@ -219,9 +219,10 @@ public without sharing class AddFailureCodeControllerNew {
         }
     }
     
-    private static OperationResult checkfailureCode(Failure_Code__c OldFC, String tfrId) {
+    private static OperationResult checkfailureCode(Failure_Code__c OldFC, String tfrId, Integer batchSize) {
         try {
             OldFC.VIN_Cut_off__c = tfrId;
+            OldFC.Batch_Size__c = batchSize;
             update OldFC;
             return new OperationResult(true, 'Updated failure code with VIN cutoff', OldFC.Id, OldFC.Name);
         } catch (Exception e) {
@@ -314,6 +315,9 @@ public without sharing class AddFailureCodeControllerNew {
 
     @AuraEnabled
     public static List<Failure_Code__c> searchlabourFailureCodes(String searchKey,String codesetid) {
+        System.debug('searchKey : ' + searchKey);
+        System.debug('codesetid : ' + codesetid);
+
         return [
             SELECT Id,ProductId__c,Product_Name__c,VIN_Cut_off_No__c,Name,CodeSetId__c
             FROM Failure_Code__c
@@ -323,5 +327,17 @@ public without sharing class AddFailureCodeControllerNew {
         ];
     }
 
+    @AuraEnabled
+    public static List<CodeSet> getActiveCodeSets(String searchTerm) {
+        String term = '%' + searchTerm + '%';
+        return [
+            SELECT Id, Name
+            FROM CodeSet
+            WHERE isActive = true
+            AND Name LIKE :term
+            ORDER BY Name
+            LIMIT 20
+        ];
+    }
 
 }

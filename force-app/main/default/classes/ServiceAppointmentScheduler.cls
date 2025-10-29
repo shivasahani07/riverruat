@@ -3,7 +3,8 @@ global class ServiceAppointmentScheduler implements Database.Batchable<sObject>,
     global Database.QueryLocator start(Database.BatchableContext bc) {
         Date targetDate = System.today().addDays(20);
         System.debug('targetDate: ' + targetDate);
-        
+        list<AssetMilestone> listmilestone = [SELECT Id, Name, MilestoneDate, Stage, AssetId, VehicleId,Vehicle.Dealer__c, Vehicle.CurrentOwnerId FROM AssetMilestone WHERE MilestoneDate != NULL  AND MilestoneDate > TODAY AND MilestoneDate <= :targetDate AND Stage = 'Tentative'];
+        System.debug('listmilestone: ' + listmilestone);
         return Database.getQueryLocator([
             SELECT Id, Name, MilestoneDate, Stage, AssetId, VehicleId,Vehicle.Dealer__c, Vehicle.CurrentOwnerId FROM AssetMilestone WHERE MilestoneDate != NULL  AND MilestoneDate > TODAY AND MilestoneDate <= :targetDate AND Stage = 'Tentative']);
     }
