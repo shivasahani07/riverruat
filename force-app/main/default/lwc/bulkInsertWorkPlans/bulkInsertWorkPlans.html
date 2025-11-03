@@ -61,16 +61,7 @@
                                             required>
                                         </lightning-input-field>
 
-                                        <!-- <lightning-input-field field-name="RR_Labour_Category__c"
-                                            variant="label-stacked" data-id={index} name="LabourCategory" required>
-                                        </lightning-input-field> -->
                                     </lightning-layout-item>
-
-                                    <!--lightning-layout-item   size="12" large-device-size="2"  class="slds-align_absolute-center">
-                                            <lightning-input label="Description" name="Description" variant="label-stacked"
-                                                value={item.CodeDescription} disabled>
-                                            </lightning-input>
-                                        </lightning-layout-item-->
 
                                     <lightning-layout-item size="12" large-device-size="2"
                                         class="slds-align_absolute-center">
@@ -79,12 +70,12 @@
                                         </lightning-input>
                                     </lightning-layout-item>
 
-
-
-                                    <!--lightning-layout-item   size="12" large-device-size="2">
-                                            <lightning-input-field   field-name="Status__c" variant="label-stacked" data-id={index}>
+                                    <lightning-layout-item size="12" large-device-size="2" class="slds-align_absolute-center">
+                                        <template if:true={item.showInsuranceField}>
+                                            <lightning-input-field field-name="Approved_Insurance__c" data-id={index} variant="label-stacked">
                                             </lightning-input-field>
-                                        </lightning-layout-item-->
+                                        </template>
+                                    </lightning-layout-item>
 
                                     <lightning-layout-item class="slds-align_absolute-center" size="12"
                                         large-device-size="1">
@@ -116,24 +107,4 @@
             </lightning-card>
         </template>
     </template>
-    <!-- <template if:true={showSubmitButton}>
-            <lightning-layout>
-                <div class="slds-align_absolute-center">
-                    <lightning-button variant="success" onclick={handleSubmit} name="Submit"
-                        label="Submit">
-                    </lightning-button>
-                </div>
-            </lightning-layout>
-        </template>
-        <template if:true={showAddMoreButton}>
-            <lightning-layout>
-                <div class="slds-align_absolute-center">
-                    <lightning-button variant="success" onclick={handleAddMore} name="Add More"
-                        label="Add More">
-                    </lightning-button>
-                </div>
-            </lightning-layout>
-        </template> -->
-
-
 </template>

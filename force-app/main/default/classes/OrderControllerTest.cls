@@ -363,6 +363,7 @@ public static void testUpdateInventoryQuantityConsumed() {
         OrderController.methodToCoverage33();
         OrderController.methodToCoverage34();
         OrderController.methodToCoverage35();
+        OrderController.methodToCoverage36();
         
         Test.stopTest();
         

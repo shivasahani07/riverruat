@@ -167,9 +167,12 @@ public class CustomerE_InvoicePDFControler {
                        DurationType, DurationInMinutes, WorkTypeId, Street, City, State, PostalCode, Country, Latitude, Longitude, GeocodeAccuracy,
                        Address, ServiceTerritoryId, Subject, StatusCategory, IsClosed, Priority, ServiceAppointmentCount, LocationId, Total_Amount__c,
                        Inventory_Lot__c, Product_Available__c, Stage__c, RR_Parts_Category__c, RR_Product__c, RR_Product__r.Name, RR_Product__r.HSN_Code__c, IGST_Percentage_formula__c, CGST_Percentage_Formula__c, SGST_Percentage_Formula__c,
-                       IGST__c,RR_Product__r.ProductCode, CGST__c, SGST__c, IGST_Amount__c, CGST_Amount__c, SGST_Amount__c, Amount__c, Unit_of_Measurement__c,List_Price_New__c,Total_NDP__c,Sub_Total__c,
+                       IGST__c,RR_Product__r.ProductCode,Approved_Insurance__c, CGST__c, SGST__c, IGST_Amount__c, CGST_Amount__c, SGST_Amount__c, Amount__c, Unit_of_Measurement__c,List_Price_New__c, Actual_List_Price__c,Total_NDP__c,Sub_Total__c,
                 Total_Part_Price__c
-                FROM WorkOrderLineItem WHERE WorkOrderId = :workOrderRecord.Id AND RR_Parts_Category__c IN ('Paid')
+                FROM WorkOrderLineItem WHERE WorkOrderId = :workOrderRecord.Id  AND (
+                    RR_Parts_Category__c = 'Paid'
+                OR (RR_Parts_Category__c = 'Insurance' AND Approved_Insurance__c != NULL AND Approved_Insurance__c < 100)
+                )
             ];
             system.debug('## WorkOrderLineItemList size: ' + workOrderLineItemList.size());
             system.debug('## WorkOrderLineItemList : ' + workOrderLineItemList);
@@ -178,8 +181,11 @@ public class CustomerE_InvoicePDFControler {
                 SELECT Id, Name, WorkOrderId, Description, WorkOrderLineItemId, Subtotal__c, WorkPlanTemplateId, ParentRecordId, ParentRecordType, Contact__c,RR_Labour_Code__r.HSN_Code__c,
                        Duration_Hour__c, Discount__c, Duration_Min__c, RR_Labour_Category__c, Labour_Charge__c, Labour_Charge_CodeSet_New__c, Status__c, Work_Type__c,
                        Estimate_Duration_Type__c, Estimated_Duration__c, RR_Labour_Code__c, RR_Labour_Code__r.Code, IGST__c, SGST__c,
-                       CGST__c, IGST_Amount__c, CGST_Amount__c, SGST_Amount__c, Amount__c
-                FROM WorkPlan WHERE WorkOrderId = :workOrderRecord.Id AND RR_Labour_Category__c IN ('Paid')
+                       CGST__c, IGST_Amount__c, CGST_Amount__c, SGST_Amount__c, Amount__c, Approved_Insurance__c
+                FROM WorkPlan WHERE WorkOrderId = :workOrderRecord.Id AND (
+                     RR_Labour_Category__c = 'Paid'
+                  OR (RR_Labour_Category__c = 'Insurance' AND Approved_Insurance__c != NULL AND Approved_Insurance__c < 100)
+               )
             ];
             system.debug('## WorkPlansItemList size: ' + workPlansItemList.size());
             system.debug('## WorkPlansItemList : ' + workPlansItemList);
@@ -224,8 +230,8 @@ public class CustomerE_InvoicePDFControler {
             if (workOrderLineItemList != null && workOrderLineItemList.size() > 0) {
                 partLineItemTotal = 0;
                 for (WorkOrderLineItem workItem : workOrderLineItemList) {
-                    if (workItem.Quantity != null && workItem.List_Price_New__c != null) {
-                        partTotal += (workItem.Quantity * workItem.List_Price_New__c);
+                    if (workItem.Quantity != null && workItem.Actual_List_Price__c != null) {
+                        partTotal += (workItem.Quantity * workItem.Actual_List_Price__c);
                     }
                     if (workItem.Discount != null) {
                         partDiscount += workItem.Total_NDP__c * workItem.Discount / 100;

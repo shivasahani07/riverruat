@@ -94,7 +94,7 @@ public class JobCardComponentHelper {
                 Contact conObj= new contact();
                 contactDetails condetails = new contactDetails();
                 
-                List<Vehicle> vehcileRec =  [ Select id,VehicleIdentificationNumber, (Select id,stage,Name,MilestoneDate  from AssetMilestones where stage = 'Tentative' and MilestoneDate >= TODAY  limit 1 ) from Vehicle where VehicleIdentificationNumber =:vehicleDetails.VehicleIdentificationNumber OR VehicleRegistrationNumber =:vehicleDetails.VehicleRegistrationNumber];
+                List<Vehicle> vehcileRec =  [ Select id,VehicleIdentificationNumber,VehicleRegistrationNumber, (Select id,stage,Name,MilestoneDate  from AssetMilestones where stage = 'Tentative' and MilestoneDate >= TODAY  limit 1 ) from Vehicle where VehicleIdentificationNumber =:vehicleDetails.VehicleIdentificationNumber OR VehicleRegistrationNumber =:vehicleDetails.VehicleRegistrationNumber];
                 List<Appointment__c> appointmentList = [Select id,Service_Appointment__r.Vehicle__c,Appointment_Date__c,Status__c  From  Appointment__c where  (Service_Appointment__r.Vehicle__r.VehicleRegistrationNumber  =: vehicleDetails.VehicleIdentificationNumber OR Service_Appointment__r.Vehicle__r.VehicleRegistrationNumber =:vehicleDetails.VehicleRegistrationNumber) AND Status__c = 'Open'];
                 System.debug('appointmentList'+appointmentList);
                 Date milestoneDate;
@@ -325,7 +325,10 @@ public class JobCardComponentHelper {
                             Update updatworkOrder;
                              Id userId = UserInfo.getUserId();
                              List<user> userServiceAccount = [SELECT   id,Contact.AccountId From User where Id =: userId AND Contact.Account.Type = 'Service Center' limit 1];
-                             assetRecord.Service_Center__c =  userServiceAccount[0].Contact.AccountId;
+                            if(!userServiceAccount.isEmpty()){
+                                assetRecord.Service_Center__c =  userServiceAccount[0] !=null && userServiceAccount[0].Contact.AccountId != null ? userServiceAccount[0].Contact.AccountId : null;
+                            }
+                             
                              update assetRecord;
 
                             System.debug('updatworkOrder'+updatworkOrder);
@@ -341,9 +344,9 @@ public class JobCardComponentHelper {
                                     
                                     
                                     if(!appointmentRecRod.IsEmpty()){
-                                    //appointmentRecRod.Status__c = 'Cancel';
+                                    appointmentRecRod[0].Status__c = 'Under job Card';
                                     //appointmentRecRod.Cancellation_Reason__c = 'For this appointment Schedule Service already Done';
-                                     //update appointmentRecRod;
+                                     update appointmentRecRod[0];
                                         List<Task> tasklist= [Select id ,Status,WhatId From Task where WhatId =:appointmentRecRod[0].Id];
                                         System.debug('tasklist'+tasklist);
                                         list<Task> updatedTasklist = new list<Task>();

@@ -207,7 +207,8 @@ export default class BulkInsertJCProductsCustomNew extends NavigationMixin(Light
             isDisbaledProductQuantity: true,
             failureCodeOptions: [],
             tfrMessage: '',
-            isLabourCode: false
+            isLabourCode: false,
+            IsInsurance:false,
         };
     }
 
@@ -435,6 +436,7 @@ export default class BulkInsertJCProductsCustomNew extends NavigationMixin(Light
             this.itemList[index].isElectricalValueRequired = false;
             this.itemList[index]['partsCategory'] = this.itemList[index]['RR_Parts_Category__c']
             this.itemList[index].isDisbaledProduct = false;
+            this.itemList[index].IsInsurance= this.itemList[index]['RR_Parts_Category__c']=='Insurance';
         }
 
         if (fieldName === 'Replacement_Type__c') {
@@ -534,9 +536,21 @@ export default class BulkInsertJCProductsCustomNew extends NavigationMixin(Light
     }
 
     handleInputChange(event) {
+        debugger;
         const index = event.target.dataset.id;
         const fieldName = event.target.dataset.fieldname;
         this.itemList[index][fieldName] = event.target.value;
+
+        if(fieldName=='Approved_Insurance__c'){
+            if(event.target.value>100 || event.target.value<=0){
+                this.showError(index, `Approved Insurance (%) can not be more then 100`);
+                this.showToast('Error', 'Please enter valid value', 'error');
+                // this.showToast
+                return;
+            }else{
+                this.clearError(index);
+            }
+        }
     }
 
     async handleSubmit() {
@@ -672,7 +686,7 @@ export default class BulkInsertJCProductsCustomNew extends NavigationMixin(Light
     }
 
     showToast(title, message, variant) {
-        this.handlealer(title, message, variant)
+        // this.handlealer(title, message, variant)
         this.dispatchEvent(new ShowToastEvent({ title, message, variant }));
     }
 

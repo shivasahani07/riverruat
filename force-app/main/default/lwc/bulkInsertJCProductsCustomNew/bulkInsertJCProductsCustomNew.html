@@ -211,6 +211,7 @@
                                             </lightning-input>
                                         </div>
                                         <!--Approved Insurence %-->
+                                        <template if:true={item.IsInsurance}>
                                         <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_3-of-12">
                                             <lightning-input 
                                                 type="text" 
@@ -221,6 +222,7 @@
                                                 data-fieldname="Approved_Insurance__c">
                                             </lightning-input>
                                         </div>
+                                        </template>
                                     </template>
                                 </template>
                             </div>

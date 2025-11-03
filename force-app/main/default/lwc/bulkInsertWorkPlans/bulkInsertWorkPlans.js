@@ -118,9 +118,7 @@ export default class BulkInsertWorkPlans extends NavigationMixin(LightningElemen
         { label: 'Insurance', value: 'Insurance' },
         { label: 'EW(Extended Warranty)', value: 'EW(Extended Warranty)' },
         { label: 'Goodwill Warranty', value: 'Goodwill Warranty' },
-        // { label: 'Parts Warranty', value: 'Parts Warranty' }
-        // { label: 'Paid', value: 'Paid' }
-        // Add other options as needed, but skip the one you want to hide
+       
     ];
 
 
@@ -214,20 +212,6 @@ export default class BulkInsertWorkPlans extends NavigationMixin(LightningElemen
             });
     }
 
-
-    // connectedCallback() {
-    //     // Refresh data every second
-    //     this.refreshInterval = setInterval(() => {
-    //         refreshApex(this.refreshResultData);
-    //     }, 1000);
-    // }
-
-    // disconnectedCallback() {
-    //     // Clear the interval when the component is disconnected
-    //     clearInterval(this.refreshInterval);
-    // }
-
-
     addRow(event, index) {
         debugger;
         index = parseInt(event.target.dataset.id, 10);
@@ -283,6 +267,8 @@ export default class BulkInsertWorkPlans extends NavigationMixin(LightningElemen
             this.showToast(false, 'Please check the validations!');
         }
     }
+
+    
 
 
     handleSuccess(event) {
@@ -369,24 +355,40 @@ export default class BulkInsertWorkPlans extends NavigationMixin(LightningElemen
     }
 
     handleWrarrantyType(event) {
-        debugger;
-        const selectedValue = event.detail.value;
-        const index = event.target.dataset.id;
+    debugger;
+    const selectedValue = event.detail.value;
+    const index = event.target.dataset.id;
+    const fieldName = event.target.dataset.fieldname;
 
-        // Optional: store locally if needed
-        const fieldName = event.target.dataset.fieldname;
-        if (this.itemList && this.itemList[index]) {
-            this.itemList[index][fieldName] = selectedValue;
-        }
+    if (this.itemList && this.itemList[index]) {
+        // Update the field value in itemList
+        this.itemList[index][fieldName] = selectedValue;
 
-        // Manually update the hidden lightning-input-field's value
-        const hiddenInput = this.template.querySelector(
-            `lightning-input-field[data-id="${index}"][data-fieldname="${fieldName}"]`
-        );
-        if (hiddenInput) {
-            hiddenInput.value = selectedValue;
+        // Show the insurance field only if Labour Category is "Insurance"
+        if (fieldName === 'RR_Labour_Category__c') {
+            this.itemList[index].showInsuranceField = (selectedValue === 'Insurance');
+
+            // Reset the insurance field value if not Insurance
+            if (!this.itemList[index].showInsuranceField) {
+                this.itemList[index].Approved_Insurance__c = null;
+            }
         }
     }
+
+    // Update the hidden lightning-input-field if it exists
+    const hiddenInput = this.template.querySelector(
+        `lightning-input-field[data-id="${index}"][data-fieldname="${fieldName}"]`
+    );
+    if (hiddenInput) {
+        hiddenInput.value = selectedValue;
+    }
+
+    // Trigger reactivity so UI updates
+    this.itemList = [...this.itemList];
+}
+
+
+
 
 
     handleCodeselection(event) {

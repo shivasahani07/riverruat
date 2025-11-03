@@ -8,7 +8,7 @@
         <filterItems>
             <field>Account.Type</field>
             <operation>equals</operation>
-            <value></value>
+            <value>Service Center</value>
         </filterItems>
         <isOptional>false</isOptional>
     </lookupFilter>

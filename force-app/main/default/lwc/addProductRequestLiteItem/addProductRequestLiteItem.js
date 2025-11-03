@@ -13,7 +13,8 @@ import userId from '@salesforce/user/Id';
 import { CloseActionScreenEvent } from 'lightning/actions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { LightningElement, api, track } from 'lwc';
-export default class AddProductRequestLiteItem extends LightningElement {
+import { NavigationMixin } from 'lightning/navigation';
+export default class AddProductRequestLiteItem extends NavigationMixin(LightningElement) {
     @api productType = 'Service';
 
     @api recordId;
@@ -321,6 +322,12 @@ export default class AddProductRequestLiteItem extends LightningElement {
                     );
                     this.updatedValues.clear();
                     this.closeModal();
+                    this[NavigationMixin.Navigate]({
+                        type: 'standard__webPage',
+                        attributes: {
+                            url: `/autocloudSite/s/detail/${this.PoCreatedRecordId}`
+                        }
+                    });
                 } else {
                     this.dispatchEvent(
                         new ShowToastEvent({

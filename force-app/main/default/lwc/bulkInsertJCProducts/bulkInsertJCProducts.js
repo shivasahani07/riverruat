@@ -16,22 +16,20 @@ export default class BulkInsert_JCProducts extends NavigationMixin(LightningElem
 
     @api recordId;
     keyIndex = 0;
+    @track isShowLoader=false;
     showProducts = true;
     showSubmitButton = true;
     showAddMoreButton = false;
     existingWorkOrderLineItems = [];
 
-    @track itemList = [];
-
-     filteredReplacementTypeOptions = [
+    filteredReplacementTypeOptions = [
         { label: 'Paid', value: 'Paid' },
         { label: 'River Warranty', value: 'River Warranty' },
         { label: 'Insurance', value: 'Insurance' },
         { label: 'EW(Extended Warranty)', value: 'EW(Extended Warranty)' },
         { label: 'Goodwill Warranty', value: 'Goodwill Warranty' },
         { label: 'Parts Warranty', value: 'Parts Warranty' }
-        // { label: 'Paid', value: 'Paid' }
-        // Add other options as needed, but skip the one you want to hide
+        
     ];
     
     @track itemList = [
@@ -50,7 +48,6 @@ export default class BulkInsert_JCProducts extends NavigationMixin(LightningElem
     @track picklistOptions = {};
     @track showAdditionalFields = false;
     @track showVideofield = false;
-    @track addMoreDis = false;
     hasErrorInList = false;
 
 
@@ -63,55 +60,18 @@ export default class BulkInsert_JCProducts extends NavigationMixin(LightningElem
         fields: [Status],
     })
     wiredWorkOrder({ error, data }) {
-    debugger;
-
-    if (data) {
-        const status = data.fields.Status.value;
-
-        const blockedStatuses = new Set([
-            'Ready for Delivery',
-            'Submit For Approval',
-            'Cancellation Requested',
-            'Canceled',
-            'Completed'
-        ]); 
-
-        const editableStatuses = new Set([
-            'New',
-            'In Progress',
-            'Re work'
-        ]);
-
-            if (blockedStatuses.has(status)) {
+        if (data && data.fields.Status.value == 'Completed') {
             this.showAll = false;
-             this.addMoreDis = true; 
-        } else if (editableStatuses.has(status)) {
-            this.showAll = true;
-            this.addMoreDis = false; 
-        } else {
-            this.showAll = false;
-             this.addMoreDis = true; 
         }
-
+        else if (data) {
+            this.showAll = true;
+        }
     }
-
-    if (error) {
-        console.log('Error occurred:', error);
-    }
-}
-
 
     fetchWarranty() {
         getWarrantyForJobCard({ workOrderId: this.recordId })
             .then(result => {
-                this.warrantyId = result.Id;
-                console.log('---result',result)
-                if(result.Status__c != 'Sumbit for Approval'){
-                    this.showAll = true;
-                }else{
-                    this.showAll = false;
-                }
-
+                this.warrantyId = result;
                 console.log('Fetched Warranty ID: ', this.warrantyId);
             })
             .catch(error => {
@@ -129,59 +89,7 @@ export default class BulkInsert_JCProducts extends NavigationMixin(LightningElem
             form.reset();
         });
     }
-    // Columns definition for Lightning Datatable
-    // columns = [
-    //     {
-    //         label: 'Part No',
-    //         fieldName: 'partUrl',
-    //         type: 'url',
-    //         typeAttributes: {
-    //             label: { fieldName: 'Name' },
-    //             target: '_blank'
-    //         },
-    //         sortable: true
-    //     },
-    //     {
-    //         label: 'Labour Code',
-    //         fieldName: 'labourUrl',
-    //         type: 'url',
-    //         typeAttributes: {
-    //             label: { fieldName: 'Labour_Name__c' },
-    //             target: '_blank'
-    //         },
-    //         sortable: true
-    //     },
-    //     {
-    //         label: 'Product',
-    //         fieldName: 'productUrl',
-    //         type: 'url',
-    //         typeAttributes: {
-    //             label: { fieldName: 'RR_Product__c' },
-    //             target: '_blank'
-    //         },
-    //         sortable: true
-    //     },
-
-    //     { label: 'Quantity', fieldName: 'Quantity', type: 'Number' },
-    //     { label: 'Parts Category', fieldName: 'RR_Parts_Category__c', type: 'text' },
-    //     { label: 'Status', fieldName: 'Status', type: 'text' },
-    //     {label:'Action',
-    //         type: 'button',
-    //         typeAttributes: {
-    //             label: 'Delete',
-    //             name: 'delete',
-    //             variant: 'destructive',
-    //             disabled: { fieldName: 'showDeleteButton' }
-                
-    //         },
-    //     },
-    //     /* { label: 'FFIR Number', fieldName: 'FFIR_Number__c', type: 'text' },
-    //      { label: 'Photos', fieldName: 'Photos__c', type: 'text' },
-    //      { label: 'Replacement Type', fieldName: 'Replacement_Type__c', type: 'text' },
-    //      { label: 'Videos', fieldName: 'Videos__c', type: 'text' }*/
-
-    // ];
-    // refreshResultData;
+    
 
     @wire(getRelatedWorkOrderLineItems, { workOrderId: '$recordId' })
     wiredWorkPlans(result) {
@@ -233,16 +141,7 @@ export default class BulkInsert_JCProducts extends NavigationMixin(LightningElem
             },
             sortable: true
         },
-        // {
-        //     label: 'Labour Code',
-        //     fieldName: 'labourUrl',
-        //     type: 'url',
-        //     typeAttributes: {
-        //         label: { fieldName: 'Labour_Name__c' },
-        //         target: '_blank'
-        //     },
-        //     sortable: true
-        // },
+        
         {
             label: 'Product',
             fieldName: 'productUrl',
@@ -257,20 +156,7 @@ export default class BulkInsert_JCProducts extends NavigationMixin(LightningElem
         { label: 'Quantity', fieldName: 'Quantity', type: 'Number' },
         { label: 'Parts Category', fieldName: 'RR_Parts_Category__c', type: 'text' },
         { label: 'Status', fieldName: 'Status', type: 'text' },
-        // {label:'Action',
-        //     type: 'button',
-        //     typeAttributes: {
-        //         label: 'Delete',
-        //         name: 'delete',
-        //         variant: 'destructive',
-        //         disabled: { fieldName: 'showDeleteButton' }
-                
-        //     },
-        // },
-        /* { label: 'FFIR Number', fieldName: 'FFIR_Number__c', type: 'text' },
-         { label: 'Photos', fieldName: 'Photos__c', type: 'text' },
-         { label: 'Replacement Type', fieldName: 'Replacement_Type__c', type: 'text' },
-         { label: 'Videos', fieldName: 'Videos__c', type: 'text' }*/
+        
 
     ];
     refreshResultData;
@@ -309,11 +195,10 @@ export default class BulkInsert_JCProducts extends NavigationMixin(LightningElem
         const index = parseInt(event.target.dataset.id, 10);
 
         let updatedItems = [...this.itemList];
-          
 
         if (fieldName === 'RR_Parts_Category__c') {
 
-            const hiddenField = this.template.querySelector(`lightning-input-field[data-id="${index}"][data-fieldname="RR_Parts_Category__c"]`);
+             const hiddenField = this.template.querySelector(`lightning-input-field[data-id="${index}"][data-fieldname="RR_Parts_Category__c"]`);
         if (hiddenField) {
             hiddenField.value = selectedValue;
         }
@@ -337,14 +222,7 @@ export default class BulkInsert_JCProducts extends NavigationMixin(LightningElem
             } else {
                 this.itemList[index].showAdditionalFields = true;
             }
-        // } else if (fieldName === 'Replacement_Type__c') {
-
-        //     if (selectedValue === 'Causal') {
-        //         this.itemList[index].showVideofield = true;
-        //     } else {
-        //         this.itemList[index].showVideofield = false;
-        //     }
-
+       
          }
 
          if (fieldName === 'Replacement_Type__c') {
@@ -402,6 +280,7 @@ export default class BulkInsert_JCProducts extends NavigationMixin(LightningElem
 
     handleSubmit() {
         debugger;
+        this.isShowLoader=true;
         console.log('submit');
         let isVal = true;
         this.template.querySelectorAll('lightning-input-field').forEach(element => {
@@ -430,10 +309,12 @@ export default class BulkInsert_JCProducts extends NavigationMixin(LightningElem
                 }
                 element.submit();
             });
+            this.isShowLoader=false;
 
 
         } else {
             this.showToast(false, 'Validation failed. Please check the fields and try again.');
+            this.isShowLoader=false;
         }
     }
 
@@ -512,7 +393,8 @@ export default class BulkInsert_JCProducts extends NavigationMixin(LightningElem
             getDynamicValues({ productId: productId })
                 .then(result => {
                     debugger;
-                    if (result && result.price && result.productCode) {
+                    console.log('Result==>',result);
+                    if (result && (result.price !== null && result.price !== undefined) && result.productCode) {
                         this.itemList = this.itemList.map((item, idx) => {
                             if (idx == index) {
                                 return { ...item, price: result.price, productCode: result.productCode, errorMessage: '', hasError: false };
@@ -522,38 +404,27 @@ export default class BulkInsert_JCProducts extends NavigationMixin(LightningElem
                         return getAvailableQuantity({ productId: productId, workOrderId: this.recordId });
                     }
                 })
-                // .then(availableQuantity => {
-                //     if (availableQuantity !== -1) {
-                //         this.itemList[index].availableQuantity = availableQuantity;
-                //     } else {
-                //         this.itemList[index].errorMessage = 'No inventory found for this product';
-                //         this.itemList[index].hasError = true;
-    
-                //        /* const toastEvent = new ShowToastEvent({
-                //             title: 'Error',
-                //             message: 'No inventory found for this product.',
-                //             variant: 'error',
-                //         });
-                //         this.dispatchEvent(toastEvent); */
-                //     }
-                // })
                 .then(availableQuantity => {
                     debugger;
                     this.itemList = this.itemList.map((item, idx) => {
+                        console.log('🔎 Iterating item at index:', idx, ' Expected index:', index, ' Item:', JSON.stringify(item));
+
                            if (idx == index) {
-                            if (availableQuantity > 0) {
-                                return { ...item, availableQuantity, errorMessage: '', hasError: false };
-                            } else if (availableQuantity === 0) {
-                                return { ...item, availableQuantity, errorMessage: 'No quantity available at this location', hasError: true };
+                            console.log('🟢 Match found at index:', idx, ' Checking availableQuantity:', availableQuantity);
+                                    if (availableQuantity > 0) {
+                                        console.log('✅ Quantity available. Value:', availableQuantity);
+                                        return { ...item, availableQuantity, errorMessage: '', hasError: false };
+                        } else if (availableQuantity === 0) {
+                                         return { ...item, availableQuantity, errorMessage: 'No quantity available at this location', hasError: true };
                             } else {
-                                return { ...item, availableQuantity: '', errorMessage: 'No inventory found for this product', hasError: true };
-                            }
-                            
+             return { ...item, availableQuantity: '', errorMessage: 'No inventory found for this product', hasError: true };
+                             }
+
                         }
                        return item;
                      });
                  })
-                
+
                 
                 .catch(error => {
                     this.itemList = this.itemList.map((item, idx) => {
@@ -608,24 +479,7 @@ export default class BulkInsert_JCProducts extends NavigationMixin(LightningElem
         });
     }
 
-    // handleQuantityChange(event) {
-    //     const index = event.target.dataset.id;
-    //     const enteredQuantity = event.target.value;
-
-       
-
-
-    //     this.itemList = this.itemList.map((item, idx) => {
-    //         if (idx == index) {
-    //             if (enteredQuantity > item.availableQuantity) {
-    //                 return { ...item, errorMessage: `Quantity exceeds available stock (${item.availableQuantity}).`, hasError: true };
-    //             } else {
-    //                 return { ...item, errorMessage: '', hasError: false };
-    //             }
-    //         }
-    //         return item;
-    //     });
-    // }
+    
 
     clearRows() {
         // Reset itemList and keyIndex

@@ -91,7 +91,7 @@ global class ServiceAppointmentScheduler implements Database.Batchable<sObject>,
 
                      
                     List<ServiceAppointment> saList = [
-                        SELECT Id, AppointmentNumber, Service_Centre__c, Appointment_Date__c,
+                        SELECT Id, AppointmentNumber, Service_Centre__c, Appointment_Date__c,Asset_Milestone__r.Name,
                                Vehicle__c, ParentRecordId,
                                Vehicle__r.CurrentOwnerId, Vehicle__r.CurrentOwner.Phone, 
                                Vehicle__r.CurrentOwner.Email__c
@@ -114,6 +114,7 @@ global class ServiceAppointmentScheduler implements Database.Batchable<sObject>,
                         t.Vehicle__c = sa.Vehicle__c;    
                         t.Status = 'Not Started';
                         t.Priority = 'High';
+                        t.Service_Name__c = sa.Asset_Milestone__r.Name;
  
                         User mappedUser = mapAccountOnUser.get(sa.Service_Centre__c);
                         WorkOrder recentWO = recentWorkOrderByVehicle.get(sa.Vehicle__c);

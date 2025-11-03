@@ -13,44 +13,60 @@
     <apex:includeScript value="/soap/ajax/43.0/apex.js"/>
    
     <style>
-        body {
-        font-family: Arial, sans-serif;
+           body {
+        
         margin: 0;
         background-color: #f9f9f9;
+          font-family: "DM Sans", sans-serif;
+        
         }
-       
+        
         .header {
         background-color: #037CB5;
         color: white;
         padding: 10px 0;
         position: relative;
-        min-height: 80px;
         width: 100%;
         max-width: 100vw;
-        height: auto;
-        margin-top:5%;
+        height: 64px;
+        
         }
+        .imgbox{
+           position: relative;       
+    width: 102.94px;              
+    height: 39px;             
+    margin: 10px 100px auto 10px;           
+    display: flex;
+    justify-content: center;
+    align-items: center;
+        left:72.03px;
        
+        }
+
+        
+        
+        
         .header-logo {
-        height: 100px;
-        width: auto;
-        position: absolute;
-        left: 0px;
-        top: 50%;
-        transform: translateY(-50%);
+        height: 100%;
+        width: 100%;
+        
+     
         }
-       
+        
         .user-name {
+         font-family: "DM Sans", sans-serif;
+  		font-weight:700;
+  		font-style:normal;
+        letter-spacing:0%;
         position: absolute;
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
-        font-size: 26px;
-        font-weight: bold;
+        font-size: 24px;
         white-space: nowrap;
         color: white;
         }
-       
+        
         .highlight {
         color: #f7ec2a;
         font-weight: bold;
@@ -89,16 +105,38 @@
         margin-bottom: 30px;
         }
        
-        .stars {
-        font-size: 4em;
-        color: #ccc;
-        margin-bottom: 20px;
-        cursor: pointer;
-        }
-       
-        .star.selected {
-        color: #FFD700;
-        }
+   .stars {
+  display: flex;
+  justify-content:space-between;
+  align-items: center;
+  cursor: pointer;
+   height:48px;
+  width:296px;
+   margin:auto;
+}
+
+.star {
+  width: 48px;
+  height: 48px;
+  fill: white;
+  stroke: #c3c3c3;
+  stroke-width: 1.5px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-opacity: 0.95;
+  filter: drop-shadow(0 0 0.4px rgba(200,200,200,0.4));
+  transition: transform 0.25s ease, fill 0.25s ease;
+}
+
+.star:hover {
+  transform: scale(1.1);
+}
+
+.star.selected path {
+  fill: #FFD700;
+  stroke: #FFD700;
+}
+
        
         .question-title {
         font-weight: bold;
@@ -117,20 +155,28 @@
         margin: 0 auto 30px auto;
         }
        
-        .option-group label {
+            .option-group label {
         display: block;
         margin: 10px 0;
-        font-size: 18px;
+        font-size: 16px;
+        white-space:nowrap;
+        
         }
+        #optionsContainer input[type="checkbox"] {
+  margin-right: 10px;
+}
        
-        #submitBtn {
+            #submitBtn {
         background-color: #037CB5;
         color: white;
         border: none;
-        padding: 10px 25px;
+        padding: 10px ;
         font-size: 16px;
         border-radius: 5px;
         cursor: pointer;
+        height:48px;
+        width:156px;
+       
         }
        
         #submitBtnWrapper {
@@ -213,10 +259,13 @@
     </style>
    
     <div class="header">
-        <img src="{!URLFOR($Resource.Ride_River_Logo_LWC)}" alt="Ride River Logo" class="header-logo" />
+  <div class="imgbox">
+            <img src="{!URLFOR($Resource.Ride_River_Logo_LWC)}" alt="Ride River Logo" class="header-logo" />
+        </div>
        
-        <apex:outputPanel rendered="{!NOT(ISNULL(primaryContact))}">
-            <div class="user-name"><span class="highlight">Hi!</span> {!primaryContact.Name}</div>
+        <!--<apex:outputPanel rendered="{!NOT(ISNULL(primaryContact))}">-->
+        <apex:outputPanel >
+            <div class="user-name"><span class="highlight">Hi! </span>Tapas Kumar {!primaryContact.Name}</div>
         </apex:outputPanel>
     </div>
    
@@ -228,13 +277,23 @@
             fully addressed. Please share your thoughts with us.
         </p>
        
-        <div class="stars" id="starContainer">
-            <span class="star" data-value="1">&#9733;</span>
-            <span class="star" data-value="2">&#9733;</span>
-            <span class="star" data-value="3">&#9733;</span>
-            <span class="star" data-value="4">&#9733;</span>
-            <span class="star" data-value="5">&#9733;</span>
-        </div>
+    <div class="stars" id="starContainer">
+  <svg class="star" data-value="1" viewBox="0 0 24 24">
+    <path d="M12 2.5l2.9 5.9 6.6.9-4.8 4.5 1.2 6.5L12 17.8 6.1 20.3l1.2-6.5L2.5 9.3l6.6-.9L12 2.5z"/>
+  </svg>
+  <svg class="star" data-value="2" viewBox="0 0 24 24">
+    <path d="M12 2.5l2.9 5.9 6.6.9-4.8 4.5 1.2 6.5L12 17.8 6.1 20.3l1.2-6.5L2.5 9.3l6.6-.9L12 2.5z"/>
+  </svg>
+  <svg class="star" data-value="3" viewBox="0 0 24 24">
+    <path d="M12 2.5l2.9 5.9 6.6.9-4.8 4.5 1.2 6.5L12 17.8 6.1 20.3l1.2-6.5L2.5 9.3l6.6-.9L12 2.5z"/>
+  </svg>
+  <svg class="star" data-value="4" viewBox="0 0 24 24">
+    <path d="M12 2.5l2.9 5.9 6.6.9-4.8 4.5 1.2 6.5L12 17.8 6.1 20.3l1.2-6.5L2.5 9.3l6.6-.9L12 2.5z"/>
+  </svg>
+  <svg class="star" data-value="5" viewBox="0 0 24 24">
+    <path d="M12 2.5l2.9 5.9 6.6.9-4.8 4.5 1.2 6.5L12 17.8 6.1 20.3l1.2-6.5L2.5 9.3l6.6-.9L12 2.5z"/>
+  </svg>
+</div>
        
         <div class="question-block" id="questionBlock" style="display:none;">
             <div class="option-group">

@@ -178,7 +178,7 @@
             
         </div>
         
-         <!--Upto here-->
+       <!--Upto here-->
         <p style="text-indent: 0pt;text-align: left;"><br/></p>
         <table style="border-collapse:collapse;" cellspacing="0" width="100%">
             <tr style="height:21pt">
@@ -255,9 +255,9 @@
             <apex:repeat value="{!workOrderLineItemList}" var="item" id="theRepeatWorkOrder">
                 <tr style="height:31pt">
                     <apex:variable var="count" value="{!count+1}"/>
-                    <apex:variable var="amountCGST" value="{!amountCGST+item.CGST_Amount__c}"/>
-                    <apex:variable var="amountSGST" value="{!amountSGST+item.SGST_Amount__c}"/>
-                    <apex:variable var="amountIGST" value="{!amountIGST+item.IGST_Amount__c}"/>
+                    <apex:variable var="amountCGST" value="{!amountCGST+item.CGST_Amount_Insurance__c}"/>
+                    <apex:variable var="amountSGST" value="{!amountSGST+item.SGST_Amount_Insurance__c}"/>
+                    <apex:variable var="amountIGST" value="{!amountIGST+item.IGST_Amount_Insurance__c}"/>
                     <td style="width:22pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p class="s3" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: center;"><apex:outputText value="{!count}"/></p>
                     </td>
@@ -275,7 +275,7 @@
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{!item.Quantity}"/></p>
                     </td>
                     <td style="width:38pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.List_Price_New__c}"/></apex:outputText></p>
+                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.List_Price_Insurance_Covered__c}"/></apex:outputText></p>
                     </td>
                     <td style="width:40pt;border-top:1pt solid;border-left:1pt solid;border-bottom:1pt solid;border-right:1pt solid;">
                         <p style="text-indent: 0pt; text-align: center;"><apex:outputPanel rendered="{!NOT(ISBLANK(item.Discount)) && item.Discount != 0}"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Discount}"/> </apex:outputText><apex:outputText value="%"/></apex:outputPanel></p>
@@ -284,7 +284,7 @@
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Total_NDP__c * item.Discount/100}"/></apex:outputText></p>
                     </td>
                     <td style="width:46pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Sub_Total__c}"/></apex:outputText></p>
+                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Sub_Total_Insurance__c}"/></apex:outputText></p>
                     </td>
                     
                     <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
@@ -297,21 +297,21 @@
                     </td>
                     <td style="width:52pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <apex:outputpanel rendered="{!SameState}">
-                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.CGST_Amount__c}"/></apex:outputText></p>
+                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.CGST_Amount_Insurance__c}"/></apex:outputText></p>
                         </apex:outputpanel>
                     </td>
                     <td style="width:50pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <apex:outputpanel rendered="{!SameState}">
-                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.SGST_Amount__c}"/></apex:outputText></p>
+                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.SGST_Amount_Insurance__c}"/></apex:outputText></p>
                         </apex:outputpanel>
                     </td>
                     <td style="width:49pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <apex:outputpanel rendered="{! !SameState}">
-                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.IGST_Amount__c}"/></apex:outputText></p>
+                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.IGST_Amount_Insurance__c}"/></apex:outputText></p>
                         </apex:outputpanel>
                     </td>
                     <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Total_Part_Price__c}"/></apex:outputText></p>
+                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Total_Part_Price_Insurance__c}"/></apex:outputText></p>
                     </td>
                 </tr>
             </apex:repeat>
@@ -329,9 +329,9 @@
             <apex:repeat value="{!workPlansItemList}" var="item" id="theRepeatWorkPlan">
                 <tr style="height:31pt">
                     <apex:variable var="count" value="{!count+1}"/>
-                    <apex:variable var="amountCGST" value="{!amountCGST+item.CGST_Amount__c}"/>
-                    <apex:variable var="amountSGST" value="{!amountSGST+item.SGST_Amount__c}"/>
-                    <apex:variable var="amountIGST" value="{!amountIGST+item.IGST_Amount__c}"/>
+                    <apex:variable var="amountCGST" value="{!amountCGST+item.CGST_Amount_Insurance__c}"/>
+                    <apex:variable var="amountSGST" value="{!amountSGST+item.SGST_Amount_Insurance__c}"/>
+                    <apex:variable var="amountIGST" value="{!amountIGST+item.IGST_Amount_Insurance__c}"/>
                     <td style="width:22pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <p class="s3" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: center;"><apex:outputText value="{!count}"/></p>
                     </td>
@@ -349,17 +349,17 @@
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Duration_Hour__c + (item.Duration_Min__c/60)}"/></apex:outputText></p>
                     </td>
                     <td style="width:38pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Labour_Charge_CodeSet_New__c}"/></apex:outputText></p>
+                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Labour_Charge_Insurance__c}"/></apex:outputText></p>
                     </td>
                     <td style="width:40pt;border-top:1pt solid;border-left:1pt solid;border-bottom:1pt solid;border-right:1pt solid;">
                         <p style="text-indent: 0pt; text-align: center;"><apex:outputPanel rendered="{!NOT(ISBLANK(item.Discount__c)) && item.Discount__c != 0}"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Discount__c}"/></apex:outputText><apex:outputText value="%"/></apex:outputPanel></p>
                     </td>
 
                     <td style="width:40pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Labour_Charge__c * item.Discount__c/100}"/></apex:outputText></p>
+                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Labour_Charge_Insurance__c * item.Discount__c/100}"/></apex:outputText></p>
                     </td>
                     <td style="width:46pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Subtotal__c}"/></apex:outputText></p>
+                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Sub_Total_Insurance__c}"/></apex:outputText></p>
                     </td>
                     <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <apex:outputpanel rendered="{!SameState}">
@@ -371,21 +371,21 @@
                     </td>
                     <td style="width:52pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <apex:outputpanel rendered="{!SameState}">
-                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.CGST_Amount__c}"/></apex:outputText></p>
+                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.CGST_Amount_Insurance__c}"/></apex:outputText></p>
                         </apex:outputpanel>
                     </td>
                     <td style="width:50pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <apex:outputpanel rendered="{!SameState}">
-                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.SGST_Amount__c}"/></apex:outputText></p>
+                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.SGST_Amount_Insurance__c}"/></apex:outputText></p>
                         </apex:outputpanel>
                     </td>
                     <td style="width:49pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                         <apex:outputpanel rendered="{! !SameState}">
-                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.IGST_Amount__c}"/></apex:outputText></p>
+                            <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.IGST_Amount_Insurance__c}"/></apex:outputText></p>
                         </apex:outputpanel>
                     </td>
                     <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Amount__c}"/></apex:outputText></p>
+                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Amount_Insurance__c}"/></apex:outputText></p>
                     </td>
                 </tr>
             </apex:repeat>

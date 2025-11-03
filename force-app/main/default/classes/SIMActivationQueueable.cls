@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Aniket Karmakar
  * @group             : 
- * @last modified on  : 10-23-2025
+ * @last modified on  : 10-31-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public without sharing class SIMActivationQueueable implements Queueable, Database.allowsCallouts{
@@ -126,10 +126,12 @@ public without sharing class SIMActivationQueueable implements Queueable, Databa
                 Map<String,Object> responseMap = (Map<String,Object>) JSON.deserializeUntyped(res.getBody());
                 System.debug('responseMap===>'+responseMap);
 
-                Vehicle v = [SELECT Id,Sim_Activation_OrderId__c,Sim_Activation_Status__c,Sim_Expiry_Date__c FROM Vehicle WHERE Id=:currentVehicleId LIMIT 1];
+                Vehicle v = [SELECT Id,Sim_Activation_OrderId__c,Sim_Activation_Status__c,Sim_Expiry_Date__c,Service_Provider__c FROM Vehicle WHERE Id=:currentVehicleId LIMIT 1];
                 v.Sim_Activation_OrderId__c = responseMap.containsKey('orderId') ? (String)responseMap.get('orderId') : 'Not Found';
                 v.Sim_Expiry_Date__c = Date.Today().addDays(365);
                 v.Sim_Activation_Status__c = cmpState == 'A' ? 'Activated' : cmpState == 'SC' ? 'Safe Custody' : '';
+                v.Service_Provider__c='Vodafone';
+
                 update v;
                 System.debug('Updated Vehicle ===>'+v);
                 createLog(serializedBody,String.valueOf(responseMap),'Sim Activation','','Success');

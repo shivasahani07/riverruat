@@ -19,6 +19,7 @@ export default class BatchRecord extends LightningElement {
     @track selectedClaims = [];
     @track preSelectedRowIds = [];
     @track batchAmount = 0;
+    @track accountId=null
     @track showModal = false;
 
     @track searchKey;//added by Aniket on 31/07/2025
@@ -57,7 +58,26 @@ export default class BatchRecord extends LightningElement {
         }
     ];
 
-    @wire(fetchClaims)
+    
+    @wire(getCurrentUserContact)
+    wiredContact({ error, data }) {
+        debugger;
+        if (data) {
+            this.contact = data;
+            console.log('user data--',data)
+            this.contactName = data.FirstName + ' ' + data.LastName;
+            this.accountId=data?.AccountId;
+            JSON.stringify('---acc',data.AccountId);
+            this.city = data.Account.City__c;
+            this.serviceCenter = data.Account.Service_Center__c;
+            this.error = undefined;
+        } else if (error) {
+            this.error = error.body.message;
+            this.contact = undefined;
+        }
+    }
+
+    @wire(fetchClaims,{accountId:'$accountId'})
     
     wiredClaims(result) {
         debugger;
@@ -70,20 +90,6 @@ export default class BatchRecord extends LightningElement {
         }
     }
 
-    @wire(getCurrentUserContact)
-    wiredContact({ error, data }) {
-        debugger;
-        if (data) {
-            this.contact = data;
-            this.contactName = data.FirstName + ' ' + data.LastName;
-            this.city = data.Account.City__c;
-            this.serviceCenter = data.Account.Service_Center__c;
-            this.error = undefined;
-        } else if (error) {
-            this.error = error.body.message;
-            this.contact = undefined;
-        }
-    }
 
     @wire(getObjectInfo, { objectApiName: BATCH_OBJECT })
     objectInfo;
@@ -127,6 +133,7 @@ export default class BatchRecord extends LightningElement {
     }
 
     handleAddWarrantyClaim() {
+        debugger;
         this.preSelectedRowIds = this.selectedClaims.map(claim => claim.Id);
         this.showModal = true;
     }

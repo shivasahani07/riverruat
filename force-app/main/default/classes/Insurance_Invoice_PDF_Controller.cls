@@ -149,18 +149,18 @@ public class Insurance_Invoice_PDF_Controller {
                 DurationType, DurationInMinutes, WorkTypeId, Street, City, State, PostalCode, Country, Latitude, Longitude, GeocodeAccuracy,
                 Address, ServiceTerritoryId, Subject, StatusCategory, IsClosed, Priority, ServiceAppointmentCount, LocationId, Total_Amount__c,
                 Inventory_Lot__c, Product_Available__c, Stage__c, RR_Parts_Category__c, RR_Product__c, RR_Product__r.Name,RR_Product__r.ProductCode , RR_Product__r.HSN_Code__c, IGST_Percentage_formula__c, CGST_Percentage_Formula__c, SGST_Percentage_Formula__c,
-                IGST__c, CGST__c, SGST__c, IGST_Amount__c, CGST_Amount__c, SGST_Amount__c, Amount__c, Unit_of_Measurement__c,List_Price_New__c,Total_NDP__c,Sub_Total__c,
-                Total_Part_Price__c
+                IGST__c, CGST__c, SGST__c, IGST_Amount_Insurance__c, CGST_Amount_Insurance__c, SGST_Amount_Insurance__c, Amount__c, Unit_of_Measurement__c,List_Price_New__c, List_Price_Insurance_Covered__c, Total_NDP__c,Sub_Total_Insurance__c,
+                Total_Part_Price_Insurance__c
                 FROM WorkOrderLineItem WHERE WorkOrderId = :workOrderRecord.Id AND RR_Parts_Category__c IN ('Insurance')
             ];
             system.debug('## WorkOrderLineItemList size: ' + workOrderLineItemList.size());
             system.debug('## WorkOrderLineItemList : ' + workOrderLineItemList);
             
             workPlansItemList = [
-                SELECT Id, Name, WorkOrderId, Description, WorkOrderLineItemId, Subtotal__c, WorkPlanTemplateId, ParentRecordId, ParentRecordType, Contact__c, RR_Labour_Code__r.HSN_Code__c,
-                Duration_Hour__c, Discount__c, Duration_Min__c, RR_Labour_Category__c, Labour_Charge__c, Labour_Charge_CodeSet_New__c, Status__c, Work_Type__c,
+                SELECT Id, Name, WorkOrderId, Description, WorkOrderLineItemId, Sub_Total_Insurance__c, WorkPlanTemplateId, ParentRecordId, ParentRecordType, Contact__c, RR_Labour_Code__r.HSN_Code__c,
+                Duration_Hour__c, Discount__c, Duration_Min__c, RR_Labour_Category__c, Labour_Charge_Insurance__c, Status__c, Work_Type__c,
                 Estimate_Duration_Type__c, Estimated_Duration__c, RR_Labour_Code__c, RR_Labour_Code__r.Code, IGST__c, SGST__c,
-                CGST__c, IGST_Amount__c, CGST_Amount__c, SGST_Amount__c, Amount__c
+                CGST__c, IGST_Amount_Insurance__c, CGST_Amount_Insurance__c, SGST_Amount_Insurance__c, Amount_Insurance__c
                 FROM WorkPlan WHERE WorkOrderId = :workOrderRecord.Id AND RR_Labour_Category__c IN ('Insurance')
             ];
             system.debug('## WorkPlansItemList size: ' + workPlansItemList.size());
@@ -212,25 +212,25 @@ dodoBillPostalCode = workOrderRecord.Service_Center__r.GST_Zip_Postal_Code__c !=
             if (workOrderLineItemList != null && workOrderLineItemList.size() > 0) {
                 partLineItemTotal = 0;
                 for (WorkOrderLineItem workItem : workOrderLineItemList) {
-                    if (workItem.Quantity != null && workItem.List_Price_New__c != null) {
-                        partTotal += (workItem.Quantity * workItem.List_Price_New__c);
+                    if (workItem.Quantity != null && workItem.List_Price_Insurance_Covered__c != null) {
+                        partTotal += (workItem.Quantity * workItem.List_Price_Insurance_Covered__c);
                     }
                     if (workItem.Discount != null) {
                         partDiscount += workItem.Total_NDP__c * workItem.Discount / 100;
                     }
-                    if (workItem.Total_NDP__c != null) {
-                        parttaxValue += workItem.Sub_Total__c;
+                    if (workItem.Sub_Total_Insurance__c != null) {
+                        parttaxValue += workItem.Sub_Total_Insurance__c;
                         // Store individual line item total
                         lineItemTotalsMap.put(workItem.Id, workItem.TotalPrice);
                     }
-                    if (workItem.IGST_Amount__c != null) {
-                        partIGST += workItem.IGST_Amount__c;
+                    if (workItem.IGST_Amount_Insurance__c != null) {
+                        partIGST += workItem.IGST_Amount_Insurance__c;
                     }
-                    if (workItem.CGST_Amount__c != null) {
-                        partCGST += workItem.CGST_Amount__c;
+                    if (workItem.CGST_Amount_Insurance__c != null) {
+                        partCGST += workItem.CGST_Amount_Insurance__c;
                     }
-                    if (workItem.SGST_Amount__c != null) {
-                        partSGST += workItem.SGST_Amount__c;
+                    if (workItem.SGST_Amount_Insurance__c != null) {
+                        partSGST += workItem.SGST_Amount_Insurance__c;
                     }
                     
                     
@@ -242,23 +242,23 @@ dodoBillPostalCode = workOrderRecord.Service_Center__r.GST_Zip_Postal_Code__c !=
             // Calculate labour totals
             if (workPlansItemList != null && workPlansItemList.size() > 0) {
                 for (WorkPlan workItem : workPlansItemList) {
-                    if (workItem.Labour_Charge__c != null) {
-                        labourTotal += workItem.Labour_Charge__c;
+                    if (workItem.Labour_Charge_Insurance__c != null) {
+                        labourTotal += workItem.Labour_Charge_Insurance__c;
                     }
-                    if (workItem.IGST_Amount__c != null) {
-                        labourIGST += workItem.IGST_Amount__c;
+                    if (workItem.IGST_Amount_Insurance__c != null) {
+                        labourIGST += workItem.IGST_Amount_Insurance__c;
                     }
-                    if (workItem.CGST_Amount__c != null) {
-                        labourCGST += workItem.CGST_Amount__c;
+                    if (workItem.CGST_Amount_Insurance__c != null) {
+                        labourCGST += workItem.CGST_Amount_Insurance__c;
                     }
-                    if (workItem.SGST_Amount__c != null) {
-                        labourSGST += workItem.SGST_Amount__c;
+                    if (workItem.SGST_Amount_Insurance__c != null) {
+                        labourSGST += workItem.SGST_Amount_Insurance__c;
                     }
-                    if (workItem.Subtotal__c != null) {
-                        labourtaxValue += workItem.Subtotal__c;
+                    if (workItem.Sub_Total_Insurance__c != null) {
+                        labourtaxValue += workItem.Sub_Total_Insurance__c;
                     }
-                    if (workItem.Discount__c != null && workItem.Labour_Charge__c != null) {
-                        labourDiscount += workItem.Labour_Charge__c * workItem.Discount__c / 100;
+                    if (workItem.Discount__c != null && workItem.Labour_Charge_Insurance__c != null) {
+                        labourDiscount += workItem.Labour_Charge_Insurance__c * workItem.Discount__c / 100;
                     }
                 }
                 system.debug('## Labour Totals => Total: ' + labourTotal + ', Discount: ' + labourDiscount + ', Tax: ' + labourtaxValue + ', IGST: ' + labourIGST + ', CGST: ' + labourCGST + ', SGST: ' + labourSGST);

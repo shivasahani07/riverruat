@@ -2,13 +2,13 @@
  * @description       : 
  * @author            : Aniket Karmakar
  * @group             : 
- * @last modified on  : 10-27-2025
+ * @last modified on  : 11-03-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 @RestResource(urlMapping='/changeCustomerDetails/*')
 global without sharing class ChangeUserDetailsAPI {
     
-     @HttpPost
+     @HttpPatch
      global static void changeDetails(){
            RestRequest req = RestContext.request;
            RestResponse response = RestContext.response;

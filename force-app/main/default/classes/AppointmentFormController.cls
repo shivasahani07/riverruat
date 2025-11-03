@@ -276,8 +276,11 @@ System.debug('Inside Else If : ' + tk);
             update slotItemRec;
             
             
-            Appointment__c appointRec = [Select id ,Service_Appointment__c,Appointment_Date__c from Appointment__c where Id =:newAppId];
-            
+            Appointment__c appointRec = [Select id ,Service_Appointment__c,Appointment_Date__c,End_Time__c,Start_Time__c from Appointment__c where Id =:newAppId];
+            appointRec.End_Time__c = slotItemRec.End_Time__c;
+            appointRec.Start_Time__c =slotItemRec.Start_Time__c;
+
+            Update appointRec;
             Date bookedappointmentDate = appointRec.Appointment_Date__c;
             
             if (isServiceAppt) {

@@ -275,7 +275,7 @@
                         <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{!item.Quantity}"/></p>
                     </td>
                     <td style="width:38pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.List_Price_New__c}"/></apex:outputText></p>
+                        <p style="text-indent: 0pt;text-align: center;"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Actual_List_Price__c}"/></apex:outputText></p>
                     </td>
                     <td style="width:40pt;border-top:1pt solid;border-left:1pt solid;border-bottom:1pt solid;border-right:1pt solid;">
                         <p style="text-indent: 0pt; text-align: center;"><apex:outputPanel rendered="{!NOT(ISBLANK(item.Discount)) && item.Discount != 0}"><apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!item.Discount}"/> </apex:outputText><apex:outputText value="%"/></apex:outputPanel></p>

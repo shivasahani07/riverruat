@@ -65,7 +65,7 @@ private class TFRManagement_Test {
         Account testAccount = new Account(Name = 'Test Account 1',Type='Customer',Center_Code__c='098765');
         insert testAccount;
         
-        Account serviceCenter = new Account(Name = 'Test Account 1',Type='Service Center',Center_Code__c='123456');
+        Account serviceCenter = new Account(Name = 'Test Account 1',Type='Service Center',Center_Code__c='123456', GST_City__c='Bangalore', GST_State__c='Karnataka', GST_Street__c='KN020', GST_Zip_Postal_Code__c='451109');
         insert serviceCenter;//Added By Aniket on 03/09/2025 For Test Coverage Validation
         
         Schema.Location testLocation = new Schema.Location(Name = 'Test Location', LocationType = 'State',State__c = 'Karnataka');

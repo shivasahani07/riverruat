@@ -29,16 +29,26 @@ public without sharing class BatchRecordController {
             }
     }
  
-    @AuraEnabled(cacheable=true)
-    public static List<Claim> fetchClaims() {
+        @AuraEnabled(cacheable=true)
+    public static List<Claim> fetchClaims(String accountId) {
         try {
-            List<Claim> claims = [SELECT Id, Name, Total_Claim_Amount__c FROM Claim WHERE Create_Batch__c = NULL AND Status = 'Submitted'];
+            List<Claim> claims = [
+                SELECT Id, Name, Total_Claim_Amount__c 
+                FROM Claim 
+                WHERE Create_Batch__c = NULL 
+                AND Status = 'Submitted' 
+                AND (
+                    CreatedBy.Contact.AccountId = :accountId 
+                    
+                )
+            ];
             System.debug('Fetched claims:::' + claims);
             return claims;
         } catch (Exception e) {
             throw new AuraHandledException('Error fetching claims: ' + e.getMessage());
         }
     }
+
  
     @AuraEnabled
     public static Id createBatchAndTagClaims(
