@@ -32,12 +32,12 @@ trigger LeadTrigger on Lead (before Insert, after insert,after update,before upd
     }
 
     if(Trigger.IsBefore && Trigger.IsInsert){
-        /*LeadTriggerHandler.updatePreferredSeller(Trigger.new);
+        LeadTriggerHandler.updatePreferredSeller(Trigger.new);
         LeadTriggerHandler.phoneNumberValidation(Trigger.new);
         LeadTriggerHandler.updateLeadSourceForDMSUser(trigger.new,trigger.oldMap);
         LeadTriggerHandler.pincodeIsMandatory(Trigger.new);
         LeadTriggerHandler.OthersIsMandatoryIsSourceIsOther(Trigger.new);        
-        LeadTriggerHandler.dontCreateDuplicateLead(Trigger.new);*/
+        LeadTriggerHandler.dontCreateDuplicateLead(Trigger.new);
     }
     
 }

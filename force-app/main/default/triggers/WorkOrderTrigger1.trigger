@@ -55,6 +55,9 @@ trigger WorkOrderTrigger1 on WorkOrder (before insert, before update, after upda
 
 	if (Trigger.isUpdate && Trigger.isBefore) {
         JobCardValidationHandler.validateJobCardStatus(Trigger.new, Trigger.oldMap);
+       
+        //added by Ram 03/11/2025
+        JobCardOrderInvoiceHandler.CreateOrderInvoice(Trigger.New, Trigger.oldMap);
     }
 	
 }

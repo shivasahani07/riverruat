@@ -63,6 +63,8 @@ public class NewInsurenceE_Invoice_PDF_Controller {
     public String JuriName { get; set; }
     public String GSTIN { get; set; }
     public Boolean SameState { get; set; }
+    public Date InvoiceDate { get; set; }
+    public String invoiceId { get; set; }
     
 
     // New property to hold individual line item totals
@@ -173,6 +175,24 @@ public class NewInsurenceE_Invoice_PDF_Controller {
                 } else {
                     SameState = false; 
                 }
+            
+            List<Job_Card_Invoice__c> JobCardInvoices = [
+                SELECT Id, Name, Invoice_Number__c, Invoice_Type__c, Invoice_Date__c 
+                FROM Job_Card_Invoice__c 
+                WHERE Job_Card__c = :workOrderId AND Invoice_Type__c = 'Insurance'
+                ORDER BY CreatedDate DESC 
+                LIMIT 1
+            ];
+            String invoiceSequenceVH = '';
+            if (!JobCardInvoices.isEmpty()) {
+                invoiceSequenceVH = JobCardInvoices[0].Invoice_Number__c;
+                InvoiceDate = JobCardInvoices[0].Invoice_Date__c;
+            } else {
+                invoiceSequenceVH = '';
+                InvoiceDate = System.today();
+            }
+
+            invoiceId = invoiceSequenceVH;
 
             workOrderLineItemList = [
                 SELECT Id, CreatedDate, WorkOrderId, ParentWorkOrderLineItemId, Product2Id, AssetId, OrderId, RootWorkOrderLineItemId, Description,

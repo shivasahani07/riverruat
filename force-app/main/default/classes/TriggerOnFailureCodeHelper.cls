@@ -31,8 +31,11 @@ public class TriggerOnFailureCodeHelper {
 
         for(Failure_Code__c newObject :newList){
             Failure_Code__c oldObject =oldmap.get(newObject.id);
-            if(newObject.FPV_Key__c != oldObject.FPV_Key__c){
-                 newObject.addError('well tried but you can not edit this value');
+            if(newObject.FPV_Key__c != oldObject.FPV_Key__c ){
+                if(newObject.FPV_Key__c != null){
+                    newObject.addError('well tried but you can not edit this value');
+                }
+                 
             }
         }
     }

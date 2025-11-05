@@ -104,7 +104,7 @@
                         <apex:param value="{!workOrderRecord.EndDate+offset}" />
                     </apex:outputText>
                     <br /><br />
-                    <b>Invoice No</b>: <span class="s2">RC{!workOrderRecord.Service_Center__r.Center_Code__c}25{!workOrderRecord.Invoice_No__c}</span><br /><br />
+                    <b>Invoice No</b>: <span class="s2">{!invoiceId}</span><br /><br />
                     <!-- <b>Job Card No.</b>: <span style="white-space: nowrap;">{!workOrderRecord.WorkOrderNumber}</span><br /><br /> -->
                     <!-- <b>VIN</b> : {!workOrderRecord.Vehicle__r.VehicleIdentificationNumber} <br /><br/> -->
                     <b>Place of Supply</b>: {!workOrderRecord.City__r.State__c}<br/><br/>

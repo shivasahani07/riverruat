@@ -75,7 +75,6 @@ public without sharing class ClearTaxAPiHelperForService {
             request.setMethod('PUT');
             request.setHeader('Content-Type', 'application/json');
             request.setHeader('X-Cleartax-Auth-Token', getAccessToken());
-            System.debug('getAccessToken' + getAccessToken());
             System.debug('Service Center' + WorkOrdRecord.Service_Center__r.GSTIN_Number__c);
             request.setHeader('gstin', WorkOrdRecord.Service_Center__r.GSTIN_Number__c); // Seller GSTIN
             System.debug('E Inovice Base URL ==>' + clearTaxDetails.E_Invoice_Base_URL__c);
@@ -187,13 +186,12 @@ public without sharing class ClearTaxAPiHelperForService {
             return 'Exception: ' + e.getMessage();
         }
     }
-    
-    
-    
-    
+ 
     @AuraEnabled
     public static String generatePayloadForIRN(Id workOrderId) {
         System.debug('=== generatePayloadForIRN STARTED for WorkOrderId: ' + workOrderId);
+
+        String InvNumber;
         
         // Build state code map
         Map<String, String> stateCodeMap = new Map<String, String>();
@@ -217,6 +215,20 @@ public without sharing class ClearTaxAPiHelperForService {
             LIMIT 1
         ];
         System.debug('Fetched WorkOrder => ' + wo);
+
+        //Job card Invoice Number
+        List<Job_Card_Invoice__c> JobCardInvoices = [
+                SELECT Id, Name, Invoice_Number__c, Invoice_Type__c, Invoice_Date__c 
+                FROM Job_Card_Invoice__c 
+                WHERE Job_Card__c = :workOrderId AND Invoice_Type__c = 'Service'
+                ORDER BY CreatedDate DESC 
+                LIMIT 1
+            ];
+
+            if(!JobCardInvoices.isEmpty()){
+
+                InvNumber = JobCardInvoices[0].Invoice_Number__c;
+            }
         
         // Buyer (Customer)
         Account buyer = [
@@ -243,26 +255,34 @@ public without sharing class ClearTaxAPiHelperForService {
             SELECT Id, Quantity, UnitPrice, Discount, Sub_Total__c, TotalPrice,
             RR_Product__r.Name, RR_Product__r.HSN_Code__c,
             IGST_Percentage_formula__c, CGST_Percentage_Formula__c, SGST_Percentage_Formula__c,
-            IGST_Amount__c, CGST_Amount__c, SGST_Amount__c,IGST__c, CGST__c, SGST__c,List_Price_New__c,Total_NDP__c,
-            RR_Parts_Category__c
+            IGST_Amount__c, CGST_Amount__c, SGST_Amount__c,IGST__c, CGST__c, SGST__c,Actual_List_Price__c,Total_NDP__c,
+            RR_Parts_Category__c,WorkOrder.RR_Job_Type__c, Approved_Insurance__c
             FROM WorkOrderLineItem
             WHERE WorkOrderId = :wo.Id
-            AND RR_Parts_Category__c IN ('Paid')
+            AND (
+                    RR_Parts_Category__c = 'Paid' 
+                    OR (RR_Parts_Category__c = 'Insurance' AND WorkOrder.RR_Job_Type__c = 'Accidental' AND Approved_Insurance__c != null AND Approved_Insurance__c < 100)
+                )
         ];
         System.debug('Paid WOLIs size => ' + wolis.size());
         
         // Labour (Paid)
         List<WorkPlan> wps = [
             SELECT Id, Name, RR_Labour_Category__c, RR_Labour_Code__r.HSN_Code__c,
-            Labour_Charge__c, Discount__c, Subtotal__c,
+            Actual_Labour_Charge__c, Discount__c, Subtotal__c,
             IGST_Amount__c, CGST_Amount__c, SGST_Amount__c, RR_Labour_Code__r.RR_Labour_Charge__c,
             IGST__c,
             CGST__c,
             SGST__c,
-            RR_Labour_Code__r.Code
+            Approved_Insurance__c,
+            RR_Labour_Code__r.Code,
+            WorkOrder.RR_Job_Type__c
             FROM WorkPlan
             WHERE WorkOrderId = :wo.Id
-            AND RR_Labour_Category__c IN ('Paid')
+            AND(
+        RR_Labour_Category__c = 'Paid' 
+        OR (RR_Labour_Category__c = 'Insurance' AND WorkOrder.RR_Job_Type__c = 'Accidental' AND Approved_Insurance__c != null AND Approved_Insurance__c < 100)
+    )
         ];
         System.debug('Paid WorkPlans size => ' + wps.size());
         
@@ -286,7 +306,7 @@ public without sharing class ClearTaxAPiHelperForService {
                 };
                     Map<String, Object> docDtls = new Map<String, Object>{
                         'Typ' => 'INV',
-                            'No' => 'RC' + wo.Service_Center__r.Center_Code__c + '25' + wo.Invoice_No__c,
+                            'No' => InvNumber,
                             'Dt' => now.format('dd/MM/yyyy')
                             };
                                 
@@ -322,7 +342,7 @@ public without sharing class ClearTaxAPiHelperForService {
         // Parts lines
         for (WorkOrderLineItem li : wolis) {
             Decimal qty = (li.Quantity == null) ? 0 : li.Quantity;
-            Decimal unitPrice = (li.List_Price_New__c == null) ? 0 : li.List_Price_New__c;
+            Decimal unitPrice = (li.Actual_List_Price__c == null) ? 0 : li.Actual_List_Price__c;
             Decimal base = qty * unitPrice;
             Decimal discPct = (li.Discount == null) ? 0 : li.Discount;
             Decimal discountAmt = base * discPct / 100;
@@ -387,7 +407,7 @@ public without sharing class ClearTaxAPiHelperForService {
         // Labour lines
         for (WorkPlan lp : wps) {
             Decimal qty = 1;
-            Decimal unitPrice = (lp.Labour_Charge__c == null) ? 0 : lp.Labour_Charge__c;
+            Decimal unitPrice = (lp.Actual_Labour_Charge__c == null) ? 0 : lp.Actual_Labour_Charge__c;
             Decimal base = qty * unitPrice;
             Decimal discPct = (lp.Discount__c == null) ? 0 : lp.Discount__c;
             Decimal discountAmt = base * discPct / 100;

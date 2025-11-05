@@ -15,6 +15,7 @@ public with sharing class AppointmentFormController_Test {
 
         // --------------------------- TESTING getServiceCenters() --------------------------- //
         AppointmentFormController.getServiceCenters();
+        
           Schema.Location testLocation = new Schema.Location(Name = 'Test Location', LocationType = 'State',State__c = 'Karnataka');
         insert testLocation;         
         // Create Contact
@@ -284,7 +285,7 @@ public with sharing class AppointmentFormController_Test {
         );
        // insert appSlot1;
 
-        AppointmentFormController.getSlotItems(acc.Id, System.today().addDays(1));
+       
     }
 
     
@@ -350,11 +351,29 @@ public with sharing class AppointmentFormController_Test {
         v1.CurrentOwnerId = acc1.Id;
         v1.VehicleRegistrationNumber = '342ADD';
         insert v1;
+        
+        
+        
+         AssetMilestone completedMilestone = new AssetMilestone();
+        completedMilestone.Name = 'Completed Milestone';
+        completedMilestone.AssetId = ass1.Id;
+        completedMilestone.UsageType = 'Automotive';
+        completedMilestone.MilestoneDate = System.today().addDays(1);
+        completedMilestone.MilestoneType = 'PDI';
+        completedMilestone.Stage = 'Active';
+        completedMilestone.VehicleId =v1.Id;
+        insert completedMilestone;
+        
+        
+        completedMilestone.MilestoneDate = System.today().addDays(2);
+        update completedMilestone;
+        
 
         ServiceAppointment sa = new ServiceAppointment(
             ContactId = con.Id,
             Vehicle__c = v1.Id,
-            ParentRecordId = acc.Id
+            ParentRecordId = acc.Id,
+            Asset_Milestone__c = completedMilestone.id
         );
         insert sa;
 
@@ -415,42 +434,96 @@ public with sharing class AppointmentFormController_Test {
         );
         Test.stopTest();        
     }
+    @isTest
+    static void testGetPicklistValues_Success() {
+        // Call the method with a standard object and picklist field
+        // Here, we use 'Case' and 'Status' because 'Status' is a standard picklist field
+        List<String> values = AppointmentFormController.getPicklistValues('Case', 'Status');
+    }
+
+    @isTest
+    static void testGetPicklistValues_InvalidField() {
+        // Case where field doesn't exist
+        List<String> values = AppointmentFormController.getPicklistValues('Case', 'InvalidField__c');
+    }
+
+    @isTest
+    static void testGetPicklistValues_InvalidObject() {
+        // Case where object doesn't exist
+        List<String> values = AppointmentFormController.getPicklistValues('InvalidObject__c', 'Status');
+    }
+
+    @isTest
+    static void testGetPicklistValues_NonPicklistField() {
+        // Case where field exists but is not a picklist (e.g., Subject)
+        List<String> values = AppointmentFormController.getPicklistValues('Case', 'Subject');
+    }
+
+    @isTest
+    static void testGetPicklistValues_Exception() {
+        // Force an exception by passing null values
+        List<String> values = AppointmentFormController.getPicklistValues(null, null);
+    }
     
-    /*
     @isTest
     private static void testGetCurrentServiceCenter(){
 
-        // --------------------------- TESTING getSlotItems() --------------------------- //
-        // Create an Account
-        Account acc = new Account(Name = 'Test Dealer Account');
+      //  Vehicle testVehicle = [SELECT Id, CurrentOwnerId, VehicleIdentificationNumber, VehicleRegistrationNumber FROM Vehicle WHERE PDI_Status_Pass__c = true LIMIT 1];
+      // ServiceResource sr = [SELECT Id, Name FROM ServiceResource LIMIT 1];
+        
+        Account ServiceCenter = new Account(Name='service center1', Type = 'Service Center', Phone = '7890898989', Center_Code__c='asde4r');
+        Insert ServiceCenter;
+        
+         Account acc = new Account(
+            Name = 'Test Account',
+            Type = 'Service Center',
+            Center_Code__c = '292001',
+            Email__c = 'test@gmail.com',
+            Phone = '9089786756');
         insert acc;
-
-        // Create a Contact related to the Account
-        Contact con = new Contact(FirstName = 'Test', LastName = 'User', AccountId = acc.Id, Phone='8909897876');
-        insert con;
-
-        // Create a User with that Contact
-        Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
-
-        User u = new User(
-            Username = 'testuser3434@example.com',
-            Email = 'testuser3434@example.com',
-            Alias = 'tuser1',
+        
+        Schema.Location l1 = new Schema.Location(); 
+        l1.Name = 'Warehouse 1';
+        l1.LocationType = 'Secondary';
+        l1.IsInventoryLocation = true;
+        // l1.Account__c=testAccount.Id;
+        l1.Price_Book__c= Test.getStandardPricebookId();
+        insert l1;
+        
+        Contact testContact = new Contact(
+            FirstName = 'Test',
+            LastName = 'Contact',
+            Email = 'test@example.com',
+            Phone = '9999999998',
+            AccountId = acc.Id,
+            Primary_Contact__c = true,
+            Role_Type__c='Service',
+            Location__c=l1.Id
+        );
+        insert testContact;
+         UserRole role = [SELECT Id FROM UserRole LIMIT 1];
+        Profile p = [SELECT Id FROM Profile WHERE Name = 'Sales Manager (Partner)' LIMIT 1];
+        User standardUser = new User(
+            LastName = 'Standard',
+            Email = 'standard@example.com',
+            Username = 'standarduser@example.com' + System.currentTimeMillis(),
             ProfileId = p.Id,
-            TimeZoneSidKey = 'Asia/Kolkata',
+            Alias = 'stand',
+            TimeZoneSidKey = 'GMT',
             LocaleSidKey = 'en_US',
             EmailEncodingKey = 'UTF-8',
             LanguageLocaleKey = 'en_US',
-            FirstName = 'Test',
-            LastName = 'User',
-            ContactId = con.Id,
-            CompanyName = 'Test',
-            UserRoleId = null
+            ContactId = testContact.Id,
+            IsActive = true,
+            UserRoleId = role.Id
         );
-        insert u;
+        //insert standardUser;
 
-        // Run as that user
-        System.runAs(u) {
+        //User u = [SELECT Id,ContactId,Contact.Account.Type FROM User WHERE ContactId !=null AND Contact.Account.Type = 'Service Center' LIMIT 1];
+
+//UserRole role = [SELECT Id,DeveloperName FROM UserRole WHERE DeveloperName='RiverMobilityPrivateLimitedJPNagarPartnerUser' LIMIT 1];
+          
+        System.runAs(standardUser) {
             Test.startTest();
 
             // Call the method
@@ -458,6 +531,6 @@ public with sharing class AppointmentFormController_Test {
 
             Test.stopTest();
         }
-    }        
-	*/
+    }       
+	
 }

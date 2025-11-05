@@ -35,39 +35,57 @@ public class LeadTriggerHandler {
     
     public static void dontCreateDuplicateLead(List<Lead> newLeads) {
         try {
-            if(isConverting && convertingLeadIds.isEmpty()) {
+            System.debug('==== Entering dontCreateDuplicateLead ====');
+            System.debug('Incoming newLeads size: ' + (newLeads != null ? newLeads.size() : 0));
+            System.debug('isConverting: ' + isConverting);
+            System.debug('convertingLeadIds: ' + convertingLeadIds);
+
+            if (isConverting && convertingLeadIds.isEmpty()) {
+                System.debug('Returning early because convertingLeadIds is empty while converting');
                 return;
             }
-            
+
             Set<String> setOfPhoneNumbers = new Set<String>();
             Set<Id> currentLeadIds = new Set<Id>();
-            
+
             for (Lead ledRec : newLeads) {
+                System.debug('Processing Lead Id: ' + ledRec.Id + ', Phone: ' + ledRec.Phone);
                 if (!String.isBlank(ledRec.Phone)) {
                     setOfPhoneNumbers.add(ledRec.Phone);
                 }
                 currentLeadIds.add(ledRec.Id);
             }
-            
-            if (setOfPhoneNumbers.isEmpty()) return;
-            
+
+            System.debug('Collected Phone Numbers: ' + setOfPhoneNumbers);
+            System.debug('Collected Lead Ids: ' + currentLeadIds);
+
+            if (setOfPhoneNumbers.isEmpty()) {
+                System.debug('No phone numbers found, returning early');
+                return;
+            }
+
             Map<String, Account> phoneToAccountMap = new Map<String, Account>();
-            if(!isConverting) {
+            if (!isConverting) {
+                System.debug('Fetching Accounts with matching phone numbers...');
                 for (Account acc : [SELECT Id, Phone FROM Account WHERE Phone IN :setOfPhoneNumbers]) {
+                    System.debug('Account found - Id: ' + acc.Id + ', Phone: ' + acc.Phone);
                     if (!String.isBlank(acc.Phone)) {
                         phoneToAccountMap.put(acc.Phone, acc);
                     }
                 }
             }
-            
+            System.debug('phoneToAccountMap: ' + phoneToAccountMap.keySet());
+
             Map<String, List<Lead>> phoneToLeadMap = new Map<String, List<Lead>>();
             String leadQuery = 'SELECT Id, Phone FROM Lead WHERE Phone IN :setOfPhoneNumbers';
-            
-            if(isConverting && !convertingLeadIds.isEmpty()) {
+
+            if (isConverting && !convertingLeadIds.isEmpty()) {
                 leadQuery += ' AND Id NOT IN :convertingLeadIds';
             }
-            
+
+            System.debug('Final Lead Query: ' + leadQuery);
             for (Lead existingLead : Database.query(leadQuery)) {
+                System.debug('Existing Lead found - Id: ' + existingLead.Id + ', Phone: ' + existingLead.Phone);
                 if (!String.isBlank(existingLead.Phone)) {
                     if (!phoneToLeadMap.containsKey(existingLead.Phone)) {
                         phoneToLeadMap.put(existingLead.Phone, new List<Lead>());
@@ -75,32 +93,43 @@ public class LeadTriggerHandler {
                     phoneToLeadMap.get(existingLead.Phone).add(existingLead);
                 }
             }
-            
+            System.debug('phoneToLeadMap keys: ' + phoneToLeadMap.keySet());
+
             for (Lead ledRec : newLeads) {
-                if (String.isBlank(ledRec.Phone)) continue;
-                
-                if(isConverting && convertingLeadIds.contains(ledRec.Id)) {
+                System.debug('Checking duplicates for Lead Id: ' + ledRec.Id + ', Phone: ' + ledRec.Phone);
+                if (String.isBlank(ledRec.Phone)) {
+                    System.debug('Skipping Lead as phone is blank');
                     continue;
                 }
-                
+
+                if (isConverting && convertingLeadIds.contains(ledRec.Id)) {
+                    System.debug('Skipping converting lead Id: ' + ledRec.Id);
+                    continue;
+                }
+
                 if (phoneToLeadMap.containsKey(ledRec.Phone)) {
+                    System.debug('Found duplicate Lead(s) for phone: ' + ledRec.Phone);
                     for (Lead dupLead : phoneToLeadMap.get(ledRec.Phone)) {
-                        if (dupLead.Id != ledRec.Id) {
+                            System.debug('Duplicate Lead detected. Adding error.');
                             ledRec.addError('Lead already exists with this phone number');
                             break;
-                        }
                     }
                 }
-                
-                if (!isConverting && phoneToAccountMap.containsKey(ledRec.Phone)) {
+
+                if (!isConverting && phoneToAccountMap.containsKey(ledRec.Phone)) {   
+                    System.debug('Matching Account found for phone: ' + ledRec.Phone);
                     ledRec.addError('Account already exists with this phone number');
                     break;
                 }
             }
-        } catch(Exception e) {
-            System.debug('error message =====> '+ e.getMessage() + ' at line number =====>'+ e.getLineNumber());
+
+            System.debug('==== Exiting dontCreateDuplicateLead ====');
+
+        } catch (Exception e) {
+            System.debug('Error in dontCreateDuplicateLead: ' + e.getMessage() + ' at line: ' + e.getLineNumber() + ', stack trace: ' + e.getStackTraceString());
         }
     }
+
     
     public static void resetConversionContext() {
         isConverting = false;

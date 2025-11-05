@@ -113,7 +113,7 @@ public with sharing class ShipmentController {
         try {
             
                 Order orderRecord = [
-                SELECT Purchase_Order__c, Status
+                SELECT Purchase_Order__c, Status,Purchase_Order__r.CreatedById
                 FROM Order 
                 WHERE Id = :orderId 
                 LIMIT 1
@@ -142,6 +142,7 @@ public with sharing class ShipmentController {
             // Set the hardcoded Source Location and dynamic Destination Location
             shipment.SourceLocationId = hardcodedSourceLocationId;
             shipment.DestinationLocationId = destinationLocationId;
+            shipment.OwnerId=orderRecord.Purchase_Order__r.CreatedById;
 
             insert shipment;
 

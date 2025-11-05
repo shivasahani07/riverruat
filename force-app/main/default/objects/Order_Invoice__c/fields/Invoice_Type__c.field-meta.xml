@@ -34,6 +34,16 @@
                 <default>false</default>
                 <label>Merchandise Invoice</label>
             </value>
+            <value>
+                <fullName>Service</fullName>
+                <default>false</default>
+                <label>Service</label>
+            </value>
+            <value>
+                <fullName>Insurance</fullName>
+                <default>false</default>
+                <label>Insurance</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

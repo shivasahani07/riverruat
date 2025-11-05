@@ -129,7 +129,7 @@ export default class TfrSampleForm extends LightningElement {
             this.requiredOptions = [];
             this.listOptions = [];
             result.forEach(item => {
-                if(this.recordId !=undefined && !item.TFR_Required__c &&  this.Failure_Code__c == item.Failure_Code__c){
+                if(this.recordId !=undefined && !item.TFR_Required__c){
                     this.listOptions.push({ value: item.Id, label: item.Name });
                     if ((item.TFR_Sample__c != undefined && this.recordId != undefined ) && (item.TFR_Sample__c === this.recordId)) {
                         this.requiredOptions.push(item.Id);
@@ -137,7 +137,7 @@ export default class TfrSampleForm extends LightningElement {
 
                     }
                 }else{
-                    if(item.TFR_Sample__c == undefined && !item.TFR_Required__c && this.Failure_Code__c == item.Failure_Code__c){
+                    if(item.TFR_Sample__c == undefined && !item.TFR_Required__c){
                         this.listOptions.push({ value: item.Id, label: item.Name });
                     }
                 }

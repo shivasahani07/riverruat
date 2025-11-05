@@ -136,6 +136,11 @@
                 <label>OTC Website</label>
             </value>
             <value>
+                <fullName>Mobile App Account Detail Change</fullName>
+                <default>false</default>
+                <label>Mobile App Account Detail Change</label>
+            </value>
+            <value>
                 <fullName>Lead Creation - CarBike360</fullName>
                 <default>false</default>
                 <isActive>false</isActive>

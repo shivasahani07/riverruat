@@ -53,11 +53,11 @@
                         <td style="text-align: left; border-bottom: 1px solid black;"><strong>CIN:</strong> {!dcPdf.CIN__c}</td>
                         <td style="text-align: center; border-bottom: 1px solid black;"><strong>GST:</strong> {!dcPdf.GST__c}</td>
                     </tr>
-                    <tr>
+                   <!-- <tr>
                         <td colspan="2" style="text-align: left; border-bottom: 1px solid black;">
                             <strong>Registered Office:</strong> {!dcPdf.Registered_Office__c}
                         </td>
-                    </tr>
+                    </tr>  -->
                     <tr>
                         <td colspan="2" style="text-align: left;">
                             <strong>Factory Address:</strong> {!dcPdf.Factory_Address__c}

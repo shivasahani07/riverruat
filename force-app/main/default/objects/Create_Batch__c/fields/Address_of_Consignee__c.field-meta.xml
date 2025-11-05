@@ -11,14 +11,15 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>River HQ</fullName>
-                <default>false</default>
-                <label>River HQ</label>
-            </value>
-            <value>
                 <fullName>River Factory</fullName>
                 <default>false</default>
                 <label>River Factory</label>
+            </value>
+            <value>
+                <fullName>River HQ</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>River HQ</label>
             </value>
         </valueSetDefinition>
     </valueSet>

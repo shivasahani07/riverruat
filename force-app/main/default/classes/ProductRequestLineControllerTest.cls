@@ -19,7 +19,7 @@ public class ProductRequestLineControllerTest {
         ProductRequestLineItem lineItem2 = new ProductRequestLineItem( ParentId = productRequest.Id,Product2Id = product1.Id,Price_Book__c = pricebook.id,QuantityRequested = 33);
         insert lineItem2;
         
-        Account dealerAccount = new Account(Name = 'Test Name',Type = 'Dealer',Phone='9011113248', Email__c = 'dealer@test.com' );
+        Account dealerAccount = new Account(Name = 'Test Name',Type = 'Dealer',Phone='9011113248', Email__c = 'dealer@test.com', GST_City__c='Bangalore', GST_State__c='Karnataka', GST_Street__c='KN020', GST_Zip_Postal_Code__c='451109' );
         dealerAccount.Account_Number__c = '47723745723457';
         dealerAccount.Bank_Name__c = 'Canara';
         dealerAccount.Center_Code__c = 'BR';

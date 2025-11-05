@@ -1,0 +1,25 @@
+<template>
+    <lightning-card class="custom-card">
+        <div class="custom-header slds-p-horizontal_medium slds-p-vertical_small slds-theme_shade slds-text-heading_medium">
+            <lightning-icon icon-name="standard:invoice" size="small" class="slds-m-right_small"></lightning-icon>
+            Invoice Generator
+        </div>
+        <div class="slds-p-around_medium custom-container">
+            <template if:true={loading}>
+                <c-custom-spinner></c-custom-spinner>
+                <div class="loading-text">Generating Invoice, please wait...</div>
+            </template>
+
+            <template if:false={loading}>
+                <template if:true={success}>
+                    <div class="iframe-container">
+                        <img src={Successinvoice} alt="Success"></img>
+                    </div>
+                </template>
+                <template if:false={success}>
+                    <div class="slds-text-color_error">Invoice generation failed.</div>
+                </template>
+            </template>
+        </div>
+    </lightning-card>
+</template>

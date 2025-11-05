@@ -12,11 +12,6 @@
     <columns>Job_Status__c</columns>
     <columns>Stage__c</columns>
     <filterScope>Everything</filterScope>
-    <filters>
-        <field>VOR_Creation_hours__c</field>
-        <operation>equals</operation>
-        <value>1</value>
-    </filters>
     <label>All VOR DMS</label>
     <sharedTo>
         <allPartnerUsers></allPartnerUsers>

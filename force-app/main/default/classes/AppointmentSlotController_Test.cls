@@ -52,6 +52,11 @@ private class AppointmentSlotController_Test {
             ));
         }
         insert items;
+        
+         Test.startTest();
+             AppointmentSlotController.getCurrentContactServiceCenter();
+             Test.stopTest();
+
     }
 
     // Helper method to create test user safely
@@ -74,6 +79,8 @@ private class AppointmentSlotController_Test {
              UserRoleId = role.Id,
             ContactId = contactId
         );
+         
+                   
     }
 
     @isTest

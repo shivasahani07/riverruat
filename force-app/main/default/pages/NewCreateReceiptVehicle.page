@@ -169,7 +169,7 @@
                         <br/>VIN<br /> {!order.Assigned_Vehicle__r.VehicleIdentificationNumber} <br/>
                         <br/>Motor Number <br/>{!order.Assigned_Vehicle__r.EngineNumber}<br/> <br/>Colour: {!order.Assigned_Vehicle__r.Colour__c}
                         <br/><br/>Battery Details<br/> {!order.Assigned_Vehicle__r.Vehicle_Details__c} <br/><br/> Battery Qty: {!order.Assigned_Vehicle__r.VehicleDefinition.Battery_Quantity__c}
-                        <br/>Battery Capacity: {!order.Assigned_Vehicle__r.VehicleDefinition.Battery_Capacity__c}<br/>
+                        <!--<br/>Battery Capacity: {!order.Assigned_Vehicle__r.VehicleDefinition.Battery_Capacity__c}<br/>-->
                         <br/>HSN Code: {!OrderItem.HSN_Code__c}<br/>
                     </td>
                     
