@@ -67,6 +67,11 @@
     }
 }
 
+.slds-dropdown{
+    width:100wh;
+    z-index:11000;
+}
+
 .custom-list-container {
     background: #ffffff;
     border-radius: 12px;

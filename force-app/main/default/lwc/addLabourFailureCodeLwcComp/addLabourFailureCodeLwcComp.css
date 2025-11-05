@@ -4,7 +4,10 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     padding: 0.75rem;
     margin-top: 1rem;
+    width:100wh;
+    z-index:11000;
 }
+
 
 .custom-list-item {
     background: #f9fafb;
@@ -15,6 +18,7 @@
     cursor: pointer;
     transition: all 0.2s ease-in-out;
 }
+
 
 .custom-list-item:hover {
     background: #f3f4f6;

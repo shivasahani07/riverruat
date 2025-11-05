@@ -20,6 +20,8 @@
                     <lightning-input-field field-name="Failure_Code__c" value={inputObject.Failure_Code__c} disabled={inputObject.Failure_Code__c}></lightning-input-field>
                     <lightning-input-field field-name="Job_Card__c" value={inputObject.WorkOrderId} disabled={inputObject.WorkOrderId}></lightning-input-field>
                     <lightning-input-field field-name="Actions_Taken__c" required="true"></lightning-input-field>
+                    <lightning-input-field field-name="Terrain_Type__c" required="true"></lightning-input-field>
+                    <lightning-input-field field-name="LR_Number__c" required="true"></lightning-input-field>
                 </div>
                 <div class="slds-col slds-size_1-of-2">
                     <lightning-input-field field-name="Issue_Severity__c" disabled={isTFRRecordDisabled} required="true"></lightning-input-field>
@@ -30,8 +32,11 @@
                     <lightning-input-field field-name="Warranty_Claim_Number__c" disabled={isTFRRecordDisabled}></lightning-input-field>
                     <lightning-input-field field-name="Approved_by__c" disabled={isTFRRecordDisabled}></lightning-input-field>
                     <lightning-input-field field-name="VIN_No__c" disabled={isTFRRecordDisabled}></lightning-input-field>
+                    <lightning-input-field field-name="Gen_Version__c" required="true"></lightning-input-field>
+                    <lightning-input-field field-name="Pillion__c" required="true"></lightning-input-field>
+                    <lightning-input-field field-name="Vehicle_Type__c" required="true"></lightning-input-field>
                     <lightning-input-field field-name="Service_Center__c" disabled={inputObject.WorkOrder.Service_Center__c} value={inputObject.WorkOrder.Service_Center__c}></lightning-input-field>
-                    <lightning-input-field field-name="TFR_Post_Vin_Cutt_off__c" disabled  value={inputObject.Post_Vin_cutt_off__c}></lightning-input-field>
+                    <lightning-input-field field-name="TFR_Post_Vin_Cutt_off__c" disable d  value={inputObject.Post_Vin_cutt_off__c}></lightning-input-field>
                 </div>
                 <div class="slds-col slds-size_1-of-1">
                    <lightning-dual-listbox

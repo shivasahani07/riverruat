@@ -101,23 +101,25 @@ export default class RideRiverWarrantyRecord extends LightningElement {
         { label: 'Quantity', fieldName: 'Quantity', type: 'number', cellAttributes: { alignment: 'center' } },
         // { label: 'Status', fieldName: 'Status', type: 'text' },
         // { label: 'FFIR No.', fieldName: 'FFIR_Number__c', type: 'text' },
-            {
-            label: 'FFIR Links',
-            fieldName: 'FFIR_Links__c',
-            type: 'url', editable: { fieldName: 'isDisableFFRLink' },
-            typeAttributes: { label: { fieldName: 'FFIR_Link_Label' }, target: '_blank' },
-            // disabled: { fieldName: 'isDisableFFRLink' } 
-        },
-         { label: 'TFR No.', fieldName: 'TFR_NO', type: 'text',initialWidth: 200 },
-        // {
-        //     label: 'FFIR Links',
+        //     {
+        //     label: 'TFR Links'
         //     fieldName: 'FFIR_Links__c',
         //     type: 'url',
-        //     typeAttributes: {
-        //         label: { fieldName: 'FFIR_Link_Label' },
-        //         target: '_blank'
-        //     }
+        //     typeAttributes: { label: { fieldName: 'FFIR_Link_Label' }, target: '_blank' },
+        //     // disabled: { fieldName: 'isDisableFFRLink' } 
         // },
+        {
+            label: 'TFR Links',
+            fieldName: 'FFIR_Links__c',
+            editable: true,
+            type: 'url',
+            typeAttributes: {
+                label: { fieldName: 'FFIR_Link_Label' },
+                target: '_blank'
+            }
+        },
+         { label: 'TFR No.', fieldName: 'TFR_NO', type: 'text',initialWidth: 200 },
+        
         {
 
             type: "button", label: 'TFR+', initialWidth: 200, typeAttributes: {
@@ -271,9 +273,9 @@ export default class RideRiverWarrantyRecord extends LightningElement {
                 Quantity: item.Quantity || 0,
                 FFIR_Number__c: item.FFIR_Number__c || 'N/A',
                 FFIR_Links__c: item.FFIR_Links__c ? item.FFIR_Links__c : '',
-                FFIR_Link_Label: item.FFIR_Links__c ? item.FFIR_Links__c : '',
+                // FFIR_Link_Label: item.FFIR_Links__c ? item.FFIR_Links__c : '',
                 disableView: !item.TFR_Required__c,
-                isDisableFFRLink: !item.TFR_Required__c,
+                // isDisableFFRLink: !item.TFR_Required__c,
                 TFR_Sample__c:item.TFR_Sample__c,
                 TFR_NO:item.TFR_Sample__r?.Name__c,
                 
@@ -545,20 +547,20 @@ export default class RideRiverWarrantyRecord extends LightningElement {
         console.log('Additional Parts Data:', this.additionalPartsData);
 
 
-        // Validate FFIR_Links__c
-        const invalidFFIRLinks = this.additionalPartsData.filter(
-            (part) => (!part.FFIR_Links__c && part.TFR_Required__c != true)
-                || (part.FFIR_Links__c.trim() === '' && part.TFR_Required__c != true)
-        );
+        // // Validate FFIR_Links__c
+        // const invalidFFIRLinks = this.additionalPartsData.filter(
+        //     (part) => (!part.FFIR_Links__c && part.TFR_Required__c != true)
+        //         || (part.FFIR_Links__c.trim() === '' && part.TFR_Required__c != true)
+        // );
 
-        if (invalidFFIRLinks.length > 0) {
-            // this.isApprovalFired = true
-            // const errorMessage = 'FFIR Links are required for all parts.';
-            const errorMessage = 'FFIR Links are required';
-            console.error('Validation Error:', errorMessage);
-            this.showToast('Validation Error', errorMessage, 'error');
-            return; // Stop execution if validation fails
-        }
+        // if (invalidFFIRLinks.length > 0) {
+        //     // this.isApprovalFired = true
+        //     // const errorMessage = 'FFIR Links are required for all parts.';
+        //     const errorMessage = 'FFIR Links are required';
+        //     console.error('Validation Error:', errorMessage);
+        //     this.showToast('Validation Error', errorMessage, 'error');
+        //     return; // Stop execution if validation fails
+        // }
 
         const TFRvalidation = this.additionalPartsData.filter(
             (part) => 

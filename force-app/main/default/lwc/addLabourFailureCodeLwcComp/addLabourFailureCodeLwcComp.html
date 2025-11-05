@@ -41,8 +41,8 @@
                         </lightning-input>
 
                         <template if:true={recordsGetter}>
-                            <div class="custom-list-container slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                                <ul class="slds-listbox slds-listbox_vertical slds-dropdown">
+                            <div class="custom-list-container slds-col slds-size_1-of-1 slds-medium-size_2-of-2">
+                                <ul class="slds-listbox slds-listbox_vertical">
                                     <template for:each={records} for:item="rec">
                                         <li key={rec.Id} class="slds-listbox__item custom-list-item"
                                             onclick={handleSelect} data-id={rec.Id}>
