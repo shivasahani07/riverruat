@@ -124,8 +124,9 @@
                                             required={item.isElectricalValueRequired}>
                                         </lightning-input-field>
                                     </lightning-layout-item>
-
-                                    <!-- Approved Insurance % -->
+                                </template>
+                                <!-- Approved Insurance % -->
+                                     <template if:true={item.IsInsurance}>
                                     <lightning-layout-item size="12" large-device-size="2" class="slds-align_absolute-center">
                                         <lightning-input-field 
                                             field-name="Approved_Insurance__c" 
@@ -136,11 +137,12 @@
                                             data-fieldname="Approved_Insurance__c"
                                             label="Approved Insurance (%)"
                                             type="percent"
-                                            step="0.01">
+                                            onchange={handleInsuranceChange}
+                                            step="0.01"
+                                            >
                                         </lightning-input-field>
                                     </lightning-layout-item>
-
-                                </template>
+                                    </template>
 
                                 <!-- Electrical Value -->
                                 <lightning-layout-item size="12" large-device-size="1" class="slds-align_absolute-center">

@@ -8,12 +8,12 @@
 trigger FeedbackResponseTrigger on Feedback_Response__c (before insert,after update,before update, before delete) {
     if(Trigger.isAfter && Trigger.isUpdate){
         AverageCalculationOnFeedbackPSF.calculateAverageRating(Trigger.new,Trigger.oldmap);
-        //AverageCalculationOnFeedbackPSF.createAnswerChildObject(Trigger.new,Trigger.oldmap);
-        AverageCalculationOnFeedbackPSF.createAnswerForPost7Days(Trigger.new,Trigger.oldmap);
+        AverageCalculationOnFeedbackPSF.createAnswerChildObject(Trigger.new,Trigger.oldmap);
+        //AverageCalculationOnFeedbackPSF.createAnswerForPost7Days(Trigger.new,Trigger.oldmap);
     }
      if(Trigger.isBefore && Trigger.isInsert){
          AverageCalculationOnFeedbackPSF.populateFormName(Trigger.new);
-          JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.new);
+          //JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.new);
     }
     
      //Added By Ram 24/06/2025

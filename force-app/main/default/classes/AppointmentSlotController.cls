@@ -8,55 +8,7 @@ public with sharing class AppointmentSlotController {
             WHERE Service_Center__c = :serviceCenterId AND Is_Active__c = True
         ];
     }
-     @AuraEnabled
-    public static List<Appointment_Slot_Item__c>  getAppointmentSLot(String statusvalue) {
-        
-        try{
-            system.debug('statusvalue==='+statusvalue);
-        Id userid = UserInfo.getUserId();
-        User userRec = [
-            SELECT Id, Contact.AccountId, Contact.Account.Name 
-            FROM User 
-            WHERE Id = :userid 
-            LIMIT 1
-        ];
-        
-
-        Account accRec = [SELECT Id, Name FROM Account WHERE Id =:userRec.Contact.AccountId LIMIT 1];
-        
-        system.System.debug('accRec==='+accRec);
-        List<Appointment_Slot__c> appointSLot = [
-            SELECT Id, Service_Center__c, Appointment_Slot_Date__c, Start_Slot_Time__c, End_Slot_Time__c, Slot_Duration_Minute__c, Status__c
-            FROM Appointment_Slot__c 
-            WHERE Service_Center__c = :accRec.Id  ];
-            system.System.debug('appointSLot==='+appointSLot);
-        List<Appointment_Slot_Item__c> appointmentLineItemList;
-          if (!appointSLot.isEmpty()) {
-            Set<Id> appointSlotIds = new Set<Id>();
-            for (Appointment_Slot__c appRec : appointSLot) {
-                appointSlotIds.add(appRec.Id);
-            }
-
-              appointmentLineItemList = [
-                SELECT Id, Name, Service_Bay__c, Service_Bay__r.Name, Appointment_Slot_Date__c, 
-                       Start_Time__c, End_Time__c, Appointment_Slot__r.Name, Booking_Status__c, Appointment_Slot__c
-                FROM Appointment_Slot_Item__c 
-                WHERE Appointment_Slot__c IN :appointSlotIds  AND Booking_Status__c =:statusvalue
-                ORDER BY Appointment_Slot_Date__c DESC
-            ];
-
-            
-        }
-
-        return appointmentLineItemList;
-        }
-        catch (Exception e){
-            System.debug('Error Message ==>' + e.getMessage() + ' && Error Line == >' + e.getLineNumber());
-            return null;
-        }
-        
-         
-    }
+  
 
     @AuraEnabled(cacheable=true)
     public static serviceCenterAppointmentWrapper getCurrentContactServiceCenter(){

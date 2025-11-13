@@ -18,7 +18,6 @@ trigger WorkOrderLineItemTrigger on WorkOrderLineItem (after insert, after updat
            WorkOrderLineItemTriggerHandler.createWarrantyAfterUpdate(Trigger.new,Trigger.oldMap); //added by Aniket on 22/05/2025
         }else if (Trigger.isDelete) {
            WorkOrderLineItemTriggerHandler.handleDelete(Trigger.old);
-           
       }
     }
    
@@ -38,6 +37,8 @@ trigger WorkOrderLineItemTrigger on WorkOrderLineItem (after insert, after updat
         WorkOrderLineItemTriggerHandler.DeletedRelatedLabourfromPart(deletedids);
         JobCardRecordLock.PreventUpdateForJobCardStatus(trigger.old);
         DMLLogger.logChanges(Trigger.oldMap, null, 'DELETE', 'WorkOrderLineItem');
+        
+        WorkOrderLineItemTriggerHandler.handleBeforeDeleteOperation(Trigger.old);
     }
    
     if (Trigger.isAfter && Trigger.isUpdate) {

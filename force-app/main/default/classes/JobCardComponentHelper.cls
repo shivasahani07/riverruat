@@ -63,9 +63,10 @@ public class JobCardComponentHelper {
                     AND Status NOT IN ('Completed', 'Canceled')
                 ];
                 
-                if (!activeJobcards.isEmpty()) {
-                    throw new CustomException('An active jobcard is present with same Vehicle!');
-                }
+               if (!activeJobcards.isEmpty()) {
+                 throw new AuraHandledException('Error: An active jobcard is present with same Vehicle!');
+               }
+
             }
             
             else {
@@ -235,6 +236,8 @@ public class JobCardComponentHelper {
     //Creating Job card
     @AuraEnabled
     public static WrapperjobCardDetails saveCardDetails(JobCardDetails jobCardDetails) {
+        System.debug('jobCardDetails.TypeOfJob==>'+jobCardDetails.TypeOfJob);
+        System.debug('jobCardDetails.subType===>'+jobCardDetails.subType);
         
         try{
             
@@ -267,7 +270,7 @@ public class JobCardComponentHelper {
             jobCard.Odometer_Reading__c= jobCardDetails.KmsCovered;
             // jobCard.RR_Technician__c = jobCardDetails.Technician;
             jobCard.RR_Job_Type__c = jobCardDetails.TypeOfJob;
-            jobCard.RR_Periodic_Maintenance_Type__c = jobCardDetails.subType;
+            jobCard.RR_Periodic_Maintenance_Type__c = jobCardDetails.subType != null || jobCardDetails.subType != '' ? jobCardDetails.subType : null;
             jobCard.AccountId = jobCardDetails.vehicle.CurrentOwnerId;
             jobCard.RR_Rear_View_Mirror__c = jobCardDetails.RearViewMirror;
             jobCard.RR_Vehicle_Document__c = jobCardDetails.VehicleDocument;
@@ -312,17 +315,28 @@ public class JobCardComponentHelper {
             
             If(jobCardDetails.TypeOfJob == 'Periodic Maintenance'){ 
                 AssetMilestone assetRec = [Select id,Stage,Name from AssetMilestone where VehicleId=:jobCardDetails.vehicle.Id AND MilestoneType  =:jobCardDetails.subType  ];
-                
-                if(assetRec.Stage == 'Tentative' ){
+                AssetMilestone currentAssetRec   = [SELECT Id,Name, MilestoneDate,Stage FROM AssetMilestone WHERE  Stage = 'Tentative' AND VehicleId =:jobCardDetails.vehicle.Id ORDER BY MilestoneDate ASC LIMIT 1];
+                if(assetRec.Stage == 'Tentative' && currentAssetRec.Id == assetRec.Id){
+
                     insert jobCard;
                     jobdetails.jobcardId = jobCard.Id;  
                     if(jobCardDetails.TypeOfJob == 'Periodic Maintenance') {
                         AssetMilestone assetRecord = [Select id,Stage,Service_Center__c from AssetMilestone where VehicleId=:jobCard.Vehicle__c AND MilestoneType  =:jobCard.RR_Periodic_Maintenance_Type__c AND Stage = 'Tentative'];
                         if(assetRecord.Stage == 'Tentative'){
+                            WorkOrder currentWO = [Select Id ,Vehicle__c From WorkOrder where Id =:jobCard.ID];
+                            
+
+                               system.debug('currentAssetRec.Id------'+currentAssetRec.Id);
+                               system.debug('assetRecord.Id------'+assetRecord.Id);
+                            
                             WorkOrder updatworkOrder = new WorkOrder();
-                            updatworkOrder.Id = jobCard.Id;
+                             system.debug('insert in If ');
+                             system.debug('assetRecord.Id '+assetRecord.Id);
+                            updatworkOrder.Id = currentWO.Id;
                             updatworkOrder.Asset_Milestone__c = assetRecord.Id;
                             Update updatworkOrder;
+                            
+                           
                              Id userId = UserInfo.getUserId();
                              List<user> userServiceAccount = [SELECT   id,Contact.AccountId From User where Id =: userId AND Contact.Account.Type = 'Service Center' limit 1];
                             if(!userServiceAccount.isEmpty()){
@@ -367,23 +381,34 @@ public class JobCardComponentHelper {
                                     
                                 }
                             }
+                        
                         }
                         
                     }
+                }else If(currentAssetRec.Id != assetRec.Id && assetRec.Stage != 'Expired') {
+                              jobdetails.message = 'noCurrentMilestone';
+                              jobdetails.lapseMileston = currentAssetRec.Name;
+
                 }else if(assetRec.Stage == 'Expired' ){
                     jobdetails.message = 'expired';
                     jobdetails.lapseMileston = assetRec.Name;
-
-                }
-                else{
+                }else{
                     jobdetails.message = 'failed';
                     jobdetails.lapseMileston = assetRec.Name;
                 }
             }else{
                 insert jobCard;
                 jobdetails.jobcardId = jobCard.Id; 
+                 WorkOrder jobRec = [Select id, Vehicle_Registration_Number__c  From WorkOrder WHere ID =:jobCard.ID];
+                List<Appointment__c> appointmentRecRod = [Select Id,VRN__c,Status__c From Appointment__c where VRN__c =:jobRec.Vehicle_Registration_Number__c limit 1  ];
+                                    System.debug('appointmentRecRod'+appointmentRecRod);
+                                    
+                                    
+                                    if(!appointmentRecRod.IsEmpty()){
+                                    appointmentRecRod[0].Status__c = 'Under job Card';
+                                    update appointmentRecRod[0]; 
                 
-                
+                                    }
                 
                 
                 List<RR_Customer_Voice__c> voiceList = new List<RR_Customer_Voice__c>();
@@ -522,9 +547,9 @@ update vh;*/
     } 
     
     public class VehicleWrapper {
-        @AuraEnabled public Vehicle vehicle;
-        @AuraEnabled public String primaryContactPhone;
-        @AuraEnabled public Boolean activeJobCardPresent;
+        @AuraEnabled public Vehicle vehicle{get;set;}
+        @AuraEnabled public String primaryContactPhone{get;set;}
+        @AuraEnabled public Boolean activeJobCardPresent{get;set;}
     }
     
     public class AddressWrapper {

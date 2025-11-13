@@ -4,6 +4,32 @@
     <active>true</active>
     <label>Technical Ticket</label>
     <picklistValues>
+        <picklist>Concern_Category__c</picklist>
+        <values>
+            <fullName>Electrical</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Mechanical</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Plastics</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Concern_Sub_Category__c</picklist>
+        <values>
+            <fullName>Diagnosis</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Warranty</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>Mode_of_Driving__c</picklist>
         <values>
             <fullName>Eco</fullName>
@@ -102,6 +128,17 @@
         </values>
         <values>
             <fullName>NFA</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Type_of_Concern__c</picklist>
+        <values>
+            <fullName>Known</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Unknown</fullName>
             <default>false</default>
         </values>
     </picklistValues>

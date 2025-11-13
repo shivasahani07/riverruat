@@ -242,7 +242,7 @@ public static String createOrderRecord(String shipmentType, Integer additonal, S
                 if(v.EW_Plan__c == '5 Years or 50,000Kms' || String.isBlank(v.EW_Plan__c)){
                     if(String.valueof(ewProductCode) != 'RV-EW-7'){
                         throw new AuraHandledException('5 Years Warranty Is Present , If you want to Upgrade it to 8 years please Proceed with RV-EW-7 Product');
-                    }else if(String.valueof(ewProductCode) == 'RV-EW-7' && monthsDiff > 5 && (v.EW_Plan__c == '5 Years or 50,000Kms' || String.isBlank(v.EW_Plan__c))){
+                    }else if(String.valueof(ewProductCode) == 'RV-EW-7' && monthsDiff > 6 && (v.EW_Plan__c == '5 Years or 50,000Kms' || String.isBlank(v.EW_Plan__c))){
                     System.debug('Inside RV-EW-7 Method New ');
                     throw new AuraHandledException('6 Months Exceeded , You canot upgrade Extended Warranty');
                     }

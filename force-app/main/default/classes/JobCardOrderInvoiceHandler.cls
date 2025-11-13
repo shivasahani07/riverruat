@@ -3,7 +3,7 @@
 * @create date 4-11-2025
 * @modify date 4-11-2025
 * @desc [Invocie Record Creation For Job Card]
-*/
+**/
 
 public class JobCardOrderInvoiceHandler {
     
@@ -81,7 +81,7 @@ public class JobCardOrderInvoiceHandler {
                             String insuranceInvoiceId = GenerateInvoiceId.generateInvoiceId(company, centre, product, insuranceInvoiceNum);
                             
                             Job_Card_Invoice__c insuranceInvoice = new Job_Card_Invoice__c();
-                            insuranceInvoice.Name = 'Insurance';
+                            insuranceInvoice.Name = 'Insurance Invoice';
                             insuranceInvoice.Invoice_Number__c = insuranceInvoiceId;
                             insuranceInvoice.Invoice_Type__c = 'Insurance';
                             insuranceInvoice.Job_card__c = wrd.Id;

@@ -37,8 +37,11 @@
                                     </lightning-layout-item>
                                     <lightning-layout-item size="12" large-device-size="2"
                                         class="slds-align_absolute-center" style="display: none;">
-                                        <lightning-input-field field-name="Name" variant="label-stacked" data-id={index}
+                                        <!-- <lightning-input-field field-name="Name" variant="label-stacked" data-id={index}
                                             value={name}>
+                                        </lightning-input-field> -->
+                                        <lightning-input-field field-name="Name" variant="label-stacked" data-id={index}
+                                            value={item.name}>
                                         </lightning-input-field>
                                     </lightning-layout-item>
                                     <lightning-layout-item size="12" large-device-size="2"
@@ -52,7 +55,7 @@
                                        
                                         <lightning-combobox label="Labour Category"
                                             options={filteredReplacementTypeOptions} data-id={index}
-                                            data-fieldname="RR_Labour_Category__c" onchange={handleWrarrantyType}
+                                            data-fieldname="RR_Labour_Category__c" onchange={handleWrarrantyType} 
                                             access-key={item.id} id={index} required>
                                         </lightning-combobox>
                                         <lightning-input-field field-name="RR_Labour_Category__c" variant="label-stacked"
@@ -72,8 +75,20 @@
 
                                     <lightning-layout-item size="12" large-device-size="2" class="slds-align_absolute-center">
                                         <template if:true={item.showInsuranceField}>
-                                            <lightning-input-field field-name="Approved_Insurance__c" data-id={index} variant="label-stacked">
+
+                                            <lightning-input-field field-name="Approved_Insurance__c" data-id={index} variant="label-stacked"
+                                            onchange={handleInsuranceChange}>
                                             </lightning-input-field>
+                                            <!--
+                                           <lightning-input
+                                                type="number"
+                                                label="Approved Insurance (%)"
+                                                data-id={index}
+                                                variant="label-stacked"
+                                                value={item.Approved_Insurance__c}
+                                                onchange={handleInsuranceChange}>
+                                            </lightning-input>
+                                            -->
                                         </template>
                                     </lightning-layout-item>
 

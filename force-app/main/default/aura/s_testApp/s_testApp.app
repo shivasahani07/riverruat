@@ -6,5 +6,5 @@
  <c:failureCodeProductVinCom></c:failureCodeProductVinCom>
  -->
     
-    <c:bulkInsertJCProductsCustomNew recordId='0WOBh000003oTwLOAU'></c:bulkInsertJCProductsCustomNew>
+ <c:rideRiverWarrantyRecord recordId='0WOBh000003yVTpOAM'></c:rideRiverWarrantyRecord>
 </aura:application>

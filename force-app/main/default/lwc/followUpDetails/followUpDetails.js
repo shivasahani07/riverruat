@@ -63,6 +63,7 @@ export default class FollowUpDetails extends LightningElement {
     }
 
     handleChange(event) {
+        debugger;
         const field = event.target.name;
         const value = event.target.value;
 

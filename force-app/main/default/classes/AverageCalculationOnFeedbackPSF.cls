@@ -231,51 +231,6 @@ public without sharing class AverageCalculationOnFeedbackPSF {
 
 
   //this method is for the 5th Form Logic 
-  public static void createAnswerForPost7Days(List<Feedback_Response__c> newList, Map<Id, Feedback_Response__c> oldMapRes) {
-    try {
-        Map<Id, List<String>> feedbackMap = new Map<Id, List<String>>();
-        for (Feedback_Response__c f : newList) {
-            Feedback_Response__c oldRecord = oldMapRes.get(f.Id);
-            if (f.Answers_For_Post_7_Day_Service__c != oldRecord.Answers_For_Post_7_Day_Service__c &&
-                String.isNotBlank(f.Answers_For_Post_7_Day_Service__c)) {
-                // Split by comma followed by optional space
-                List<String> parts = f.Answers_For_Post_7_Day_Service__c.split(',\\s*');
-                feedbackMap.put(f.Id, parts);
-            }
-        }
-
-        System.debug('feedbackMap ==> ' + feedbackMap);
-        List<Feedback_Response_Answers__c> answersToInsert = new List<Feedback_Response_Answers__c>();
-
-        for (Id resId : feedbackMap.keySet()) {
-            List<String> ansList = feedbackMap.get(resId);
-            for (String s : ansList) {
-                s = s.trim();
-                List<String> partedAns = s.split('=');
-                if (partedAns.size() < 2) continue;
-
-                String questionRaw = partedAns[0].trim();
-                String answer = partedAns[1].trim();
-
-                // Remove numeric prefix like "1)" or "2)"
-                String question = questionRaw.replaceFirst('^\\s*\\d+\\)\\s*', '');
-
-                Feedback_Response_Answers__c fAns = new Feedback_Response_Answers__c();
-                fAns.Question__c = question;
-                fAns.Answer__c = answer;
-                fAns.Feedback_Response__c = resId;
-                answersToInsert.add(fAns);
-            }
-        }
-
-        if (!answersToInsert.isEmpty()) {
-            insert answersToInsert;
-        }
-
-    } catch (Exception e) {
-        System.debug('Error Occurred ==> ' + e.getMessage());
-        System.debug('Error Line Number ==> ' + e.getLineNumber());
-    }
-}
+ 
 
 }

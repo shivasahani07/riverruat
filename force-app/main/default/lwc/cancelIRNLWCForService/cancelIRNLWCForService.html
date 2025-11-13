@@ -1,32 +1,106 @@
 <template>
     <div class="card">
-        <h2 class="title">IRN Details </h2>
+        <h2 class="title">IRN Cancellation</h2>
 
+        <!-- Spinner -->
         <template if:true={showSpinner}>
-            <div class="slds-is-relative">
-                <lightning-spinner  alternative-text="Loading" size="medium" ></lightning-spinner>
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </template>
+        <!-- IRN Type Selection Screen -->
+        <template if:false={selectedIRNType}>
+             <div class="slds-form-element">
+               <!-- <h3 class="slds-text-heading_small slds-m-bottom_small" style="text-align: left; margin-left: 5%;">
+            Select IRN Type
+        </h3> -->
+                <div class="slds-form-element__control radio-vertical">
+                    <lightning-input
+                        type="radio"
+                        name="irnType"
+                        label="Service IRN"
+                        value="Service"
+                        checked={isServiceSelected}
+                        onchange={handleIRNTypeChange}>
+                    </lightning-input>
+
+                    <lightning-input
+                        type="radio"
+                        name="irnType"
+                        label="Insurance IRN"
+                        value="Insurance"
+                        checked={isInsuranceSelected}
+                        onchange={handleIRNTypeChange} style="margin-left: 1.7%;">
+                    </lightning-input>
+                </div>
             </div>
         </template>
 
-        <!-- Form Container -->
-        <div class="form-container">
-            
-            <lightning-input  type="text"   label="IRN No."   value={irnValue}  disabled  class="styled-input"> </lightning-input>
+        <!-- Form After Selecting IRN -->
+        <template if:true={selectedIRNType}>
 
-            <lightning-combobox  label="Select Reason"  value={selectedReason}  options={reasonOptions}  onchange={handleReasonChange}  required class="styled-input"> </lightning-combobox>
+            <div class="form-container">
 
-            <lightning-input   type="text"  label="Enter Remarks"  value={irnRemarksValue}    onchange={handleIRNRemarksChange} required class="styled-input"> </lightning-input>
+                <!-- Service IRN -->
+                <template if:true={isServiceSelected}>
+                    <lightning-input 
+                        type="text" 
+                        label="Service IRN No." 
+                        value={irnValue} 
+                        disabled 
+                        class="styled-input">
+                    </lightning-input>
+                </template>
 
-        </div>
+                <!-- Insurance IRN -->
+                <template if:true={isInsuranceSelected}>
+                    <lightning-input 
+                        type="text" 
+                        label="Insurance IRN No." 
+                        value={irnInsuranceValue} 
+                        disabled 
+                        class="styled-input">
+                    </lightning-input>
+                </template>
 
-        <!-- Button Centered Below -->
-        <template if:true={IsshowCancelBtn}>
-        <div class="button-container">
-            <button class="cancel-btn" onclick={handleCancelIRN} disabled={isButtonDisabled}>Cancel IRN</button>
-        </div>
+                <lightning-combobox 
+                    label="Select Reason"
+                    value={selectedReason}
+                    options={reasonOptions}
+                    onchange={handleReasonChange}
+                    required
+                    class="styled-input">
+                </lightning-combobox>
+
+                <lightning-input 
+                    type="text"
+                    label="Enter Remarks"
+                    value={irnRemarksValue}
+                    onchange={handleIRNRemarksChange}
+                    required
+                    class="styled-input">
+                </lightning-input>
+
+            </div>
+
+            <!-- Buttons Footer -->
+            <div class="footer-buttons">
+
+                <!-- Back Button -->
+               <!-- <button class="back-btn" onclick={handleBack}> Back</button>-->
+
+                <lightning-button label="Back" title="Non-primary action" onclick={handleBack} class="slds-m-left_x-small"></lightning-button>
+
+                <!-- Cancel Button -->
+                <template if:true={IsshowCancelBtn}>
+                    <button class="cancel-btn" onclick={handleSubmit}>
+                        Cancel IRN
+                    </button>
+                </template>
+
+            </div>
+
         </template>
 
-        <!-- Success Message with Animation -->
+        <!-- Toast -->
         <template if:true={showToast}>
             <div class={toastClass}>
                 {toastMessage}

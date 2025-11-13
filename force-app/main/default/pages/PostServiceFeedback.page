@@ -31,14 +31,17 @@ body {
 }
 
 .imgbox {
-  position: relative;
-  width: 102.94px;
-  height: 39px;
-  margin: 10px 100px auto 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  left: 72.03px;
+              width: 150px;              
+        height: 60px;             
+                
+        display: flex;
+        justify-content: center;
+        align-items: center;
+          position: absolute;
+  left: 2.03px;
+  top: 50%
+  transform: translateY(-50%);
+
 }
 
 .header-logo {
@@ -58,6 +61,26 @@ body {
   width: 526px;
   text-align: center;
 }
+        
+        
+        .success-message {
+        text-align: center;
+        padding: 80px 20px;
+        display: none;
+        font-family: DM Sans;
+        font-weight: 800;
+        font-size: 24px;
+        line-height: 41.73px;
+        letter-spacing: 0%;
+        text-align: center;
+        }
+        
+        
+        .success-checkmark {
+        font-size: 80px;
+        color: #4BB543;
+        }
+
 
 h2 {
   font-size: 20px;
@@ -323,7 +346,6 @@ textarea {
   }
 
 
-
  
 
   .header {
@@ -422,7 +444,7 @@ textarea {
         </div>
         
         <apex:outputPanel rendered="{!NOT(ISNULL(primaryContact))}">
-            <div class="user-name"><span class="highlight">Hi!</span> River Mobility Private Limited-Indiranagar</div>
+            <div class="user-name"><span class="highlight">Hi!</span> {!primaryContact.Name}</div>
         </apex:outputPanel>
     </div>
     
@@ -457,7 +479,7 @@ textarea {
     
     <!-- Success Message for first submission -->
     <div class="success-message" id="thankYouMessage" style="display:none;">
-        <div class="success-checkmark">✓</div>
+        <div class="success-checkmark">&#10004;</div>
         <h2>Thank You for Your Feedback!</h2>
         <p>We appreciate you taking the time to share your experience with us.<br/>
             Your feedback helps us improve our services.
@@ -466,7 +488,7 @@ textarea {
     
     <!-- Already Submitted Message -->
     <div class="success-message" id="alreadySubmittedMessage" style="display:none;">
-        <div class="success-checkmark">✓</div>
+        <div class="success-checkmark">&#10004;</div>
         <h2>Feedback Already Submitted</h2>
         <p>Thanks for sharing your thoughts! We've already received your feedback.<br/>
             If you need to update or have more to say, feel free to contact our team.

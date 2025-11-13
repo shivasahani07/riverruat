@@ -21,6 +21,7 @@ export default class BulkInsert_JCProducts extends NavigationMixin(LightningElem
     showSubmitButton = true;
     showAddMoreButton = false;
     existingWorkOrderLineItems = [];
+    @track IsInsurance = false;
 
     filteredReplacementTypeOptions = [
         { label: 'Paid', value: 'Paid' },
@@ -175,6 +176,7 @@ export default class BulkInsert_JCProducts extends NavigationMixin(LightningElem
         }
     }
 
+    
     deleteWorkOrderLineItem(rowId) {
         deleteWorkOrderLineItemApex({ rowId :rowId ,workOrderId :this.recordId}) 
           
@@ -219,7 +221,13 @@ export default class BulkInsert_JCProducts extends NavigationMixin(LightningElem
             if (selectedValue === 'Paid') {
                 this.itemList[index].showAdditionalFields = false;
 
-            } else {
+            } if (selectedValue === 'Insurance') {
+                this.itemList[index].IsInsurance = true;
+
+            } else if(selectedValue !== 'Insurance'){
+                this.itemList[index].IsInsurance = false;
+            }
+             else {
                 this.itemList[index].showAdditionalFields = true;
             }
        
@@ -277,46 +285,90 @@ export default class BulkInsert_JCProducts extends NavigationMixin(LightningElem
         } 
     }
 
+    handleInsuranceChange(event) {
+    const index = parseInt(event.target.dataset.id, 10);
+    const value = event.target.value;
+
+    // Convert percentage input to decimal
+     this.itemList[index].Approved_Insurance__c = value ? parseFloat(value) : null;
+}
+
+
+
 
     handleSubmit() {
         debugger;
-        this.isShowLoader=true;
-        console.log('submit');
-        let isVal = true;
-        this.template.querySelectorAll('lightning-input-field').forEach(element => {
+    this.isShowLoader = true;
 
-            isVal = isVal && element.reportValidity();
-        });
+    let isValid = true;
+    let customToastShown = false;
 
-        this.itemList.map((item, idx) => {
-            if (item.hasError) {
-                isVal = false;
-            }
+    console.log('submit');
+    console.log('Item List ==>', this.itemList);
 
-            if (item.Quantity > item.availableQuantity) {
-                isVal = false;
-                this.itemList[idx].errorMessage = `Quantity exceeds available stock (${item.availableQuantity}).`;
-                this.itemList[idx].hasError = true;
-            }
-        });
+    // Validate all lightning-input-fields
+    this.template.querySelectorAll('lightning-input-field').forEach(element => {
+        isValid = isValid && element.reportValidity();
+    });
 
-        if (isVal) {
-            // Add event listeners for success and error
-            this.template.querySelectorAll('lightning-record-edit-form').forEach(element => {
-                const warrantyField = element.querySelector("lightning-input-field[data-fieldname='Warranty_Prior__c']");
-                if (warrantyField) {
-                    warrantyField.value = this.warrantyId;
-                }
-                element.submit();
-            });
-            this.isShowLoader=false;
+    // Custom validation for each item
+    this.itemList.forEach((item, idx) => {
 
-
-        } else {
-            this.showToast(false, 'Validation failed. Please check the fields and try again.');
-            this.isShowLoader=false;
+        // Skip already invalid items
+        if (item.hasError) {
+            isValid = false;
         }
+
+        // Quantity validation
+        if (item.Quantity > item.availableQuantity) {
+            isValid = false;
+            item.errorMessage = `Quantity exceeds available stock (${item.availableQuantity}).`;
+            item.hasError = true;
+        } else {
+            item.errorMessage = null; // Clear previous error if fixed
+        }
+        console.log('Approved Insurance ==>'+ item.Approved_Insurance__c);
+        // Approved Insurance validation
+        if (item.IsInsurance && (item.Approved_Insurance__c == null || 
+            item.Approved_Insurance__c < 0 || 
+            item.Approved_Insurance__c > 100 || 
+            isNaN(item.Approved_Insurance__c))) {
+
+            isValid = false;
+            customToastShown = true;
+            item.hasError = true;
+            this.showToast(false, 'Approved Insurance (%) must be between 0 and 100.');
+        }
+    });
+
+    if (isValid) {
+        // Convert Approved Insurance to decimal only after validation passes
+        this.itemList = this.itemList.map(item => {
+            if (item.Approved_Insurance__c != null) {
+                item.Approved_Insurance__c = item.Approved_Insurance__c / 100;
+            }
+            console.log('item ==>'+item);
+            return item;
+        });
+
+        // Submit all forms
+        this.template.querySelectorAll('lightning-record-edit-form').forEach(element => {
+            const warrantyField = element.querySelector("lightning-input-field[data-fieldname='Warranty_Prior__c']");
+            if (warrantyField) {
+                warrantyField.value = this.warrantyId;
+            }
+            element.submit();
+        });
+
+        this.isShowLoader = false;
+
+    } else if (!customToastShown) {
+        // Show generic toast only if no custom toast was already shown
+        this.showToast(false, 'Validation failed. Please check the fields and try again.');
+        this.isShowLoader = false;
     }
+}
+
 
     handleSuccess(event) {
         this.showAll = true;

@@ -7,6 +7,7 @@
     <columns>FPV_Key__c</columns>
     <columns>Sample_Collected__c</columns>
     <columns>VIN_Cut_off_No__c</columns>
+    <columns>Status__c</columns>
     <columns>LAST_UPDATE</columns>
     <columns>TFR_Part_Effect__c</columns>
     <columns>VIN_Cut_off__c</columns>

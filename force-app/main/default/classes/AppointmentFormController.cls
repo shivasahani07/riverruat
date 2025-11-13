@@ -34,7 +34,52 @@ public without  sharing class AppointmentFormController {
         } 
         
     }
+       @AuraEnabled(cacheable=true)
+    public static List<Vehicle> getVehicleRegByContact(String contactnumber) {
+        try {
+            if (String.isBlank(contactnumber)) return new List<Vehicle>();
+
+            // Find vehicles where the CurrentOwner phone matches (exact match).
+            // You may want to normalize numbers (strip spaces/plus) based on your data.
+            List<Vehicle> vehicles = [
+                SELECT Id,
+                       VehicleRegistrationNumber,
+                       VehicleIdentificationNumber,
+                       CurrentOwner.Type,
+                       CurrentOwner.Phone,
+                       
+                       CurrentOwnerId
+                FROM Vehicle
+                WHERE CurrentOwner.Phone = :contactnumber  
+                  AND CurrentOwner.Type = 'Customer'
+                ORDER BY VehicleRegistrationNumber
+            ];
+
+            return vehicles;
+        } catch (Exception e) {
+            System.debug('getVehicleRegByContact error: ' + e.getMessage());
+            return new List<Vehicle>();
+        }
+    }
+
     
+     @AuraEnabled(cacheable=true)
+    public static Vehicle getVehicleByVIN(String vin) {
+        try {
+            if (String.isBlank(vin)) return null;
+
+            Vehicle v = [
+                SELECT Id, VehicleIdentificationNumber,CurrentOwner.Type, CurrentOwner.Phone,   CurrentOwnerId FROM Vehicle
+                WHERE VehicleIdentificationNumber = :vin
+                AND CurrentOwner.Type = 'Customer'
+                LIMIT 1
+            ];
+            return v;
+        } catch (Exception e) {
+            System.debug('getVehicleByVIN error: ' + e.getMessage());
+            return null;
+        }
+    }
     @AuraEnabled(cacheable=true)
     public static String getVehicleOwnerContacts(String ticketId){
         
@@ -282,7 +327,7 @@ System.debug('Inside Else If : ' + tk);
 
             Update appointRec;
             Date bookedappointmentDate = appointRec.Appointment_Date__c;
-            
+            String serviceName ;
             if (isServiceAppt) {
                 ServiceAppointment sa = [
                     SELECT Id, Call_Status__c,Account.Email__c,Account.Name,Asset_Milestone__r.MilestoneDate,Service_Centre__r.Name,Asset_Milestone__c
@@ -290,6 +335,7 @@ System.debug('Inside Else If : ' + tk);
                     WHERE  Id = :parentId
                     LIMIT  1
                 ];
+                serviceName = sa.Asset_Milestone__r.Name;
                 system.debug('beforeUpdatesa '+sa);
                 system.debug('Account.Email__c '+Account.Email__c);
                 sa.Call_Status__c = 'Appointment Booked';
@@ -396,6 +442,7 @@ LIMIT 1
             reminder.Appointment_Date__c            = bookedappointmentDate;
             // reminder.Appointment_Date__c            = milestoneDate;
             reminder.Appointment_Description__c     = appointmentDecription;
+            reminder.Service_Name__c                = serviceName;
             insert reminder;
             System.debug('newAppId==='+newAppId);
             return newAppId;

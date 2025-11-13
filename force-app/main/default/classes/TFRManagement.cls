@@ -149,7 +149,7 @@ public without sharing class TFRManagement {
             
             // If collected samples meet or exceed batch size, mark as closed
             if (fc.Batch_Size__c != null && fc.Sample_Collected__c >= fc.Batch_Size__c) {
-                fc.Status__c = 'Closed';
+                fc.Status__c = 'TFR Completed';
             }
         }
         

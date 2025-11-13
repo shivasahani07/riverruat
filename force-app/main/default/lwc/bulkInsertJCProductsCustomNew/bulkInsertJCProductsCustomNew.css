@@ -1,3 +1,24 @@
 .custom-container{
 	color : black;
 }
+/* Increase modal width and keep responsiveness */
+.slds-modal__container {
+    max-width: 80rem; /* Increase width (default is ~52rem) */
+    width: 90%;       /* Ensures it adjusts for screen size */
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Optional: Add subtle background distinction and spacing */
+.slds-modal__content {
+    background-color: #ffffff;
+    border-top: 1px solid #d8dde6;
+    border-bottom: 1px solid #d8dde6;
+    padding: 1.5rem;
+}
+
+/* Align input widths evenly */
+lightning-input,
+lightning-record-picker {
+    width: 100%;
+}

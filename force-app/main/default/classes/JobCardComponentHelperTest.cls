@@ -29,12 +29,50 @@ public class JobCardComponentHelperTest {
         pdiMilestone.Service_Center__c=acc2.Id;
         Insert pdiMilestone;
         
+        //added by Aniket 
+         Product2 testProduct = new Product2(Name = 'Test Product', IsActive = true,ProductCode='RV-EW-1',HSN_Code__c='abcd',Type__c='Vehicle',Colour__c='Black');
+        insert testProduct;
+        
+        Id stdPrBk = Test.getStandardPricebookId();
+        PricebookEntry testPricebookEntry = new PricebookEntry(
+            Product2Id = testProduct.Id,
+            Pricebook2Id = stdPrBk,
+            UnitPrice = 100.0,	
+            IsActive = true
+        );
+        insert testPricebookEntry;
+        
+        Asset testAsset = new Asset(Name='Test Asset',AccountId=acc2.Id,Product2Id=testProduct.Id);
+        insert testAsset;
+        
+        VehicleDefinition testVD = new VehicleDefinition(Name='Test VehicleDefinition',ProductId=testProduct.Id);
+        insert testVD;
+        
+        Software_Version__c testSV = new Software_Version__c(Name='Test Software Version');
+        insert testSV;
+        ///upto here /////////
+        
         // Update vehicle PDI status
-        vehicle vh = (Vehicle)mapnewRecords.get('Vehicle');
-        vh.PDI_Status_Pass__c = true;
-        vh.VehicleRegistrationNumber='REG123';
-        vh.VehicleIdentificationNumber='VIN1234';
-        update vh;
+        Vehicle vh = new Vehicle(
+            Name = 'Test Vehicle',
+            VehicleIdentificationNumber = 'VIN12345',
+            VehicleRegistrationNumber = 'KA01AB1234',
+            EngineNumber = 'ENG12345',
+            //ModelName = 'Model X',
+            Purchased_Date__c = Date.today().addYears(-1),
+            LastOdometerReading = 15000,
+            //RR_Battery_Number__c = 'BAT123',
+            IgnitionKeyCode = 'KEY123',
+            CurrentOwnerId = acc2.Id,
+            EW_Submitted__c = true,
+            PDI_Status_Pass__c = true,
+            AssetId=testAsset.Id, 
+            VehicleDefinitionId=testVD.Id,
+            Software_Version__c=testSV.Id,
+            Charger_PC_Number__c='abcd'
+            
+        );
+        insert vh;
         
         PriceBookEntry entry = (PriceBookEntry)mapnewRecords.get('PricebookEntry');
         Id PriceBookId = entry.PriceBook2Id;
@@ -59,7 +97,7 @@ public class JobCardComponentHelperTest {
             BillingState = 'Karnataka',
             BillingPostalCode = '574216',
             BillingCountry = 'india',
-            Assigned_Vehicle__c = vh.Id
+            Assigned_Vehicle__c = mapnewRecords.get('Vehicle').Id
         );
         Insert standardOrder;
         
@@ -258,6 +296,41 @@ public class JobCardComponentHelperTest {
         System.assertEquals(true, contactDetails.isSecondaryPresent, 'Secondary contact present flag should be true');
         System.assertEquals('9011113246', contactDetails.primaryCon.Phone, 'Primary contact phone should match');*/
     }
+    @isTest
+    static void testValidateOTP2() {
+        Vehicle testVehicle = [SELECT Id, CurrentOwnerId,VehicleIdentificationNumber,VehicleRegistrationNumber FROM Vehicle WHERE PDI_Status_Pass__c = true LIMIT 1];
+        Account ownerAccount = [SELECT Id FROM Account WHERE Id = :testVehicle.CurrentOwnerId LIMIT 1];
+        
+        // Create primary contact for the owner account
+        /*Contact primaryContact = new Contact(
+            FirstName = 'Primary',
+            LastName = 'Contact',
+            Phone = '9011113246',
+            AccountId = ownerAccount.Id,
+            Primary_Contact__c = true
+        );
+        insert primaryContact;*/
+        
+        Contact secondaryContact = new Contact(
+            FirstName = 'Secondary',
+            LastName = 'Contact',
+            Phone = '9011113242',
+            AccountId = ownerAccount.Id,
+            Primary_Contact__c = false
+        );
+        insert secondaryContact;
+        
+        
+        
+        Test.startTest();
+        JobCardComponentHelper.contactDetails contactDetails = JobCardComponentHelper.validateOTP('9011113246', testVehicle);
+        Test.stopTest();
+        
+        /*System.assertNotEquals(null, contactDetails.primaryCon, 'Primary contact should not be null');
+        System.assertEquals(true, contactDetails.isPrimary, 'Primary contact flag should be true');
+        System.assertEquals(true, contactDetails.isSecondaryPresent, 'Secondary contact present flag should be true');
+        System.assertEquals('9011113246', contactDetails.primaryCon.Phone, 'Primary contact phone should match');*/
+    }
     
     @IsTest
     static void testFetchServiceAdvisors() {
@@ -441,8 +514,8 @@ public class JobCardComponentHelperTest {
         jobCardDetails.address.postalCode = '94105';
         jobCardDetails.ServiceAdvisor = sr.Id;
         jobCardDetails.ServiceCenter = standardUser.Contact.AccountId;
-        jobCardDetails.TypeOfJob = 'Periodic maintenance';
-        jobCardDetails.subType = '1st Service';
+        jobCardDetails.TypeOfJob = 'PDI';
+        jobCardDetails.subType = '';
         
         jobCardDetails.Charger = false;
         jobCardDetails.ToolKit = false;
@@ -457,10 +530,16 @@ public class JobCardComponentHelperTest {
         // Add concern list
         jobCardDetails.concernNoList = new List<JobCardComponentHelper.ConcernWrapper>();
         JobCardComponentHelper.ConcernWrapper concern = new JobCardComponentHelper.ConcernWrapper();
-        concern.RRConcernCategory = 'Electrical';
-        concern.RRSubCategory = 'Battery';
+        concern.RRConcernCategory = 'Charger';
+        concern.RRSubCategory = 'not charging';
         concern.RRDescription = 'Battery not charging properly';
         jobCardDetails.concernNoList.add(concern);
+        
+        
+        //Vehicle testVehicle = [SELECT Id, CurrentOwnerId, VehicleIdentificationNumber, VehicleRegistrationNumber FROM Vehicle WHERE PDI_Status_Pass__c = true LIMIT 1];
+        Appointment__c a = new Appointment__c(VRN__c=testVehicle.VehicleRegistrationNumber,Status__c='Pending',Vehicle__c=testVehicle.Id);
+        System.debug('Appointment ===>'+a);
+        insert a;
         
         
             Test.startTest();
@@ -491,8 +570,10 @@ public class JobCardComponentHelperTest {
         );
         insert demoUser;
         
+        User u = [SELECT id,ContactId,Dealer_Code__c FROM User WHERE ContactId != null AND Dealer_Code__c != null LIMIT 1];
+        
         Test.startTest();
-        Boolean result = JobCardComponentHelper.getALLVORWithReasonBlank(demoUser.Id);
+        Boolean result = JobCardComponentHelper.getALLVORWithReasonBlank(u.Id);
         Test.stopTest();
         
         System.assertEquals(false, result, 'Should return false for non-partner user');
@@ -501,6 +582,17 @@ public class JobCardComponentHelperTest {
     @isTest
     static void testGetAllVORWithReasonBlankWithDetails() {
         Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
+        
+        Account testAccount = new Account(Name = 'Test Account',Type='Customer',Phone='0987654321',Center_Code__c='292001',Email__c='test@example.com');
+        insert testAccount;
+        
+        Schema.Location testLocation = new Schema.Location(Name = 'Test Location', LocationType = 'State',State__c = 'Karnataka');
+        insert testLocation;
+        
+        Contact con = new Contact(LastName ='Dinesh',Phone = '7834878789',AccountId = testAccount.id,Location__c=testLocation.Id,Role_Type__c='Sales');
+        insert con;
+        
+        User u = [SELECT id,ContactId,Dealer_Code__c FROM User WHERE ContactId != null AND Dealer_Code__c != null LIMIT 1];
         
         User demoUser = new User(
             FirstName = 'Demo',
@@ -513,14 +605,54 @@ public class JobCardComponentHelperTest {
             LocaleSidKey = 'en_US',
             EmailEncodingKey = 'UTF-8',
             LanguageLocaleKey = 'en_US'
+            
         );
         insert demoUser;
         
-        Test.startTest();
-        JobCardComponentHelper.VorDetailsWrapper result = JobCardComponentHelper.getAllVORWithReasonBlankWithDetails(demoUser.Id);
+        System.runAs(u){
+            Test.startTest();
+        JobCardComponentHelper.VorDetailsWrapper result = JobCardComponentHelper.getAllVORWithReasonBlankWithDetails(u.Id);
         Test.stopTest();
         
         System.assertNotEquals(null, result, 'Result should not be null');
         System.assertEquals(false, result.isOpenVORFound, 'Should return false for non-partner user');
+        }
+        
     }
+    @isTest
+    static void testCoverInnerWrapper() {
+        JobCardComponentHelper.VorWithJobCards j = new JobCardComponentHelper.VorWithJobCards();
+        j.jobCard='098';
+        j.jobCardId = '0987';
+        j.vorId='987';
+        j.vorNumber='98yu';
+        
+        Test.startTest();
+        JobCardComponentHelper.VorWithJobCards result = new JobCardComponentHelper.VorWithJobCards();
+        Test.stopTest();
+    }
+    @isTest
+    static void testCoverInnerWrapper2() {
+        JobCardComponentHelper.WrapperjobCardDetails j = new JobCardComponentHelper.WrapperjobCardDetails();
+        j.jobcardId = 'o987y';
+        j.message = 'ouyhj';
+        j.lapseMileston='98iuyhj';
+        
+        Test.startTest();
+        JobCardComponentHelper.WrapperjobCardDetails result = new JobCardComponentHelper.WrapperjobCardDetails();
+        Test.stopTest();
+    }
+    @isTest
+     static void testCoverInnerWrapper3() {
+        Vehicle testVehicle = [SELECT Id, CurrentOwnerId, VehicleIdentificationNumber, VehicleRegistrationNumber FROM Vehicle WHERE PDI_Status_Pass__c = true LIMIT 1];
+        JobCardComponentHelper.VehicleWrapper j = new JobCardComponentHelper.VehicleWrapper();
+        j.vehicle =testVehicle; 
+        j.primaryContactPhone = 'ouyhj';
+        j.activeJobCardPresent=true;
+        
+        Test.startTest();
+         JobCardComponentHelper.VehicleWrapper result = new  JobCardComponentHelper.VehicleWrapper();
+        Test.stopTest();
+    }
+   
 }

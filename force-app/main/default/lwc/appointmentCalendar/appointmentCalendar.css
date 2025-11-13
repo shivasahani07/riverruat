@@ -1,0 +1,96 @@
+.calendar-container {
+    width: 100%;
+    max-width: 350px;
+    margin: auto;
+    font-family: Arial, sans-serif;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.calendar-header button {
+    background: #eee;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    gap: 5px;
+}
+
+.day-header {
+    font-weight: bold;
+    padding: 5px;
+}
+
+.date {
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.date:hover {
+    background-color: #f0f0f0;
+}
+
+.booked {
+    background-color: #ffb3b3 !important;
+    color: red !important;
+    font-weight: bold;
+}
+
+.empty {
+    background-color: transparent;
+}
+.date {
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: #b6ffb6; /* ✅ Green background for available days */
+    color: green;
+    font-weight: bold;
+    text-align: center;
+}
+
+.date:hover {
+    background-color: #9aff9a;
+}
+
+/* ✅ Booked dates become red */
+.booked {
+    background-color: #ffb3b3 !important;
+    color: red !important;
+    font-weight: bold;
+}
+/* ✅ Available (green) */
+.date {
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: #b6ffb6; 
+    color: green;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* ✅ Booked (red) */
+.booked {
+    background-color: #ffb3b3 !important;
+    color: red !important;
+    font-weight: bold;
+}
+
+/* ✅ Selected (yellow) */
+.selected {
+    background-color: #ffe680 !important;
+    color: #8a6d00 !important;
+    font-weight: bold;
+}

@@ -123,10 +123,10 @@ trigger WorkOrderTrigger on WorkOrder (before insert, before update, after updat
                 myList.add(wo.id);
             }
         }
-         //TFRManagement.addSampleSizeONjcCloser(myList);
+       	TFRManagement.addSampleSizeONjcCloser(myList);
         // WorkOrderTriggerHandler.onJobcardCompleteUpdateAssetMilestone(Trigger.new, Trigger.oldMap);
         //code Added by Sagar on 14/04/2025
-        // WorkOrderTriggerHandler.handleJobCardCompletion(Trigger.new,Trigger.oldMap);
+        WorkOrderTriggerHandler.handleJobCardCompletion(Trigger.new,Trigger.oldMap);
     }
     
     //code Added by Sagar on 07/04/2025

@@ -30,14 +30,16 @@
         
         }
         .imgbox{
-        position: relative;       
-        width: 102.94px;              
-        height: 39px;             
-        margin: 10px 100px auto 10px;           
+            width: 150px;              
+        height: 60px;             
+                
         display: flex;
         justify-content: center;
         align-items: center;
-        left:72.03px;
+          position: absolute;
+  left: 2.03px;
+  top: 50%
+  transform: translateY(-50%);
         
         }
         
@@ -155,9 +157,15 @@
         }
         
         .user-name {
+
         font-size: 18px;
+
         }
+
         }
+ 
+        
+        
         
         h2 {
         font-size: 24px;
@@ -297,7 +305,7 @@
         @media (max-width: 599px) {       
         
         .header{
-        height: 140px;
+        height: 97px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -409,10 +417,9 @@
         <div class="imgbox">
             <img src="{!URLFOR($Resource.Ride_River_Logo_LWC)}" alt="Ride River Logo" class="header-logo" />
         </div>
-        
-        <!--<apex:outputPanel rendered="{!NOT(ISNULL(currentLead))}">-->
+        <!-- <apex:outputPanel rendered="{!NOT(ISNULL(primaryContact))}">-->
         <apex:outputPanel >
-            <div class="user-name"><span class="highlight">Hi! </span>Tapas Kumar {!currentLead.Name}</div>
+            <div class="user-name"><span class="highlight">Hi! </span>{!primaryContact.Name}</div>
         </apex:outputPanel>
     </div>
     

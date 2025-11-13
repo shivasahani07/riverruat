@@ -271,8 +271,8 @@ public class RescheduleAppointmentFormController {
         slotItemRecord.Booking_Status__c = 'Available';
          
 		update slotItemRecord;
-
-        Appointment__c appointRec = [Select id ,Service_Appointment__c,Appointment_Date__c from Appointment__c where Id =:parentId];
+        String serviceName;
+        Appointment__c appointRec = [Select id ,Service_Appointment__c,Appointment_Date__c from Appointment__c   where Id =:parentId];
 		Id saId = appointRec.Service_Appointment__c;
         Date rescheduleappointmentDate = appointRec.Appointment_Date__c;
         if (isAppointment) {
@@ -282,6 +282,7 @@ public class RescheduleAppointmentFormController {
                 WHERE  Id = :saId
                 LIMIT  1
             ];
+            serviceName = sa.Asset_Milestone__r.Name;
             system.debug('beforeUpdatesa '+sa);
             system.debug('Account.Email__c '+Account.Email__c);
             sa.Call_Status__c = 'Appointment Booked';
@@ -381,6 +382,7 @@ String body = 'Hey ' + sa.Account.Name + ',' +
         reminder.Call_To_c__c                   = vehicleRec.CurrentOwner.Name != null ? vehicleRec.CurrentOwner.Name : null;
         reminder.Appointment_Date__c            = appointmentDate;
         reminder.Appointment_Description__c     = appointmentDecription;
+        reminder.Service_Name__c                = serviceName;
        // insert reminder;
         System.debug('newAppId==='+newAppId);
         return newAppId;

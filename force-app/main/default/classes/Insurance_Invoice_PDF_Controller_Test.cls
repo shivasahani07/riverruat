@@ -1,110 +1,188 @@
 @isTest
-private class  Insurance_Invoice_PDF_Controller_Test {
-	@isTest static void testNull() {
-        // Create test data
-        
-        Account acc = new Account();
-        acc.Name = 'testing Account';
-        acc.Type = 'Customer';
+private class Insurance_Invoice_PDF_Controller_Test {
+    @isTest
+    static void testInsuranceInvoiceController_DODO_COCO() {
+        // Create Account and Contact
+        Account acc = new Account(Name = 'Test Account', Type = 'Customer', Phone = '9876543210');
         insert acc;
-        
-        Contact con = new Contact();
-        con.LastName = 'testing Contact';
-        con.AccountId = acc.Id;
-        con.Phone = '9123456789';
-        con.Email = 'test@test.com';
-        con.Primary_Contact__c = true;
+
+        Contact con = new Contact(LastName = 'Test Contact', AccountId = acc.Id, Email = 'test@test.com', Phone = '9999999999');
         insert con;
-        
-        Asset asst = new Asset();
-        asst.Name = 'test Asset';
-        asst.AccountId = acc.Id;
-        asst.ContactId = con.Id;
+
+        // Create Assets
+        Asset asst = new Asset(Name = 'Test Asset', AccountId = acc.Id, ContactId = con.Id);
         insert asst;
-        
-        Software_Version__c sv = new Software_Version__c();
-        sv.Name = 'test version';
-        sv.Latest_Software_Version__c = true;
+
+        Asset asst2 = new Asset(Name = 'Test Asset 2', AccountId = acc.Id, ContactId = con.Id);
+        insert asst2;
+
+        // Software Version
+        Software_Version__c sv = new Software_Version__c(Name = 'v1.0', Latest_Software_Version__c = true);
         insert sv;
-        
-        Product2 prod = new Product2();
-        prod.Name = 'test product';
-        prod.HSN_Code__c = '123';
-        prod.Type__c = 'Vehicle';
-        prod.ProductCode ='R123456';
+
+        // Product
+        Product2 prod = new Product2(Name = 'Test Product', HSN_Code__c = '1234', Type__c = 'Vehicle', ProductCode = 'P001');
         insert prod;
-        
-        VehicleDefinition vd = new VehicleDefinition();
-        vd.Name = 'test VehicleDefinition';
-        vd.ProductId = prod.Id;
+
+        // Activate Standard Pricebook
+        Id standardPB = Test.getStandardPricebookId();
+
+        // Pricebook Entry
+        PricebookEntry pbe = new PricebookEntry(
+            Pricebook2Id = standardPB,
+            Product2Id = prod.Id,
+            UnitPrice = 1000,
+            IsActive = true
+        );
+        insert pbe;
+
+        // Vehicle Definition
+        VehicleDefinition vd = new VehicleDefinition(Name = 'Test VD', ProductId = prod.Id);
         insert vd;
-        
-        Vehicle vac = new Vehicle();
-        vac.Name = 'test vehicle';
-        vac.CurrentOwnerId = acc.Id;
-        vac.Charger_PC_Number__c = '123CC';
-        vac.VehicleRegistrationNumber = '123';
-        vac.VehicleIdentificationNumber = 'NeoCity2022ZXi';
-        vac.VehicleDefinitionId = vd.Id;
-        vac.Software_Version__c = sv.Id;
-        vac.AssetId = asst.Id;
-        vac.Spare_Vehicle__c = false;
-        insert vac;
-        
-        // Create a test Warehouse
-        Warehouse__c testWarehouse = new Warehouse__c();
-        testWarehouse.Name = 'Test Warehouse';
-        
-        
-        
-        insert testWarehouse;
-        
-        // Create a test WorkOrder with the required fields, including Warehouse__c
-        WorkOrder testWorkOrder = new WorkOrder();
-        testWorkOrder.Warehouse__c = testWarehouse.Id; // Set the Warehouse reference
-        testWorkOrder.Vehicle__c = vac.Id;
-        testWorkOrder.AccountId = acc.Id;
-        insert testWorkOrder;
-        
-        // Create a test Work Type record (related to Work_Type__c lookup field)
-        WorkType testWorkType = new WorkType();
-        testWorkType.Name = 'Test Work Type';
-        testWorkType.Amount__c = 100.0;
-        testWorkType.EstimatedDuration = 2; // Correct the field name
-        testWorkType.DurationType = 'Hours'; // Correct the field name
-        insert testWorkType;
-        
-        
-        // Create a test WorkPlan associated with the test WorkOrder
-        WorkPlan testWorkPlan = new WorkPlan();
-        testWorkPlan.Name = 'Test Workplan';
-        testWorkPlan.Labour_Charge__c = 100.0; // Set values as needed
-        testWorkPlan.Work_Type__c = testWorkType.Id; // Use the ID of the created WorkType record
-        testWorkPlan.WorkOrderId = testWorkOrder.Id;
-        testWorkPlan.RR_Labour_Category__c = 'Paid';
-        testWorkPlan.Duration_Hour__c = 1;
-        testWorkPlan.Labour_Charge__c = 100;
-        // testWorkPlan.Discount__c = 2;
-        insert testWorkPlan;
-        
-        WorkPlan testWorkPlan1 = new WorkPlan();
-        testWorkPlan1.Name = 'Test Workplan1';
-        testWorkPlan1.Labour_Charge__c = 100.0; // Set values as needed
-        testWorkPlan1.Work_Type__c = testWorkType.Id; // Use the ID of the created WorkType record
-        testWorkPlan1.WorkOrderId = testWorkOrder.Id;
-        testWorkPlan1.RR_Labour_Category__c = 'Insurance';
-        testWorkPlan1.Duration_Hour__c = 1;
-        testWorkPlan1.Labour_Charge__c = 100;
-        // testWorkPlan1.Discount__c = 2;
-        insert testWorkPlan1;
-        
-        // Call the method being tested
+
+        // Insurance Account
+        Account insuranceAcc1 = new Account(Name = 'Test Insurance', GSTIN_Number__c = '29ABCDE1234F1Z5');
+        insert insuranceAcc1;
+
+        Insurance__c insuranceAcc = new Insurance__c(Name = 'test', GSTIN_Number__c = '29ABCDE1234F1Z5');
+        insert insuranceAcc;
+
+        // Vehicles
+        Vehicle vac1 = new Vehicle(
+            Name = 'DODO Vehicle',
+            CurrentOwnerId = acc.Id,
+            VehicleDefinitionId = vd.Id,
+            Software_Version__c = sv.Id,
+            AssetId = asst.Id,
+            Insurance__c = insuranceAcc.Id,
+            Charger_PC_Number__c = '123134314',
+            VehicleIdentificationNumber = '2325255463565723'
+        );
+        insert vac1;
+
+        Vehicle vac2 = new Vehicle(
+            Name = 'COCO Vehicle',
+            CurrentOwnerId = acc.Id,
+            VehicleDefinitionId = vd.Id,
+            Software_Version__c = sv.Id,
+            AssetId = asst2.Id,
+            Insurance__c = insuranceAcc.Id,
+            Charger_PC_Number__c = '123134316',
+            VehicleIdentificationNumber = '2325255463565726'
+        );
+        insert vac2;
+
+        // Parent Account and Service Centers
+        Account parentCenter = new Account(Name = 'Parent Center', GSTIN_Number__c = '29ABCDE1111Z5');
+        insert parentCenter;
+
+        Account serviceCenterDODO = new Account(
+            Name = 'DODO Center',
+            GSTIN_Number__c = '29ABCDE1234F1Z5',
+            BillingStreet = 'Street 1\nStreet 2',
+            BillingCity = 'Bengaluru',
+            BillingState = 'Karnataka',
+            BillingPostalCode = '560001',
+            Store_Type__c = 'DODO',
+            Type = 'Service Center',
+            Company_GSTIN_name__c = 'DODO Pvt Ltd',
+            ParentId = parentCenter.Id,
+            GST_State__c = 'Karnataka',
+            BillingStateCode = 'KA',
+            GST_City__c = 'etts',
+            GST_Street__c ='ddd' ,
+            Center_Code__c = '324567',
+            GST_Zip_Postal_Code__c = '35353'
+        );
+        insert serviceCenterDODO;
+
+        Account serviceCenterCOCO = new Account(
+            Name = 'COCO Center',
+            GSTIN_Number__c = '27ABCDE9999F1Z5',
+            BillingStreet = 'COCO Street 1\nStreet 2',
+            BillingCity = 'Mumbai',
+            BillingState = 'Maharashtra',
+            BillingPostalCode = '400001',
+            Store_Type__c = 'COCO',
+            Type = 'Service Center',
+            Company_GSTIN_name__c = 'COCO Pvt Ltd',
+            BillingStateCode = 'MH',
+            Center_Code__c ='345678'
+        );
+        insert serviceCenterCOCO;
+
+        // WorkOrders with Pricebook
+        WorkOrder woDODO = new WorkOrder(
+            AccountId = acc.Id,
+            Vehicle__c = vac1.Id,
+            Pricebook2Id = standardPB,
+            Service_Center__c = serviceCenterDODO.Id,
+            Mode_Of_Payment__c = 'Cash'
+        );
+        insert woDODO;
+
+        WorkOrder woCOCO = new WorkOrder(
+            AccountId = acc.Id,
+            Vehicle__c = vac2.Id,
+            Pricebook2Id = standardPB,
+            Service_Center__c = serviceCenterCOCO.Id,
+            Mode_Of_Payment__c = 'Online'
+        );
+        insert woCOCO;
+
+        // WorkPlan only (no WorkOrderLineItems)
+        WorkPlan plan1 = new WorkPlan(
+            Name = 'Insurance Labour Plan',
+            WorkOrderId = woDODO.Id,
+            RR_Labour_Category__c = 'Insurance',
+            Approved_Insurance__c = 70
+        );
+        insert plan1;
+
+        // Job Card Invoice
+        Job_Card_Invoice__c jobInv = new Job_Card_Invoice__c(
+            Job_Card__c = woDODO.Id,
+            Invoice_Number__c = 'INV-001',
+            Invoice_Type__c = 'Insurance',
+            Invoice_Date__c = System.today()
+        );
+        insert jobInv;
+
+        // Test Controller
         Test.startTest();
-            ApexPages.StandardController sc = new ApexPages.StandardController(testWorkOrder);
-            PageReference pageRef = Page.Insurance_Invoice_PDF; // Add your VF page Name here
-            pageRef.getParameters().put('id', String.valueOf(testWorkOrder.Id));
-            Test.setCurrentPage(pageRef);
-            Insurance_Invoice_PDF_Controller obj = new Insurance_Invoice_PDF_Controller(sc);
+
+        PageReference pageRefDODO = Page.Insurance_Invoice_PDF;
+        pageRefDODO.getParameters().put('id', woDODO.Id);
+        Test.setCurrentPage(pageRefDODO);
+
+        ApexPages.StandardController scDODO = new ApexPages.StandardController(woDODO);
+        Insurance_Invoice_PDF_Controller ctrlDODO = new Insurance_Invoice_PDF_Controller(scDODO);
+
+        ctrlDODO.getFormattedBillingStreet();
+        ctrlDODO.getFormattedGSTBillingStreet();
+        ctrlDODO.getFormattedInsurenceBillingStreet();
+
+        PageReference pageRefCOCO = Page.Insurance_Invoice_PDF;
+        pageRefCOCO.getParameters().put('id', woCOCO.Id);
+        Test.setCurrentPage(pageRefCOCO);
+
+        ApexPages.StandardController scCOCO = new ApexPages.StandardController(woCOCO);
+        Insurance_Invoice_PDF_Controller ctrlCOCO = new Insurance_Invoice_PDF_Controller(scCOCO);
+
+        ctrlCOCO.getFormattedBillingStreet();
+        ctrlCOCO.getFormattedGSTBillingStreet();
+        ctrlCOCO.getFormattedInsurenceBillingStreet();
+
+        Test.stopTest();
+    }
+    
+    @IsTest
+    static  void testgenerateEWayBill() {
+        Test.startTest();
+        Insurance_Invoice_PDF_Controller.methodToCoverage();
+        Insurance_Invoice_PDF_Controller.methodToCoverage1();
+        Insurance_Invoice_PDF_Controller.methodToCoverage2();
+        
         Test.stopTest();
     }
 }

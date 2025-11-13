@@ -243,7 +243,8 @@ public class TestDataFactory {
             VehicleRegistrationNumber = 'REG1235',
             CurrentOwnerId = mapAccProduct.get('Account').Id,
             Charger_PC_Number__c = 'PC123',
-            Software_Version__c = sft.Id
+            Software_Version__c = sft.Id,
+            PDI_Status_Pass__c = true
         );
         insert vehicle;
         

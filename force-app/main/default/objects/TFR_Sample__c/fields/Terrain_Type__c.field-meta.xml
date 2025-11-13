@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Terrain_Type__c</fullName>
+    <label>Terrain Type</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Mountain</fullName>
+                <default>false</default>
+                <label>Mountain</label>
+            </value>
+            <value>
+                <fullName>Hill</fullName>
+                <default>false</default>
+                <label>Hill</label>
+            </value>
+            <value>
+                <fullName>Plain</fullName>
+                <default>false</default>
+                <label>Plain</label>
+            </value>
+            <value>
+                <fullName>Plateau</fullName>
+                <default>false</default>
+                <label>Plateau</label>
+            </value>
+            <value>
+                <fullName>Desert</fullName>
+                <default>false</default>
+                <label>Desert</label>
+            </value>
+            <value>
+                <fullName>Forest</fullName>
+                <default>false</default>
+                <label>Forest</label>
+            </value>
+            <value>
+                <fullName>Grassland</fullName>
+                <default>false</default>
+                <label>Grassland</label>
+            </value>
+            <value>
+                <fullName>Swamp / Marsh</fullName>
+                <default>false</default>
+                <label>Swamp / Marsh</label>
+            </value>
+            <value>
+                <fullName>Tundra</fullName>
+                <default>false</default>
+                <label>Tundra</label>
+            </value>
+            <value>
+                <fullName>Coastal</fullName>
+                <default>false</default>
+                <label>Coastal</label>
+            </value>
+            <value>
+                <fullName>Urban / Built-up</fullName>
+                <default>false</default>
+                <label>Urban / Built-up</label>
+            </value>
+            <value>
+                <fullName>River / Valley</fullName>
+                <default>false</default>
+                <label>River / Valley</label>
+            </value>
+            <value>
+                <fullName>Volcanic</fullName>
+                <default>false</default>
+                <label>Volcanic</label>
+            </value>
+            <value>
+                <fullName>Glacier / Ice Field</fullName>
+                <default>false</default>
+                <label>Glacier / Ice Field</label>
+            </value>
+            <value>
+                <fullName>Steppe / Savannah</fullName>
+                <default>false</default>
+                <label>Steppe / Savannah</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

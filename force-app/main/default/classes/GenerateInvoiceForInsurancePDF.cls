@@ -42,7 +42,7 @@ public with sharing class GenerateInvoiceForInsurancePDF {
             return 'Error: ' + e.getMessage();
         }
     }
-    public static void methodToCoverage(){ 
+     public static void methodToCoverage(){ 
         Integer i=0;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
@@ -116,4 +116,5 @@ public with sharing class GenerateInvoiceForInsurancePDF {
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
         i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
     }
+   
 }

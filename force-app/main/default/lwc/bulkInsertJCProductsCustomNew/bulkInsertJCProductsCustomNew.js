@@ -13,6 +13,7 @@ import getFailureCode from '@salesforce/apex/AddFailureCodeController.getFailure
 import getFailureCodeUpdated from '@salesforce/apex/AddFailureCodeController.getFailureCodeUpdated';
 import checkTFRValidation from '@salesforce/apex/TFRManagement.checkTFRValidation';
 import LightningAlert from 'lightning/alert';
+import insertWorkOrderLineItems from '@salesforce/apex/WorkOrderLineItemController.insertWorkOrderLineItems';//added by Aniket on 05/11/2025
 
 const STATUS_FIELD = 'WorkOrder.Status';
 const VIN_FIELD = 'WorkOrder.Vehicle_Identification_Number__c';
@@ -40,6 +41,194 @@ export default class BulkInsertJCProductsCustomNew extends NavigationMixin(Light
     @track ActionPlanlabours = [];
     @track keyIndex = 0;
     @track refreshResultData;
+
+    //added by Aniket on 05/11/2025
+    selectedProduct='';
+    @track isLoadingForPopUp = false;
+    @track isPopupOpen = false;
+@track selectedPart;
+@track partsFromPopUp=[];//added by Aniket on 05/11/2025
+@track rows = [];
+ @track rows = [{ id: 1 }]; 
+    nextId = 2;
+
+     async handleProductChangeFromPopup(event) {
+    const index = event.target.dataset.index;
+    const productId = event.detail.recordId;
+    if (!productId) return;
+
+    
+
+    try {
+
+        const alreadyExist = this.rows.some((f, i) => i !== index && f.productId === productId);
+console.log('alreadyExist==>', alreadyExist);
+
+if (alreadyExist) {
+    this.showToast('Error', 'This Product Already Exists', 'error');
+    return;
+}
+
+        const productData = await getPricebookEntry({ productId });
+        const { returnPriceBook } = productData;
+
+        const availableQty = await getAvailableQuantity({
+            productId,
+            workOrderId: this.recordId
+        });
+
+        const updatedRows = [...this.rows];
+        updatedRows[index] = {
+            ...updatedRows[index],
+            productId,
+            productCode: returnPriceBook?.Product2?.ProductCode || '',
+            availableQuantity: availableQty || 0
+        };
+        this.rows = updatedRows;
+    } catch (error) {
+        this.showToast('Error fetching product details',
+            error.body?.message || error.message,
+            'error');
+    }
+}
+
+handleQuantityChangeForPopup(event) {
+    debugger;
+    const index = event.target.dataset.id;
+    const value = parseFloat(event.target.value);
+    const inputField = this.template.querySelector(`lightning-input[data-id="${index}"].quantity-input`);
+
+
+    
+    inputField.setCustomValidity('');
+    inputField.reportValidity();
+   
+    this.rows[index].quantity = value;
+
+    // Validation logic
+    // if (!value || value <= 0) {
+    //     inputField.setCustomValidity('Quantity cannot be zero or blank');
+    // } else if (value > this.rows[index].availableQuantity) {
+    //     inputField.setCustomValidity('Quantity cannot exceed available quantity');
+    // }
+
+    // // Show validation message immediately
+    // inputField.reportValidity();
+}
+
+
+validateQuantityForPopup(index){
+    
+}
+//upto here
+
+//added by Aniket on 05/11/2025
+showPopup(row) {
+    debugger;
+    this.selectedPart = row;
+    this.isPopupOpen = true;
+
+    console.log('Row id==>',row.Id);
+    //this.addChildProduct(row);
+}
+closePopup() {
+    this.isPopupOpen = false;
+}
+
+addRowPopup() {
+        this.rows = [...this.rows, { id: this.nextId++ }];
+    }
+
+    
+    removeRowPopup(event) {
+        const index = event.target.dataset.index;
+        this.rows.splice(index, 1);
+        this.rows = [...this.rows];
+    }
+
+
+//upto here
+
+async handleAddChildFromPopup() {
+    this.isLoadingForPopUp=true;
+    try {
+        let isValid = true;
+
+        
+        this.rows.forEach((row, index) => {
+            const inputField = this.template.querySelector(`lightning-input[data-id="${index}"].quantity-input`);
+            inputField.setCustomValidity(''); 
+
+            if (!row.quantity || row.quantity <= 0) {
+                inputField.setCustomValidity('Quantity cannot be zero or blank');
+                isValid = false;
+            } else if (row.quantity > row.availableQuantity) {
+                inputField.setCustomValidity('Quantity cannot exceed available quantity');
+                isValid = false;
+            }
+
+            
+            inputField.reportValidity();
+        });
+
+        
+        if (!isValid) {
+            this.showToast('Error', 'Please fix the invalid quantities before submitting.', 'error');
+            return;
+        }
+
+        
+        const validRows = this.rows.filter(row =>
+            row.productId &&
+            row.quantity > 0 &&
+            row.quantity <= row.availableQuantity
+        );
+
+        if (validRows.length === 0) {
+            this.showToast('Error', 'Please select at least one valid product with quantity.', 'error');
+            return;
+        }
+
+        await insertWorkOrderLineItems({
+            workOrderId: this.recordId,
+            lineItemsData: validRows,
+            partId: this.selectedPart.Id
+        });
+
+        this.showToast('Success', 'Work Order Line Items created successfully!', 'success');
+        this.isPopupOpen = false;
+        this.rows = [{ id: 1 }];
+        this.nextId = 2;
+
+        await refreshApex(this.refreshResultData);
+    } catch (error) {
+        console.error('Error inserting WorkOrderLineItems:', error);
+        this.showToast('Error', error.body?.message || error.message, 'error');
+    }finally {
+        this.isLoadingForPopUp = false; 
+    }
+}
+
+
+
+handleRowAction(event) {
+    debugger;
+    const actionName = event.detail.action.name;
+    const row = event.detail.row;
+    const idOf = row.Id;
+    console.log('Row==>',row);
+
+    console.log('idOf==>',idOf);
+    if (actionName === 'select_part') {
+        if (row.Replacement_Type__c === 'Causal') {
+            // Show popup here
+            this.showPopup(row);
+        }
+    }
+}
+
+
+
 
     activeProductFilter = [
         {
@@ -75,7 +264,18 @@ export default class BulkInsertJCProductsCustomNew extends NavigationMixin(Light
         { type: 'text', fieldName: 'Replacement_Type__c', label: 'Part Type' },
         { type: 'number', fieldName: 'Quantity', label: 'Quantity', initialWidth: 120 },
         { type: 'text', fieldName: 'RR_Parts_Category__c', label: 'Parts Category' },
-        { type: 'text', fieldName: 'Status', label: 'Status' }
+        { type: 'text', fieldName: 'Status', label: 'Status' },
+            {
+            type: 'button',
+            typeAttributes: {
+                //label: 'Add Consequential Part',
+                name: 'select_part',
+                variant: 'brand',
+                iconName:'utility:add',
+                disabled: { fieldName: 'disableButton' } 
+            },
+            cellAttributes: { alignment: 'center' }
+        }
     ];
 
     connectedCallback() {
@@ -135,9 +335,26 @@ export default class BulkInsertJCProductsCustomNew extends NavigationMixin(Light
             }
         });
 
+        console.log('rootItems :  ' + rootItems);
         this.existingWorkOrderLineItems = rootItems;
         this.expandedRows = rootItems.map(item => item.Id);
+
+
+        //added by Aniket 
+        this.existingWorkOrderLineItems = rootItems.map(item => {
+    return {
+        ...item,
+        disableButton: item.Replacement_Type__c !== 'Causal' 
+    };
+});
+
+//upto here on 05/11/2025
     }
+    
+    
+
+
+    
 
     addParentRow() {
         this.keyIndex++;
@@ -152,13 +369,19 @@ export default class BulkInsertJCProductsCustomNew extends NavigationMixin(Light
         const parentIndex = parseInt(event.target.dataset.id, 10);
         const parentItem = this.itemList[parentIndex];
 
+        
+
         if (!parentItem.productId) {
             this.showError(parentIndex, 'Please select a product before adding consequential products');
             return;
         }
 
-        this.clearError(parentIndex);
-        this.addChildRow(parentIndex);
+        
+           this.clearError(parentIndex);
+           this.addChildRow(parentIndex);
+        
+
+        
     }
 
     addChildRow(parentIndex) {

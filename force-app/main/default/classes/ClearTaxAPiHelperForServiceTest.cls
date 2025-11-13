@@ -200,7 +200,9 @@ public class ClearTaxAPiHelperForServiceTest {
             StartDate = Date.today(),
             Subject = 'Cancel IRN Test',
             Status = 'Completed',
-            IRN_No__c = 'TESTIRN123456'
+            IRN_No__c = 'TESTIRN123456',
+            Mode_Of_Payment__c ='others'
+            
         );
         insert wo;
         

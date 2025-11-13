@@ -15,6 +15,7 @@ import { LightningElement, track } from 'lwc';
 import orderProduct from 'c/orderProductModalLwc';
 import batchRecord from 'c/batchRecordLwcModal';
 import vorDatatable from 'c/vorDatatable';
+import newAppointment from 'c/newAppointmentFormModal';
 
 export default class CardsComponent extends LightningElement {
     NoLeadimg = No_Lead_img;
@@ -53,6 +54,21 @@ export default class CardsComponent extends LightningElement {
         }
        
     }
+
+    //added by Aniket on 06/11/2025
+      async navigateToCreateAppointment(){
+        debugger;
+        console.log('userId ---> '+this.userId);
+        const result = await newAppointment.open({
+            size: 'large',
+            description: 'This is a modal popup',
+        });
+
+        if (result === 'close') {
+            console.log('Popup closed');
+        }
+    }
+    //upto Here
 
     async navigateToAddMerchandiseOrders() {
         debugger;

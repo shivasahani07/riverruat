@@ -2,7 +2,7 @@
 * @description       : 
 * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
 * @group             : 
-* @last modified on  : 04-10-2025
+* @last modified on  : 11-06-2025
 * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 public without sharing class WorkOrderLineItemController {
@@ -392,6 +392,79 @@ return -1;
 }
 }
 */
+    
+@AuraEnabled
+public static void insertWorkOrderLineItems(Id workOrderId, List<Map<String, Object>> lineItemsData,Id partId) {
+    try{
+      System.debug('workOrderId===>'+workOrderId);
+    System.debug('lineItemsData==>'+lineItemsData);
+    System.debug('partId==>'+partId);
+
+    WorkOrder jobCard = [SELECT Id,Pricebook2Id FROM WorkOrder WHERE Id=:workOrderId LIMIT 1];
+
+    if (workOrderId == null) {
+        throw new AuraHandledException('Work Order Id is required.');
+    }
+
+    if (lineItemsData == null || lineItemsData.isEmpty()) {
+        throw new AuraHandledException('No line items provided.');
+    }
+
+    List<WorkOrderLineItem> woliList = new List<WorkOrderLineItem>();
+
+    for (Map<String, Object> item : lineItemsData) {
+        Id productId = (Id)item.get('productId');
+        Object qtyValue = item.get('quantity');
+
+        Decimal quantity;
+
+        
+        if (qtyValue != null) {
+            try {
+                quantity = Decimal.valueOf(String.valueOf(qtyValue));
+            } catch (Exception e) {
+                throw new AuraHandledException('Invalid quantity value for product: ' + productId);
+            }
+        }
+
+        if (productId == null || quantity == null || quantity <= 0) {
+            continue; 
+        }
+
+        
+        PricebookEntry pbe = [
+            SELECT Id, UnitPrice,Pricebook2Id 
+            FROM PricebookEntry 
+            WHERE Product2Id = :productId 
+            AND Pricebook2.IsActive = true AND Pricebook2Id=:jobCard.Pricebook2Id
+            LIMIT 1
+        ];
+
+        System.debug('PricebookEntry==>'+pbe);
+
+        woliList.add(new WorkOrderLineItem(
+            WorkOrderId = workOrderId,
+            RR_Product__c = productId,
+            PricebookEntryId = pbe.Id,
+            Quantity = quantity,
+            UnitPrice = pbe.UnitPrice,
+            Part__c=partId,
+            Replacement_Type__c='Consequential'
+
+        ));
+    }
+
+    if (!woliList.isEmpty()) {
+       insert woliList;
+    }
+    }catch(Exception e){
+        System.debug('Error Occured==>'+e.getMessage());
+        System.debug('Error Line Number Is ==>'+e.getLineNumber());
+        throw new AuraHandledException(e.getMessage());
+    }
+    
+}
+
     
     
 }

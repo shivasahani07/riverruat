@@ -1,0 +1,26 @@
+<template>
+    <div class="calendar-container">
+        <div class="calendar-header">
+            <button onclick={prevMonth}>‹</button>
+            <h2>{monthName} {year}</h2>
+            <button onclick={nextMonth}>›</button>
+        </div>
+
+        <div class="calendar-grid">
+            <template for:each={weekDays} for:item="day">
+                <div key={day} class="day-header">{day}</div>
+            </template>
+
+            <template for:each={dates} for:item="dateObj">
+                <div 
+                    key={dateObj.dateKey}
+                    class={dateObj.classList}
+                    onclick={handleDateClick}
+                    data-date={dateObj.fullDate}
+                >
+                    {dateObj.day}
+                </div>
+            </template>
+        </div>
+    </div>
+</template>

@@ -9,50 +9,33 @@ public class QueueableForVehicleEWIntegrationTest {
         apiDetails.Cookie__c='PHD=t1432';    
         insert apiDetails;
         
-        Account testAccount = new Account(Name = 'Test Account',Type='Customer',Phone='0987654321',Center_Code__c='292001',Email__c='test@eaxmple.com');
-        insert testAccount;
+        Account testAccount = VehicleQueueableTestUtility.createAccount();
         
-        Schema.Location testLocation = new Schema.Location(Name = 'Test Location', LocationType = 'State',State__c = 'Karnataka');
-        insert testLocation;
+        Schema.Location testLocation = VehicleQueueableTestUtility.createLocation();
         
-        Contact con = new Contact(LastName ='Dinesh',Phone = '7834878789',AccountId = testAccount.id,Location__c=testLocation.Id,Role_Type__c='Sales');
-        insert con;
+        Contact con = VehicleQueueableTestUtility.createContact(testAccount.Id,testLocation.Id);
         
-        Product2 testProduct = new Product2(Name = 'Test Product', IsActive = true,ProductCode='RV-EW-1',HSN_Code__c='abcd',Type__c='Vehicle',Colour__c='Black');
-        insert testProduct;
+        Product2 testProduct =  VehicleQueueableTestUtility.createProduct();
         
         Id stdPrBk = Test.getStandardPricebookId();
-        PricebookEntry testPricebookEntry = new PricebookEntry(
-            Product2Id = testProduct.Id,
-            Pricebook2Id = stdPrBk,
-            UnitPrice = 100.0,	
-            IsActive = true
-        );
-        insert testPricebookEntry;
         
-        Asset testAsset = new Asset(Name='Test Asset',AccountId=testAccount.Id,	Product2Id=testProduct.Id);
-        insert testAsset;
+        PricebookEntry testPricebookEntry =VehicleQueueableTestUtility.createPricebookEntry(stdPrBk,testProduct.Id);
         
-        VehicleDefinition testVD = new VehicleDefinition(Name='Test VehicleDefinition',ProductId=testProduct.Id);
-        insert testVD;
+        Asset testAsset = VehicleQueueableTestUtility.createAsset(testAccount.Id,testProduct.Id);
         
-        Software_Version__c testSV = new Software_Version__c(Name='Test Software Version');
-        insert testSV;
+        VehicleDefinition testVD = VehicleQueueableTestUtility.createVehicleDef(testProduct.Id);
         
-        Vehicle testVehicle = new Vehicle(Name='Test Vehicle', Account__c=testAccount.Id, AssetId=testAsset.Id,  VehicleDefinitionId=testVD.Id, VehicleIdentificationNumber='A2B3',  Software_Version__c=testSV.Id, Charger_PC_Number__c='abcd',PDI_Status_Pass__c=true,Purchased_Date__c = System.Today(),ChassisNumber='5342',Vehicle_Details__c='B123',EngineNumber='E321',CurrentOwnerId=testAccount.Id);
-        insert testVehicle;
+        Software_Version__c testSV = VehicleQueueableTestUtility.createSoftwareVersion();
         
-        AssetMilestone asm = new AssetMilestone(Name = 'ASM1', MilestoneDate = Date.today().addMonths(2),  Stage = 'Active', AssetId = testAsset.Id, UsageType = 'Automotive', MilestoneType = 'PDI', VehicleId = testVehicle.Id);
-        insert asm;
+        Vehicle testVehicle = VehicleQueueableTestUtility.createVehicle(testAccount.Id,testAsset.Id,testVD.Id,testSV.Id);
         
-        Order oldOrder = new Order( AccountId = testAccount.Id, Status__c = 'Processing',Status='Processing',Assigned_Vehicle__c = testVehicle.Id,EffectiveDate = Date.today(),Pricebook2Id = stdPrBk,Payment_Status__c = 'Completed', Contact__c = con.id,Booking_Form_File_URL__c='test.pdf',Website_Order_Id__c='TestABC!@#',Allotment_In_Process_File_URL__c='testInvoice.pdf');
-        insert oldOrder;
+        AssetMilestone asm = VehicleQueueableTestUtility.createAssetMileStone(testAsset.Id,testVehicle.Id);
+        
+        Order oldOrder = VehicleQueueableTestUtility.createOrder(testAccount.Id,testVehicle.Id,stdPrBk,con.Id);
        
-        OrderItem testOrderItem = new OrderItem( OrderId = oldOrder.Id, Product2Id = testProduct.Id, UnitPrice = 100.0, Quantity = 1, PricebookEntryId = testPricebookEntry.Id,Type__c='Vehicle');
-        insert testOrderItem;
-        
-        Order_Invoice__c o = new Order_Invoice__c (Invoice_Type__c='Vehicle Invoice',Order__c=oldOrder.Id,Name='test',Invoice_Number__c='ab1cd2');
-        insert o;
+        OrderItem testOrderItem = VehicleQueueableTestUtility.createOrderItem(oldOrder.Id,testProduct.Id,testPricebookEntry.Id);
+            
+        Order_Invoice__c o = VehicleQueueableTestUtility.createInvoice(oldOrder.Id);
         
         List<Id> orderIds = new List<Id>{oldOrder.Id};
          ExtendedWarrantyForVehicleOrder.wrapperForEWIntegration ww = new ExtendedWarrantyForVehicleOrder.wrapperForEWIntegration();
@@ -102,50 +85,33 @@ public class QueueableForVehicleEWIntegrationTest {
         apiDetails.Cookie__c='PHD=t1432';    
         insert apiDetails;
         
-        Account testAccount = new Account(Name = 'Test Account',Type='Customer',Phone='0987654321',Center_Code__c='292001');
-        insert testAccount;
+        Account testAccount = VehicleQueueableTestUtility.createAccount();
         
-        Schema.Location testLocation = new Schema.Location(Name = 'Test Location', LocationType = 'State',State__c = 'Karnataka');
-        insert testLocation;
+        Schema.Location testLocation = VehicleQueueableTestUtility.createLocation();
         
-        Contact con = new Contact(LastName ='Dinesh',Phone = '7834878789',AccountId = testAccount.id,Location__c=testLocation.Id,Role_Type__c='Sales');
-        insert con;
+        Contact con = VehicleQueueableTestUtility.createContact(testAccount.Id,testLocation.Id);
         
-        Product2 testProduct = new Product2(Name = 'Test Product', IsActive = true,ProductCode='RV-EW-1',HSN_Code__c='abcd',Type__c='Vehicle',Colour__c='Black');
-        insert testProduct;
+        Product2 testProduct =  VehicleQueueableTestUtility.createProduct();
         
         Id stdPrBk = Test.getStandardPricebookId();
-        PricebookEntry testPricebookEntry = new PricebookEntry(
-            Product2Id = testProduct.Id,
-            Pricebook2Id = stdPrBk,
-            UnitPrice = 100.0,	
-            IsActive = true
-        );
-        insert testPricebookEntry;
         
-        Asset testAsset = new Asset(Name='Test Asset',AccountId=testAccount.Id,	Product2Id=testProduct.Id);
-        insert testAsset;
+        PricebookEntry testPricebookEntry =VehicleQueueableTestUtility.createPricebookEntry(stdPrBk,testProduct.Id);
         
-        VehicleDefinition testVD = new VehicleDefinition(Name='Test VehicleDefinition',ProductId=testProduct.Id);
-        insert testVD;
+        Asset testAsset = VehicleQueueableTestUtility.createAsset(testAccount.Id,testProduct.Id);
         
-        Software_Version__c testSV = new Software_Version__c(Name='Test Software Version');
-        insert testSV;
+        VehicleDefinition testVD = VehicleQueueableTestUtility.createVehicleDef(testProduct.Id);
         
-        Vehicle testVehicle = new Vehicle(Name='Test Vehicle', Account__c=testAccount.Id, AssetId=testAsset.Id,  VehicleDefinitionId=testVD.Id, VehicleIdentificationNumber='A2B3',  Software_Version__c=testSV.Id, Charger_PC_Number__c='abcd',PDI_Status_Pass__c=true,Purchased_Date__c = System.Today(),ChassisNumber='5342',Vehicle_Details__c='B123',EngineNumber='E321');
-        insert testVehicle;
+        Software_Version__c testSV = VehicleQueueableTestUtility.createSoftwareVersion();
         
-        AssetMilestone asm = new AssetMilestone(Name = 'ASM1', MilestoneDate = Date.today().addMonths(2),  Stage = 'Active', AssetId = testAsset.Id, UsageType = 'Automotive', MilestoneType = 'PDI', VehicleId = testVehicle.Id);
-        insert asm;
+        Vehicle testVehicle = VehicleQueueableTestUtility.createVehicle(testAccount.Id,testAsset.Id,testVD.Id,testSV.Id);
         
-        Order oldOrder = new Order( AccountId = testAccount.Id, Status__c = 'Processing',Status='Processing',Assigned_Vehicle__c = testVehicle.Id,EffectiveDate = Date.today(),Pricebook2Id = stdPrBk,Payment_Status__c = 'Completed', Contact__c = con.id,Booking_Form_File_URL__c='test.pdf',Website_Order_Id__c='TestABC!@#',Allotment_In_Process_File_URL__c='testInvoice.pdf');
-        insert oldOrder;
+        AssetMilestone asm = VehicleQueueableTestUtility.createAssetMileStone(testAsset.Id,testVehicle.Id);
+        
+        Order oldOrder = VehicleQueueableTestUtility.createOrder(testAccount.Id,testVehicle.Id,stdPrBk,con.Id);
        
-        OrderItem testOrderItem = new OrderItem( OrderId = oldOrder.Id, Product2Id = testProduct.Id, UnitPrice = 100.0, Quantity = 1, PricebookEntryId = testPricebookEntry.Id,Type__c='Vehicle');
-        insert testOrderItem;
-        
-        Order_Invoice__c o = new Order_Invoice__c (Invoice_Type__c='Vehicle Invoice',Order__c=oldOrder.Id,Name='test',Invoice_Number__c='ab1cd2');
-        insert o;
+        OrderItem testOrderItem = VehicleQueueableTestUtility.createOrderItem(oldOrder.Id,testProduct.Id,testPricebookEntry.Id);
+            
+        Order_Invoice__c o = VehicleQueueableTestUtility.createInvoice(oldOrder.Id);
         
         List<Id> orderIds = new List<Id>{oldOrder.Id};
          ExtendedWarrantyForVehicleOrder.wrapperForEWIntegration ww = new ExtendedWarrantyForVehicleOrder.wrapperForEWIntegration();

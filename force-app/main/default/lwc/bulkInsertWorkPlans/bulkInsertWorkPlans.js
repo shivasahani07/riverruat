@@ -31,6 +31,8 @@ export default class BulkInsertWorkPlans extends NavigationMixin(LightningElemen
 
     @track showAll;
     @track showRow = false;
+    @track IsInsurance = false;
+    
 
     @wire(getRecord, {
         recordId: "$recordId",
@@ -232,6 +234,7 @@ export default class BulkInsertWorkPlans extends NavigationMixin(LightningElemen
         }
     }
 
+    /*
     handleSubmit() {
         debugger;
         let isVal = true;
@@ -267,8 +270,184 @@ export default class BulkInsertWorkPlans extends NavigationMixin(LightningElemen
             this.showToast(false, 'Please check the validations!');
         }
     }
+    */
+    /*
+    handleSubmit() {
+        debugger;
+        
+        // let customToastShown = false;
 
+        // console.log('Item List ==>', JSON.stringify(this.itemList));
+
+        // this.template.querySelectorAll('lightning-input-field').forEach(element => {
+
+        //     console.log('element>>' + element);
+        //     this.isVal = this.isVal && element.reportValidity();
+        //     console.log('isVal>>' + this.isVal);
+        // });
+
+        // // Custom validation for each item
+        // this.itemList.forEach((item, idx) => {
+
+        //     // Skip already invalid itemsshowToast
+        //     if (item.hasError) {
+        //         this.isVal = false;
+        //     }
+
+            
+        //     console.log('Approved Insurance ==>'+ item.Approved_Insurance__c);
+        //     // Approved Insurance validation
+        //     if (item.IsInsurance && (item.Approved_Insurance__c == null || 
+        //         item.Approved_Insurance__c < 0 || 
+        //         item.Approved_Insurance__c > 100 || 
+        //         isNaN(item.Approved_Insurance__c))) {
+
+        //         this.isVal = false;
+        //         customToastShown = true;
+        //         item.hasError = true;
+        //         this.showToast(false, 'Approved Insurance (%) must be between 0 and 100.');
+        //         return;
+        //     }
+        // });
+
+        // if(!this.checkValidity()){
+        //     return;
+        // }
+        if (this.checkValidity()) {
+            const forms = Array.from(this.template.querySelectorAll('lightning-record-edit-form'));
+            forms.forEach(form => form.submit());
+            // Refresh data after successful submission
+            refreshApex(this.refreshResultData)
+                .then(() => {
+                    //this.showToast(true, 'Work Plans added successfully!');
+                    this.showAll = true;
+                    this.showRow = false;
+                    this.clearRows();
+
+                })
+                .catch(error => {
+
+                    this.showToast(false, 'Error in fetching fresh data!');
+                });
+         } //else {
+
+        //     console.error('Error while adding Work Plans:');
+
+        //     this.showToast(false, 'Please check the validations!');
+        // }
+    }
+
+    checkValidity(){
+        debugger;
+        let isVal = true;
+       let customToastShown = false;
+
+        console.log('Item List ==>', JSON.stringify(this.itemList));
+
+        this.template.querySelectorAll('lightning-input-field').forEach(element => {
+
+            console.log('element>>' + element);
+            isVal = isVal && element.reportValidity();
+            console.log('isVal>>' + isVal);
+        });
+
+        // Custom validation for each item
+        this.itemList.forEach((item, idx) => {
+
+            // Skip already invalid itemsshowToast
+            if (item.hasError) {
+                isVal = false;
+            }
+
+            
+            console.log('Approved Insurance ==>'+ item.Approved_Insurance__c);
+            // Approved Insurance validation
+            const approved = Number(item.Approved_Insurance__c);
+
+            if (item.IsInsurance && (approved == null || 
+                approved < 0 || 
+                approved > 100 || 
+                isNaN(approved))) {
+
+                isVal = false;
+                customToastShown = true;
+                item.hasError = true;
+                this.showToast(false, 'Approved Insurance (%) must be between 0 and 100.');
+            
+            }
+        });
+        console.log('this.isVal=====>',isVal);
+        return isVal;
+
+    }
+    */
     
+
+    handleInsuranceChange(event) {
+        debugger;
+        const index = parseInt(event.target.dataset.id, 10);
+        const value = event.target.value;
+
+        // Convert percentage input to decimal
+        this.itemList[index].Approved_Insurance__c = value ? parseFloat(value) : null;
+    }
+
+    handleSubmit() {
+        debugger;
+        let isValid = true;
+        let customToastShown = false;
+
+        // Validate all lightning-input-fields (built-in validation)
+        this.template.querySelectorAll('lightning-input-field').forEach(element => {
+            isValid = isValid && element.reportValidity();
+        });
+
+        // Custom Approved Insurance validation
+        if (this.itemList && this.itemList.length > 0) {
+            this.itemList.forEach((item, index) => {
+                const value = item.Approved_Insurance__c;
+                console.log('value : ' + value);
+                console.log('item.IsInsurance : ' + item.IsInsurance);
+
+                if (item.IsInsurance && (value === null || isNaN(value) || value < 0 || value > 100)) {
+
+                    isValid = false;
+                    customToastShown = true;
+                    this.showToast(false, 'Approved Insurance (%) must be between 0 and 100.');
+                }
+            });
+        }
+
+        if (!isValid) {
+            // Stop form submission
+            return;
+        }
+
+        // Convert percentage to decimal (only after validation passes)
+        this.itemList = this.itemList.map(item => {
+            if (item.Approved_Insurance__c != null && !isNaN(item.Approved_Insurance__c)) {
+                item.Approved_Insurance__c = item.Approved_Insurance__c / 100;
+            }
+            return item;
+        });
+
+        // Submit all record edit forms
+        this.template.querySelectorAll('lightning-record-edit-form').forEach(form => {
+            form.submit();
+        });
+
+        // Refresh data after save
+        refreshApex(this.refreshResultData)
+            .then(() => {
+                this.showToast(true, 'Records saved successfully!');
+                this.showAll = true;
+                this.showRow = false;
+                this.clearRows();
+            })
+            .catch(error => {
+                this.showToast(false, 'Error in fetching fresh data!');
+            });
+    }
 
 
     handleSuccess(event) {
@@ -368,6 +547,13 @@ export default class BulkInsertWorkPlans extends NavigationMixin(LightningElemen
         if (fieldName === 'RR_Labour_Category__c') {
             this.itemList[index].showInsuranceField = (selectedValue === 'Insurance');
 
+            if (selectedValue === 'Insurance') {
+                this.itemList[index].IsInsurance = true;
+
+            } else if(selectedValue !== 'Insurance'){
+                this.itemList[index].IsInsurance = false;
+            }
+
             // Reset the insurance field value if not Insurance
             if (!this.itemList[index].showInsuranceField) {
                 this.itemList[index].Approved_Insurance__c = null;
@@ -410,7 +596,8 @@ export default class BulkInsertWorkPlans extends NavigationMixin(LightningElemen
                     // Update the item with dynamic values
                     if (result) {
 
-                        this.name = result.Name;
+                        this.itemList[index].name = result.Name;
+                        //this.name = result.Name;
 
                         // Update each field independently if they exist
                         if (result.labourCode !== undefined) {

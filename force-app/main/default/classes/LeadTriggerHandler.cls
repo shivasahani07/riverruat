@@ -110,9 +110,11 @@ public class LeadTriggerHandler {
                 if (phoneToLeadMap.containsKey(ledRec.Phone)) {
                     System.debug('Found duplicate Lead(s) for phone: ' + ledRec.Phone);
                     for (Lead dupLead : phoneToLeadMap.get(ledRec.Phone)) {
+                        if (dupLead.Id != ledRec.Id) {
                             System.debug('Duplicate Lead detected. Adding error.');
                             ledRec.addError('Lead already exists with this phone number');
                             break;
+                        }
                     }
                 }
 

@@ -148,8 +148,57 @@ public class WorkOrderLineItemTriggerHandler {
         }
     }
     
+    public static void handleBeforeDeleteOperation(List<WorkOrderLineItem> deletedWorkOrderLineItems) {
+        try {
+            System.debug('------------------ handleBeforeDeleteOperation() Triggered FROM Trigger ------------------');
+            // Collect WorkOrderLineItems Ids (Part Ids)
+            Set<Id> partIds = new Set<Id>();
+            for (WorkOrderLineItem item : deletedWorkOrderLineItems) {
+                if (item.Id != null) {
+                    partIds.add(item.Id);
+                }
+            }
+            System.debug('partIds : ' + partIds);
+            
+            List<WorkOrderLineItem> childWorkOrderList = [SELECT Id, Part__c 
+                                                          FROM WorkOrderLineItem 
+                                                          WHERE Part__c IN : partIds 
+                                                          AND Replacement_Type__c = 'Consequential'];
+            System.debug('childWorkOrderList : ' + childWorkOrderList);
+            
+            if(!childWorkOrderList.isEmpty()){
+                delete childWorkOrderList;
+                System.debug('Child Records Deleted Successfully !!');
+            }
+        }catch (Exception e) {
+            System.debug('Error in handleDelete: ' + e.getMessage());
+            throw e;
+        }
+    }
+    
     public static void handleDelete(List<WorkOrderLineItem> deletedWorkOrderLineItems) {
         try {
+            System.debug('------------------ handleDelete() Triggered FROM Trigger ------------------');
+            // Collect WorkOrderLineItems Ids (Part Ids)
+            Set<Id> partIds = new Set<Id>();
+            for (WorkOrderLineItem item : deletedWorkOrderLineItems) {
+                if (item.Id != null) {
+                    partIds.add(item.Id);
+                }
+            }
+            System.debug('partIds : ' + partIds);
+            
+            List<WorkOrderLineItem> childWorkOrderList = [SELECT Id, Part__c 
+                                                          FROM WorkOrderLineItem 
+                                                          WHERE Part__c IN : partIds 
+                                                          AND Replacement_Type__c = 'Consequential'];
+            System.debug('childWorkOrderList : ' + childWorkOrderList);
+            
+            if(!childWorkOrderList.isEmpty()){
+                delete childWorkOrderList;
+                System.debug('Child Records Deleted Successfully !!');
+            }
+            
             // Step 1: Collect Warranty Prior IDs from deleted items
             Set<Id> warrantyPriorIds = new Set<Id>();
             for (WorkOrderLineItem item : deletedWorkOrderLineItems) {

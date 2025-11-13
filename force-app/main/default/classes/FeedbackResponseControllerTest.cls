@@ -11,7 +11,8 @@ public class FeedbackResponseControllerTest {
             Company = 'Test Company',
             Status = 'New',
             Phone = '1234567890',
-            Drivers_License_Number__c = 'DL1234567'
+            Drivers_License_Number__c = 'DL1234567',
+            PostalCode='098765'
         );
         insert testLead;
  

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Vehicle_Type__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(
+    Job_Card__r.RecordType.DeveloperName = &apos;Vehicle_PDI&apos;,
+    &apos;Unsold&apos;,
+    Job_Card__r.Account.Name
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Vehicle Type</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

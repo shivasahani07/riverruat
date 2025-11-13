@@ -743,8 +743,14 @@
                                         <p class="milestone-error animate-message">
     👉 This milestone ({lapseMilestoneName}) has already Expired ..please get approval from ASM!!
 </p>
-
                                  </template> 
+                                  <template if:true={showNoCurrentMilestoneMessage}>   
+                                        <p class="milestone-error animate-message">
+    👉 This customer's next service due is {lapseMilestoneName}, change to proceed!!
+
+</p>
+                                 </template> 
+                                 
             <lightning-button class="buttonGroup" style="padding:10px;" variant="success" label="Submit" onclick={handleSubmit} disabled={disableSave}></lightning-button>
         </div>
     </template>

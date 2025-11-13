@@ -2,10 +2,41 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Resolution_TAT__c</fullName>
     <externalId>false</externalId>
+    <formula>IF(
+    AND(
+        ISPICKVAL(Status__c, &quot;Closed&quot;),
+        NOT(ISBLANK(Resolution_Time__c))
+    ),
+
+    /* --- Calculate Time Only When Resolution_Time__c is Present --- */
+    IF(
+        (Resolution_Time__c - CreatedDate) * 86400 &lt; 60,
+        TEXT(ROUND((Resolution_Time__c - CreatedDate) * 86400, 0)) &amp; &quot; seconds&quot;,
+
+        IF(
+            (Resolution_Time__c - CreatedDate) * 1440 &lt; 60,
+            TEXT(FLOOR((Resolution_Time__c - CreatedDate) * 1440)) &amp; &quot; minutes &quot; &amp;
+            TEXT(ROUND(MOD((Resolution_Time__c - CreatedDate) * 86400, 60), 0)) &amp; &quot; seconds&quot;,
+
+            IF(
+                (Resolution_Time__c - CreatedDate) * 24 &lt; 24,
+                TEXT(FLOOR((Resolution_Time__c - CreatedDate) * 24)) &amp; &quot; hours &quot; &amp;
+                TEXT(FLOOR(MOD((Resolution_Time__c - CreatedDate) * 1440, 60))) &amp; &quot; minutes &quot; &amp;
+                TEXT(ROUND(MOD((Resolution_Time__c - CreatedDate) * 86400, 60), 0)) &amp; &quot; seconds&quot;,
+
+                TEXT(FLOOR((Resolution_Time__c - CreatedDate))) &amp; &quot; days &quot; &amp;
+                TEXT(FLOOR(MOD((Resolution_Time__c - CreatedDate) * 24, 24))) &amp; &quot; hours &quot; &amp;
+                TEXT(FLOOR(MOD((Resolution_Time__c - CreatedDate) * 1440, 60))) &amp; &quot; minutes &quot; &amp;
+                TEXT(ROUND(MOD((Resolution_Time__c - CreatedDate) * 86400, 60), 0)) &amp; &quot; seconds&quot;
+            )
+        )
+    ),
+
+    &quot;&quot;  /* Return blank if status ≠ Closed OR Resolution_Time__c is blank */
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>Resolution TAT</label>
-    <length>255</length>
     <required>false</required>
-    <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Text</type>

@@ -35,6 +35,7 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
     @track ActionPlanProducts = [];
     @track ActionPlanlabours = [];
     keyIndex = 0;
+    @track disableAddLabourCodesButton = false;
 
     // Columns for the datatable
     columns = [
@@ -143,7 +144,8 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
                     Id: workPlan.Id,
                     partUrl: `/${workPlan.Id}`,
                     rowClass: workPlan.RR_Labour_Code__r ? 'slds-text-color_weak' : '',
-                    displayName: workPlan.Name,
+                    // displayName: workPlan.Name,
+                    displayName: workPlan.RR_Labour_Code__r ? workPlan.RR_Labour_Code__r.Name : '',
                     RR_Labour_Code__c: workPlan.RR_Labour_Code__r ? workPlan.RR_Labour_Code__r.Code : '',
                     Failure_Code__c: workPlan.Failure_Code__r ? workPlan.Failure_Code__r.Name : '',
                     RR_Efforts_Hours__c: workPlan.RR_Labour_Code__r ? workPlan.RR_Labour_Code__r.RR_Efforts_Hours__c : 0,
@@ -184,10 +186,24 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
     }
 
     // Toggle between showing the table and the form
-    toggleTemplates() {
-        this.showAll = !this.showAll;
-        this.showRow = !this.showRow;
-    }
+        /*
+        toggleTemplates() {
+            this.showAll = !this.showAll;
+            this.showRow = !this.showRow;
+
+            if(!this.addMoreDis){
+                this.addMoreDis = true;
+            }
+        }
+        */
+        toggleTemplates() {
+            this.showAll = !this.showAll;
+            this.showRow = !this.showRow;
+
+            // Toggle enable/disable state every time
+            this.addMoreDis = !this.addMoreDis;
+        }
+
         handleInputChange(event) {
         const index = event.target.dataset.id;
         const fieldName = event.target.dataset.fieldname;
@@ -242,17 +258,33 @@ export default class BulkInsertWorkPlansCustom extends LightningElement {
         this.itemList = [...this.itemList, newItem];
     }
 
+    /*
     // Remove a row from the form
     removeRow(event) {
         debugger;
         const index = parseInt(event.target.dataset.id, 10);
-        // this.itemList = this.itemList.filter((item, i) => i !== index);
-        // if (this.itemList.length > 1) {
-        //     // this.itemList = this.itemList.filter((item, i) => i !== index);
-        // } else {
-        //     this.showRow=false
-        //     // this.showToast('Info', 'Cannot delete the only row', 'info');
-        // }
+        this.itemList = this.itemList.filter((item, i) => i !== index);
+        if (this.itemList.length > 1) {
+            //this.itemList = this.itemList.filter((item, i) => i !== index);
+        } else {
+            this.showRow=false
+            // this.showToast('Info', 'Cannot delete the only row', 'info');
+        }
+    }
+    */
+    removeRow(event) {
+        debugger;
+        const index = parseInt(event.target.dataset.id, 10);
+
+        // Only allow delete if more than one row exists
+        if (this.itemList.length > 1) {
+            this.itemList = this.itemList.filter((item, i) => i !== index);
+        } else {
+            this.showRow = false;
+            this.addMoreDis = !this.addMoreDis;
+            // Optionally show a toast if you want to notify user
+            // this.showToast('Info', 'Cannot delete the only row', 'info');
+        }
     }
 
     get DisabledsubmitButtin() {

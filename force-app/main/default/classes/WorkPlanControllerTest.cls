@@ -54,4 +54,26 @@ public class WorkPlanControllerTest {
         List<WorkPlan> remainingWorkPlans = [SELECT Id FROM WorkPlan WHERE Id = :wpToDelete.Id];
         System.assertEquals(0, remainingWorkPlans.size(), 'The WorkPlan record should have been deleted');
     }
+    
+    @isTest
+    static void test_InsertWorkPlan(){
+        // Create a test Work Order
+        WorkOrder testWorkOrder = new WorkOrder(Odometer_Reading__c= 190);
+        insert testWorkOrder;
+        
+        CodeSet ct1 = new CodeSet();
+        ct1.Name = 'LabourCode 1';
+        ct1.Code = '123';
+        insert ct1;
+        
+        WorkPlan wp1 = new WorkPlan(
+            Name = 'Test Work Plan 2',
+            WorkOrderId = testWorkOrder.Id,
+            RR_Labour_Code__c = ct1.Id,
+            Status__c = 'Open',
+            Duration_Hour__c = 1.0,
+            Labour_Charge__c = 100.0
+        );
+        WorkPlanController.insertWorkPlans(new List<WorkPlan>{wp1});
+    }
 }
